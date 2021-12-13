@@ -10,7 +10,10 @@ use instructions::*;
 use state::*;
 
 // declare_id!( Pubkey::from_str(env!("PROGRAM_ID")) );
-declare_id!( "Bqv9hG1f9e3V4w5BfQu6Sqf2Su8dH8Y7ZJcy7XyZyk4A" );
+// david's
+// declare_id!( "Bqv9hG1f9e3V4w5BfQu6Sqf2Su8dH8Y7ZJcy7XyZyk4A" );
+// pouya's
+declare_id!( "GGoMTmrJtapovtdjZLv1hdbgZeF4pj8ANWxRxewnZ35g" );
 // static KEY: &str = env!("PROGRAM_ID");
 // declare_id!(KEY);
 
@@ -142,6 +145,19 @@ pub mod solbond {
         instructions::redeem_bond::handler(ctx, redeemable_amount_raw)
     }
 
+
+    pub fn register_position_instruction(
+        ctx: Context<RegisterPositionInstruction>,
+        _bump_register_position: u8,
+        _curr_idx: u32,
+        _max_idx: u32,
+        weight: u32,
+
+    ) {
+        instruction::register_position_instruction::handler(ctx, _bump_register_position,
+                                                        _curr_idx,_max_idx, weight)
+    }
+
     /**
     * Register all the pools that are defined by invariant
     *
@@ -160,19 +176,7 @@ pub mod solbond {
         )
     }
 
-    /**
-     * Register all the pools that are defined by invariant
-     *
-     */
-    pub fn deposit_reserve_to_pools(
-        ctx: Context<DepositReserveToPools>
-    ) -> ProgramResult {
 
-        // For now assume that our portfolio has an equal weight across all pools
-        instructions::deposit_reserve_to_pools::handler(
-            ctx
-        )
-    }
 
 }
 
