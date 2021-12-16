@@ -9,20 +9,19 @@ use crate::state::{BondPoolAccount, InvariantPoolAccount};
 #[derive(Accounts)]
 #[instruction(
     _bump_register_position: u8,
-    _curr_idx: u32,
+    _curr_idx: u8,
     _max_idx: u32,
     weight: u32,
 
 )]
 pub struct RegisterPositionInstruction<'info> {
 
-
-
+    // format!("invariantPoolAccount{}",
     #[account(
         init,
         payer = initializer,
         space = 8 + InvariantPoolAccount::LEN,
-        seeds = [initializer.key.as_ref(), format!("invariantPoolAccount{}",_curr_idx)],
+        seeds = [initializer.key.as_ref(), &[_curr_idx]],
         bump = _bump_register_position
     )]
     pub invariant_pool_account: Account<'info, InvariantPoolAccount>,
@@ -80,7 +79,7 @@ pub struct RegisterPositionInstruction<'info> {
 pub fn handler(
     ctx: Context<RegisterPositionInstruction>,
     _bump_register_position: u8,
-    _curr_idx: u32,
+    _curr_idx: u8,
     _max_idx: u32,
     weight: u32,
 ) -> ProgramResult {
@@ -91,10 +90,10 @@ pub fn handler(
     invariant_pool_account.max_idx = _max_idx;
 
 
-    invariant_pool_account.pool = ctx.accounts.pool_address; //: Pubkey,  // Pre-generated
-    invariant_pool_account.state = ctx.accounts.state; //: Pubkey,  // Pre-generated
+    invariant_pool_account.pool = ctx.accounts.pool_address.key(); //: Pubkey,  // Pre-generated
+    invariant_pool_account.state = ctx.accounts.state.key(); //: Pubkey,  // Pre-generated
     invariant_pool_account.pool_weight = weight; //: u32,  // Fed-in as argument (by us, with Miller's endpoint)
-    invariant_pool_account.tickmap = ctx.accounts.tickmap; //: Pubkey,
+    invariant_pool_account.tickmap = ctx.accounts.tickmap.key(); //: Pubkey,
 
     // token accounts
     invariant_pool_account.token_currency_mint = ctx.accounts.currency_token_mint.key();
@@ -104,16 +103,14 @@ pub fn handler(
     invariant_pool_account.qpool_token_currency_address = ctx.accounts.account_currency_reserve.key();
     invariant_pool_account.qpool_token_x_address = ctx.accounts.account_x_reserve.key();
 
-    invariant_pool_account.position_in_pool = ctx.accounts.position_in_pool;
-    invariant_pool_account.position_list_in_pool = ctx.accounts.position_list_in_pool;
-    invariant_pool_account.upper_tick = ctx.accounts.upper_tick;
-    invariant_pool_account.lower_tick = ctx.accounts.lower_tick;
+    invariant_pool_account.position_in_pool = ctx.accounts.position_in_pool.key();
+    invariant_pool_account.position_list_in_pool = ctx.accounts.position_list_in_pool.key();
+    invariant_pool_account.upper_tick = ctx.accounts.upper_tick.key();
+    invariant_pool_account.lower_tick = ctx.accounts.lower_tick.key();
 
-    invariant_pool_account.intializer = ctx.accounts.intializer.key();
+    invariant_pool_account.initializer = ctx.accounts.initializer.key();
     invariant_pool_account._bump_pool_list = _bump_register_position;
 
-
-
-
+    Ok(())
 
 }

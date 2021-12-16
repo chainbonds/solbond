@@ -9,13 +9,7 @@ use anchor_spl::token::{Token};
 use instructions::*;
 use state::*;
 
-// declare_id!( Pubkey::from_str(env!("PROGRAM_ID")) );
-// david's
-// declare_id!( "Bqv9hG1f9e3V4w5BfQu6Sqf2Su8dH8Y7ZJcy7XyZyk4A" );
-// pouya's
-declare_id!( "GGoMTmrJtapovtdjZLv1hdbgZeF4pj8ANWxRxewnZ35g" );
-// static KEY: &str = env!("PROGRAM_ID");
-// declare_id!(KEY);
+declare_id!("GGoMTmrJtapovtdjZLv1hdbgZeF4pj8ANWxRxewnZ35g");
 
 // TODO: Replace all lamports with how many solana actually should be paid off.
 
@@ -141,7 +135,6 @@ pub mod solbond {
         ctx: Context<RedeemBond>,
         redeemable_amount_raw: u64
     ) -> ProgramResult {
-
         instructions::redeem_bond::handler(ctx, redeemable_amount_raw)
     }
 
@@ -149,13 +142,17 @@ pub mod solbond {
     pub fn register_position_instruction(
         ctx: Context<RegisterPositionInstruction>,
         _bump_register_position: u8,
-        _curr_idx: u32,
+        _curr_idx: u8,
         _max_idx: u32,
         weight: u32,
-
-    ) {
-        instruction::register_position_instruction::handler(ctx, _bump_register_position,
-                                                        _curr_idx,_max_idx, weight)
+    ) -> ProgramResult {
+        instructions::register_position_instruction::handler(
+            ctx,
+            _bump_register_position,
+            _curr_idx,
+            _max_idx,
+            weight
+        )
     }
 
     /**

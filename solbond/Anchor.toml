@@ -1,0 +1,23 @@
+[provider]
+cluster = "localnet"
+wallet = "~/.config/solana/id.json"
+
+[programs.localnet]
+solbond = "Bqv9hG1f9e3V4w5BfQu6Sqf2Su8dH8Y7ZJcy7XyZyk4A"
+amm = { address = "7PX4PEUroqa2MELTqYp24KQApVo6Ki8sgvnDygMrUSV7", idl = "./deps/invariant/target/idl/amm.json" }
+staker = { address = "GE2kSRw4wWNumAybT5VWFh9aA6eCoQLztbsQ5riMbxKC", idl = "./deps/invariant/target/idl/staker.json" }
+
+[registry]
+url = "https://anchor.projectserum.com"
+
+[[test.genesis]]
+address = "7PX4PEUroqa2MELTqYp24KQApVo6Ki8sgvnDygMrUSV7"
+program = "./deps/invariant/target/deploy/amm.so"
+
+[[test.genesis]]
+address = "GE2kSRw4wWNumAybT5VWFh9aA6eCoQLztbsQ5riMbxKC"
+program = "./deps/invariant/target/deploy/staker.so"
+
+[scripts]
+#test = "/usr/local/bin/node /usr/local/bin/mocha -t 1000000 --require ts-node/register tests/**/*.ts"
+test = "/usr/local/bin/node /usr/local/bin/mocha -t 1000000 --require ts-node/register tests/**/solbond-initialize-invariant-pools.ts"

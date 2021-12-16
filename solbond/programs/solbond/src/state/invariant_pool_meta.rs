@@ -21,7 +21,7 @@ pub struct InvariantPoolList {
 pub struct InvariantPoolAccount {
 
     // Position of pool in the global list of pools
-    pub idx: u32,
+    pub idx: u8,
     pub max_idx: u32,
 
     // Things we need for SWAP
