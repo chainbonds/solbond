@@ -14,7 +14,7 @@ export const getInvariantProgram = (connection: Connection, provider: Provider, 
     if (network == NETWORK.LOCALNET) {
         programAddress = "77yFpTqxesQNz7Styk6yTRBaEcW9LxDKPvA46HfuA77z";
     } else if (network == NETWORK.DEVNET) {
-        programAddress = "77yFpTqxesQNz7Styk6yTRBaEcW9LxDKPvA46HfuA77z";
+        programAddress = "R9PatsTac3Y3UpC7ihYMMgzAQCe1tXnVvkSQ8DtLWUc";
     } else if (network == NETWORK.TESTNET) {
         programAddress = "77yFpTqxesQNz7Styk6yTRBaEcW9LxDKPvA46HfuA77z";
     } else if (network == NETWORK.MAINNET) {

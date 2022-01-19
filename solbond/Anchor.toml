@@ -1,5 +1,5 @@
 [provider]
-cluster = "localnet"
+cluster = "devnet"
 wallet = "~/.config/solana/id.json"
 
 [programs.localnet]
@@ -8,13 +8,13 @@ amm = { address  = "77yFpTqxesQNz7Styk6yTRBaEcW9LxDKPvA46HfuA77z", idl = "./deps
 
 [programs.devnet]
 solbond = "3vTbhuwJwR5BadSH9wt29rLf91S57x31ynQZJpG9cf7E"
-amm = { address = "77yFpTqxesQNz7Styk6yTRBaEcW9LxDKPvA46HfuA77z", idl = "./deps/protocol/target/idl/amm.json" }
+amm = { address = "R9PatsTac3Y3UpC7ihYMMgzAQCe1tXnVvkSQ8DtLWUc", idl = "./deps/protocol/target/idl/amm.json" }
 
 [registry]
 url = "https://anchor.projectserum.com"
 
 [[test.genesis]]
-address = "77yFpTqxesQNz7Styk6yTRBaEcW9LxDKPvA46HfuA77z"
+address = "G5iMvLKhBKKscSMUazjiWKZXzacjL7oikJAm9FWRTvk"
 program = "./deps/protocol/target/deploy/amm.so"
 
 [scripts]
