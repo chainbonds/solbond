@@ -118,7 +118,9 @@ export const createAssociatedTokenAccountSendUnsigned = async (
         return address
     }
     const tx = await createAssociatedTokenAccountUnsigned(conn, mint, address, owner, wallet);
-    await util.sendAndConfirm(conn, tx);
+    let kirekhar = await util.sendAndConfirm(conn, tx);
+    await conn.confirmTransaction(kirekhar);
+
     return address
 }
 

@@ -23,6 +23,7 @@
  import {CreateFeeTier, CreatePool, Decimal, FeeTier, PoolStructure, State} from "@invariant-labs/sdk/lib/market";
  import {fromFee} from "@invariant-labs/sdk/lib/utils";
  import {delay} from "@qpools/sdk/lib/utils";
+ import { IWallet } from "@invariant-labs/sdk";
  import {FEE_TIER, getMarketAddress, Market, Network, Pair} from "@invariant-labs/sdk";
  import { tou64 } from '@invariant-labs/sdk/lib/utils'
  import {
@@ -71,7 +72,8 @@ import {Program, utils, Wallet, web3} from "@project-serum/anchor";
      let market: QPoolsAdmin;
      let invariantMarket: Market;
      let currencyMint: Token;
- 
+     let invariantWallet: IWallet;
+      
      /** Get a bunch of airdrops to pay for transactions */
      before(async () => {
          // Airdrop stuff, if no balance is found ..
@@ -191,12 +193,41 @@ import {Program, utils, Wallet, web3} from "@project-serum/anchor";
       * */
      let pairs: {[index: string]: any;} = {};
      let feeTier: FeeTier = {
-         fee: fromFee(new BN(40))
+         fee: fromFee(new BN(20))
      };
 
+     it ('#getOnePool', async () => {
+         let sol_usdc_pair = new Pair(
+             MOCK.DEV.SOL,
+             MOCK.DEV.USDC,
+             feeTier,
+         )
+         let pool = await invariantMarket.getPool(sol_usdc_pair)
+     })
+
+     it ('provideLiquidityToOnePool', async () => {
+
+        let qpair = new QPair(
+            MOCK.DEV.SOL,
+            MOCK.DEV.USDC,
+            feeTier,
+        )
+
+        //currencyMint = await createMint(provider, currencyOwner, currencyOwner.publicKey, 9);
+        await qpair.setCurrencyMint(currencyMint.publicKey)
+        let lowerTick = 0;
+        let upperTick = 4;
+        const liquidityDelta = new BN(1);
+
+        // let pingpong = await market.initializeQPTReserve()
+        // await provider.connection.confirmTransaction(pingpong);
+
+        await market.createSinglePosition(qpair, lowerTick, upperTick, liquidityDelta, invariantMarket)
+
+     })
  
      /** Create Pairs */
-     it('#createPairs', async () => {
+     /*it('#createPairs', async () => {
          // Create a couple pairs one for each market
          // These tokens were manually created ov erCLI
          pairs["SOL/USDC"] = new QPair(
@@ -223,6 +254,7 @@ import {Program, utils, Wallet, web3} from "@project-serum/anchor";
          // We probably will need to re-create each feeTier, state, etc. ourselves
  
          for (let pairString in pairs) {
+             console.log("pairString ", pairString);
              let qpair = pairs[pairString];
              console.log("qpair is: ", qpair);
  
@@ -252,7 +284,14 @@ import {Program, utils, Wallet, web3} from "@project-serum/anchor";
                  // await delay(2000);
                  console.log("Fetch again...");
                  feeTierAccount = (await invariantProgram.account.feeTier.fetch(feeTierAddress)) as FeeTier;
-             }
+            }
+
+            let lowerTick = -50;
+            let upperTick = 50;
+            const liquidityDelta = new BN(1);
+            qpair.feeTierAddress = feeTierAddress;
+            console.log("KUNI pool is: ", qpair);
+            await market.createSinglePosition(qpair, lowerTick, upperTick, liquidityDelta, invariantMarket);
  
              // If the pool does not exist yet, create the pool
              /*let poolAccount;
@@ -277,10 +316,10 @@ import {Program, utils, Wallet, web3} from "@project-serum/anchor";
                  await invariantMarket.createPool(createPool);
                  console.log("Created pool!");
                  poolAccount = (await invariantProgram.account.pool.fetch(poolAddress)) as PoolStructure;
-             }*/
+             }
 
             
-             /*const lowerTick = -50;
+             const lowerTick = -50;
              const upperTick = 50;
              let pair: Pair = new Pair(qpair.tokenX,qpair.tokenY,  qpair.feeTier);
              const poolAddress = await pair.getAddress(invariantProgram.programId);
@@ -429,10 +468,10 @@ import {Program, utils, Wallet, web3} from "@project-serum/anchor";
                  console.log("did  it  Transaction id is: ", finaltx);
      
  
-             // For each of these pairs, create a pool if it doesn't exist yet*/
+             // For each of these pairs, create a pool if it doesn't exist yet
          }
  
-     })
+     })*/
  
  
  })
