@@ -645,25 +645,25 @@ export class QPoolsAdmin {
         const tx = new Transaction();
 
 
-        if (!lowerExists) {
-            console.log("lower didnt exist")
-            let createTick: CreateTick = {
-                index: lowerTick,
-                pair: pair,
-                payer: getPayer().publicKey
-            }
-            tx.add(await mockMarket!.createTickInstruction(createTick));
-
-        }
-        if (!upperExists) {
-            console.log("upper didnt exist")
-            let createTick: CreateTick = {
-                index: upperTick,
-                pair: pair,
-                payer: getPayer().publicKey
-            }
-            tx.add(await mockMarket!.createTickInstruction(createTick));
-        }
+        // if (!lowerExists) {
+        //     console.log("lower didnt exist")
+        //     let createTick: CreateTick = {
+        //         index: lowerTick,
+        //         pair: pair,
+        //         payer: getPayer().publicKey
+        //     }
+        //     tx.add(await mockMarket!.createTickInstruction(createTick));
+// 
+        // }
+        // if (!upperExists) {
+        //     console.log("upper didnt exist")
+        //     let createTick: CreateTick = {
+        //         index: upperTick,
+        //         pair: pair,
+        //         payer: getPayer().publicKey
+        //     }
+        //     tx.add(await mockMarket!.createTickInstruction(createTick));
+        // }
 
         console.log("We should have the ticks now")
                 
@@ -673,6 +673,11 @@ export class QPoolsAdmin {
         );
         //this.prettyPrintAccounts()
         const {positionListAddress} = await mockMarket!.getPositionListAddress(qpoolaccount!);
+        let kir = await mockMarket!.createPositionListInstruction(qpoolaccount!)
+         
+        //let kireasb = await signAndSend(tx, [this.wallet], this.provider.connection);
+        //await this.provider.connection.confirmTransaction(kireasb);
+
         console.log("positionListAddress, ", positionListAddress.toString())
         //const account = await this.connection.getAccountInfo(positionListAddress);
 
@@ -681,8 +686,11 @@ export class QPoolsAdmin {
         //    tx.add(await mockMarket!.createPositionListInstruction(this.qPoolAccount!));
         //}
 
-        let kireasb = await signAndSend(tx, [this.wallet], this.connection);
-        await this.provider.connection.confirmTransaction(kireasb);
+        // let kireasb = await signAndSend(tx, [this.wallet], this.connection);
+        // await this.provider.connection.confirmTransaction(kireasb);
+        
+        // let lowerTickDing = await mockMarket!.getTick(pair, lowerTick);
+        // let upperTickDing = await mockMarket!.getTick(pair, upperTick);
 
 
         console.log("signed and sent")
