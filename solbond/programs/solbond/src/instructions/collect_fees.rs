@@ -2,9 +2,8 @@ use anchor_lang::prelude::*;
 use anchor_lang::solana_program::program_option::COption;
 use anchor_spl::token::{self, Mint, Token, TokenAccount};
 use crate::state::{BondPoolAccount, InvariantPoolAccount};
-use amm::cpi::accounts::ClaimFee;
-use amm::program::Amm;
-//use amm::{self, Tickmap, State, Pool, Tick, Position, PositionList};
+use invariant::cpi::accounts::ClaimFee;
+use invariant::program::Invariant;
 
 #[derive(Accounts)]
 #[instruction(
@@ -77,7 +76,7 @@ pub struct ClaimFeeInstruction<'info> {
     #[account(address = token::ID)]
     pub token_program: AccountInfo<'info>,
 
-    pub invariant_program: Program<'info, Amm>,
+    pub invariant_program: Program<'info, Invariant>,
     pub system_program: AccountInfo<'info>,
 
 
@@ -118,7 +117,7 @@ pub fn handler(
     msg!("lower_tick_index: {}", lower_tick_index);
     msg!("upper_tick_index: {}", upper_tick_index);
 
-    amm::cpi::claim_fee(
+    invariant::cpi::claim_fee(
         CpiContext::new_with_signer(
             invariant_program,
             claim_fee_accounts,

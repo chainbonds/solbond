@@ -1,6 +1,6 @@
 import { PublicKey } from '@solana/web3.js'
 import { BN } from '@project-serum/anchor'
-import {QPair} from "../../../qpools-admin-sdk";
+//import {QPair} from "../../../qpools-admin-sdk";
 import {Pair} from "../../../solbond/deps/protocol/sdk";
 import {MOCK} from "../const";
 
@@ -102,12 +102,13 @@ export const tokens: Record<NetworkType, Token[]> = {
 }
 
 export const PAIRS: Record<NetworkType, Pair[]> = {
-    Devnet: [
-        new QPair(USDC_DEV.address, USDT_DEV.address, { fee: fromFee(new BN(20)) }),
-        new QPair(USDC_DEV.address, SOL_DEV.address, { fee: fromFee(new BN(20)) }),
-        new QPair(SOL_DEV.address, MSOL_DEV.address, { fee: fromFee(new BN(20)) }),
-        new QPair(USDC_DEV.address, SOL_DEV.address, { fee: fromFee(new BN(40)) })
-    ],
+    Devnet: [],
+    //Devnet: [
+    //    new QPair(USDC_DEV.address, USDT_DEV.address, { fee: fromFee(new BN(20)) }),
+    //    new QPair(USDC_DEV.address, SOL_DEV.address, { fee: fromFee(new BN(20)) }),
+    //    new QPair(SOL_DEV.address, MSOL_DEV.address, { fee: fromFee(new BN(20)) }),
+    //    new QPair(USDC_DEV.address, SOL_DEV.address, { fee: fromFee(new BN(40)) })
+    //],
     Testnet: [],
     Mainnet: [],
     Localnet: []

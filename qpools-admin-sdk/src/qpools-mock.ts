@@ -160,13 +160,13 @@ export class MockQPools extends QPoolsAdmin {
     async createMockMarket(
         network: Network,
         marketAuthority: IWallet,
-        ammProgramId: PublicKey,
+        invariantProgramId: PublicKey,
     ) {
         this.mockMarket = await Market.build(
             network,
             marketAuthority,
             this.connection,
-            ammProgramId
+            invariantProgramId
         );
     }
 
@@ -189,9 +189,9 @@ export class MockQPools extends QPoolsAdmin {
                 let createPool: CreatePool = {
                     pair: pair,
                     payer: admin,
-                    protocolFee: this.protocolFee,
-                    tokenX: tokenX,
-                    tokenY: tokenY
+                    //protocolFee: this.protocolFee,
+                    //tokenX: tokenX,
+                    //tokenY: tokenY
                 };
                 await this.mockMarket.createPool(createPool);
                 const createdPool = await this.mockMarket.getPool(pair);

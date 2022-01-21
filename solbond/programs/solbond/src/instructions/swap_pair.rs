@@ -2,9 +2,8 @@ use anchor_lang::prelude::*;
 use anchor_lang::solana_program::program_option::COption;
 use anchor_spl::token::{self, Mint, Token, TokenAccount};
 use crate::state::{BondPoolAccount, InvariantPoolAccount};
-use amm::cpi::accounts::Swap;
-use amm::program::Amm;
-//use amm::{self, Tickmap, State, Pool, Tick, Position, PositionList};
+use invariant::cpi::accounts::Swap;
+use invariant::program::Invariant;
 
 // TODO: Not sure if initializer or owner sohuld be Signer now
 #[derive(Accounts)]
@@ -71,7 +70,7 @@ pub struct SwapPairInstruction<'info> {
     #[account(address = token::ID)]
     pub token_program: AccountInfo<'info>,
 
-    pub invariant_program: Program<'info, Amm>,
+    pub invariant_program: Program<'info, Invariant>,
     pub system_program: AccountInfo<'info>,
 }
 
@@ -103,27 +102,13 @@ pub fn handler(
     };
     let invariant_program = ctx.accounts.invariant_program.to_account_info();
 
-    // let cpi_ctx = CpiContext::new(
-    //     invariant_program,
-    //     swap_accounts,
-    // );
-    // amm::cpi::swap(
-    //     cpi_ctx,
-    //     x_to_y,
-    //     amount,
-    //     by_amount_in,
-    //     sqrt_price_limit,
-    // );
-
-    // seeds=[initializer.key.as_ref(), b"bondPoolAccount"],
-    // bump = _bump_bond_pool_account
 
     msg!("Amount to send it: {}", amount);
     msg!("x to y: {}", x_to_y);
     msg!("by_amount_in: {}", by_amount_in);
     msg!("sqrt_price_limit: {}", sqrt_price_limit);
 
-    amm::cpi::swap(
+    invariant::cpi::swap(
         CpiContext::new_with_signer(
             invariant_program,
             swap_accounts,

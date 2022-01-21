@@ -640,7 +640,39 @@ export class QPoolsAdmin {
         console.log("upper % tickspacing should be 0 ", upper_nbumer)
 
         const lowerExists = isInitialized(tickmap, lowerTick, pool.tickSpacing)
+        try {
+
+                let clt: CreateTick = {
+                    pair: pair,
+                    index:lowerTick,
+
+                    payer: this.wallet.publicKey,
+                }
+                let lotickinst = await mockMarket!.createTickInstruction(clt)
+                let thing = await signAndSend(new Transaction().add(lotickinst), [this.wallet], this.connection);
+
+                let confirmation = await this.provider.connection.confirmTransaction(thing);
+
+
+                console.log("TICK INST", confirmation);
+            } catch (err) {
+                console.log("maybe it already existed idk ", err);
+            }
         const upperExists = isInitialized(tickmap, upperTick, pool.tickSpacing)
+
+        try {
+                let clt: CreateTick = {
+                    pair: pair,
+                    index:upperTick,
+                    payer: this.wallet.publicKey,
+                }
+                let uptickinst = await mockMarket!.createTickInstruction(clt)
+                let thang = await signAndSend(new Transaction().add(uptickinst), [this.wallet], this.connection);
+                await this.provider.connection.confirmTransaction(thang);
+        } catch(error) {
+            console.log("maybe it already existed idk ", error);
+
+        }
         
         const tx = new Transaction();
 
@@ -677,11 +709,28 @@ export class QPoolsAdmin {
         if (account === null) {
             console.log("positionList didnt exist")
 
-            let kir = await mockMarket!.createPositionListInstruction(qpoolaccount!)
-            tx.add(kir)
-            let kireasb = await signAndSend(tx, [this.wallet], this.connection);
+            //owner = owner ?? this.wallet.publicKey
+            const { positionListAddress, positionListBump } = await mockMarket!.getPositionListAddress(qpoolaccount!);
 
-            await this.provider.connection.confirmTransaction(kireasb);
+            let createPosListTx =  await this.invariantProgram.rpc.createPositionList(positionListBump, {
+                accounts: {
+                positionList: positionListAddress,
+
+                owner: qpoolaccount,
+                signer: this.wallet.publicKey,
+                rent: SYSVAR_RENT_PUBKEY,
+                systemProgram: SystemProgram.programId
+            },
+            signers: [this.wallet]
+            })
+            let cplhash = await this.provider.connection.confirmTransaction(createPosListTx);
+            console.log("createPosListTx ",cplhash.toString())
+
+            //tx.add(kir)
+            //let kireasb = await signAndSend(tx, [this.wallet], this.connection);
+
+            //await this.provider.connection.confirmTransaction(tx);
+            
         } else {
             console.log("position list existed")
         }
@@ -804,14 +853,17 @@ export class QPoolsAdmin {
 
             const positionAcc = await this.connection.getAccountInfo(positionAddress)
             console.log("positionpositionAcc, ",positionAcc)
-            if (positionAcc == null) {
-                let assumeFirstPosition = true;
-                let { positionAddress, positionBump } = await mockMarket!.getPositionAddress(
-                qpoolaccount,
-                assumeFirstPosition ? 0 : (await mockMarket!.getPositionList(qpoolaccount)).head
-                )
-                console.log("prob created this")
-            }
+
+            // if (positionAcc == null) {
+            //     let assumeFirstPosition = true;
+            //     let { positionAddress, positionBump } = await mockMarket!.getPositionAddress(
+            //     qpoolaccount,
+            //     assumeFirstPosition ? 0 : (await mockMarket!.getPositionList(qpoolaccount)).head
+            //     )
+            //     console.log("prob created this")
+            //     let jende = await this.connection.getAccountInfo(positionAddress)
+            //     console.log("positionAcc, ", jende)
+            // }
             
 
             const poolAcc = await this.connection.getAccountInfo(poolAddress)
@@ -824,10 +876,11 @@ export class QPoolsAdmin {
             console.log("initializerAcc, ", ownerAcc)
 
             const lowerTickAcc = await this.connection.getAccountInfo(lowerTickPDA)
-            console.log("lowelowerTickAcc, ",lowerTickAcc)
+           
 
             const upperTickAcc = await this.connection.getAccountInfo(upperTickPDA)
             console.log("upperTickAcc, ", upperTickAcc)
+            
 
 
             const tokenXAcc = await this.connection.getAccountInfo(pool.tokenX)
@@ -859,6 +912,13 @@ export class QPoolsAdmin {
 
             const markAuthAcc = await this.connection.getAccountInfo(mockMarket.programAuthority)
             console.log("markAuthAcc, ",markAuthAcc)
+            
+            
+            const {programAuthority, nonce} = await mockMarket.getProgramAuthority()
+            console.log("programAuthority, ",programAuthority)
+            const programAuthAcc = await this.connection.getAccountInfo(programAuthority)
+            console.log("prot sisiu, ",programAuthAcc)
+
 
             
             let finaltx = await this.solbondProgram.rpc.createLiquidityPosition(
@@ -889,7 +949,7 @@ export class QPoolsAdmin {
                         tickmap: pool.tickmap,
                         
                         // Auxiliary Accounts
-                        programAuthority: mockMarket.programAuthority,
+                        programAuthority: programAuthority,
                         tokenProgram: TOKEN_PROGRAM_ID,
                         rent: anchor.web3.SYSVAR_RENT_PUBKEY,
                         systemProgram: web3.SystemProgram.programId,

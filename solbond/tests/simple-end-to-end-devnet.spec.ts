@@ -20,7 +20,9 @@
  import {NETWORK} from "@qpools/sdk/lib/cluster";
  import {Token} from "@solana/spl-token";
  import {assert} from "chai";
+
  import {CreateFeeTier, CreatePool, Decimal, FeeTier, PoolStructure, State} from "@invariant-labs/sdk/lib/market";
+
  import {fromFee} from "@invariant-labs/sdk/lib/utils";
  import {delay} from "@qpools/sdk/lib/utils";
  import { IWallet } from "@invariant-labs/sdk";
@@ -156,8 +158,9 @@ import {Program, utils, Wallet, web3} from "@project-serum/anchor";
              currencyMint.publicKey,
              NETWORK.DEVNET
          );
- 
-         let programId = new PublicKey(getMarketAddress(Network.DEV));
+
+         let programId = new PublicKey("95B4XeB4YWCGZjwv32Qgkh92CwKucR9TreoLzqKWEdSE");
+         console.log(programId.toString())
          invariantMarket = await Market.build(Network.DEV, genericWallet, connection, programId);
  
      })
@@ -193,7 +196,7 @@ import {Program, utils, Wallet, web3} from "@project-serum/anchor";
       * */
      let pairs: {[index: string]: any;} = {};
      let feeTier: FeeTier = {
-         fee: fromFee(new BN(20))
+         fee: fromFee(new BN(10))
      };
 
      it ('#getOnePool', async () => {
@@ -202,7 +205,20 @@ import {Program, utils, Wallet, web3} from "@project-serum/anchor";
              MOCK.DEV.USDC,
              feeTier,
          )
-         let pool = await invariantMarket.getPool(sol_usdc_pair)
+         try {
+            let pool = (await invariantMarket.getPool(sol_usdc_pair)) as PoolStructure;
+         } catch (err) {
+            let crtPool: CreatePool = {
+                pair: sol_usdc_pair,
+                payer: genericPayer,
+                initTick: 0,
+
+            }
+
+            await invariantMarket.createPool(crtPool)
+            let pool = (await invariantMarket.getPool(sol_usdc_pair)) as PoolStructure;
+            console.log("did i get pool now?", pool)
+        } 
      })
 
      it ('provideLiquidityToOnePool', async () => {
