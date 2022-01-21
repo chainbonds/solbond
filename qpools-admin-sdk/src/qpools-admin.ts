@@ -671,10 +671,20 @@ export class QPoolsAdmin {
             [qpair.currencyMint.toBuffer(), Buffer.from(anchor.utils.bytes.utf8.encode("bondPoolAccount1"))],
             this.solbondProgram.programId
         );
-        //this.prettyPrintAccounts()
+        //this.prettyPringtAccounts()
         const {positionListAddress} = await mockMarket!.getPositionListAddress(qpoolaccount!);
-        let kir = await mockMarket!.createPositionListInstruction(qpoolaccount!)
-         
+        const account = await this.connection.getAccountInfo(positionListAddress);
+        if (account === null) {
+            console.log("positionList didnt exist")
+
+            let kir = await mockMarket!.createPositionListInstruction(qpoolaccount!)
+            tx.add(kir)
+            let kireasb = await signAndSend(tx, [this.wallet], this.connection);
+
+            await this.provider.connection.confirmTransaction(kireasb);
+        } else {
+            console.log("position list existed")
+        }
         //let kireasb = await signAndSend(tx, [this.wallet], this.provider.connection);
         //await this.provider.connection.confirmTransaction(kireasb);
 
@@ -693,7 +703,6 @@ export class QPoolsAdmin {
         // let upperTickDing = await mockMarket!.getTick(pair, upperTick);
 
 
-        console.log("signed and sent")
         // Retrieve tick addresses
         const {
             tickAddress: lowerTickPDA,
@@ -738,6 +747,8 @@ export class QPoolsAdmin {
             // this.invariantProgram.programId
             this.invariantProgram.programId
         )
+        
+
         console.log("invariant program id is: ", this.invariantProgram.programId.toString());
 
         const tickmapData = await mockMarket.getTickmap(pair);
@@ -780,7 +791,75 @@ export class QPoolsAdmin {
                 }
             }
             )
+
+            console.log("CHEK IF ALL ACCOUNTA ARE INITIALIZED amk")
             
+            const initializerAcc = await this.connection.getAccountInfo(this.wallet.publicKey);
+            console.log("initializerAcc, ", initializerAcc)
+            const bondPoolCurrencyTokenMintAcc = await this.connection.getAccountInfo(this.currencyMint.publicKey);
+            console.log("bondPoolCurrencyTokenMintAcc, ", bondPoolCurrencyTokenMintAcc)
+
+            const stateAcc = await this.connection.getAccountInfo(mockMarket.stateAddress);
+            console.log("stateAcc, ", stateAcc)
+
+            const positionAcc = await this.connection.getAccountInfo(positionAddress)
+            console.log("positionpositionAcc, ",positionAcc)
+            if (positionAcc == null) {
+                let assumeFirstPosition = true;
+                let { positionAddress, positionBump } = await mockMarket!.getPositionAddress(
+                qpoolaccount,
+                assumeFirstPosition ? 0 : (await mockMarket!.getPositionList(qpoolaccount)).head
+                )
+                console.log("prob created this")
+            }
+            
+
+            const poolAcc = await this.connection.getAccountInfo(poolAddress)
+            console.log("poolpoolAcc, ",poolAcc)
+
+            const positionListAcc = await this.connection.getAccountInfo(positionListAddress)
+            console.log("positionLispositionListAcc, ",positionListAcc)
+
+            const ownerAcc = await this.connection.getAccountInfo(qpoolaccount!)
+            console.log("initializerAcc, ", ownerAcc)
+
+            const lowerTickAcc = await this.connection.getAccountInfo(lowerTickPDA)
+            console.log("lowelowerTickAcc, ",lowerTickAcc)
+
+            const upperTickAcc = await this.connection.getAccountInfo(upperTickPDA)
+            console.log("upperTickAcc, ", upperTickAcc)
+
+
+            const tokenXAcc = await this.connection.getAccountInfo(pool.tokenX)
+            console.log("tokenXAtokenXAcc, ",tokenXAcc)
+
+
+            const tokenYAcc = await this.connection.getAccountInfo(pool.tokenY)
+            console.log("tokenYAcc, ", tokenYAcc)
+
+
+            const accountXAcc = await this.connection.getAccountInfo(QPTokenXAccount)
+            console.log("accountXAcc, ", accountXAcc)
+
+            const accountYAcc = await this.connection.getAccountInfo(QPTokenYAccount)
+            console.log("accountaccountYAcc, ",accountYAcc)
+
+
+            const reserveXAcc = await this.connection.getAccountInfo(pool.tokenXReserve)
+            console.log("resereserveXAcc, ",reserveXAcc)
+
+
+            const reserveYAcc = await this.connection.getAccountInfo(pool.tokenYReserve)
+            console.log("resereserveYAcc, ",reserveYAcc)
+
+
+            const tickmapAcc = await this.connection.getAccountInfo(pool.tickmap)
+            console.log("tickmapAcc, ",tickmapAcc)
+
+
+            const markAuthAcc = await this.connection.getAccountInfo(mockMarket.programAuthority)
+            console.log("markAuthAcc, ",markAuthAcc)
+
             
             let finaltx = await this.solbondProgram.rpc.createLiquidityPosition(
                 positionBump,
@@ -825,7 +904,9 @@ export class QPoolsAdmin {
             console.log("SINGLE CREATE POSITION Transaction id is: ", finaltx);
 
 
-                
+
+
+
                 
     }
 
