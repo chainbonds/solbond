@@ -221,6 +221,8 @@ import {Program, utils, Wallet, web3} from "@project-serum/anchor";
         } 
      })
 
+     
+
      it ('provideLiquidityToOnePool', async () => {
 
         let qpair = new QPair(
@@ -228,9 +230,9 @@ import {Program, utils, Wallet, web3} from "@project-serum/anchor";
             MOCK.DEV.USDC,
             feeTier,
         )
+        await qpair.setCurrencyMint(currencyMint.publicKey)
 
         //currencyMint = await createMint(provider, currencyOwner, currencyOwner.publicKey, 9);
-        await qpair.setCurrencyMint(currencyMint.publicKey)
         let lowerTick = 0;
         let upperTick = 4;
         const liquidityDelta = new BN(1);
@@ -241,6 +243,18 @@ import {Program, utils, Wallet, web3} from "@project-serum/anchor";
         await market.createSinglePosition(qpair, lowerTick, upperTick, liquidityDelta, invariantMarket)
 
      })
+
+    //it ('claimFeeFromOnePosition', async() => {
+    //    await qpair.setCurrencyMint(currencyMint.publicKey)
+    //    let lowerTick = 0;
+    //    let upperTick = 4;
+    //let qpair = new QPair(
+    //    MOCK.DEV.SOL,
+    //    MOCK.DEV.USDC,
+    //    feeTier,
+    //)
+    //    await market.claimSinglePoolFee(qpair, 0, lowerTick, upperTick, invariantMarket)
+    //})
  
      /** Create Pairs */
      /*it('#createPairs', async () => {

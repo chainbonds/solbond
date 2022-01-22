@@ -1158,8 +1158,159 @@ export class QPoolsAdmin {
 
     }
 
+    async claimSinglePoolFee(qpair: QPair, index:number, lowerTick: number, upperTick: number, mockMarket: Market) {
+        
+        let [qpoolaccount, bumpqpoolaccount] = await PublicKey.findProgramAddress(
+            [qpair.currencyMint.toBuffer(), Buffer.from(anchor.utils.bytes.utf8.encode("bondPoolAccount1"))],
+            this.solbondProgram.programId
+        );
+        let pair: Pair = new Pair(qpair.tokenX,qpair.tokenY,  qpair.feeTier);
+
+        try {
+
+            let clt: CreateTick = {
+                pair: pair,
+                index:lowerTick,
+
+                payer: this.wallet.publicKey,
+            }
+            let lotickinst = await mockMarket!.createTickInstruction(clt)
+            let thing = await signAndSend(new Transaction().add(lotickinst), [this.wallet], this.connection);
+
+            let confirmation = await this.provider.connection.confirmTransaction(thing);
+
+
+            console.log("TICK INST", confirmation);
+        } catch (err) {
+            console.log("maybe it already existed idk ", err);
+        }
+        //const upperExists = isInitialized(tickmap, upperTick, pool.tickSpacing)
+
+        try {
+            let clt: CreateTick = {
+                pair: pair,
+                index:upperTick,
+                payer: this.wallet.publicKey,
+            }
+            let uptickinst = await mockMarket!.createTickInstruction(clt)
+            let thang = await signAndSend(new Transaction().add(uptickinst), [this.wallet], this.connection);
+            await this.provider.connection.confirmTransaction(thang);
+        } catch(error) {
+            console.log("maybe it already existed idk ", error);
+
+        }
+
+        const {
+            tickAddress: lowerTickPDA,
+            tickBump: lowerTickPDABump
+        } = await mockMarket!.getTickAddress(pair, lowerTick);
+        const {
+            tickAddress: upperTickPDA,
+            tickBump: upperTickPDABump
+        } = await mockMarket!.getTickAddress(pair, upperTick);
+
+        const poolAddress = await pair.getAddress(this.invariantProgram.programId);
+        const pool = await mockMarket!.getPool(pair);
+        const POSITION_SEED = 'positionv1';
+        const indexBuffer = Buffer.alloc(4)
+        indexBuffer.writeInt32LE(0);
+        const [positionAddress, positionBump] = await PublicKey.findProgramAddress(
+            [Buffer.from(utils.bytes.utf8.encode(POSITION_SEED)), qpoolaccount!.toBuffer(), indexBuffer],
+            // this.invariantProgram.programId
+            this.invariantProgram.programId
+        )
+        const QPTokenXAccount = await createAssociatedTokenAccountSendUnsigned(
+            this.connection,
+            pair.tokenX,
+            qpoolaccount!,
+            this.provider.wallet
+        );
+
+        console.log("('''qPoolTokenXAccount) ", QPTokenXAccount.toString());
+        const QPTokenYAccount = await createAssociatedTokenAccountSendUnsigned(
+            this.connection,
+            pair.tokenY,
+            qpoolaccount!,
+            this.provider.wallet
+        );
+
+        console.log("('''qPoolTokenYAccount) ", QPTokenYAccount.toString());
+
+        console.log(
+            bumpqpoolaccount,
+            index,
+            lowerTick,
+            upperTick,
+            {
+                accounts: {
+                    // Create liquidity accounts
+                    initializer: this.wallet.publicKey.toString(),
+                    state: mockMarket.stateAddress.toString(),
+                    position: positionAddress.toString(),
+                    pool: poolAddress.toString(),
+                    bondPoolCurrencyTokenMint: this.currencyMint.publicKey.toString(),
+                    owner: qpoolaccount!.toString(),
+                    lowerTick: lowerTickPDA.toString(),
+                    upperTick: upperTickPDA.toString(),
+                    tokenX: pool.tokenX.toString(),
+                    tokenY: pool.tokenY.toString(),
+                    accountX: QPTokenXAccount.toString(),
+                    accountY: QPTokenYAccount.toString(),
+                    reserveX: pool.tokenXReserve.toString(),
+                    reserveY: pool.tokenYReserve.toString(),
+
+                    // Auxiliary Accounts
+                    programAuthority: this.mockMarket.programAuthority.toString(),
+                    tokenProgram: TOKEN_PROGRAM_ID.toString(),
+                    invariantProgram: this.invariantProgram.programId.toString(),
+                    systemProgram: web3.SystemProgram.programId.toString(),
+                }
+            }
+        )
+
+
+        let kahba = await this.solbondProgram.rpc.collectFees(
+            bumpqpoolaccount,
+            new BN(index),
+            new BN(lowerTick),
+            new BN(upperTick),
+            {
+                accounts: {
+                    // Create liquidity accounts
+                    initializer: this.wallet.publicKey,  // Again, remove initializer as a seed from the qPoolAccount!
+                    state: mockMarket.stateAddress,
+                    pool: poolAddress,
+                    bondPoolCurrencyTokenMint: this.currencyMint.publicKey,
+                    position: positionAddress,
+                    lowerTick: lowerTickPDA,
+                    upperTick: upperTickPDA,
+                    owner: qpoolaccount!,
+                    tokenX: pool.tokenX,
+                    tokenY: pool.tokenY,
+                    accountX: QPTokenXAccount,
+                    accountY: QPTokenYAccount,
+                    reserveX: pool.tokenXReserve,
+                    reserveY: pool.tokenYReserve,
+
+                    // Auxiliary Accounts
+                    programAuthority: this.mockMarket.programAuthority,
+                    tokenProgram: TOKEN_PROGRAM_ID,
+                    invariantProgram: this.invariantProgram.programId,
+                    systemProgram: web3.SystemProgram.programId,
+                },
+                signers: [this.wallet]
+            }
+        )
+
+        await this.provider.connection.confirmTransaction(kahba);
+
+        console.log("SINGLE CREATE POSITION Transaction id is: ", kahba);
+
+
+        
+    }
+
     async claimFee() {
-        console.log("claimFee gawd of ta trap")
         await Promise.all(
             this.pairs.map(async (pair: Pair) => {
                 console.log()

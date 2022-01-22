@@ -225,6 +225,21 @@ pub mod solbond {
         )
     }
 
+    pub fn create_liquidity_position_saber(
+        ctx: Context<SaberLiquidityInstruction>,
+        _bump_bond_pool_account: u8,
+        _token_a_amount: u64,
+        _token_b_amount: u64,
+        _min_mint_amount: u64,
+    ) -> ProgramResult {
+        instructions::saber_provide::handler(
+            ctx,
+            _bump_bond_pool_account,
+            _token_a_amount,
+            _token_b_amount,
+            _min_mint_amount)
+    }
+
 }
 
 

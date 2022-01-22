@@ -20,3 +20,4 @@ anchor-spl = "0.20.1"
 solana-program = "1.8.12"
 invariant = { path = "../../deps/protocol/programs/invariant" , features = ["cpi"]}
 spl-token = { version = "3.1.4", features = ["no-entrypoint"] }
+stable-swap-anchor = "1.6.7"
