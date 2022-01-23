@@ -256,6 +256,20 @@ pub mod solbond {
             )
     }
 
+    pub fn swap_with_saber(
+        ctx: Context<SaberSwapInstruction>,
+        _bump_bond_pool_account: u8,
+        _amount_in: u64,
+        _min_amount_out: u64,
+    ) -> ProgramResult {
+        instructions::saber_swap::handler(
+            ctx,
+            _bump_bond_pool_account,
+            _amount_in,
+            _min_amount_out,
+            )
+    }
+
 
 
 }

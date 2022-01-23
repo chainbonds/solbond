@@ -9,6 +9,7 @@ pub mod collect_fees;
 pub mod close_liquidity_position;
 pub mod saber_provide;
 pub mod saber_withdraw;
+pub mod saber_swap;
 
 
 pub use purchase_bond::*;
@@ -21,3 +22,4 @@ pub use collect_fees::*;
 pub use close_liquidity_position::*;
 pub use saber_provide::*;
 pub use saber_withdraw::*;
+pub use saber_swap::*;
