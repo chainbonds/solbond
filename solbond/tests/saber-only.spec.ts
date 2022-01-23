@@ -343,7 +343,171 @@ import {IDL} from "../target/types/solbond";
         )
 
         await provider.connection.confirmTransaction(finaltx);
+        console.log("did  it  Transaction id is: ", finaltx);
 
+    });
+
+    it("withdrawFromSaberWithCPI", async () => {
+
+        let amountTokenA = new u64(1039100);
+        let amountTokenB = new u64(1039100);
+
+        let minMintAmount = new u64(0);
+
+
+        let tokenAMint = stableSwapState.tokenA.mint
+        let tokenBMint = stableSwapState.tokenB.mint
+
+        let poolTokenMint = stableSwapState.poolTokenMint
+        let poolMint = new Token(connection,poolTokenMint, TOKEN_PROGRAM_ID, genericPayer);
+
+
+
+        console.log(tokenAMint.toString())
+        console.log(tokenBMint.toString())
+        console.log(poolTokenMint.toString())
+
+        //stableSwap.deposit({
+        //    userAuthority: owner.publicKey,
+        //    sourceA: userAccountA,
+        //    sourceB: userAccountB,
+        //    poolTokenAccount: userPoolAccount,
+        //    tokenAmountA: new u64(depositAmountA),
+        //    tokenAmountB: new u64(depositAmountB),
+        //    minimumPoolTokenAmount: new u64(0), // To avoid slippage errors
+        //  })
+        //);
+
+        let [qPoolPDA, bumpqpoolaccount] = await PublicKey.findProgramAddress(
+            [QPTokenMint.publicKey.toBuffer(), Buffer.from(anchor.utils.bytes.utf8.encode("bondPoolAccount1"))],
+            solbondProgram.programId
+        );
+        let qPoolAccount: PublicKey = new PublicKey("DiPga2spUbnyY8vJVZUYaeXcosEAuXnzx9EzuKuUaSxs");
+
+        
+        //let swapAuthority = stableSwapState.config.authority
+        //console.log(swapAuthority.toString())
+    
+        const [authority] = await findSwapAuthorityKey(stableSwapState.adminAccount, stableSwapProgramId);
+        console.log("authority ", authority.toString())
+
+        try {
+            let tx = await createAssociatedTokenAccountUnsigned(
+                connection,
+                stableSwapState.tokenA.mint,
+                null,
+                qPoolAccount,
+                provider.wallet
+            );
+            const sg = await connection.sendTransaction(tx, [genericPayer]);
+            await connection.confirmTransaction(sg);
+            console.log("Signature for token A is: ", sg);
+        } catch (e) {
+            console.log("Error is: ");
+            console.log(e);
+        }
+
+        let userAccountA = await getAssociatedTokenAddressOffCurve(stableSwapState.tokenA.mint, qPoolAccount);
+        console.log("qpollcurrarr", qPoolCurrencyAccount.toString())
+        //let userAccountA = await mintA.createAccount(qPoolCurrencyAccount)
+        console.log("mint A")
+
+        //await mintA.mintTo(userAccountA, genericPayer, [], amountTokenA);
+        // Creating depositor token b account
+
+        try {
+            let tx = await createAssociatedTokenAccountUnsigned(
+                connection,
+                stableSwapState.tokenB.mint,
+                null,
+                qPoolAccount,
+                provider.wallet
+            );
+            const sg = await connection.sendTransaction(tx, [genericPayer]);
+            await connection.confirmTransaction(sg);
+            console.log("Signature for token B is: ", sg);
+        } catch (e) {
+            console.log("Error is: ");
+            console.log(e);
+        }
+        //let userAccountB = await mintB.createAccount(qPoolCurrencyAccount)
+
+        let userAccountB = await getAssociatedTokenAddressOffCurve(stableSwapState.tokenB.mint, qPoolAccount);
+        console.log("user acc B info ", await connection.getAccountInfo(userAccountB))
+        // try{
+        //     await mintA.mintTo(userAccountA, genericPayer, [], amountTokenA);
+        // } catch (e) {
+        //     console.log("Error in mint A ", e)
+        // }
+        // try {
+        //     await mintB.mintTo(userAccountB, genericPayer, [], amountTokenB);
+        // } catch (e) {
+        //     console.log("Error in mint B ", e)
+        // }
+        
+        console.log("mint B")
+
+        //let userAccountpoolToken  = await poolMint.createAccount(qPoolCurrencyAccount)
+        try {
+            let tx = await createAssociatedTokenAccountUnsigned(
+                connection,
+                poolMint.publicKey,
+                null,
+                qPoolAccount,
+                provider.wallet
+            );
+            const sg = await connection.sendTransaction(tx, [genericPayer]);
+            await connection.confirmTransaction(sg);
+            console.log("Signature for pool token is: ", sg);
+        } catch (e) {
+            console.log("Error is: ");
+            console.log(e);
+        }
+
+        let userAccountpoolToken = await getAssociatedTokenAddressOffCurve(poolTokenMint, qPoolAccount);
+        let userAuthority = Keypair.generate()
+        console.log("swap authority", authority.toString());
+        console.log("pool token Mint", poolTokenMint.toString())
+        console.log("output lp", userAccountpoolToken.toString())
+        console.log("userAuthority, ", qPoolAccount.toString())
+        console.log("swap account", swapAccount.toString())
+        console.log("user A", userAccountA.toString())
+        console.log("reserve A", stableSwapState.tokenA.reserve.toString())
+
+
+        console.log("user B", userAccountB.toString())
+        console.log("reserve B", stableSwapState.tokenB.reserve.toString())
+        let finaltx = await solbondProgram.rpc.withdrawLiquidityPositionSaber(
+            new BN(bumpqpoolaccount),
+            new BN(minMintAmount),
+            new BN(amountTokenA),
+            new BN(amountTokenB),
+            { 
+                accounts: { 
+                    tokenProgram: TOKEN_PROGRAM_ID,
+                    swapAuthority:swapAuthority,
+                    userAuthority:qPoolAccount,
+                    swap:swapAccount,
+                    inputLp:userAccountpoolToken,
+                    poolMint:poolMint.publicKey,
+                    userA:userAccountA,
+                    reserveA:stableSwapState.tokenA.reserve,
+                    feesA:stableSwapState.tokenA.adminFeeAccount,
+                    userB:userAccountB,
+                    reserveB:stableSwapState.tokenB.reserve,
+                    feesB:stableSwapState.tokenB.adminFeeAccount,
+                    initializer:genericPayer.publicKey,
+                    bondPoolCurrencyTokenMint:QPTokenMint.publicKey,
+                    saberSwapProgram:stableSwapProgramId,
+                    systemProgram: web3.SystemProgram.programId,
+
+                },
+                signers: [genericPayer]
+            }
+        )
+
+        await provider.connection.confirmTransaction(finaltx);
+        console.log("did  it  Transaction id is: ", finaltx);
     });
 
 

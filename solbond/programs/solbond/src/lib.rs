@@ -240,6 +240,24 @@ pub mod solbond {
             _min_mint_amount)
     }
 
+    pub fn withdraw_liquidity_position_saber(
+        ctx: Context<SaberWithdrawInstruction>,
+        _bump_bond_pool_account: u8,
+        _min_mint_amount: u64,
+        _token_a_amount: u64,
+        _token_b_amount: u64,
+    ) -> ProgramResult {
+        instructions::saber_withdraw::handler(
+            ctx,
+            _bump_bond_pool_account,
+            _min_mint_amount,
+            _token_a_amount,
+            _token_b_amount,
+            )
+    }
+
+
+
 }
 
 
