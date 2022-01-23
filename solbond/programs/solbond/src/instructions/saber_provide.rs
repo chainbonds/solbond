@@ -49,9 +49,7 @@ pub struct SaberLiquidityInstruction<'info> {
     /// The authority of the user.
     //#[account(mut, signer)]
     #[account(
-        mut,
-        seeds=[bond_pool_currency_token_mint.key.as_ref(), b"bondPoolAccount1"],
-        bump = _bump_bond_pool_account
+        mut
     )]
     pub user_authority: AccountInfo<'info>,
     /// The swap.
