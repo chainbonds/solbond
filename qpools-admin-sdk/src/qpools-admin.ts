@@ -32,8 +32,8 @@ export class QPoolsAdmin {
     public currencyMint: Token;  // We will only have a single currency across one qPool
 
     // All tokens owned by the protocol
-    public qPoolAccount: PublicKey | null = null;  // qPool Account
-    public bumpQPoolAccount: number | null = null;
+    public qPoolAccount: PublicKey //| null = null;  // qPool Account
+    public bumpQPoolAccount: number //| null = null;
 
     public QPTokenMint: Token | undefined;  // qPool `redeemable` tokens
     public qPoolQPAccount: PublicKey | undefined;
@@ -56,6 +56,7 @@ export class QPoolsAdmin {
 
         // @ts-expect-error
         this.wallet = provider.wallet.payer as Keypair
+
 
         // Assert that currencyMint is truly a mint
         this.currencyMint = new Token(
@@ -172,8 +173,9 @@ export class QPoolsAdmin {
                 signers: [this.wallet]
             }
         );
-        await this.provider.connection.confirmTransaction(initializeTx);
-        console.log("END: initializeQPTReserve");
+        return initializeTx
+        // await this.provider.connection.confirmTransaction(initializeTx);
+        // console.log("END: initializeQPTReserve");
         // TODO: Do a bunch of asserts?
 
     }

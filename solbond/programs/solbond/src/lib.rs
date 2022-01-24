@@ -155,6 +155,53 @@ pub mod solbond {
         )
     }
 
+    pub fn create_liquidity_position_saber(
+        ctx: Context<SaberLiquidityInstruction>,
+        _bump_bond_pool_account: u8,
+        _token_a_amount: u64,
+        _token_b_amount: u64,
+        _min_mint_amount: u64,
+    ) -> ProgramResult {
+        instructions::saber_provide::handler(
+            ctx,
+            _bump_bond_pool_account,
+            _token_a_amount,
+            _token_b_amount,
+            _min_mint_amount)
+    }
+
+    pub fn withdraw_liquidity_position_saber(
+        ctx: Context<SaberWithdrawInstruction>,
+        _bump_bond_pool_account: u8,
+        _min_mint_amount: u64,
+        _token_a_amount: u64,
+        _token_b_amount: u64,
+    ) -> ProgramResult {
+        instructions::saber_withdraw::handler(
+            ctx,
+            _bump_bond_pool_account,
+            _min_mint_amount,
+            _token_a_amount,
+            _token_b_amount,
+            )
+    }
+
+    pub fn swap_with_saber(
+        ctx: Context<SaberSwapInstruction>,
+        _bump_bond_pool_account: u8,
+        _amount_in: u64,
+        _min_amount_out: u64,
+    ) -> ProgramResult {
+        instructions::saber_swap::handler(
+            ctx,
+            _bump_bond_pool_account,
+            _amount_in,
+            _min_amount_out,
+            )
+    }
+
+
+
 }
 
 
