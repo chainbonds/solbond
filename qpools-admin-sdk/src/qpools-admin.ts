@@ -82,6 +82,20 @@ export class QPoolsAdmin {
         console.log("💵 qPoolCurrencyAccount", this.qPoolCurrencyAccount!.toString());
     }
 
+    async setQPoolAccount(SBR_currency_mint: PublicKey) {
+        [this.qPoolAccount, this.bumpQPoolAccount] = await PublicKey.findProgramAddress(
+            [SBR_currency_mint.toBuffer(), Buffer.from(anchor.utils.bytes.utf8.encode("bondPoolAccount1"))],
+            this.solbondProgram.programId
+        );
+        console.log("MIr sind da ", this.qPoolAccount)
+        this.QPTokenMint = await createMint(
+            this.provider,
+            this.wallet,
+            this.qPoolAccount,
+            9
+        );
+    }
+
     async loadExistingQPTReserve() {
         console.log("Fetching QPT reserve...");
         [this.qPoolAccount, this.bumpQPoolAccount] = await PublicKey.findProgramAddress(

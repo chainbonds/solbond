@@ -49,7 +49,8 @@ pub struct SaberLiquidityInstruction<'info> {
     /// The authority of the user.
     //#[account(mut, signer)]
     #[account(
-        mut
+        seeds=[bond_pool_currency_token_mint.key.as_ref(), b"bondPoolAccount1"],
+        bump = _bump_bond_pool_account
     )]
     pub user_authority: AccountInfo<'info>,
     /// The swap.
@@ -60,16 +61,22 @@ pub struct SaberLiquidityInstruction<'info> {
     pub clock: AccountInfo<'info>,
 
     // input block
-    #[account(mut)]
-    pub user_a: AccountInfo<'info>,
+    #[account(
+        mut,
+        constraint = &user_a.owner == user_authority.key,
+    )]
+    pub user_a: Box<Account<'info,TokenAccount>>,
     /// The token account for the pool's reserves of this token.
     #[account(mut)]
-    pub reserve_a: AccountInfo<'info>,
-    #[account(mut)]
-    pub user_b: AccountInfo<'info>,
+    pub reserve_a: Box<Account<'info,TokenAccount>>,
+    #[account(
+        mut,
+        constraint = &user_b.owner == user_authority.key
+    )]
+    pub user_b: Box<Account<'info,TokenAccount>>,
     /// The token account for the pool's reserves of this token.
     #[account(mut)]
-    pub reserve_b: AccountInfo<'info>,
+    pub reserve_b: Box<Account<'info,TokenAccount>>,
 
 
     
@@ -134,9 +141,15 @@ pub fn handler(
 
 
     stable_swap_anchor::deposit(
-        CpiContext::new(
+        CpiContext::new_with_signer(
             saber_swap_program,
             deposit_context,
+            &[
+                [
+                    ctx.accounts.bond_pool_currency_token_mint.key.as_ref(), b"bondPoolAccount1",
+                    &[_bump_bond_pool_account]
+                ].as_ref()
+            ]
         ),
         token_a_amount,
         token_b_amount,

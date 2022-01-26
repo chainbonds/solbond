@@ -19,6 +19,8 @@
     "@project-serum/serum": "^0.13.58",
     "@qpools/sdk": "file:./../qpools-sdk",
     "@solana/spl-token": "^0.1.8",
+    "@saberhq/stableswap-sdk": "^1.12.34",
+    "@solana/buffer-layout": "^4.0.0",
     "@solana/web3.js": "^1.30.0",
     "chai": "^4.3.4",
     "easy-spl": "^0.5.0"

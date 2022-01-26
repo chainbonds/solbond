@@ -1,7 +1,7 @@
 import { PublicKey } from '@solana/web3.js'
 import { BN } from '@project-serum/anchor'
 //import {QPair} from "../../../qpools-admin-sdk";
-import {Pair} from "../../../solbond/deps/protocol/sdk";
+//import {Pair} from "../../../solbond/deps/protocol/sdk";
 import {MOCK} from "../const";
 
 export const DECIMAL = 12
@@ -98,19 +98,6 @@ export const tokens: Record<NetworkType, Token[]> = {
     Devnet: [USDC_DEV, USDT_DEV, SOL_DEV, MSOL_DEV],
     Mainnet: [],
     Testnet: [],
-    Localnet: []
-}
-
-export const PAIRS: Record<NetworkType, Pair[]> = {
-    Devnet: [],
-    //Devnet: [
-    //    new QPair(USDC_DEV.address, USDT_DEV.address, { fee: fromFee(new BN(20)) }),
-    //    new QPair(USDC_DEV.address, SOL_DEV.address, { fee: fromFee(new BN(20)) }),
-    //    new QPair(SOL_DEV.address, MSOL_DEV.address, { fee: fromFee(new BN(20)) }),
-    //    new QPair(USDC_DEV.address, SOL_DEV.address, { fee: fromFee(new BN(40)) })
-    //],
-    Testnet: [],
-    Mainnet: [],
     Localnet: []
 }
 
