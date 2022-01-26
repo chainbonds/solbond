@@ -5,7 +5,8 @@
         "test:saber-cpi-devnet": "ANCHOR_WALLET=~/.config/solana/id.json anchor test tests/saber-cpi.spec.ts",
         "deploy:reserve": "ANCHOR_WALLET=~/.config/solana/id.json npx ts-node scripts/deploy-qpool-reserve.ts",
         "calculate:tvl": "ANCHOR_WALLET=~/.config/solana/id.json npx ts-node scripts/calculate-tvl.ts",
-        "crank:provide-liquidity": "anchor deploy; ANCHOR_WALLET=~/.config/solana/id.json npx ts-node cranks/provide-liquidity-from-reserve-saber.ts"
+        "crank:provide-liquidity": "anchor deploy; ANCHOR_WALLET=~/.config/solana/id.json npx ts-node cranks/provide-liquidity-from-reserve-saber.ts",
+        "crank:withdraw-liquidity": "anchor deploy; ANCHOR_WALLET=~/.config/solana/id.json npx ts-node cranks/withdraw-to-reserve.ts"
 
 
     },

@@ -334,4 +334,43 @@ export class SaberInteractTool {
 
     }
 
+    async withdrawFromSaber(min_amount_out: number, amount_a: number, amount_b: number, pool_address:PublicKey) {
+        const amountTokenA = new BN(new u64(amount_a));
+        const amountTokenB = new BN(new u64(amount_b));
+        const minAmountOut = new BN(new u64(min_amount_out));
+        await this.prepareSaberPool(pool_address)
+
+
+        let finaltx = await this.solbondProgram.rpc.withdrawLiquidityPositionSaber(
+            new BN(this.bumpQPoolAccount),
+            minAmountOut,
+            amountTokenA,
+            amountTokenB,
+            {
+                accounts: {
+                    tokenProgram: TOKEN_PROGRAM_ID,
+                    swapAuthority: this.fetchedStableSwapPool.config.authority,
+                    userAuthority: this.qPoolAccount,
+                    swap: this.fetchedStableSwapPool.config.swapAccount,
+                    inputLp: this.userAccountPoolToken,
+                    poolMint:this.poolMint.publicKey,
+                    userA:  this.userAccountA,
+                    reserveA:  this.stableSwapState.tokenA.reserve,
+                    feesA:this.stableSwapState.tokenA.adminFeeAccount,
+                    userB: this.userAccountB,
+                    reserveB: this.stableSwapState.tokenB.reserve,
+                    feesB: this.stableSwapState.tokenB.adminFeeAccount,
+                    initializer: this.wallet.publicKey,
+                    bondPoolCurrencyTokenMint: this.currencyTokenMint,
+                    saberSwapProgram: this.stableSwapProgramId,
+                    systemProgram: web3.SystemProgram.programId,
+                    
+                },
+                signers: [this.wallet]
+            }
+        )
+        await this.connection.confirmTransaction(finaltx);
+        console.log("Successfully did a SaberWithdraw with signatur: ", finaltx);
+    }
+
 }

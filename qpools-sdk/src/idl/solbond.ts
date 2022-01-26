@@ -320,7 +320,7 @@ export type Solbond = {
         },
         {
           "name": "userAuthority",
-          "isMut": true,
+          "isMut": false,
           "isSigner": false
         },
         {
@@ -398,7 +398,7 @@ export type Solbond = {
         },
         {
           "name": "userAuthority",
-          "isMut": true,
+          "isMut": false,
           "isSigner": false
         },
         {
@@ -1137,7 +1137,7 @@ export const IDL: Solbond = {
         },
         {
           "name": "userAuthority",
-          "isMut": true,
+          "isMut": false,
           "isSigner": false
         },
         {
@@ -1215,7 +1215,7 @@ export const IDL: Solbond = {
         },
         {
           "name": "userAuthority",
-          "isMut": true,
+          "isMut": false,
           "isSigner": false
         },
         {
