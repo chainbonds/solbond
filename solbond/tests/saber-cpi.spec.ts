@@ -197,6 +197,8 @@ import {IDL} from "../target/types/solbond";
         //  })
         //);
 
+
+
         let [qPoolPDA, bumpqpoolaccount] = await PublicKey.findProgramAddress(
             [QPTokenMint.publicKey.toBuffer(), Buffer.from(anchor.utils.bytes.utf8.encode("bondPoolAccount1"))],
             solbondProgram.programId
@@ -496,7 +498,7 @@ import {IDL} from "../target/types/solbond";
 
 
     it("swapWithSaberThroughCPI", async () => {
-        let amountIn = new u64(22100);
+        let amountIn = new u64(100);
         let minAmountOut = new u64(0);
 
         let minMintAmount = new u64(0);
@@ -526,7 +528,7 @@ import {IDL} from "../target/types/solbond";
         //);
 
         let [qPoolPDA, bumpqpoolaccount] = await PublicKey.findProgramAddress(
-            [QPTokenMint.publicKey.toBuffer(), Buffer.from(anchor.utils.bytes.utf8.encode("bondPoolAccount1"))],
+            [stableSwapState.tokenA.mint.toBuffer(), Buffer.from(anchor.utils.bytes.utf8.encode("bondPoolAccount1"))],
             solbondProgram.programId
         );
         let qPoolAccount: PublicKey = new PublicKey("DiPga2spUbnyY8vJVZUYaeXcosEAuXnzx9EzuKuUaSxs");
@@ -537,13 +539,17 @@ import {IDL} from "../target/types/solbond";
     
         const [authority] = await findSwapAuthorityKey(stableSwapState.adminAccount, stableSwapProgramId);
         console.log("authority ", authority.toString())
-
+        console.log("CONNECTION ", connection.toString())
+        console.log("TOKEN A MINT ", stableSwapState.tokenA.mint.toString())
+        console.log("QPOOLPDA ", qPoolPDA.toString())
+        console.log("PROVIDER WALLET ", provider.wallet.publicKey.toString())
+        console.log("GENERIC PAYER ", genericPayer.publicKey.toString())
         try {
             let tx = await createAssociatedTokenAccountUnsigned(
                 connection,
                 stableSwapState.tokenA.mint,
                 null,
-                qPoolAccount,
+                qPoolPDA,
                 provider.wallet
             );
             const sg = await connection.sendTransaction(tx, [genericPayer]);
@@ -554,9 +560,9 @@ import {IDL} from "../target/types/solbond";
             console.log(e);
         }
 
-        let userAccountA = await getAssociatedTokenAddressOffCurve(stableSwapState.tokenA.mint, qPoolAccount);
+        let userAccountA = await getAssociatedTokenAddressOffCurve(stableSwapState.tokenA.mint, qPoolPDA);
+        //let userAccountA = await stableSwapState.tokenA.mint.createAccount(qPoolPDA)
         console.log("qpollcurrarr", qPoolCurrencyAccount.toString())
-        //let userAccountA = await mintA.createAccount(qPoolCurrencyAccount)
         console.log("mint A")
 
         //await mintA.mintTo(userAccountA, genericPayer, [], amountTokenA);
@@ -567,7 +573,7 @@ import {IDL} from "../target/types/solbond";
                 connection,
                 stableSwapState.tokenB.mint,
                 null,
-                qPoolAccount,
+                qPoolPDA,
                 provider.wallet
             );
             const sg = await connection.sendTransaction(tx, [genericPayer]);
@@ -577,9 +583,9 @@ import {IDL} from "../target/types/solbond";
             console.log("Error is: ");
             console.log(e);
         }
-        //let userAccountB = await mintB.createAccount(qPoolCurrencyAccount)
+        //let userAccountB = await mintB.createAccount(qPoolPDA)
 
-        let userAccountB = await getAssociatedTokenAddressOffCurve(stableSwapState.tokenB.mint, qPoolAccount);
+        let userAccountB = await getAssociatedTokenAddressOffCurve(stableSwapState.tokenB.mint, qPoolPDA);
         console.log("user acc B info ", await connection.getAccountInfo(userAccountB))
         // try{
         //     await mintA.mintTo(userAccountA, genericPayer, [], amountTokenA);
@@ -594,13 +600,13 @@ import {IDL} from "../target/types/solbond";
         
         console.log("mint B")
 
-        //let userAccountpoolToken  = await poolMint.createAccount(qPoolCurrencyAccount)
+        //let userAccountpoolToken  = await poolMint.createAccount(qPoolPDA)
         try {
             let tx = await createAssociatedTokenAccountUnsigned(
                 connection,
                 poolMint.publicKey,
                 null,
-                qPoolAccount,
+                qPoolPDA,
                 provider.wallet
             );
             const sg = await connection.sendTransaction(tx, [genericPayer]);
@@ -611,8 +617,8 @@ import {IDL} from "../target/types/solbond";
             console.log(e);
         }
 
-        let userAccountpoolToken = await getAssociatedTokenAddressOffCurve(poolTokenMint, qPoolAccount);
-        let userAuthority = Keypair.generate()
+        let userAccountpoolToken = await getAssociatedTokenAddressOffCurve(poolTokenMint, qPoolPDA);
+        //let userAuthority = Keypair.generate()
         console.log("swap authority", authority.toString());
         console.log("pool token Mint", poolTokenMint.toString())
         console.log("output lp", userAccountpoolToken.toString())
@@ -620,11 +626,20 @@ import {IDL} from "../target/types/solbond";
         console.log("swap account", swapAccount.toString())
         console.log("user A", userAccountA.toString())
         console.log("reserve A", stableSwapState.tokenA.reserve.toString())
-
-
         console.log("user B", userAccountB.toString())
         console.log("reserve B", stableSwapState.tokenB.reserve.toString())
+        console.log("fees thing ", stableSwapState.tokenB.adminFeeAccount.toString())
+        console.log("init ", genericPayer.publicKey.toString())
+        console.log("bond pool curr tok mint ",QPTokenMint.publicKey.toString() )
+        console.log("qpool pda ", qPoolPDA.toString())
+
+        console.log("getting balances")
+        let Abal = await (await connection.getTokenAccountBalance(userAccountA)).value.amount
+        let Bbal = await (await connection.getTokenAccountBalance(userAccountB)).value.amount
+        console.log("balance A ", Abal.toString())
+        console.log("balance B ", Bbal.toString())
         let finaltx = await solbondProgram.rpc.swapWithSaber(
+
             new BN(bumpqpoolaccount),
             new BN(amountIn),
             new BN(minAmountOut),
@@ -632,7 +647,7 @@ import {IDL} from "../target/types/solbond";
                 accounts: {
                     tokenProgram: TOKEN_PROGRAM_ID,
                     swapAuthority: swapAuthority,
-                    userAuthority: qPoolAccount,
+                    userAuthority: qPoolPDA,
                     swap: swapAccount,
                     userInput:userAccountA,
                     reserveInput:stableSwapState.tokenA.reserve,
@@ -640,7 +655,7 @@ import {IDL} from "../target/types/solbond";
                     reserveOutput:stableSwapState.tokenB.reserve,
                     feesOutput:stableSwapState.tokenB.adminFeeAccount,
                     initializer: genericPayer.publicKey,
-                    bondPoolCurrencyTokenMint: QPTokenMint.publicKey,
+                    bondPoolCurrencyTokenMint: stableSwapState.tokenA.mint,
                     saberSwapProgram: stableSwapProgramId,
                     systemProgram: web3.SystemProgram.programId,
                 },

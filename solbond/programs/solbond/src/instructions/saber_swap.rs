@@ -29,27 +29,39 @@ pub struct SaberSwapInstruction<'info> {
     pub token_program: AccountInfo<'info>,
     #[account(mut)]
     pub swap_authority: AccountInfo<'info>,
-    #[account(mut)]
+    //#[account(mut)]
+    #[account(
+        seeds=[bond_pool_currency_token_mint.key.as_ref(), b"bondPoolAccount1"],
+        bump = _bump_bond_pool_account
+    )]
     pub user_authority: AccountInfo<'info>,
     pub swap: AccountInfo<'info>,
 
 
     // input: SwapToken block
+    #[account(
+        mut,
+        constraint = &user_input.owner == user_authority.key
+    )]
+    pub user_input: Box<Account<'info, TokenAccount>>,
     #[account(mut)]
-    pub user_input: AccountInfo<'info>,
-    #[account(mut)]
-    pub reserve_input: AccountInfo<'info>,
+    pub reserve_input: Box<Account<'info, TokenAccount>>,
 
 
     // output: SwapOutput block
 
     //      user_token: SwapToken  block
+    #[account(
+        mut,
+        constraint = &user_output.owner == user_authority.key
+    )]
+    pub user_output: Box<Account<'info, TokenAccount>>,
     #[account(mut)]
-    pub user_output: AccountInfo<'info>,
-    #[account(mut)]
-    pub reserve_output: AccountInfo<'info>,
-    #[account(mut)]
-    pub fees_output: AccountInfo<'info>,
+    pub reserve_output: Box<Account<'info, TokenAccount>>,
+    #[account(
+        mut,
+    )]
+    pub fees_output: Box<Account<'info, TokenAccount>>,
 
     #[account(signer)]
     pub initializer: AccountInfo<'info>,
@@ -133,14 +145,20 @@ pub fn handler(
     msg!("swap ctx!");
 
     stable_swap_anchor::swap(
-        CpiContext::new(
+        CpiContext::new_with_signer(
             saber_swap_program,
             swap_context,
+            &[
+                [
+                    ctx.accounts.bond_pool_currency_token_mint.key.as_ref(), b"bondPoolAccount1",
+                    &[_bump_bond_pool_account]
+                ].as_ref()
+            ]
         ),
         amount_in,
         min_amount_out,        
     )?;
-
+ 
 
     // // Calculate how much currency is in the bond
     // let available_currency: u64 = ctx.accounts.bond_pool_currency_account.amount;
