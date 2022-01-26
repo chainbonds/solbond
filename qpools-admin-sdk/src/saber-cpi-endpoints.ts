@@ -230,12 +230,12 @@ export class SaberInteractTool {
             {
                 accounts: {
                     initializer: this.wallet.publicKey,
-                    bondPoolCurrencyTokenMint: this.QPTokenMint.publicKey,
+                    bondPoolCurrencyTokenMint: this.currencyTokenMint,
                     poolMint: this.poolMint.publicKey,
                     outputLp: this.userAccountPoolToken,
                     tokenProgram: TOKEN_PROGRAM_ID,
                     swapAuthority: this.fetchedStableSwapPool.config.authority,
-                    userAuthority: this.wallet.publicKey,
+                    userAuthority: this.qPoolAccount,
                     swap:this.fetchedStableSwapPool.config.swapAccount,
                     clock:web3.SYSVAR_CLOCK_PUBKEY,
                     userA: this.userAccountA,
@@ -271,6 +271,16 @@ export class SaberInteractTool {
         let userInput: PublicKey;
         let feesOutput: PublicKey;
 
+        
+        // var amount_in_tok_acc_a_str = (await this.connection.getTokenAccountBalance(this.userAccountA)).value.amount
+        // var amount_in_tok_acc_b_str = (await this.connection.getTokenAccountBalance(this.userAccountB)).value.amount
+        // const amount_a_present: number = +amount_in_tok_acc_a_str
+        // const amount_b_present: number = +amount_in_tok_acc_b_str
+        // if (amount_a_present <= 0) {
+        //     B_out = false
+        // } else {
+        //     B_out = true
+        // }
 
         if (B_out) {
             userOutput = this.userAccountB
@@ -295,7 +305,6 @@ export class SaberInteractTool {
         console.log("feesOutput: " ,feesOutput.toString())
         
         
-        // output is wrong here
         let finaltx = await this.solbondProgram.rpc.swapWithSaber(
             new BN(this.bumpQPoolAccount),
             new BN(amountIn),

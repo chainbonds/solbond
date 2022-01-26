@@ -13,7 +13,7 @@
  import { get } from "https";
 import { NETWORK } from "@qpools/sdk/lib/cluster";
  
-const provideLiquidityAll = async ( weights_per_pool: Array<number>, pool_addresses: Array<PublicKey>, strategy: [number,number]= BALANCED) => {
+const provideLiquidityAll = async ( weights_per_pool: Array<number>, pool_addresses: Array<PublicKey>, strategy: [number,number]= JUST_a) => {
 
 
     let cluster: string = clusterApiUrl('devnet');
@@ -85,7 +85,7 @@ const provideLiquidityAll = async ( weights_per_pool: Array<number>, pool_addres
             amount_b = amount_a - slippage
             try {
             await saberInteractTool.swapOnSaber(amount_a, amount_b,pool_address)
-            }catch (e) {
+            } catch (e) {
                 console.log("swap failed")
                 console.log(e)
                 return
@@ -103,8 +103,8 @@ const SimpleSimulation = async () => {
     
     // simulate a simple deposit loop, where the weights are balanced
     console.log("taxi taxi")
-    const weights: Array<number> = [0.5, 0.5];    
-    const pool_addresses: Array<PublicKey> = [MOCK.DEV.SABER_POOL.USDC_USDT, MOCK.DEV.SABER_POOL.USDC_CASH];
+    const weights: Array<number> = [1];    
+    const pool_addresses: Array<PublicKey> = [MOCK.DEV.SABER_POOL.USDC_USDT];
 
     await provideLiquidityAll(weights, pool_addresses);
 }
