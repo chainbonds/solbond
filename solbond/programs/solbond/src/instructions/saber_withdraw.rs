@@ -30,35 +30,46 @@ pub struct SaberWithdrawInstruction<'info> {
     pub token_program: AccountInfo<'info>,
     #[account(mut)]
     pub swap_authority: AccountInfo<'info>,
-    #[account(mut)]
-    pub user_authority: AccountInfo<'info>,
+    #[account(
+        seeds=[bond_pool_currency_token_mint.key.as_ref(), b"bondPoolAccount1"],
+        bump = _bump_bond_pool_account
+    )]    pub user_authority: AccountInfo<'info>,
     pub swap: AccountInfo<'info>,
 
-    #[account(mut)]
-    pub input_lp: AccountInfo<'info>,
+    #[account(
+        mut,
+        constraint = &input_lp.owner == user_authority.key,
+    )]
+    pub input_lp:  Box<Account<'info, TokenAccount>>,
     #[account(mut)]
     pub pool_mint: AccountInfo<'info>,
 
     // output_a: SwapOutput block
 
     //      user_token: SwapToken  block
+    #[account(
+        mut,
+        constraint = &user_a.owner == user_authority.key,
+    )]
+    pub user_a: Box<Account<'info, TokenAccount>>,
     #[account(mut)]
-    pub user_a: AccountInfo<'info>,
+    pub reserve_a: AccountInfo<'info>,//Box<Account<'info, TokenAccount>>,
     #[account(mut)]
-    pub reserve_a: AccountInfo<'info>,
-    #[account(mut)]
-    pub fees_a: AccountInfo<'info>,
+    pub fees_a: Box<Account<'info, TokenAccount>>,
 
 
     // output_b: SwapOutput block
 
     //      user_token: SwapToken  block
+    #[account(
+        mut,
+        constraint = &user_b.owner == user_authority.key,
+    )]
+    pub user_b: Box<Account<'info, TokenAccount>>,
     #[account(mut)]
-    pub user_b: AccountInfo<'info>,
+    pub reserve_b: Box<Account<'info, TokenAccount>>,
     #[account(mut)]
-    pub reserve_b: AccountInfo<'info>,
-    #[account(mut)]
-    pub fees_b: AccountInfo<'info>,
+    pub fees_b: Box<Account<'info, TokenAccount>>,
 
 
     #[account(signer)]
@@ -139,9 +150,15 @@ pub fn handler(
 
 
     stable_swap_anchor::withdraw(
-        CpiContext::new(
+        CpiContext::new_with_signer(
             saber_swap_program,
             withdraw_context,
+            &[
+                [
+                    ctx.accounts.bond_pool_currency_token_mint.key.as_ref(), b"bondPoolAccount1",
+                    &[_bump_bond_pool_account]
+                ].as_ref()
+            ]
         ),
         min_mint_amount,
         token_a_amount,

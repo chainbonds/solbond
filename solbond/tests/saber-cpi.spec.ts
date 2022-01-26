@@ -365,7 +365,7 @@ import {IDL} from "../target/types/solbond";
         //);
 
         let [qPoolPDA, bumpqpoolaccount] = await PublicKey.findProgramAddress(
-            [QPTokenMint.publicKey.toBuffer(), Buffer.from(anchor.utils.bytes.utf8.encode("bondPoolAccount1"))],
+            [stableSwapState.tokenA.mint.toBuffer(), Buffer.from(anchor.utils.bytes.utf8.encode("bondPoolAccount1"))],
             solbondProgram.programId
         );
         let qPoolAccount: PublicKey = new PublicKey("DiPga2spUbnyY8vJVZUYaeXcosEAuXnzx9EzuKuUaSxs");
@@ -382,7 +382,7 @@ import {IDL} from "../target/types/solbond";
                 connection,
                 stableSwapState.tokenA.mint,
                 null,
-                qPoolAccount,
+                qPoolPDA,
                 provider.wallet
             );
             const sg = await connection.sendTransaction(tx, [genericPayer]);
@@ -393,7 +393,7 @@ import {IDL} from "../target/types/solbond";
             console.log(e);
         }
 
-        let userAccountA = await getAssociatedTokenAddressOffCurve(stableSwapState.tokenA.mint, qPoolAccount);
+        let userAccountA = await getAssociatedTokenAddressOffCurve(stableSwapState.tokenA.mint, qPoolPDA);
         console.log("qpollcurrarr", qPoolCurrencyAccount.toString())
         //let userAccountA = await mintA.createAccount(qPoolCurrencyAccount)
         console.log("mint A")
@@ -406,7 +406,7 @@ import {IDL} from "../target/types/solbond";
                 connection,
                 stableSwapState.tokenB.mint,
                 null,
-                qPoolAccount,
+                qPoolPDA,
                 provider.wallet
             );
             const sg = await connection.sendTransaction(tx, [genericPayer]);
@@ -418,7 +418,7 @@ import {IDL} from "../target/types/solbond";
         }
         //let userAccountB = await mintB.createAccount(qPoolCurrencyAccount)
 
-        let userAccountB = await getAssociatedTokenAddressOffCurve(stableSwapState.tokenB.mint, qPoolAccount);
+        let userAccountB = await getAssociatedTokenAddressOffCurve(stableSwapState.tokenB.mint, qPoolPDA);
         console.log("user acc B info ", await connection.getAccountInfo(userAccountB))
         // try{
         //     await mintA.mintTo(userAccountA, genericPayer, [], amountTokenA);
@@ -439,7 +439,7 @@ import {IDL} from "../target/types/solbond";
                 connection,
                 poolMint.publicKey,
                 null,
-                qPoolAccount,
+                qPoolPDA,
                 provider.wallet
             );
             const sg = await connection.sendTransaction(tx, [genericPayer]);
@@ -450,7 +450,7 @@ import {IDL} from "../target/types/solbond";
             console.log(e);
         }
 
-        let userAccountpoolToken = await getAssociatedTokenAddressOffCurve(poolTokenMint, qPoolAccount);
+        let userAccountpoolToken = await getAssociatedTokenAddressOffCurve(poolTokenMint, qPoolPDA);
         let userAuthority = Keypair.generate()
         console.log("swap authority", authority.toString());
         console.log("pool token Mint", poolTokenMint.toString())
@@ -472,7 +472,7 @@ import {IDL} from "../target/types/solbond";
                 accounts: { 
                     tokenProgram: TOKEN_PROGRAM_ID,
                     swapAuthority:swapAuthority,
-                    userAuthority:qPoolAccount,
+                    userAuthority:qPoolPDA,
                     swap:swapAccount,
                     inputLp:userAccountpoolToken,
                     poolMint:poolMint.publicKey,
@@ -483,7 +483,7 @@ import {IDL} from "../target/types/solbond";
                     reserveB:stableSwapState.tokenB.reserve,
                     feesB:stableSwapState.tokenB.adminFeeAccount,
                     initializer:genericPayer.publicKey,
-                    bondPoolCurrencyTokenMint:QPTokenMint.publicKey,
+                    bondPoolCurrencyTokenMint:stableSwapState.tokenA.mint,
                     saberSwapProgram:stableSwapProgramId,
                     systemProgram: web3.SystemProgram.programId,
 
