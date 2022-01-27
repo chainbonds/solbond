@@ -18,7 +18,7 @@ const withdrawFromAll = async ( weights_per_pool: Array<number>, pool_addresses:
 
     let cluster: string = clusterApiUrl('devnet');
     
-    console.log("Cluster is: ", cluster);
+    // console.log("Cluster is: ", cluster);
     const provider = Provider.local(cluster,
         {
             skipPreflight: true
@@ -31,7 +31,6 @@ const withdrawFromAll = async ( weights_per_pool: Array<number>, pool_addresses:
 
 
     // Define the currency mint
-    console.log("Initialize a qpool");
     const qPoolAdminTool = new QPoolsAdmin(
         connection,
         provider,
@@ -43,12 +42,12 @@ const withdrawFromAll = async ( weights_per_pool: Array<number>, pool_addresses:
 
     // Check if an account exists already
     const existingQPT = await qPoolAdminTool.loadExistingQPTReserve();
-    if (existingQPT) {
-        qPoolAdminTool.prettyPrintAccounts();
-        //return
-    } else {
-        console.log("Creating new pool!");
-    }
+    // if (existingQPT) {
+    //     qPoolAdminTool.prettyPrintAccounts();
+    //     //return
+    // } else {
+    //     console.log("Creating new pool!");
+    // }
 
     // if (
     //     cluster.toString().includes("dev") ||
@@ -63,8 +62,8 @@ const withdrawFromAll = async ( weights_per_pool: Array<number>, pool_addresses:
     // }
 
     // qPoolAdminTool.prettyPrintAccounts();
-    console.log("successfully got the state!");
-    console.log("qpoolacc ", qPoolAdminTool.qPoolAccount.toString());
+    // console.log("successfully got the state!");
+    // console.log("qpoolacc ", qPoolAdminTool.qPoolAccount.toString());
     //const total_amount = await connection.getTokenAccountBalance(qPoolAdminTool.qPoolAccount);
     //console.log("total amount in qPoolAccount is ", total_amount.toString())
     for (var i = 0; i < weights_per_pool.length; i++) {
@@ -80,7 +79,7 @@ const withdrawFromAll = async ( weights_per_pool: Array<number>, pool_addresses:
         var bal = await (await connection.getTokenAccountBalance(LP_user_account)).value.amount;
         
         var bal_num: number = +bal
-        console.log("🤯🤯🤯🤯 balance ", bal.toString());
+        // console.log("🤯🤯🤯🤯 balance ", bal.toString());
         
         
         //const amount_a = strategy[0] * total_amount_to_go_in_pool;
@@ -100,7 +99,7 @@ const withdrawFromAll = async ( weights_per_pool: Array<number>, pool_addresses:
 const SimpleSimulation = async () => {
     
     // simulate a simple deposit loop, where the weights are balanced
-    console.log("taxi taxi")
+    // console.log("taxi taxi")
     const weights: Array<number> = [1];    
     const pool_addresses: Array<PublicKey> = [MOCK.DEV.SABER_POOL.USDC_USDT];
 

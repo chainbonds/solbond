@@ -82,7 +82,6 @@ export class SaberInteractTool {
         this.providerWallet = this.provider.wallet;
 
         this.qPoolAccount = qPoolsAdminTool.qPoolAccount;
-        console.log("qPOOL SCHN ", this.qPoolAccount)
         this.QPTokenMint = qPoolsAdminTool.QPTokenMint;
         this.bumpQPoolAccount = qPoolsAdminTool.bumpQPoolAccount;
         this.qPoolCurrencyAccount = qPoolsAdminTool.qPoolCurrencyAccount;
@@ -103,7 +102,6 @@ export class SaberInteractTool {
         console.log("🌊 qPoolQPAccount", this.qPoolQPAccount!.toString());
 
         console.log("💵 qPoolCurrencyAccount", this.qPoolCurrencyAccount!.toString());
-        console.log("🤯🤯🤯🤯")
     }
 
     async getPoolState(pool_address: PublicKey) {
@@ -123,9 +121,9 @@ export class SaberInteractTool {
 
     async getAccountForMint(mintKey: PublicKey) {
         try {
-            console.log("this wallet ", this.wallet.publicKey.toString())
-            console.log("this provider wallet  ", this.provider.wallet.publicKey.toString())
-            console.log("this qpoolacc ", this.qPoolAccount.toString())
+            // console.log("this wallet ", this.wallet.publicKey.toString())
+            // console.log("this provider wallet  ", this.provider.wallet.publicKey.toString())
+            // console.log("this qpoolacc ", this.qPoolAccount.toString())
 
             let tx = await createAssociatedTokenAccountUnsigned(
                 this.connection,
@@ -137,7 +135,7 @@ export class SaberInteractTool {
             
             const sg = await this.connection.sendTransaction(tx, [this.wallet]);
             await this.connection.confirmTransaction(sg);
-            console.log("Signature for token A is: ", sg);
+            //console.log("Signature for token A is: ", sg);
         } catch (e) {
             //console.log("Error is: ");
             //console.log(e);
@@ -148,27 +146,27 @@ export class SaberInteractTool {
     }
 
     async prepareSaberPool(pool_address: PublicKey) {
-        console.log("type of pool address")
-        console.log(typeof pool_address)
+        //console.log("type of pool address")
+        //console.log(typeof pool_address)
         const fetchedStableSwapPool = await this.getPoolState(pool_address);
-        console.log("stable swap pool fetcheed ", fetchedStableSwapPool)
+        //console.log("stable swap pool fetcheed ", fetchedStableSwapPool)
         const {state} = fetchedStableSwapPool
         this.mintA = new Token(this.connection, state.tokenA.mint, TOKEN_PROGRAM_ID, this.wallet);
-        console.log("mint A", this.mintA.toString());
+        //console.log("mint A", this.mintA.toString());
         this.mintB = new Token(this.connection, state.tokenB.mint, TOKEN_PROGRAM_ID, this.wallet);
-        console.log("mint B", this.mintB.toString());
+        //console.log("mint B", this.mintB.toString());
 
         this.poolMint = new Token(this.connection, state.poolTokenMint, TOKEN_PROGRAM_ID, this.wallet);
-        console.log("pool Mint", this.poolMint.toString());
+        //console.log("pool Mint", this.poolMint.toString());
 
         // qPools is the user in this case!
         this.userAccountA = await this.getAccountForMint(state.tokenA.mint);
-        console.log("got account A ",this.userAccountA.toString());
+        //console.log("got account A ",this.userAccountA.toString());
         this.userAccountB = await this.getAccountForMint(state.tokenB.mint);
-        console.log("got account B ",this.userAccountB.toString());
+        //console.log("got account B ",this.userAccountB.toString());
 
         this.userAccountPoolToken = await this.getAccountForMint(state.poolTokenMint);
-        console.log("got account LPtok ",this.userAccountPoolToken.toString());
+        //console.log("got account LPtok ",this.userAccountPoolToken.toString());
 
 
         //let [qPoolPDA, bumpqpoolaccount] = await PublicKey.findProgramAddress(
@@ -184,7 +182,7 @@ export class SaberInteractTool {
     }
 
     async depositToSaber(amount_a: number, amount_b: number, min_mint_amount:number, pool_address: PublicKey) {
-        console.log("start deposit to saber")
+        // console.log("start deposit to saber")
         const amountTokenA = new BN(new u64(amount_a));
         const amountTokenB = new BN(new u64(amount_b));
         const minMintAmount = new BN(new u64(min_mint_amount));
@@ -204,24 +202,24 @@ export class SaberInteractTool {
         //    [this.QPTokenMint.publicKey.toBuffer(), Buffer.from(anchor.utils.bytes.utf8.encode("bondPoolAccount1"))],
         //    this.solbondProgram.programId
         //);
-        console.log("POOL ADD string ", pool_address.toString());
+        // console.log("POOL ADD string ", pool_address.toString());
         await this.prepareSaberPool(pool_address)
-        console.log("LOGGING ACCOUNTS ")
-        console.log("wallet pub key ", this.wallet.publicKey.toString())
-        console.log("qptoken mint ", this.QPTokenMint.publicKey.toString())
-        console.log("pool mint ", this.poolMint.publicKey.toString())
-        console.log("output lp ", this.userAccountPoolToken.toString())
-        console.log("swap authority ", this.fetchedStableSwapPool.config.authority.toString())
-        console.log("user authority ", this.qPoolAccount.toString())
-        console.log("swap ", this.fetchedStableSwapPool.config.swapAccount.toString())
-        console.log("user A acc ", this.userAccountA.toString())
-        console.log("reserve A  ", this.stableSwapState.tokenA.reserve.toString())
-        console.log("user  B acc ", this.userAccountB.toString())
-        console.log("reserve B ", this.stableSwapState.tokenB.reserve.toString())
-        console.log(" stable swap program id ", this.stableSwapProgramId.toString())
-        console.log("amountTokenA ", amountTokenA.toString())
-        console.log("amountTokenB ", amountTokenB.toString())
-        console.log("minMintAmount ", minMintAmount.toString())
+        // console.log("LOGGING ACCOUNTS ")
+        // console.log("wallet pub key ", this.wallet.publicKey.toString())
+        // console.log("qptoken mint ", this.QPTokenMint.publicKey.toString())
+        // console.log("pool mint ", this.poolMint.publicKey.toString())
+        // console.log("output lp ", this.userAccountPoolToken.toString())
+        // console.log("swap authority ", this.fetchedStableSwapPool.config.authority.toString())
+        // console.log("user authority ", this.qPoolAccount.toString())
+        // console.log("swap ", this.fetchedStableSwapPool.config.swapAccount.toString())
+        // console.log("user A acc ", this.userAccountA.toString())
+        // console.log("reserve A  ", this.stableSwapState.tokenA.reserve.toString())
+        // console.log("user  B acc ", this.userAccountB.toString())
+        // console.log("reserve B ", this.stableSwapState.tokenB.reserve.toString())
+        // console.log(" stable swap program id ", this.stableSwapProgramId.toString())
+        // console.log("amountTokenA ", amountTokenA.toString())
+        // console.log("amountTokenB ", amountTokenB.toString())
+        // console.log("minMintAmount ", minMintAmount.toString())
         let finaltx = await this.solbondProgram.rpc.createLiquidityPositionSaber(
             new BN(this.bumpQPoolAccount),
             new BN(amountTokenA),
@@ -263,7 +261,7 @@ export class SaberInteractTool {
 
         
         await this.prepareSaberPool(pool_address)
-        console.log("PREPARED FOR A SWAP")
+        // console.log("PREPARED FOR A SWAP")
         // B_out true mans that output is TokenB in pool, direction 1 TokenA
         let reserveOutput: PublicKey;
         let reserveInput: PublicKey;
@@ -297,12 +295,12 @@ export class SaberInteractTool {
 
         }
 
-        console.log("LOGGING SWAP TINGS")
-        console.log("userOutput: " ,userOutput.toString())
-        console.log("reserveOutput: " ,reserveOutput.toString())
-        console.log("userInput: " ,userInput.toString())
-        console.log("reserveInput: " ,reserveInput.toString())
-        console.log("feesOutput: " ,feesOutput.toString())
+        // console.log("LOGGING SWAP TINGS")
+        // console.log("userOutput: " ,userOutput.toString())
+        // console.log("reserveOutput: " ,reserveOutput.toString())
+        // console.log("userInput: " ,userInput.toString())
+        // console.log("reserveInput: " ,reserveInput.toString())
+        // console.log("feesOutput: " ,feesOutput.toString())
         
         
         let finaltx = await this.solbondProgram.rpc.swapWithSaber(

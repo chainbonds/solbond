@@ -18,7 +18,7 @@ const provideLiquidityAll = async ( weights_per_pool: Array<number>, pool_addres
 
     let cluster: string = clusterApiUrl('devnet');
     
-    console.log("Cluster is: ", cluster);
+    // console.log("Cluster is: ", cluster);
     const provider = Provider.local(cluster,
         {
             skipPreflight: true
@@ -31,7 +31,7 @@ const provideLiquidityAll = async ( weights_per_pool: Array<number>, pool_addres
 
 
     // Define the currency mint
-    console.log("Initialize a qpool");
+    // console.log("Initialize a qpool");
     const qPoolAdminTool = new QPoolsAdmin(
         connection,
         provider,
@@ -43,12 +43,12 @@ const provideLiquidityAll = async ( weights_per_pool: Array<number>, pool_addres
 
     // Check if an account exists already
     const existingQPT = await qPoolAdminTool.loadExistingQPTReserve();
-    if (existingQPT) {
-        qPoolAdminTool.prettyPrintAccounts();
-        //return
-    } else {
-        console.log("Creating new pool!");
-    }
+    //if (existingQPT) {
+    //    qPoolAdminTool.prettyPrintAccounts();
+    //    //return
+    //} else {
+    //    console.log("Creating new pool!");
+    // }
 
     // if (
     //     cluster.toString().includes("dev") ||
@@ -63,10 +63,10 @@ const provideLiquidityAll = async ( weights_per_pool: Array<number>, pool_addres
     // }
 
     // qPoolAdminTool.prettyPrintAccounts();
-    console.log("successfully got the state!");
-    console.log("qpoolacc ", qPoolAdminTool.qPoolAccount.toString());
+    // console.log("qpoolacc ", qPoolAdminTool.qPoolAccount.toString());
+    // console.log("successfully got the state!");
     const total_amount = await connection.getBalance(qPoolAdminTool.qPoolAccount);
-    console.log("total amount in qPoolAccount is ", total_amount.toString())
+    // console.log("total amount in qPoolAccount is ", total_amount.toString())
     for (var i = 0; i < weights_per_pool.length; i++) {
         
         const weight = weights_per_pool[i];
@@ -80,7 +80,7 @@ const provideLiquidityAll = async ( weights_per_pool: Array<number>, pool_addres
 
         // if both not zero, do a swap
         if (amount_a > 0 && amount_b > 0) {
-            console.log("trying to swap")
+            // console.log("trying to swap")
             const slippage = 0.8
             amount_b = amount_a - slippage
             try {
@@ -102,7 +102,7 @@ const provideLiquidityAll = async ( weights_per_pool: Array<number>, pool_addres
 const SimpleSimulation = async () => {
     
     // simulate a simple deposit loop, where the weights are balanced
-    console.log("taxi taxi")
+    // console.log("taxi taxi")
     const weights: Array<number> = [1];    
     const pool_addresses: Array<PublicKey> = [MOCK.DEV.SABER_POOL.USDC_USDT];
 

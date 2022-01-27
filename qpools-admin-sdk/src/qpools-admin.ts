@@ -87,7 +87,6 @@ export class QPoolsAdmin {
             [SBR_currency_mint.toBuffer(), Buffer.from(anchor.utils.bytes.utf8.encode("bondPoolAccount1"))],
             this.solbondProgram.programId
         );
-        console.log("MIr sind da ", this.qPoolAccount)
         this.QPTokenMint = await createMint(
             this.provider,
             this.wallet,
