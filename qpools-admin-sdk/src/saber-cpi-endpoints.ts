@@ -334,16 +334,16 @@ export class SaberInteractTool {
 
     }
 
-    async withdrawFromSaber(min_amount_out: number, amount_a: number, amount_b: number, pool_address:PublicKey) {
+    async withdrawFromSaber(lp_amount: number, amount_a: number, amount_b: number, pool_address:PublicKey) {
         const amountTokenA = new BN(new u64(amount_a));
         const amountTokenB = new BN(new u64(amount_b));
-        const minAmountOut = new BN(new u64(min_amount_out));
+        const lpAmount = new BN(new u64(lp_amount));
         await this.prepareSaberPool(pool_address)
 
 
         let finaltx = await this.solbondProgram.rpc.withdrawLiquidityPositionSaber(
             new BN(this.bumpQPoolAccount),
-            minAmountOut,
+            lpAmount,
             amountTokenA,
             amountTokenB,
             {

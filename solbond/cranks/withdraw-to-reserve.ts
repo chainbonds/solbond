@@ -73,15 +73,24 @@ const withdrawFromAll = async ( weights_per_pool: Array<number>, pool_addresses:
         const pool_address = pool_addresses[i];
 
         //const total_amount_to_go_in_pool = weight * total_amount;
+        let pool_state = await saberInteractTool.getPoolState(pool_address)
+        const {state} = pool_state;
+        let LP_mint = state.poolTokenMint;
+        let LP_user_account = await saberInteractTool.getAccountForMint(LP_mint);
+        var bal = await (await connection.getTokenAccountBalance(LP_user_account)).value.amount;
+        
+        var bal_num: number = +bal
+        console.log("🤯🤯🤯🤯 balance ", bal.toString());
+        
         
         //const amount_a = strategy[0] * total_amount_to_go_in_pool;
         //let amount_b = strategy[1] * total_amount_to_go_in_pool;
-        const min_out_amount = 0; 
-        const amount_a = 0.1;
-        const amount_b = 0.1;
+        const lp_amount = bal_num; 
+        const amount_a = bal_num*0.2;
+        const amount_b = bal_num*0.2;
         
 
-        await saberInteractTool.withdrawFromSaber(min_out_amount, amount_a, amount_b, pool_address);
+        await saberInteractTool.withdrawFromSaber(lp_amount, amount_a, amount_b, pool_address);
 
 
     }
