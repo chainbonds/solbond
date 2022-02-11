@@ -18,6 +18,8 @@ import {MATH_DENOMINATOR, MOCK} from "@qpools/sdk/src/const";
 import {useLoad} from "../../contexts/LoadingContext";
 import {SEED} from "@qpools/sdk/lib/seeds";
 import {sendAndConfirm} from "easy-spl/dist/util";
+import ConfirmPortfolioBuyModal from "../ConfirmPortfolioBuyModal";
+import {Modal} from "react-bootstrap";
 
 export default function StakeForm() {
 
@@ -31,6 +33,9 @@ export default function StakeForm() {
 
     const [balanceUsd, setBalanceUsd] = useState<number>(0.0);
     const [balanceQpt, setBalanceQpt] = useState<number>(0.0);
+
+    const [displayBuyModal, setBuyModal] = useState<boolean>(true);
+    const [buyModalInfo, setBuyModalInfo] = useState<any>({});
 
     useEffect(() => {
         qPoolContext.qPoolsStats?.calculateTVL().then(out => {
@@ -151,6 +156,12 @@ export default function StakeForm() {
 
     return (
         <>
+            <Modal show={displayBuyModal}>
+                <ConfirmPortfolioBuyModal
+                    isOpen={displayBuyModal}
+                    onClose={() => {}}
+                />
+            </Modal>
             <div className="">
                 <div className="">
                     <form action="#" method="POST" onSubmit={handleSubmit(submitToContract)}>
