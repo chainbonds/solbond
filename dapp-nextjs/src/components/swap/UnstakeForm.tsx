@@ -17,6 +17,7 @@ import {useLoad} from "../../contexts/LoadingContext";
 import {MATH_DENOMINATOR, REDEEMABLES_DECIMALS} from "@qpools/sdk/lib/const";
 import {sendAndConfirm} from "easy-spl/dist/util";
 import {SEED} from "@qpools/sdk/lib/seeds";
+import SinglePortfolioRow from "../SinglePortfolioRow";
 
 export default function UnstakeForm() {
 
@@ -138,22 +139,14 @@ export default function UnstakeForm() {
                     <form action="#" method="POST" onSubmit={handleSubmit(submitToContract)}>
                         <div className="py-5 bg-slate-800 bg-gray">
                             <div>
-                                <InputFieldWithLogo
-                                    logoPath={"/Light 2 Square.png"}
-                                    displayText={"QPT"}
-                                    registerFunction={() => register("qpt_amount")}
-                                    modifiable={true}
-                                    setNewValue={setValueInQpt}
-                                />
-                                <div className={"ml-5"}>
-                                    <AiOutlineArrowDown size={24}/>
-                                </div>
-                                <InputFieldWithLogo
-                                    logoPath={"/usdt.png"}
-                                    displayText={"estimated USDT"}
-                                    registerFunction={() => register("solana_amount")}
-                                    modifiable={false}
-                                    value={valueInUsdc}
+                                {/*
+                                    TODO: Have perhaps one line "Portfolio, with this allocaiton
+                                    We can also just display how much profit or loss it accumulated so far
+                                */}
+                                <SinglePortfolioRow
+                                    address={"DR24...B6kR"}
+                                    time={"10. Feb. 2022"}
+                                    value={"+5.2%"}
                                 />
                             </div>
                         </div>

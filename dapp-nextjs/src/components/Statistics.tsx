@@ -52,10 +52,9 @@ export default function Statistics(props: any) {
 
     useEffect(() => {
         updateStatistics();
-        // setInterval(() => {
-        //     updateStatistics();
-        // }, 30000);
-
+        delay(5000).then(() => {
+            updateStatistics();
+        });
     }, [qPoolContext, qPoolContext.qPoolsStats])
 
     const singleBox = (title: String, value: String) => {

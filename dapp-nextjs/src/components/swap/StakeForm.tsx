@@ -165,22 +165,11 @@ export default function StakeForm() {
                                     {/*</div>*/}
                                 </div>
                                 <InputFieldWithLogo
-                                    logoPath={"/usdt.png"}
-                                    displayText={"USDT"}
+                                    logoPath={"/solana-logo.png"}
+                                    displayText={"SOL"}
                                     registerFunction={() => register("solana_amount")}
                                     modifiable={true}
                                     setNewValue={setValueInUsd}
-                                />
-                                <div className={"ml-4"}>
-                                    <AiOutlineArrowDown size={24}/>
-                                </div>
-                                <InputFieldWithLogo
-                                    logoPath={"/Light 2 Square.png"}
-                                    // QPT
-                                    displayText={"estimated QPT"}
-                                    registerFunction={() => {}}
-                                    modifiable={false}
-                                    value={valueInQPT}
                                 />
                             </div>
                         </div>
