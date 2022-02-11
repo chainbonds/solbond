@@ -53,7 +53,6 @@ export default function HeroForm(props: any) {
                 </button>
             );
         }
-
     }
 
     // This should be based on whether or not the user already has a wallet submitted

@@ -142,11 +142,14 @@ export default function UnstakeForm() {
                                 {/*
                                     TODO: Have perhaps one line "Portfolio, with this allocaiton
                                     We can also just display how much profit or loss it accumulated so far
+
+                                    For each portfolio that is loaded, display one of these...
+                                    And you can also include a button to redeem, for each single one...
                                 */}
                                 <SinglePortfolioRow
                                     address={"DR24...B6kR"}
                                     time={"10. Feb. 2022"}
-                                    value={"+5.2%"}
+                                    value={5.2}
                                 />
                             </div>
                         </div>
