@@ -7,7 +7,7 @@ import {AiOutlineArrowDown} from "react-icons/ai";
 import InputFieldWithLogo from "../InputFieldWithLogo";
 import CallToActionButton from "../CallToActionButton";
 import {BN} from "@project-serum/anchor";
-import React, {useEffect, useState} from "react";
+import React, {Fragment, useEffect, useState} from "react";
 import {IQPool, useQPoolUserTool} from "../../contexts/QPoolsProvider";
 import {WalletMultiButton} from "@solana/wallet-adapter-react-ui";
 import {Mint} from "easy-spl";
@@ -20,6 +20,7 @@ import {SEED} from "@qpools/sdk/lib/seeds";
 import {sendAndConfirm} from "easy-spl/dist/util";
 import ConfirmPortfolioBuyModal from "../ConfirmPortfolioBuyModal";
 import {Modal} from "react-bootstrap";
+import { Transition } from "@headlessui/react";
 
 export default function StakeForm() {
 
@@ -156,12 +157,10 @@ export default function StakeForm() {
 
     return (
         <>
-            <Modal show={displayBuyModal}>
-                <ConfirmPortfolioBuyModal
-                    isOpen={displayBuyModal}
-                    onClose={() => {}}
-                />
-            </Modal>
+            <ConfirmPortfolioBuyModal
+                isOpen={displayBuyModal}
+                onClose={() => {}}
+            />
             <div className="">
                 <div className="">
                     <form action="#" method="POST" onSubmit={handleSubmit(submitToContract)}>
