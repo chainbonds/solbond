@@ -46,7 +46,7 @@ export const HomeView: FC = ({}) => {
                 }}
             >
                 <div
-                    className="h-screen h-full w-full w-screen flex text-white flex-col"
+                    className="flex flex-col h-screen w-full w-screen text-white"
                     style={{ backgroundColor: "#1a202c" }}
                 >
                     {devnetBanner()}

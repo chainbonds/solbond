@@ -12,15 +12,17 @@ import {IQPool, useQPoolUserTool} from "../../contexts/QPoolsProvider";
 import {WalletMultiButton} from "@solana/wallet-adapter-react-ui";
 import {Mint} from "easy-spl";
 import {Token, TOKEN_PROGRAM_ID} from "@solana/spl-token";
-import airdropAdmin from "@qpools/sdk/src/airdropAdmin";
-import {createAssociatedTokenAccountSendUnsigned, delay} from "@qpools/sdk/src/utils";
-import {MATH_DENOMINATOR, MOCK} from "@qpools/sdk/src/const";
+// import airdropAdmin from "@qpools/sdk/src/airdropAdmin";
+// import {createAssociatedTokenAccountSendUnsigned, delay} from "@qpools/sdk/src/utils";
+// import {MATH_DENOMINATOR, MOCK} from "@qpools/sdk/src/const";
 import {useLoad} from "../../contexts/LoadingContext";
-import {SEED} from "@qpools/sdk/lib/seeds";
+// import {SEED} from "@qpools/sdk/lib/seeds";
 import {sendAndConfirm} from "easy-spl/dist/util";
 import ConfirmPortfolioBuyModal from "../ConfirmPortfolioBuyModal";
 import {Modal} from "react-bootstrap";
 import { Transition } from "@headlessui/react";
+import {airdropAdmin, createAssociatedTokenAccountSendUnsigned, MOCK} from "@qpools/sdk";
+import {SEED} from "@qpools/sdk/lib/seeds";
 
 export default function StakeForm() {
 
@@ -35,11 +37,11 @@ export default function StakeForm() {
     const [balanceUsd, setBalanceUsd] = useState<number>(0.0);
     const [balanceQpt, setBalanceQpt] = useState<number>(0.0);
 
-    const [displayBuyModal, setBuyModal] = useState<boolean>(true);
+    const [displayBuyModal, setBuyModal] = useState<boolean>(false);
     const [buyModalInfo, setBuyModalInfo] = useState<any>({});
 
     useEffect(() => {
-        qPoolContext.qPoolsStats?.calculateTVL().then(out => {
+        qPoolContext.qPoolsStats?.calculateTVL().then((out: any) => {
 
             if (out.tvl.gt(new BN(0))) {
                 // Calculate the conversion rate ...
