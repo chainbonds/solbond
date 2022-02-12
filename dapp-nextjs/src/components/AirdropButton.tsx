@@ -8,6 +8,7 @@ import {Connection, Transaction} from "@solana/web3.js";
 import {Token, TOKEN_PROGRAM_ID} from "@solana/spl-token";
 import {useLoad} from "../contexts/LoadingContext";
 import {createAssociatedTokenAccountSendUnsigned, getAssociatedTokenAddressOffCurve, MOCK} from "@qpools/sdk";
+import {delay} from "@qpools/sdk/lib/utils";
 
 export const AirdropButton: FC = ({}) => {
 
@@ -28,11 +29,24 @@ export const AirdropButton: FC = ({}) => {
             alert("Please connect your wallet first!");
             return
         }
-
         await loadContext.increaseCounter();
 
+        // Airdrop some solana first, to make sure we can run this transaction ...
+        if ((await qPoolContext.connection!.getBalance(qPoolContext.userAccount!.publicKey)) <= 5e8) {
+            let tx0 = await qPoolContext.connection!.requestAirdrop(qPoolContext.userAccount!.publicKey, 1e9);
+            await qPoolContext.connection!.confirmTransaction(tx0, 'finalized');
+            console.log("Airdropped 1!");
+        }
+
+        await delay(3000);
+
+        console.log("Initializing QPoolsUserTool");
         await qPoolContext.initializeQPoolsUserTool(walletContext);
+
+        console.log("Initializing QPoolsUserTool");
         await qPoolContext.qPoolsUser!.loadExistingQPTReserve(qPoolContext.currencyMint!.publicKey!);
+
+        console.log("Registering Account");
         await qPoolContext.qPoolsUser!.registerAccount();
         console.log(airdropAdmin);
 
