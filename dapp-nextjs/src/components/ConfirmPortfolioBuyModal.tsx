@@ -33,7 +33,8 @@ export default function ConfirmPortfolioBuyModal(props: any) {
                             leaveFrom="opacity-100"
                             leaveTo="opacity-0"
                         >
-                            <Dialog.Overlay className="fixed inset-0" />
+                            {/*<Dialog.Overlay className="fixed inset-0" />*/}
+                            <Dialog.Overlay className="fixed inset-0 bg-black opacity-70" />
                         </Transition.Child>
 
                         {/* This element is to trick the browser into centering the modal contents. */}
@@ -46,11 +47,11 @@ export default function ConfirmPortfolioBuyModal(props: any) {
                         <Transition.Child
                             as={Fragment}
                             enter="ease-out duration-300"
-                            enterFrom="opacity-0 scale-95"
+                            enterFrom="opacity-0 scale-50"
                             enterTo="opacity-100 scale-100"
                             leave="ease-in duration-200"
-                            leaveFrom="opacity-100 scale-100"
-                            leaveTo="opacity-0 scale-95"
+                            leaveFrom="opacity-50 scale-100"
+                            leaveTo="opacity-0 scale-50"
                         >
                             <div className="inline-block w-full shadow shadow-lg max-w-3xl p-6 my-8 overflow-hidden text-left align-middle transition-all transform bg-white shadow-xl rounded-md bg-gray-900">
 
