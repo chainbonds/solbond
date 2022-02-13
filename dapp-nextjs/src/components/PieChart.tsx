@@ -3,8 +3,8 @@ import {IQPool, useQPoolUserTool} from "../contexts/QPoolsProvider";
 import {delay} from "@qpools/sdk/lib/utils";
 import {BN} from "@project-serum/anchor";
 import axios from "axios";
-import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
-import { Pie } from 'react-chartjs-2';
+import {Chart as ChartJS, ArcElement, Tooltip, Legend} from 'chart.js';
+import {Pie} from 'react-chartjs-2';
 import {error} from "next/dist/build/output/log";
 
 ChartJS.register(ArcElement, Tooltip, Legend);
@@ -22,7 +22,7 @@ ChartJS.register(ArcElement, Tooltip, Legend);
 
 export default function PieChart(props: any) {
 
-     const [pieChartData, setPieChartData ]= useState({
+    const [pieChartData, setPieChartData] = useState({
         labels: ['Red', 'Blue', 'Yellow'],
         datasets: [
             {
@@ -43,21 +43,27 @@ export default function PieChart(props: any) {
         ],
     })
 
-    interface AllocData
-    {
-      lp: string,
-      weight: number,
+    interface AllocData {
+        lp: string,
+        weight: number,
         protocol: string,
-
     };
 
     // Just run a loop where you update TVL every couple times
-    const [ratios, setRatios] = useState<AllocData[]>([{"lp": "JSOL-SOL", "weight": 1000, "protocol": "saber"}, {"lp": "HBTC-renBTC", "weight": 1000, "protocol": "saber"}, {"lp": "eSOL-SOL", "weight": 1000, "protocol": "saber"}]);
+    const [ratios, setRatios] = useState<AllocData[]>([{
+        "lp": "JSOL-SOL",
+        "weight": 1000,
+        "protocol": "saber"
+    }, {"lp": "HBTC-renBTC", "weight": 1000, "protocol": "saber"}, {
+        "lp": "eSOL-SOL",
+        "weight": 1000,
+        "protocol": "saber"
+    }]);
 
 
     useEffect(() => {
         console.log("Loading the weights");
-        axios.get<AllocData[]>("https://qpools.serpius.com/weight_status.json" ).then((response) => {
+        axios.get<AllocData[]>("https://qpools.serpius.com/weight_status.json").then((response) => {
             setRatios(response.data)
             console.log("Here is the data :")
             console.log(typeof response.data)
@@ -69,16 +75,17 @@ export default function PieChart(props: any) {
     }, []);
 
     useEffect(() => {
-        if(!ratios) return;
+        if (!ratios) return;
         const Z = ratios[0].weight + ratios[1].weight + ratios[2].weight
 
         console.log("Here is in the variable:")
         console.log(JSON.stringify(ratios))
-        setPieChartData({labels : [ratios[0].lp, ratios[1].lp, ratios[2].lp],
+        setPieChartData({
+            labels: [ratios[0].lp, ratios[1].lp, ratios[2].lp],
             datasets: [
                 {
                     label: 'Ratio',
-                    data: [(ratios[0].weight/Z*100), (ratios[1].weight/Z*100), (ratios[2].weight/Z*100)],
+                    data: [(ratios[0].weight / Z * 100), (ratios[1].weight / Z * 100), (ratios[2].weight / Z * 100)],
                     backgroundColor: [
                         'rgb(75,151,250, 0.8)',
                         'rgb(148,173,43, 0.8)',

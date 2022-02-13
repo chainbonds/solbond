@@ -13,7 +13,7 @@ export default function Statistics(props: any) {
 
     const initializeQPoolsAndCalculateTVL = async () => {
         console.log("Loaded qpoolsuser");
-        await qPoolContext.initializeQPoolsStatsTool();
+        // await qPoolContext.initializeQPoolsStatsTool();
         await delay(5000);
     }
 
@@ -30,18 +30,18 @@ export default function Statistics(props: any) {
 
             if (qPoolContext.qPoolsStats) {
 
-                qPoolContext.qPoolsStats.collectPriceFeed().then(() => {
-                    qPoolContext.qPoolsStats!.calculateTVL().then(out => {
-                        console.log("Tvl decimals are: ", out.tvlDecimals);
-                        setTvl((_) => out.tvl.toNumber());
-                        setTotalQPT((_) => out.totalQPT);
-                        setTvlDecimals((_) => out.tvlDecimals);
-                        delay(5000).then(() => {
-                            // delay a bit, and call itself again ...
-                            updateStatistics();
-                        });
-                    })
-                });
+                // qPoolContext.qPoolsStats.collectPriceFeed().then(() => {
+                //     qPoolContext.qPoolsStats!.calculateTVL().then(out => {
+                //         console.log("Tvl decimals are: ", out.tvlDecimals);
+                //         setTvl((_) => out.tvl.toNumber());
+                //         setTotalQPT((_) => out.totalQPT);
+                //         setTvlDecimals((_) => out.tvlDecimals);
+                //         delay(5000).then(() => {
+                //             // delay a bit, and call itself again ...
+                //             updateStatistics();
+                //         });
+                //     })
+                // });
 
             } else {
                 console.log("Stats now loaded yet!", qPoolContext, qPoolContext.qPoolsStats)
@@ -100,7 +100,8 @@ export default function Statistics(props: any) {
     return (
         <>
             <div className={"flex flex-col md:flex-row items-center lg:items-begin"}>
-                {singleBox("Total Value Locked", "$ " + String((tvl / (10 ** tvlDecimals)).toFixed(2) ) + " USD")}
+                {/*{singleBox("Total Value Locked", "$ " + String((tvl / (10 ** tvlDecimals)).toFixed(2) ) + " USD")}*/}
+                {singleBoxDimmed("Total Value Locked", "Coming Soon")}
                 {singleBoxDimmed("7 Day APY", "Coming Soon")}
                 {emptyBox()}
                 {/*8.02%*/}

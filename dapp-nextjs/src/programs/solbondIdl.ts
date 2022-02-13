@@ -1,5 +1,5 @@
 export const SolbondIdl: any = {
-  "version": "0.0.0",
+  "version": "0.1.0",
   "name": "solbond",
   "instructions": [
     {
@@ -29,30 +29,35 @@ export const SolbondIdl: any = {
       "args": []
     },
     {
-      "name": "initializeBondPool",
+      "name": "initializePoolAccount",
       "accounts": [
         {
-          "name": "bondPoolAccount",
+          "name": "poolPda",
           "isMut": true,
           "isSigner": false
         },
         {
-          "name": "bondPoolRedeemableMint",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "bondPoolCurrencyTokenMint",
+          "name": "mintLp",
           "isMut": true,
           "isSigner": false
         },
         {
-          "name": "bondPoolRedeemableTokenAccount",
+          "name": "mintA",
           "isMut": true,
           "isSigner": false
         },
         {
-          "name": "bondPoolCurrencyTokenAccount",
+          "name": "mintB",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "poolTokenAccountA",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "poolTokenAccountB",
           "isMut": true,
           "isSigner": false
         },
@@ -84,61 +89,76 @@ export const SolbondIdl: any = {
       ],
       "args": [
         {
-          "name": "bumpBondPoolAccount",
+          "name": "bump",
           "type": "u8"
         }
       ]
     },
     {
-      "name": "purchaseBond",
+      "name": "createPositionSaber",
       "accounts": [
         {
-          "name": "bondPoolAccount",
+          "name": "positionPda",
           "isMut": true,
           "isSigner": false
         },
         {
-          "name": "bondPoolRedeemableMint",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "bondPoolCurrencyTokenMint",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "bondPoolCurrencyTokenAccount",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "bondPoolRedeemableTokenAccount",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "purchaser",
-          "isMut": true,
-          "isSigner": true
-        },
-        {
-          "name": "purchaserCurrencyTokenAccount",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "purchaserRedeemableTokenAccount",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "rent",
+          "name": "portfolioPda",
           "isMut": false,
           "isSigner": false
         },
         {
-          "name": "clock",
+          "name": "owner",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "outputLp",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "poolMint",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "swapAuthority",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "poolPda",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "swap",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "qpoolsA",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "poolTokenAccountA",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "poolTokenAccountB",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "qpoolsB",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "saberSwapProgram",
           "isMut": false,
           "isSigner": false
         },
@@ -155,7 +175,186 @@ export const SolbondIdl: any = {
       ],
       "args": [
         {
-          "name": "amountRaw",
+          "name": "bumpPool",
+          "type": "u8"
+        },
+        {
+          "name": "bumpPosition",
+          "type": "u8"
+        },
+        {
+          "name": "bumpPortfolio",
+          "type": "u8"
+        },
+        {
+          "name": "index",
+          "type": "u32"
+        },
+        {
+          "name": "weight",
+          "type": "u64"
+        },
+        {
+          "name": "tokenAAmount",
+          "type": "u64"
+        },
+        {
+          "name": "tokenBAmount",
+          "type": "u64"
+        },
+        {
+          "name": "minMintAmount",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "savePortfolio",
+      "accounts": [
+        {
+          "name": "owner",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "portfolioPda",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "bump",
+          "type": "u8"
+        },
+        {
+          "name": "weights",
+          "type": {
+            "array": [
+              "u64",
+              3
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "redeemPositionSaber",
+      "accounts": [
+        {
+          "name": "portfolioPda",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "portfolioOwner",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "swapAuthority",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "positionPda",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "swap",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "inputLp",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "poolMint",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "userA",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "reserveA",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "feesA",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "userB",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "reserveB",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "feesB",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "saberSwapProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "bumpPortfolio",
+          "type": "u8"
+        },
+        {
+          "name": "bumpPosition",
+          "type": "u8"
+        },
+        {
+          "name": "index",
+          "type": "u32"
+        },
+        {
+          "name": "minMintAmount",
+          "type": "u64"
+        },
+        {
+          "name": "tokenAAmount",
+          "type": "u64"
+        },
+        {
+          "name": "tokenBAmount",
           "type": "u64"
         }
       ]
@@ -204,6 +403,11 @@ export const SolbondIdl: any = {
           "isSigner": false
         },
         {
+          "name": "tvlAccount",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
           "name": "rent",
           "isMut": false,
           "isSigner": false
@@ -228,191 +432,28 @@ export const SolbondIdl: any = {
         {
           "name": "redeemableAmountRaw",
           "type": "u64"
-        }
-      ]
-    },
-    {
-      "name": "swapPair",
-      "accounts": [
-        {
-          "name": "initializer",
-          "isMut": true,
-          "isSigner": true
         },
         {
-          "name": "owner",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "pool",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "state",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "tickmap",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "tokenXMint",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "tokenYMint",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "reserveAccountX",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "reserveAccountY",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "accountX",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "accountY",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "programAuthority",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "tokenProgram",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "invariantProgram",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "systemProgram",
-          "isMut": false,
-          "isSigner": false
-        }
-      ],
-      "args": [
-        {
-          "name": "bumpBondPoolAccount",
+          "name": "bumpTvlAccount",
           "type": "u8"
-        },
-        {
-          "name": "xToY",
-          "type": "bool"
-        },
-        {
-          "name": "amount",
-          "type": "u64"
-        },
-        {
-          "name": "byAmountIn",
-          "type": "bool"
-        },
-        {
-          "name": "sqrtPriceLimit",
-          "type": "u128"
         }
       ]
     },
     {
-      "name": "createLiquidityPosition",
+      "name": "setTvl",
       "accounts": [
+        {
+          "name": "tvlAccount",
+          "isMut": true,
+          "isSigner": false
+        },
         {
           "name": "initializer",
           "isMut": true,
           "isSigner": true
         },
         {
-          "name": "state",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "position",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "pool",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "positionList",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "owner",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "lowerTick",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "upperTick",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "tokenX",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "tokenY",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "accountX",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "accountY",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "reserveX",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "reserveY",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "programAuthority",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "tokenProgram",
+          "name": "poolAccount",
           "isMut": false,
           "isSigner": false
         },
@@ -422,36 +463,24 @@ export const SolbondIdl: any = {
           "isSigner": false
         },
         {
-          "name": "systemProgram",
+          "name": "clock",
           "isMut": false,
           "isSigner": false
         },
         {
-          "name": "invariantProgram",
+          "name": "systemProgram",
           "isMut": false,
           "isSigner": false
         }
       ],
       "args": [
         {
-          "name": "positionBump",
+          "name": "newTvlInUsd",
+          "type": "u64"
+        },
+        {
+          "name": "tvlAccountBump",
           "type": "u8"
-        },
-        {
-          "name": "bumpBondPoolAccount",
-          "type": "u8"
-        },
-        {
-          "name": "lowerTickIndex",
-          "type": "i32"
-        },
-        {
-          "name": "upperTickIndex",
-          "type": "i32"
-        },
-        {
-          "name": "liquidityDelta",
-          "type": "u128"
         }
       ]
     }
@@ -572,71 +601,329 @@ export const SolbondIdl: any = {
           }
         ]
       }
+    },
+    {
+      "name": "PortfolioAccount",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "weights",
+            "type": {
+              "array": [
+                "u64",
+                3
+              ]
+            }
+          },
+          {
+            "name": "owner",
+            "type": "publicKey"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "PositionAccount",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "owner",
+            "type": "publicKey"
+          },
+          {
+            "name": "mintA",
+            "type": "publicKey"
+          },
+          {
+            "name": "mintB",
+            "type": "publicKey"
+          },
+          {
+            "name": "mintLp",
+            "type": "publicKey"
+          },
+          {
+            "name": "ownerTokenAccountA",
+            "type": "publicKey"
+          },
+          {
+            "name": "ownerTokenAccountB",
+            "type": "publicKey"
+          },
+          {
+            "name": "ownerTokenAccountLp",
+            "type": "publicKey"
+          },
+          {
+            "name": "poolPda",
+            "type": "publicKey"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "TvlInfoAccount",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "tvlMint",
+            "type": "publicKey"
+          },
+          {
+            "name": "tvlInUsdc",
+            "type": "u64"
+          },
+          {
+            "name": "decimals",
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "TwoWayPoolAccount",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "generator",
+            "type": "publicKey"
+          },
+          {
+            "name": "mintA",
+            "type": "publicKey"
+          },
+          {
+            "name": "mintB",
+            "type": "publicKey"
+          },
+          {
+            "name": "mintLp",
+            "type": "publicKey"
+          },
+          {
+            "name": "poolTokenAccountA",
+            "type": "publicKey"
+          },
+          {
+            "name": "poolTokenAccountB",
+            "type": "publicKey"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          },
+          {
+            "name": "totalAmountInA",
+            "type": "u64"
+          },
+          {
+            "name": "totalAmountInB",
+            "type": "u64"
+          }
+        ]
+      }
     }
   ],
   "errors": [
     {
-      "code": 300,
+      "code": 6000,
       "name": "LowBondRedeemableAmount",
       "msg": "Redeemables to be paid out are somehow zero!"
     },
     {
-      "code": 301,
+      "code": 6001,
       "name": "LowBondTokAmount",
       "msg": "Token to be paid into the bond should not be zero"
     },
     {
-      "code": 302,
+      "code": 6002,
       "name": "RedeemCapacity",
       "msg": "Asking for too much SOL when redeeming!"
     },
     {
-      "code": 303,
+      "code": 6003,
       "name": "MinPurchaseAmount",
-      "msg": "Need to send more than 0 SOL!"
+      "msg": "Not enough credits!"
     },
     {
-      "code": 304,
+      "code": 6004,
       "name": "TimeFrameIsNotAnInterval",
       "msg": "Provided times are not an interval (end-time before start-time!)"
     },
     {
-      "code": 305,
+      "code": 6005,
       "name": "TimeFrameIsInThePast",
       "msg": "Provided starting time is not in the future. You should make it in such a way that it is slightly in the future, s.t. you have the ability to pay in some amounts."
     },
     {
-      "code": 306,
+      "code": 6006,
       "name": "TimeFrameCannotPurchaseAdditionalBondAmount",
       "msg": "Bond is already locked, you cannot pay in more into this bond!"
     },
     {
-      "code": 307,
+      "code": 6007,
       "name": "TimeFrameNotPassed",
       "msg": "Bond has not gone past timeframe yet"
     },
     {
-      "code": 308,
+      "code": 6008,
       "name": "MarketRateOverflow",
       "msg": "There was an issue computing the market rate. MarketRateOverflow"
     },
     {
-      "code": 309,
+      "code": 6009,
       "name": "MarketRateUnderflow",
       "msg": "There was an issue computing the market rate. MarketRateUnderflow"
     },
     {
-      "code": 310,
+      "code": 6010,
       "name": "PayoutError",
       "msg": "Paying out more than was initially paid in"
     },
     {
-      "code": 311,
+      "code": 6011,
       "name": "Calculation",
       "msg": "Redeemable-calculation doesnt add up"
+    },
+    {
+      "code": 6012,
+      "name": "ReturningNoCurrency",
+      "msg": "Returning no Tokens!"
+    },
+    {
+      "code": 6013,
+      "name": "CustomMathError1",
+      "msg": "Custom Math Error 1!"
+    },
+    {
+      "code": 6014,
+      "name": "CustomMathError2",
+      "msg": "Custom Math Error 2!"
+    },
+    {
+      "code": 6015,
+      "name": "CustomMathError3",
+      "msg": "Custom Math Error 3!"
+    },
+    {
+      "code": 6016,
+      "name": "CustomMathError4",
+      "msg": "Custom Math Error 4!"
+    },
+    {
+      "code": 6017,
+      "name": "CustomMathError5",
+      "msg": "Custom Math Error 5!"
+    },
+    {
+      "code": 6018,
+      "name": "CustomMathError6",
+      "msg": "Custom Math Error 6!"
+    },
+    {
+      "code": 6019,
+      "name": "CustomMathError7",
+      "msg": "Custom Math Error 7!"
+    },
+    {
+      "code": 6020,
+      "name": "CustomMathError8",
+      "msg": "Custom Math Error 8!"
+    },
+    {
+      "code": 6021,
+      "name": "CustomMathError9",
+      "msg": "Custom Math Error 9!"
+    },
+    {
+      "code": 6022,
+      "name": "CustomMathError10",
+      "msg": "Custom Math Error 10!"
+    },
+    {
+      "code": 6023,
+      "name": "CustomMathError11",
+      "msg": "Custom Math Error 11!"
+    },
+    {
+      "code": 6024,
+      "name": "CustomMathError12",
+      "msg": "Custom Math Error 12!"
+    },
+    {
+      "code": 6025,
+      "name": "CustomMathError13",
+      "msg": "Custom Math Error 13!"
+    },
+    {
+      "code": 6026,
+      "name": "CustomMathError14",
+      "msg": "Custom Math Error 14!"
+    },
+    {
+      "code": 6027,
+      "name": "CustomMathError15",
+      "msg": "Custom Math Error 15!"
+    },
+    {
+      "code": 6028,
+      "name": "CustomMathError16",
+      "msg": "Custom Math Error 16!"
+    },
+    {
+      "code": 6029,
+      "name": "CustomMathError17",
+      "msg": "Custom Math Error 17!"
+    },
+    {
+      "code": 6030,
+      "name": "CustomMathError18",
+      "msg": "Custom Math Error 18!"
+    },
+    {
+      "code": 6031,
+      "name": "CustomMathError19",
+      "msg": "Custom Math Error 19!"
+    },
+    {
+      "code": 6032,
+      "name": "CustomMathError20",
+      "msg": "Custom Math Error 20!"
+    },
+    {
+      "code": 6033,
+      "name": "CustomMathError21",
+      "msg": "Custom Math Error 21!"
+    },
+    {
+      "code": 6034,
+      "name": "CustomMathError22",
+      "msg": "Custom Math Error 22!"
+    },
+    {
+      "code": 6035,
+      "name": "EmptyTotalTokenSupply",
+      "msg": "Total Token Supply seems empty!"
+    },
+    {
+      "code": 6036,
+      "name": "EmptyTotalCurrencySupply",
+      "msg": "Total Currency Supply seems empty!"
     }
   ],
   "metadata": {
-    "address": "3vTbhuwJwR5BadSH9wt29rLf91S57x31ynQZJpG9cf7E"
+    "address": "HbJv8zuZ48AaqShNrTCBM3H34i51Vj6q4RfAQfA2iQLN"
   }
-}
+};

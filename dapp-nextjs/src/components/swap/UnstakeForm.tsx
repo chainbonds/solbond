@@ -93,26 +93,26 @@ export default function UnstakeForm() {
 
         try {
 
-            let tx = new Transaction();
-            console.log("Updating TVL");
-            let calculateTvlIx = await qPoolContext.qPoolsUser!.updateTvlInstruction(out.tvl.toNumber(), tvlAccountBump);
-            console.log("Updating buyQPT");
-            tx.add(calculateTvlIx);
-            let redeemQPTIx = await qPoolContext.qPoolsUser!.redeemQPTInstruction(sendAmount.toNumber(), true);
-            if (!redeemQPTIx) {
-                console.log("Bad output..");
-                throw Error("Something went wrong creating the buy QPT instruction");
-            }
-            tx.add(redeemQPTIx);
-            console.log("Sending Transactions");
-
-            // Add things like recent blockhash, and payer
-            const blockhash = await qPoolContext.connection!.getRecentBlockhash();
-            console.log("Added blockhash");
-            tx.recentBlockhash = blockhash.blockhash;
-            tx.feePayer = qPoolContext.qPoolsUser!.wallet.publicKey;
-            await qPoolContext.qPoolsUser!.wallet.signTransaction(tx);
-            await sendAndConfirm(qPoolContext.qPoolsUser!.connection, tx);
+            // let tx = new Transaction();
+            // console.log("Updating TVL");
+            // let calculateTvlIx = await qPoolContext.qPoolsUser!.updateTvlInstruction(out.tvl.toNumber(), tvlAccountBump);
+            // console.log("Updating buyQPT");
+            // tx.add(calculateTvlIx);
+            // let redeemQPTIx = await qPoolContext.qPoolsUser!.redeemQPTInstruction(sendAmount.toNumber(), true);
+            // if (!redeemQPTIx) {
+            //     console.log("Bad output..");
+            //     throw Error("Something went wrong creating the buy QPT instruction");
+            // }
+            // tx.add(redeemQPTIx);
+            // console.log("Sending Transactions");
+            //
+            // // Add things like recent blockhash, and payer
+            // const blockhash = await qPoolContext.connection!.getRecentBlockhash();
+            // console.log("Added blockhash");
+            // tx.recentBlockhash = blockhash.blockhash;
+            // tx.feePayer = qPoolContext.qPoolsUser!.wallet.publicKey;
+            // await qPoolContext.qPoolsUser!.wallet.signTransaction(tx);
+            // await sendAndConfirm(qPoolContext.qPoolsUser!.connection, tx);
 
         } catch (error) {
             console.log("Error happened!");

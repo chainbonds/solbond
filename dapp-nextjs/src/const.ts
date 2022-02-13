@@ -13,7 +13,7 @@ export interface TokenInfo {
 }
 // Gotta copy the keypair and distribute this amongst all developers
 export const PROGRAM_ID_SOLBOND: PublicKey = new PublicKey(
-    '3vTbhuwJwR5BadSH9wt29rLf91S57x31ynQZJpG9cf7E'
+    'HbJv8zuZ48AaqShNrTCBM3H34i51Vj6q4RfAQfA2iQLN'
 );
 
 // Taken from https://docs.marinade.finance/deit velopers/contract-addresses
