@@ -95,7 +95,7 @@ export default function StakeForm() {
         // Also, update the amount / weight change (amount should be calculated by weight + total_amount).
         // const sendAmount: BN = new BN(valueInUsd).mul(new BN(10**MOCK.DEV.SABER_USDC_DECIMALS));
 
-        let amountTokenA = new u64(12_000_000);
+        let amountTokenA = new u64(2_000_000);
         const amounts = [amountTokenA, 0, 0];
         let weights: Array<BN> = [new BN(1000), new BN(0), new BN(0)];
 
