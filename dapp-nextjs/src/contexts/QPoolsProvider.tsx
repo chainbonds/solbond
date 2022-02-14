@@ -8,7 +8,7 @@ import {WalletI} from "easy-spl";
 import {QPoolsUser} from "@qpools/sdk/src/qpools-user";
 import {MOCK} from "@qpools/sdk/src/const";
 import {QPoolsStats} from "@qpools/sdk/lib/qpools-stats";
-import {airdropAdmin, Portfolio} from "@qpools/sdk";
+import {airdropAdmin, PortfolioFrontendFriendly} from "@qpools/sdk";
 import delay from "delay";
 import axios from "axios";
 
