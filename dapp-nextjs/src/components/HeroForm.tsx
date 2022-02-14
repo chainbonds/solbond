@@ -9,7 +9,7 @@ enum HeroFormState {
 
 export default function HeroForm(props: any) {
 
-    const [displayForm, setDisplayForm] = useState<HeroFormState>(HeroFormState.Stake);
+    const [displayForm, setDisplayForm] = useState<HeroFormState>(HeroFormState.Unstake);
 
     const stakeTab = () => {
         if (displayForm === HeroFormState.Stake) {

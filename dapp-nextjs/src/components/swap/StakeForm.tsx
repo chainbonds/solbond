@@ -62,6 +62,8 @@ export default function StakeForm() {
 
     const submitToContract = async (d: any) => {
 
+        // TODO: Add load counters here again ...
+
         console.log(JSON.stringify(d));
 
         // The pool addresses will be all hardcoded somewhere
@@ -94,8 +96,8 @@ export default function StakeForm() {
         // const sendAmount: BN = new BN(valueInUsd).mul(new BN(10**MOCK.DEV.SABER_USDC_DECIMALS));
 
         let amountTokenA = new u64(1200);
-        const amounts = [amountTokenA, amountTokenA, amountTokenA];
-        let weights: Array<BN> = [new BN(500), new BN(500), new BN(500)];
+        const amounts = [amountTokenA, 0, 0];
+        let weights: Array<BN> = [new BN(1000), new BN(0), new BN(0)];
 
         // Make the weights, amounts, etc. work together ...
         await qPoolContext.portfolioObject!.registerPortfolio(weights);

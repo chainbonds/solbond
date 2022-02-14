@@ -18,6 +18,7 @@ import {MATH_DENOMINATOR, REDEEMABLES_DECIMALS} from "@qpools/sdk/lib/const";
 import {sendAndConfirm} from "easy-spl/dist/util";
 import {SEED} from "@qpools/sdk/lib/seeds";
 import SinglePortfolioRow from "../SinglePortfolioRow";
+import {u64} from "@solana/spl-token";
 
 export default function UnstakeForm() {
 
@@ -52,75 +53,87 @@ export default function UnstakeForm() {
 
         console.log(JSON.stringify(d));
 
-        // TODO: All decimals should be registered somewhere!
-        const sendAmount: BN = new BN(valueInQPT).mul(new BN(10**REDEEMABLES_DECIMALS));
-        console.log("send amount qpt is: ", sendAmount.toString());
+        console.log("About to be redeeming!");
 
-        if (!qPoolContext.userAccount!.publicKey) {
-            alert("Please connect your wallet first!");
-            return
-        }
+        let amountTokenA = new u64(1200);
+        const amounts = [amountTokenA, 0, 0];
+        let weights: Array<BN> = [new BN(1000), new BN(0), new BN(0)];
 
-        await loadContext.increaseCounter();
+        // Redeem the full portfolio
+        await qPoolContext.portfolioObject!.redeemFullPortfolio(weights, amounts);
+        await qPoolContext.portfolioObject!.transferToUser(amountTokenA);
+        // Redeem the full portfolio
 
-        // Initialize if not initialized yet
-        await qPoolContext.initializeQPoolsUserTool(walletContext);
-        await qPoolContext.qPoolsUser!.loadExistingQPTReserve(qPoolContext.currencyMint!.publicKey!);
-        // Should not have to register any accounts!
-        // Do some asserts if no QPT is found
-        await qPoolContext.qPoolsUser!.registerAccount();
 
-        // Generate the mint authority
-        console.log("Creating Wallet");
-        ///////////////////////////
-        // Create an associated token account for the currency if it doesn't exist yet
-        console.log("QPool context is: ", qPoolContext);
-        console.log("Currency mint is: ", qPoolContext.currencyMint);
-
-        // Now we redeem the QPT TOkens
-        console.log("qPoolContext.qPoolsUser", qPoolContext.qPoolsUser);
-        // Add a try-catch here (prob in the SDK)
-        console.log("Before sendAmount is: ", sendAmount.toString());
-        console.log("Before sendAmount is: ", sendAmount.toNumber());
-
-        // Calculate TVL
-        let out = await qPoolContext.qPoolsStats!.calculateTVL();
-
-        let [tvlAccount, tvlAccountBump] = await PublicKey.findProgramAddress(
-            [qPoolContext.qPoolsUser!.qPoolAccount.toBuffer(), Buffer.from(anchor.utils.bytes.utf8.encode(SEED.TVL_INFO_ACCOUNT))],
-            qPoolContext.qPoolsStats!.solbondProgram.programId
-        );
-
-        try {
-
-            // let tx = new Transaction();
-            // console.log("Updating TVL");
-            // let calculateTvlIx = await qPoolContext.qPoolsUser!.updateTvlInstruction(out.tvl.toNumber(), tvlAccountBump);
-            // console.log("Updating buyQPT");
-            // tx.add(calculateTvlIx);
-            // let redeemQPTIx = await qPoolContext.qPoolsUser!.redeemQPTInstruction(sendAmount.toNumber(), true);
-            // if (!redeemQPTIx) {
-            //     console.log("Bad output..");
-            //     throw Error("Something went wrong creating the buy QPT instruction");
-            // }
-            // tx.add(redeemQPTIx);
-            // console.log("Sending Transactions");
-            //
-            // // Add things like recent blockhash, and payer
-            // const blockhash = await qPoolContext.connection!.getRecentBlockhash();
-            // console.log("Added blockhash");
-            // tx.recentBlockhash = blockhash.blockhash;
-            // tx.feePayer = qPoolContext.qPoolsUser!.wallet.publicKey;
-            // await qPoolContext.qPoolsUser!.wallet.signTransaction(tx);
-            // await sendAndConfirm(qPoolContext.qPoolsUser!.connection, tx);
-
-        } catch (error) {
-            console.log("Error happened!");
-            alert("Error took place, please show post this in the discord or on twitter: " + JSON.stringify(error));
-        }
-
-        await loadContext.decreaseCounter();
-        console.log("Redeemed tokens! ", sendAmount.toString());
+        // // TODO: All decimals should be registered somewhere!
+        // const sendAmount: BN = new BN(valueInQPT).mul(new BN(10**REDEEMABLES_DECIMALS));
+        // console.log("send amount qpt is: ", sendAmount.toString());
+        //
+        // if (!qPoolContext.userAccount!.publicKey) {
+        //     alert("Please connect your wallet first!");
+        //     return
+        // }
+        //
+        // await loadContext.increaseCounter();
+        //
+        // // Initialize if not initialized yet
+        // await qPoolContext.initializeQPoolsUserTool(walletContext);
+        // await qPoolContext.qPoolsUser!.loadExistingQPTReserve(qPoolContext.currencyMint!.publicKey!);
+        // // Should not have to register any accounts!
+        // // Do some asserts if no QPT is found
+        // await qPoolContext.qPoolsUser!.registerAccount();
+        //
+        // // Generate the mint authority
+        // console.log("Creating Wallet");
+        // ///////////////////////////
+        // // Create an associated token account for the currency if it doesn't exist yet
+        // console.log("QPool context is: ", qPoolContext);
+        // console.log("Currency mint is: ", qPoolContext.currencyMint);
+        //
+        // // Now we redeem the QPT TOkens
+        // console.log("qPoolContext.qPoolsUser", qPoolContext.qPoolsUser);
+        // // Add a try-catch here (prob in the SDK)
+        // console.log("Before sendAmount is: ", sendAmount.toString());
+        // console.log("Before sendAmount is: ", sendAmount.toNumber());
+        //
+        // // Calculate TVL
+        // let out = await qPoolContext.qPoolsStats!.calculateTVL();
+        //
+        // let [tvlAccount, tvlAccountBump] = await PublicKey.findProgramAddress(
+        //     [qPoolContext.qPoolsUser!.qPoolAccount.toBuffer(), Buffer.from(anchor.utils.bytes.utf8.encode(SEED.TVL_INFO_ACCOUNT))],
+        //     qPoolContext.qPoolsStats!.solbondProgram.programId
+        // );
+        //
+        // try {
+        //
+        //     // let tx = new Transaction();
+        //     // console.log("Updating TVL");
+        //     // let calculateTvlIx = await qPoolContext.qPoolsUser!.updateTvlInstruction(out.tvl.toNumber(), tvlAccountBump);
+        //     // console.log("Updating buyQPT");
+        //     // tx.add(calculateTvlIx);
+        //     // let redeemQPTIx = await qPoolContext.qPoolsUser!.redeemQPTInstruction(sendAmount.toNumber(), true);
+        //     // if (!redeemQPTIx) {
+        //     //     console.log("Bad output..");
+        //     //     throw Error("Something went wrong creating the buy QPT instruction");
+        //     // }
+        //     // tx.add(redeemQPTIx);
+        //     // console.log("Sending Transactions");
+        //     //
+        //     // // Add things like recent blockhash, and payer
+        //     // const blockhash = await qPoolContext.connection!.getRecentBlockhash();
+        //     // console.log("Added blockhash");
+        //     // tx.recentBlockhash = blockhash.blockhash;
+        //     // tx.feePayer = qPoolContext.qPoolsUser!.wallet.publicKey;
+        //     // await qPoolContext.qPoolsUser!.wallet.signTransaction(tx);
+        //     // await sendAndConfirm(qPoolContext.qPoolsUser!.connection, tx);
+        //
+        // } catch (error) {
+        //     console.log("Error happened!");
+        //     alert("Error took place, please show post this in the discord or on twitter: " + JSON.stringify(error));
+        // }
+        //
+        // await loadContext.decreaseCounter();
+        // console.log("Redeemed tokens! ", sendAmount.toString());
 
     }
 
@@ -153,13 +166,13 @@ export default function UnstakeForm() {
                                 />
                             </div>
                         </div>
-                        {qPoolContext.qPoolsUser &&
+                        {qPoolContext.userAccount &&
                         <CallToActionButton
                             type={"submit"}
                             text={"REDEEM"}
                         />
                         }
-                        {!qPoolContext.qPoolsUser &&
+                        {!qPoolContext.userAccount &&
                         <div className={"flex w-full justify-center"}>
                             <WalletMultiButton
                                 className={"btn btn-ghost"}
