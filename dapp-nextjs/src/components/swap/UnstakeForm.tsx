@@ -17,8 +17,9 @@ import {useLoad} from "../../contexts/LoadingContext";
 import {MATH_DENOMINATOR, REDEEMABLES_DECIMALS} from "@qpools/sdk/lib/const";
 import {sendAndConfirm} from "easy-spl/dist/util";
 import {SEED} from "@qpools/sdk/lib/seeds";
-import SinglePortfolioRow from "../SinglePortfolioRow";
+import SinglePortfolioRow from "../portfolio/SinglePortfolioRow";
 import {u64} from "@solana/spl-token";
+import ConnectWalletPortfolioRow from "../portfolio/ConnectWalletPortfolioRow";
 
 export default function UnstakeForm() {
 
@@ -55,13 +56,14 @@ export default function UnstakeForm() {
 
         console.log("About to be redeeming!");
 
-        let amountTokenA = new u64(1200);
+        let amountTokenA = new u64(10_500_000);
         const amounts = [amountTokenA, 0, 0];
-        let weights: Array<BN> = [new BN(1000), new BN(0), new BN(0)];
 
         // Redeem the full portfolio
-        await qPoolContext.portfolioObject!.redeemFullPortfolio(weights, amounts);
-        await qPoolContext.portfolioObject!.transferToUser(amountTokenA);
+        // @ts-ignore
+        await qPoolContext.portfolioObject!.redeemFullPortfolio(amounts);
+        // Transfer back the contents of the full item. For this, fetch the total USDC amount of the account
+        await qPoolContext.portfolioObject!.transferToUser(new u64(10_000_000));
         // Redeem the full portfolio
 
 
@@ -145,6 +147,51 @@ export default function UnstakeForm() {
         // initializeQPoolsUserTool
     }, [walletContext.publicKey]);
 
+    const [portfolio, setPortfolio] = useState<any>(null);
+    useEffect(() => {
+        if (qPoolContext.portfolioObject) {
+
+            console.log("Getting Portfolio Object");
+            qPoolContext.portfolioObject!.fetchPortfolio().then((x: any) => {
+                console.log("Portfolio response is: ", x);
+            });
+
+            console.log("Getting Two Way Pool Object");
+            qPoolContext.portfolioObject!.fetchAllPools().then((x: any) => {
+                console.log("Pool response is: ", x);
+            })
+
+            console.log("Getting Position Objects");
+            qPoolContext.portfolioObject!.fetchAllPositions().then((x: any) => {
+                console.log("Position response is: ", x);
+            })
+
+            console.log("Finally, calculting the total Portfolio Value..");
+            qPoolContext.portfolioObject!.calculatePortfolioValue();
+
+        }
+    }, [qPoolContext.portfolioObject]);
+
+    const displayListOfPortfolios = () => {
+
+        // If the display tool is not ready yet / if the wallet was not connected yet, ask the user to connect their wallet
+        if (!qPoolContext.portfolioObject) {
+            return (
+                <ConnectWalletPortfolioRow
+                    text={"Connect wallet to see your portfolios!"}
+                />
+            )
+        }
+
+        return (
+            <SinglePortfolioRow
+                address={"DR24...B6kR"}
+                time={"10. Feb. 2022"}
+                value={5.2}
+            />
+        )
+    }
+
     return (
         <>
             <div className="">
@@ -159,11 +206,7 @@ export default function UnstakeForm() {
                                     For each portfolio that is loaded, display one of these...
                                     And you can also include a button to redeem, for each single one...
                                 */}
-                                <SinglePortfolioRow
-                                    address={"DR24...B6kR"}
-                                    time={"10. Feb. 2022"}
-                                    value={5.2}
-                                />
+                                {displayListOfPortfolios()}
                             </div>
                         </div>
                         {qPoolContext.userAccount &&

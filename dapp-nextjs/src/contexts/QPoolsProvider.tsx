@@ -8,7 +8,7 @@ import {WalletI} from "easy-spl";
 import {QPoolsUser} from "@qpools/sdk/src/qpools-user";
 import {MOCK} from "@qpools/sdk/src/const";
 import {QPoolsStats} from "@qpools/sdk/lib/qpools-stats";
-import {airdropAdmin, PortfolioFrontendFriendly} from "@qpools/sdk";
+import {airdropAdmin, PortfolioFrontendFriendly, DisplayPortfolios} from "@qpools/sdk";
 import delay from "delay";
 import axios from "axios";
 
@@ -25,6 +25,7 @@ export interface IQPool {
     initializeQPoolsUserTool: any,
     initializeQPoolsStatsTool: any,
     connection: Connection | undefined,
+    displayPortfolio: DisplayPortfolios | undefined,
     portfolioRatios: AllocData[],
     provider: Provider | undefined,
     _solbondProgram: any,
@@ -37,6 +38,7 @@ const defaultValue: IQPool = {
     qPoolsUser: undefined,
     qPoolsStats: undefined,
     portfolioObject: undefined,
+    displayPortfolio: undefined,
     portfolioRatios: [{
         "lp": "JSOL-SOL",
         "weight": 1000,
@@ -109,6 +111,7 @@ export function QPoolsProvider(props: any) {
 
     const [currencyMint, setCurrencyMint] = useState<Token | undefined>(undefined);
     const [QPTokenMint, setQPTokenMint] = useState<Token | undefined>(undefined);
+    const [displayPortfolio, setDisplayPortfolio] = useState<DisplayPortfolios | undefined>(undefined);
 
     const [portfolioRatios, setPortfolioRatios] = useState<AllocData[]>([{
         "lp": "JSOL-SOL",
@@ -124,7 +127,7 @@ export function QPoolsProvider(props: any) {
      * Somewhat legacy, will fix and clear these items at a later stage ...
      */
 
-    // Provider to get the JSON code ...
+    // Provider to get the JSON code ..
 
     useEffect(() => {
         console.log("Loading the weights");
@@ -185,7 +188,9 @@ export function QPoolsProvider(props: any) {
             payer
         );
 
+        // @ts-ignore
         let _portfolio = new PortfolioFrontendFriendly(_connection, _provider, _solbondProgram, payer);
+        let newQpoolsDisplay = new DisplayPortfolios(_connection, _provider, _solbondProgram);
 
         // Do a bunch of setstate, and wait ...
         setConnection(() => _connection);
@@ -194,6 +199,7 @@ export function QPoolsProvider(props: any) {
         setUserAccount(() => _userAccount);
         setCurrencyMint(() => _currencyMint);
         setPortfolioObject(() => _portfolio);
+        setDisplayPortfolio(() => newQpoolsDisplay);
 
         // TODO: Remove the QPoolsUser object completely! This is legacy
         // if (!qPoolsUser) {
@@ -221,6 +227,7 @@ export function QPoolsProvider(props: any) {
         initializeQPoolsUserTool,
         initializeQPoolsStatsTool,
         portfolioRatios,
+        displayPortfolio,
         connection,
         provider,
         _solbondProgram,
