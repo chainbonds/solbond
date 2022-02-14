@@ -56,14 +56,12 @@ export default function UnstakeForm() {
 
         console.log("About to be redeeming!");
 
-        let amountTokenA = new u64(10_500_000);
-        const amounts = [amountTokenA, 0, 0];
-
         // Redeem the full portfolio
         // @ts-ignore
-        await qPoolContext.portfolioObject!.redeemFullPortfolio(amounts);
+        await qPoolContext.portfolioObject!.redeemFullPortfolio();
         // Transfer back the contents of the full item. For this, fetch the total USDC amount of the account
-        await qPoolContext.portfolioObject!.transferToUser(new u64(10_000_000));
+
+        await qPoolContext.portfolioObject!.transferToUser();
         // Redeem the full portfolio
 
 
