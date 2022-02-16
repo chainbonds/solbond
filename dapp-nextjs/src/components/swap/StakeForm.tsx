@@ -138,8 +138,8 @@ export default function StakeForm() {
                                     {/*</div>*/}
                                 </div>
                                 <InputFieldWithLogo
-                                    logoPath={"/solana-logo.png"}
-                                    displayText={"SOL"}
+                                    logoPath={"/usdc-logo.png"}
+                                    displayText={"USDC"}
                                     registerFunction={() => register("solana_amount")}
                                     modifiable={true}
                                     setNewValue={setValueInUsd}

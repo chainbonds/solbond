@@ -1,6 +1,7 @@
 import {useState} from "react";
 import StakeForm from "./swap/StakeForm";
 import UnstakeForm from "./swap/UnstakeForm";
+import UserInfo from "./UserInfo";
 
 enum HeroFormState {
     Stake,
@@ -84,6 +85,10 @@ export default function HeroForm(props: any) {
             {/*Might need to do 2xl*/}
             {/* justify-center mx-auto  */}
             <div className={"flex flex-col w-3/5"}>
+                <div className={"flex mx-auto px-auto content-center items-center place-content-center"}>
+                    <UserInfo />
+                </div>
+                <br />
                 { stakingFormNavbar() }
                 { (displayForm === HeroFormState.Stake) && <StakeForm /> }
                 { (displayForm === HeroFormState.Unstake) && <UnstakeForm /> }

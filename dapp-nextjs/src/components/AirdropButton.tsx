@@ -38,18 +38,19 @@ export const AirdropButton: FC = ({}) => {
             console.log("Airdropped 1!");
         }
 
-        await delay(3000);
+        // await delay(3000);
 
         console.log("Initializing QPoolsUserTool");
         await qPoolContext.initializeQPoolsUserTool(walletContext);
+        await delay(1000);
 
-        console.log("Initializing QPoolsUserTool");
-        await qPoolContext.qPoolsUser!.loadExistingQPTReserve(qPoolContext.currencyMint!.publicKey!);
+        // console.log("Initializing QPoolsUserTool");
+        // await qPoolContext.qPoolsUser!.loadExistingQPTReserve(qPoolContext.currencyMint!.publicKey!);
+
+        // TODO: Generate a USDC account
 
         console.log("Registering Account");
-        await qPoolContext.qPoolsUser!.registerAccount();
         console.log(airdropAdmin);
-
         console.log("Currency mint is: ", qPoolContext.currencyMint!.publicKey.toString());
 
         ///////////////////////////
