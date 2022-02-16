@@ -17,6 +17,7 @@ import {useLoad} from "../../contexts/LoadingContext";
 import {MATH_DENOMINATOR, REDEEMABLES_DECIMALS} from "@qpools/sdk/lib/const";
 import {sendAndConfirm} from "easy-spl/dist/util";
 import {SEED} from "@qpools/sdk/lib/seeds";
+import {DeadButtonWallet} from "../DeadButtonWallet";
 
 export default function UnstakeForm() {
 
@@ -165,11 +166,7 @@ export default function UnstakeForm() {
                         }
                         {!qPoolContext.qPoolsUser &&
                         <div className={"flex w-full justify-center"}>
-                            <WalletMultiButton
-                                className={"btn btn-ghost"}
-                                onClick={() => {
-                                    console.log("click");
-                                }}
+                            <DeadButtonWallet
                             />
                         </div>
                         }

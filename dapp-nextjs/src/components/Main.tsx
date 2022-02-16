@@ -2,6 +2,8 @@ import React, {FC} from "react";
 import {HeroLeft} from "./HeroLeft";
 import HeroForm from "./HeroForm";
 import Statistics from "./Statistics";
+import PieChart from "./PieChart";
+import Chart from "./Chart";
 
 export const Main: FC = ({}) => {
 
@@ -41,7 +43,7 @@ export const Main: FC = ({}) => {
             <div className={"flex flex-col lg:flex-row grow w-full justify-center lg:justify-start my-auto"}>
                 {/*className={"flex grow my-auto"}*/}
 
-                <div className={"flex flex-col"}>
+                <div className={"flex flex-col space-y-10 "}>
 
                     {title()}
                     <div className="pt-4 pb-1 text-2xl text-gray-100 leading-10 text-center lg:text-left">
@@ -55,6 +57,9 @@ export const Main: FC = ({}) => {
                     <div className={"py-8 mx-0 md:mx-auto"}>
                         <Statistics />
                     </div>
+                    {/*<div className={"flex flex-col lg:flex-row  lg:space-x-10 mx-auto my-auto "}>
+                        <Chart/>
+                    </div>*/}
 
                 </div>
                 {/*<div className={"flex grow"}>*/}
@@ -64,7 +69,10 @@ export const Main: FC = ({}) => {
                 {/*flex-none*/}
                 {/*justify-center*/}
                 {/* w-full */}
-                <div className={"my-auto flex flex-row grow w-full justify-center lg:justify-end mx-auto"}>
+                <div className={"my-auto flex flex-col flex-row grow w-full justify-center lg:justify-end mx-auto"}>
+                    {/*} <div className={"flex flex-row mx-auto my-auto "}>
+                        <Chart/>
+                    </div>*/}
                     <HeroForm />
                 </div>
             </div>

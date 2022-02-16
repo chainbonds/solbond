@@ -18,6 +18,8 @@ import {MATH_DENOMINATOR, MOCK} from "@qpools/sdk/src/const";
 import {useLoad} from "../../contexts/LoadingContext";
 import {SEED} from "@qpools/sdk/lib/seeds";
 import {sendAndConfirm} from "easy-spl/dist/util";
+import PieChart from "../PieChart";
+import {DeadButtonWallet} from "../DeadButtonWallet";
 
 export default function StakeForm() {
 
@@ -152,6 +154,7 @@ export default function StakeForm() {
     return (
         <>
             <div className="">
+
                 <div className="">
                     <form action="#" method="POST" onSubmit={handleSubmit(submitToContract)}>
                         <div className="py-5 bg-slate-800 bg-gray">
@@ -164,16 +167,8 @@ export default function StakeForm() {
                                     {/*    Balance:*/}
                                     {/*</div>*/}
                                 </div>
-                                <InputFieldWithLogo
-                                    logoPath={"/usdt.png"}
-                                    displayText={"USDT"}
-                                    registerFunction={() => register("solana_amount")}
-                                    modifiable={true}
-                                    setNewValue={setValueInUsd}
-                                />
-                                <div className={"ml-4"}>
-                                    <AiOutlineArrowDown size={24}/>
-                                </div>
+
+
                                 <InputFieldWithLogo
                                     logoPath={"/Light 2 Square.png"}
                                     // QPT
@@ -192,11 +187,7 @@ export default function StakeForm() {
                         }
                         {!qPoolContext.qPoolsUser &&
                             <div className={"flex w-full justify-center"}>
-                                <WalletMultiButton
-                                    className={"btn btn-ghost"}
-                                    onClick={() => {
-                                        console.log("click");
-                                    }}
+                                <DeadButtonWallet
                                 />
                             </div>
                         }

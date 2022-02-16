@@ -2,6 +2,7 @@ import React, {FC} from "react";
 import {LogoWithTitle} from "./LogoWithTitle";
 import {WalletMultiButton} from "@solana/wallet-adapter-react-ui";
 import {AirdropButton} from "./AirdropButton";
+import {DeadButtonWallet} from "./DeadButtonWallet";
 
 export const Header: FC = ({}) => {
 
@@ -27,11 +28,7 @@ export const Header: FC = ({}) => {
                             <div className={"px-2 py-2 mx-auto md:py-0 md:py-auto md:my-auto"}>
                                 <AirdropButton />
                             </div>
-                            <WalletMultiButton
-                                className={"btn btn-ghost"}
-                                onClick={() => {
-                                    console.log("click");
-                                }}
+                            <DeadButtonWallet
                             />
                         </div>
                     </div>

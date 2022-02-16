@@ -28,24 +28,7 @@ export default function Statistics(props: any) {
             //     throw Error("Something went wrong loading qPoolsStats!");
             // }
 
-            if (qPoolContext.qPoolsStats) {
-
-                qPoolContext.qPoolsStats.collectPriceFeed().then(() => {
-                    qPoolContext.qPoolsStats!.calculateTVL().then(out => {
-                        console.log("Tvl decimals are: ", out.tvlDecimals);
-                        setTvl((_) => out.tvl.toNumber());
-                        setTotalQPT((_) => out.totalQPT);
-                        setTvlDecimals((_) => out.tvlDecimals);
-                        delay(5000).then(() => {
-                            // delay a bit, and call itself again ...
-                            updateStatistics();
-                        });
-                    })
-                });
-
-            } else {
-                console.log("Stats now loaded yet!", qPoolContext, qPoolContext.qPoolsStats)
-            }
+          
 
         }
     }
