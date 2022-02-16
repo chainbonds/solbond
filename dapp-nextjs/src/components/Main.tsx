@@ -2,8 +2,7 @@ import React, {FC} from "react";
 import {HeroLeft} from "./HeroLeft";
 import HeroForm from "./HeroForm";
 import Statistics from "./Statistics";
-import PieChart from "./PieChart";
-import Chart from "./Chart";
+import Chart from "./ChartAndTable";
 
 export const Main: FC = ({}) => {
 
@@ -57,8 +56,9 @@ export const Main: FC = ({}) => {
                     <div className={"py-8 mx-0 md:mx-auto"}>
                         <Statistics />
                     </div>
-                    {/*<div className={"flex flex-col lg:flex-row  lg:space-x-10 mx-auto my-auto "}>
-                        <Chart/>
+                    {/* Potential place for the chart and the table
+                    <div className={"flex flex-col lg:flex-row  lg:space-x-10 mx-auto my-auto "}>
+                        <ChartAndTable/>
                     </div>*/}
 
                 </div>
@@ -70,11 +70,9 @@ export const Main: FC = ({}) => {
                 {/*justify-center*/}
                 {/* w-full */}
                 <div className={"my-auto flex flex-col flex-row grow w-full justify-center lg:justify-end mx-auto"}>
-                    {/*} <div className={"flex flex-row mx-auto my-auto "}>
-                        <Chart/>
-                    </div>*/}
                     <HeroForm />
                 </div>
+
             </div>
         </div>
     );

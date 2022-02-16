@@ -119,7 +119,7 @@ export default function ChartAndTable() {
                         fill="#8884d8"
                         dataKey="value"
                     >
-                        {fixedData.map((entry, index) => (
+                        {pieChartData.map((entry, index) => (
                             <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]}/>
                         ))}
                     </Pie>
@@ -202,63 +202,6 @@ export default function ChartAndTable() {
                 </div>
             </div>
 
-
-            {/*
-            <table className={"flex-col my-auto text-white"}>
-                <thead className="">
-                <tr>
-                    <th scope="col">
-                    </th>
-                    <th scope="col">
-                        Asset
-                    </th>
-                    <th scope="col">
-                        Allocation
-                    </th>
-                </tr>
-                </thead>
-
-                <tbody className="">
-                <tr>
-                    <td className="">
-                        <div className="w-4 h-4 rounded-xl bg-red-600">{}</div>
-                    </td>
-                    <td className="">
-                        <div className="">{ratios[0].lp}</div>
-                    </td>
-                    <td className="">
-                        <div className="">{ratios[0].weight}</div>
-                    </td>
-                </tr>
-
-                <tr>
-                    <td className="">
-                        <div className="w-4 h-4 rounded-xl bg-blue-600">{}</div>
-                    </td>
-                    <td className="">
-                        <div className="">{ratios[1].lp}</div>
-                    </td>
-                    <td className="">
-                        <div className="">{ratios[1].weight}</div>
-                    </td>
-                </tr>
-
-                <tr>
-                    <td className="">
-                        <div className="w-4 h-4 rounded-xl bg-green-600">{}</div>
-                    </td>
-                    <td className="">
-                        <div className="">{ratios[1].lp}</div>
-                    </td>
-                    <td className="">
-                        <div className="">{ratios[1].weight}</div>
-                    </td>
-                </tr>
-
-                </tbody>
-            </table>
-            */}
-            {/*  </ResponsiveContainer>*/}
         </>
     );
 }

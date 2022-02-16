@@ -1,7 +1,6 @@
 import React, {useState} from "react";
 import StakeForm from "./swap/StakeForm";
 import UnstakeForm from "./swap/UnstakeForm";
-import PieChart from "./PieChart";
 
 enum HeroFormState {
     Stake,
@@ -66,9 +65,6 @@ export default function HeroForm(props: any) {
         return (
             <>
                 <ul className="flex mx-auto px-auto content-center items-center place-content-center">
-                    <li>
-
-                    </li>
                     <li className="-mb-px pr-3">
                         {stakeTab()}
                     </li>
@@ -87,9 +83,6 @@ export default function HeroForm(props: any) {
             {/*align-bottom*/}
             {/*Might need to do 2xl*/}
             {/* justify-center mx-auto  */}
-            <div className={"w-3/4 mx-auto"}>
-
-            </div>
 
             <div className={"flex flex-col w-3/5 mx-auto"}>
                 { stakingFormNavbar() }

@@ -18,7 +18,6 @@ import {MATH_DENOMINATOR, MOCK} from "@qpools/sdk/src/const";
 import {useLoad} from "../../contexts/LoadingContext";
 import {SEED} from "@qpools/sdk/lib/seeds";
 import {sendAndConfirm} from "easy-spl/dist/util";
-import PieChart from "../PieChart";
 import {DeadButtonWallet} from "../DeadButtonWallet";
 
 export default function StakeForm() {

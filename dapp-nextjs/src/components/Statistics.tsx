@@ -28,7 +28,7 @@ export default function Statistics(props: any) {
             //     throw Error("Something went wrong loading qPoolsStats!");
             // }
 
-          
+
 
         }
     }
