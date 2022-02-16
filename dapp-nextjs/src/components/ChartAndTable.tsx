@@ -3,7 +3,7 @@ import {PieChart, Pie, Cell, ResponsiveContainer} from "recharts";
 import axios from "axios";
 
 
-export default function Chart() {
+export default function ChartAndTable() {
 
     const COLORS = ["#0EA5E9", "#EF4444", "#22C55E", "#71717A"];
 
@@ -42,13 +42,14 @@ export default function Chart() {
 
     };
 
-
+    {/* for debugging purposes
     const fixedData = [
         {name: "Group A", value: 400},
         {name: "Group B", value: 300},
         {name: "Group C", value: 300},
         {name: "Group D", value: 200}
     ]
+    */}
 
     const [pieChartData, setPieChartData] = useState([
         {name: "Group A", value: 400},
@@ -92,8 +93,7 @@ export default function Chart() {
 
     useEffect(() => {
         if (!ratios) return;
-        console.log("Here is in the variable:")
-        console.log(JSON.stringify(ratios))
+
         let sum = ratios[0].weight + ratios[1].weight + ratios[2].weight ;
         setPieChartData([
             {name: ratios[0].lp, value: ((100* ratios[0].weight) / sum)},
