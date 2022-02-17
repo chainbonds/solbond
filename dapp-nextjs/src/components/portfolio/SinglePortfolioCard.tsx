@@ -4,7 +4,7 @@ import {IQPool, useQPoolUserTool} from "../../contexts/QPoolsProvider";
 import {AllocateParams, PublicKey, TokenAmount} from "@solana/web3.js";
 import ConnectWalletPortfolioRow from "./ConnectWalletPortfolioRow";
 import PortfolioDiagram from "./DetailedDiagram";
-import {PositionAccount} from "../../../../../qPools-contract/qpools-sdk/src/types/positionAccount";
+import {shortenedAddressString, solscanLink} from "../../utils/utils";
 
 export interface UsdValuePosition {
     totalPositionValue: number,
@@ -33,14 +33,9 @@ export default function SinglePortfolioCard(props: any) {
     };
 
     const qPoolContext: IQPool = useQPoolUserTool();
-    const [pnlPercent, setPnlPercent] = useState<number>(-5.);
     const [allocatedAccounts, setAllocatedAccounts] = useState<AccountOutput[]>([]);
     const [totalPortfolioValueInUsd, setTotalPortfolioValueUsd] = useState<number>(0.);
     const [positionValuesInUsd, setPositionValuesInUsd] = useState<UsdValuePosition[]>([]);
-
-    useEffect(() => {
-        setPnlPercent(props.value)
-    }, []);
 
     // Calculate all usdc values
     const calculateAllUsdcValues = async () => {
@@ -81,7 +76,7 @@ export default function SinglePortfolioCard(props: any) {
         let portfolio = await qPoolContext.portfolioObject!.fetchPortfolio();
         let positions = await qPoolContext.portfolioObject!.fetchAllPositions();
 
-        let allAmounts = await Promise.all(positions.map(async (position: PositionAccount, index: number): Promise<AccountOutput> => {
+        let allAmounts = await Promise.all(positions.map(async (position: any, index: number): Promise<AccountOutput> => {
             // Get all the positions (perhaps combine this in a single get statement at some point
             let tokenAAmount = (await qPoolContext.connection!.getTokenAccountBalance(position.ownerTokenAccountA)).value;
             let tokenBAmount = (await qPoolContext.connection!.getTokenAccountBalance(position.ownerTokenAccountB)).value;
@@ -224,23 +219,6 @@ export default function SinglePortfolioCard(props: any) {
         getPortfolioInformation();
     }, [qPoolContext.userAccount]);
 
-    const displayReturn = () => {
-
-        if (pnlPercent >= 0.) {
-            return (
-                <div className={"flex w-full mx-auto px-auto justify-end text-green-500"}>
-                    + {pnlPercent} %
-                </div>
-            );
-        } else {
-            return (
-                <div className={"flex w-full mx-auto px-auto justify-end text-red-500"}>
-                    - {-1. * pnlPercent} %
-                </div>
-            );
-        }
-    }
-
     const displaySinglePosition = (position: AccountOutput) => {
         if (!position) {
             console.log("Not ready to load just yet..");
@@ -275,24 +253,8 @@ export default function SinglePortfolioCard(props: any) {
         )
     }
 
-    const shortenedAddressString = (_address: PublicKey) => {
-        let address: string = _address.toString();
-        if (address.length < 6) {
-            return address
-        }
-        let out: string = address.substring(0, 3);
-        out += "..";
-        out += address.substring(address.length - 3, address.length);
-        return out;
-    }
-    const solscanLink = (address: PublicKey) => {
-        let out = "https://solscan.io/account/";
-        out += address.toString();
-        out += "?cluster=devnet";
-        return out;
-    }
 
-    const displaySinglePortfolio = (i: number) => {
+    const displaySinglePortfolio = () => {
         console.log("Displaying allocated Accounts: ", allocatedAccounts);
         if (allocatedAccounts.length === 0) {
             return (
@@ -306,7 +268,7 @@ export default function SinglePortfolioCard(props: any) {
 
                     <div className="block rounded-lg shadow-lg bg-white max-w-sm text-center">
                         <div className="py-3 px-6 border-b border-gray-300 text-gray-900 text-xl font-medium mb-2">
-                            Portfolio #{i} ${totalPortfolioValueInUsd}
+                            Portfolio Value ${totalPortfolioValueInUsd}
                         </div>
 
                         <PortfolioDiagram
@@ -331,34 +293,8 @@ export default function SinglePortfolioCard(props: any) {
 
     return (
         <>
-            {/*
-                Working on a row with two elements
-            */}
-
-
             <div className="flex items-center justify-center w-full h-full">
-
-                {displaySinglePortfolio(0)}
-
-                {/*<div className="relative text-gray-400 focus-within:text-gray-400 w-full h-full">*/}
-                {/*    <div className="flex rounded-lg w-full bg-gray-900 items-end text-right h-14 p-4">*/}
-                {/*        /!* Two elements here again? One front, one end*!/*/}
-                {/*        <div className={"flex w-full mx-auto px-auto justify-start"}>*/}
-                {/*            {props.address}*/}
-                {/*        </div>*/}
-                {/*        <div className={"flex w-full mx-auto px-auto justify-center"}>*/}
-                {/*            {props.time}*/}
-                {/*        </div>*/}
-                {/*        {displayReturn()}*/}
-                {/*        /!*<div className={"flex w-full mx-auto px-auto justify-end text-green-500"}>*!/*/}
-                {/*        /!*    {props.value}*!/*/}
-                {/*        /!*</div>*!/*/}
-                {/*        /!*<div className={"flex flex-row w-full items-end"}>*!/*/}
-                {/*        /!*    {props.value}*!/*/}
-                {/*        /!*</div>*!/*/}
-                {/*    </div>*/}
-                {/*</div>*/}
-
+                {displaySinglePortfolio()}
             </div>
         </>
     );

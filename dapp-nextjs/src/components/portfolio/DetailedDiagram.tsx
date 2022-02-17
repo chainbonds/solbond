@@ -26,52 +26,69 @@ import {initNext} from "next/client";
 
 export default function PortfolioDiagram(props: any) {
 
-    const [data, setData] = useState<any[]>([]);
+    const [data, setData] = useState<any[]>([
+        {
+            name: "0",
+            usdValueA: 0,
+            usdValueB: 0.0,
+            usdValueLp: 1.
+        },
+        {
+            name: "2",
+            usdValueA: 0,
+            usdValueB: 0.0,
+            usdValueLp: 0.0
+        },
+        {
+            name: "2",
+            usdValueA: 0,
+            usdValueB: 0.0,
+            usdValueLp: 0.0
+        }
+    ]);
 
     useEffect(() => {
 
-        // let displayData: any[] = [];
-        // let inputData = props.values;
-        //
-        // // Iterate through all key-value pairs
-        // inputData.map((obj: UsdValuePosition, index: number) => {
-        //     let tmpObj: any = {};
-        //     let k: keyof typeof obj;
-        //     // tmpObj["name"] = obj.
-        //     tmpObj["name"] = String(index);
-        //     for (k in obj) {
-        //         const v = obj[k];
-        //         if (k.toString() != "totalPositionValue") {
-        //             tmpObj[k] = v;
-        //         }
-        //     }
-        //     console.log("Tmp object is: ", tmpObj);
-        //     displayData.push(tmpObj);
-        // });
-        //
-        // console.log("Data is: ", displayData);
-        // setData(displayData);
+        let displayData: any[] = [];
+        let inputData = props.values;
 
-        let data: any = [
-            {
-                name: "0",
-                usdValueA: 0,
-                usdValueB: 12.647157,
-                usdValueLp: 1.997628479075659
-            },
-            {
-                name: "1",
-                usdValueA: 0,
-                usdValueB: 0.000583,
-                usdValueLp: 0
-            },
-            {
-                name: "2",
-                usdValueA: 0.001074,
-                usdValueB: 0,
-                usdValueLp: 0
+        console.log("Input data is: ", inputData);
+
+        // Iterate through all key-value pairs
+        inputData.forEach((obj: UsdValuePosition, index: number) => {
+            let tmpObj = {
+                name: String(index),
+                usdValueA: obj.usdValueA,
+                usdValueB: obj.usdValueB,
+                usdValueLp: obj.usdValueLp
             }
-        ];
+            console.log("Tmp object is: ", tmpObj);
+            displayData.push(tmpObj);
+        });
+
+        console.log("Data is: ", displayData);
+        setData(displayData);
+
+        // let data: any = [
+        //     {
+        //         name: "0",
+        //         usdValueA: 0,
+        //         usdValueB: 12.647157,
+        //         usdValueLp: 1.997628479075659
+        //     },
+        //     {
+        //         name: "1",
+        //         usdValueA: 0,
+        //         usdValueB: 0.000583,
+        //         usdValueLp: 0
+        //     },
+        //     {
+        //         name: "2",
+        //         usdValueA: 0.001074,
+        //         usdValueB: 0,
+        //         usdValueLp: 0
+        //     }
+        // ];
 
         // data = [
         //     {
@@ -93,7 +110,7 @@ export default function PortfolioDiagram(props: any) {
         //         // usdValueLp: 2290,
         //     },
         // ];
-        setData(data);
+        // setData(data);
     }, [props.values]);
 
     // <ResponsiveContainer width="100%" height="100%">
