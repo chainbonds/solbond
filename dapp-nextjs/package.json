@@ -14,9 +14,8 @@
     "@nfteyez/sol-rayz-react": "^0.8.2",
     "@project-serum/anchor": "^0.20.1",
     "@pythnetwork/client": "^2.5.1",
-    "@solana/spl-token": "^0.1.8",
     "@qpools/sdk": "^0.1.2",
-    "jsbi": "^4.1.0",
+    "@solana/spl-token": "^0.1.8",
     "@solana/wallet-adapter-base": "^0.7.0",
     "@solana/wallet-adapter-phantom": "^0.7.0",
     "@solana/wallet-adapter-react": "^0.13.1",
@@ -31,6 +30,7 @@
     "daisyui": "^1.16.2",
     "easy-spl": "^0.5.0",
     "heroicons": "^1.0.5",
+    "jsbi": "^4.1.0",
     "next": "12.0.3",
     "next-compose-plugins": "^2.2.1",
     "next-transpile-modules": "^9.0.0",
@@ -46,7 +46,8 @@
     "react-loader-spinner": "^5.0.6",
     "react-loading-overlay": "^1.0.1",
     "react-social-icons": "^5.6.1",
-    "react-spinners": "^0.11.0"
+    "react-spinners": "^0.11.0",
+    "recharts": "^2.1.9"
   },
   "devDependencies": {
     "@project-serum/serum": "^0.13.58",

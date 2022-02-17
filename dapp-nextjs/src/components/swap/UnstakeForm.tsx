@@ -17,7 +17,7 @@ import {useLoad} from "../../contexts/LoadingContext";
 import {MATH_DENOMINATOR, REDEEMABLES_DECIMALS} from "@qpools/sdk/lib/const";
 import {sendAndConfirm} from "easy-spl/dist/util";
 import {SEED} from "@qpools/sdk/lib/seeds";
-import SinglePortfolioRow from "../portfolio/SinglePortfolioRow";
+import SinglePortfolioCard from "../portfolio/SinglePortfolioCard";
 import {u64} from "@solana/spl-token";
 import ConnectWalletPortfolioRow from "../portfolio/ConnectWalletPortfolioRow";
 
@@ -82,23 +82,23 @@ export default function UnstakeForm() {
     useEffect(() => {
         if (qPoolContext.portfolioObject) {
 
-            console.log("Getting Portfolio Object");
-            qPoolContext.portfolioObject!.fetchPortfolio().then((x: any) => {
-                console.log("Portfolio response is: ", x);
-            });
-
-            console.log("Getting Two Way Pool Object");
-            qPoolContext.portfolioObject!.fetchAllPools().then((x: any) => {
-                console.log("Pool response is: ", x);
-            })
-
-            console.log("Getting Position Objects");
-            qPoolContext.portfolioObject!.fetchAllPositions().then((x: any) => {
-                console.log("Position response is: ", x);
-            })
-
-            console.log("Finally, calculting the total Portfolio Value..");
-            qPoolContext.portfolioObject!.calculatePortfolioValue();
+            // console.log("Getting Portfolio Object");
+            // qPoolContext.portfolioObject!.fetchPortfolio().then((x: any) => {
+            //     console.log("Portfolio response is: ", x);
+            // });
+            //
+            // console.log("Getting Two Way Pool Object");
+            // qPoolContext.portfolioObject!.fetchAllPools().then((x: any) => {
+            //     console.log("Pool response is: ", x);
+            // })
+            //
+            // console.log("Getting Position Objects");
+            // qPoolContext.portfolioObject!.fetchAllPositions().then((x: any) => {
+            //     console.log("Position response is: ", x);
+            // })
+            //
+            // console.log("Finally, calculting the total Portfolio Value..");
+            // qPoolContext.portfolioObject!.calculatePortfolioValue();
 
         }
     }, [qPoolContext.portfolioObject]);
@@ -115,7 +115,7 @@ export default function UnstakeForm() {
         }
 
         return (
-            <SinglePortfolioRow
+            <SinglePortfolioCard
                 address={"DR24...B6kR"}
                 time={"10. Feb. 2022"}
                 value={5.2}
@@ -140,12 +140,12 @@ export default function UnstakeForm() {
                                 {displayListOfPortfolios()}
                             </div>
                         </div>
-                        {qPoolContext.userAccount &&
-                        <CallToActionButton
-                            type={"submit"}
-                            text={"REDEEM"}
-                        />
-                        }
+                        {/*{qPoolContext.userAccount &&*/}
+                        {/*<CallToActionButton*/}
+                        {/*    type={"submit"}*/}
+                        {/*    text={"REDEEM"}*/}
+                        {/*/>*/}
+                        {/*}*/}
                         {!qPoolContext.userAccount &&
                         <div className={"flex w-full justify-center"}>
                             <WalletMultiButton
