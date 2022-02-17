@@ -1,28 +1,6 @@
 import React, {PureComponent, useEffect, useState} from 'react';
 import { BarChart, Bar, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
-import {UsdValuePosition} from "./SinglePortfolioCard";
-import {initNext} from "next/client";
-
-// data = [
-//     {
-//         name: 'Page A',
-//         uv: 4000,
-//         pv: 2400,
-//         amt: 2400,
-//     },
-//     {
-//         name: 'Page B',
-//         uv: 3000,
-//         pv: 1398,
-//         amt: 2210,
-//     },
-//     {
-//         name: 'Page C',
-//         uv: 2000,
-//         pv: 9800,
-//         amt: 2290,
-//     },
-// ];
+import { UsdValuePosition } from 'types/UsdValuePosition';
 
 export default function PortfolioDiagram(props: any) {
 
@@ -117,7 +95,7 @@ export default function PortfolioDiagram(props: any) {
     return (
         <>
             <BarChart
-                width={500}
+                width={300}
                 height={200}
                 data={data}
                 margin={{

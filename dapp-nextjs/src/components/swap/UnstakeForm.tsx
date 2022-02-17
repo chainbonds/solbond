@@ -20,6 +20,7 @@ import {SEED} from "@qpools/sdk/lib/seeds";
 import SinglePortfolioCard from "../portfolio/SinglePortfolioCard";
 import {u64} from "@solana/spl-token";
 import ConnectWalletPortfolioRow from "../portfolio/ConnectWalletPortfolioRow";
+import SinglePortfolioRow from "../portfolio/SinglePortfolioRow";
 
 export default function UnstakeForm() {
 
@@ -31,12 +32,23 @@ export default function UnstakeForm() {
     const [valueInUsdc, setValueInUsdc] = useState<number>(0.0);
     const [valueInQPT, setValueInQpt] = useState<number>(0.0);
 
+    const [portfolioPDA, setPortfolioPDA] = useState<PublicKey>();
+    const [totalPortfolioValueInUsd, setTotalPortfolioValueInUsd] = useState<number>();
+
     // useEffect(() => {
     //     setValueInSol((_: number) => {
     //         // Get the exchange rate between QPT and USDC
     //         return valueInQPT * 1.;
     //     });
     // }, [valueInQPT]);
+
+    useEffect(() => {
+        setPortfolio(setPortfolioPDA);
+    }, [qPoolContext.portfolioObject?.portfolioPDA]);
+
+    useEffect(() => {
+        setTotalPortfolioValueInUsd(qPoolContext.totalPortfolioValueInUsd);
+    }, [qPoolContext.totalPortfolioValueInUsd]);
 
     useEffect(() => {
         qPoolContext.qPoolsStats?.calculateTVL().then(out => {
@@ -113,12 +125,27 @@ export default function UnstakeForm() {
                 />
             )
         }
+        if (qPoolContext.allocatedAccounts.length === 0) {
+            return (
+                <ConnectWalletPortfolioRow
+                    text={"You have not created any positions yet!"}
+                />
+            );
+        }
+
+        // <SinglePortfolioCard
+        //     address={"DR24...B6kR"}
+        //     time={"10. Feb. 2022"}
+        //     value={5.2}
+        // />
+
+        // qPoolContext.portfolioObject.
+        console.log("Portfolio PDA is: ", qPoolContext.portfolioObject.portfolioPDA);
 
         return (
-            <SinglePortfolioCard
-                address={"DR24...B6kR"}
-                time={"10. Feb. 2022"}
-                value={5.2}
+            <SinglePortfolioRow
+                address={portfolioPDA}
+                value={totalPortfolioValueInUsd}
             />
         )
     }
