@@ -35,7 +35,7 @@ export default function PortfolioDiagram(props: any) {
         // Iterate through all key-value pairs
         inputData.forEach((obj: UsdValuePosition, index: number) => {
             let tmpObj = {
-                name: String(index),
+                name: String(index + 1),
                 usdValueA: obj.usdValueA,
                 usdValueB: obj.usdValueB,
                 usdValueLp: obj.usdValueLp
@@ -47,72 +47,29 @@ export default function PortfolioDiagram(props: any) {
         console.log("Data is: ", displayData);
         setData(displayData);
 
-        // let data: any = [
-        //     {
-        //         name: "0",
-        //         usdValueA: 0,
-        //         usdValueB: 12.647157,
-        //         usdValueLp: 1.997628479075659
-        //     },
-        //     {
-        //         name: "1",
-        //         usdValueA: 0,
-        //         usdValueB: 0.000583,
-        //         usdValueLp: 0
-        //     },
-        //     {
-        //         name: "2",
-        //         usdValueA: 0.001074,
-        //         usdValueB: 0,
-        //         usdValueLp: 0
-        //     }
-        // ];
-
-        // data = [
-        //     {
-        //         name: "1",
-        //         usdValueA: 4000,
-        //         usdValueB: 2400,
-        //         // usdValueLp: 2400,
-        //     },
-        //     {
-        //         name: '2',
-        //         usdValueA: 3000,
-        //         usdValueB: 1398,
-        //         // usdValueLp: 2210,
-        //     },
-        //     {
-        //         name: '3',
-        //         usdValueA: 2000,
-        //         usdValueB: 9800,
-        //         // usdValueLp: 2290,
-        //     },
-        // ];
-        // setData(data);
     }, [props.values]);
 
-    // <ResponsiveContainer width="100%" height="100%">
     return (
         <>
             <BarChart
-                width={300}
+                width={200}
                 height={200}
                 data={data}
                 margin={{
-                    top: 20,
-                    right: 30,
-                    left: 20,
+                    top: 5,
+                    right: 5,
+                    left: 5,
                     bottom: 5,
                 }}
             >
                 <CartesianGrid strokeDasharray="0 0" />
                 <XAxis dataKey="name" />
                 <YAxis />
-                <Tooltip />
-                <Legend />
-                <Bar dataKey="usdValueA" stackId="a" fill="#8884d8" />
-                <Bar dataKey="usdValueB" stackId="a" fill="#82ca9d" />
-                <Bar dataKey="usdValueLp" stackId="a" fill="#22ea9d" />
+                {/*<Tooltip />*/}
+                {/*<Legend />*/}
+                <Bar name="Position 1" dataKey="usdValueA" stackId="a" fill="#DDD6FE" />
+                <Bar name="Position 2" dataKey="usdValueB" stackId="a" fill="#ECE9FE" />
+                <Bar name="Position 3" dataKey="usdValueLp" stackId="a" fill="#baa5ef" />
             </BarChart>
         </>
     );
