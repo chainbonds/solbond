@@ -39,7 +39,7 @@ export default function SinglePortfolioCard(props: any) {
                                         </th>
                                         <th scope="col"
                                             className="py-3 px-6 text-xs font-medium tracking-wider text-left text-gray-700 uppercase dark:text-gray-400">
-                                            $ Value
+                                            USDC Value
                                         </th>
                                         <th scope="col" className="relative py-3 px-6">
                                             <span className="sr-only">Edit</span>
@@ -158,7 +158,7 @@ export default function SinglePortfolioCard(props: any) {
                                     <div className="flex flex-col rounded-lg max-w-sm text-center content-center">
 
                                         <div className={"mb-3"}>
-                                            This portfolio is worth an estimated ${qPoolContext.totalPortfolioValueInUsd.toFixed(2)}
+                                            This portfolio is worth an estimated USDC {qPoolContext.totalPortfolioValueInUsd.toFixed(2)}
                                         </div>
 
                                         {displayAllLpsInOneTable(qPoolContext.allocatedAccounts)}
@@ -176,7 +176,7 @@ export default function SinglePortfolioCard(props: any) {
                                             submitToContract();
                                         }}
                                     >
-                                        Redeem ~${qPoolContext.totalPortfolioValueInUsd.toFixed(2)} USDC (estimated)
+                                        Redeem ~USDC {qPoolContext.totalPortfolioValueInUsd.toFixed(2)} USDC (estimated)
                                     </button>
                                     <button
                                         type="button"

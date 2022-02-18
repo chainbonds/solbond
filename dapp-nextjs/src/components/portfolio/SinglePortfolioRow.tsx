@@ -31,7 +31,7 @@ export default function SinglePortfolioRow(props: any) {
                             {props.address}
                         </div>
                         <div className={"flex w-full mx-auto px-auto justify-center"}>
-                            ${props.value && props.value.toFixed(2)}
+                            USDC {props.value && props.value.toFixed(2)}
                         </div>
                         <div className={"flex w-full mx-auto px-auto justify-end"}>
                             {/*<button*/}

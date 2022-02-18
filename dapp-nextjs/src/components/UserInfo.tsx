@@ -14,17 +14,19 @@ export default function UserInfo(props: any) {
 
         if (qPoolContext.connection && qPoolContext.currencyMint && qPoolContext.userAccount) {
             // Get the associated token account
+            console.log("Getting associated token account")
             getAssociatedTokenAddressOffCurve(
                 qPoolContext.currencyMint.publicKey, qPoolContext.userAccount.publicKey
             ).then((userCurrencyAta: PublicKey) => {
                 qPoolContext.connection!.getTokenAccountBalance(userCurrencyAta).then((x) => {
-                    console.log("Balance is: ", x.value);
-                    if (x.value.uiAmount) {
+                    if (x.value && x.value.uiAmount) {
+                        console.log("Balance is: ", x.value);
                         setCurrencyBalance(x.value.uiAmount!);
                     } else {
                         console.log("ERROR: Something went wrong unpacking the balance!");
                     }
-                    });
+                    console.log("Done fetching");
+                });
             })
 
             // Get the balance

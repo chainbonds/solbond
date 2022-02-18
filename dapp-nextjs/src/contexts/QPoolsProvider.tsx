@@ -1,7 +1,7 @@
 import React, {useState, useContext, useEffect} from 'react';
-import {Provider} from "@project-serum/anchor";
+import {Provider, web3} from "@project-serum/anchor";
 import {AllocateParams, clusterApiUrl, Connection, Keypair, PublicKey} from "@solana/web3.js";
-import {Token} from "@solana/spl-token";
+import {Token, TOKEN_PROGRAM_ID} from "@solana/spl-token";
 import * as anchor from "@project-serum/anchor";
 import {solbondProgram} from "../programs/solbond";
 import {WalletI} from "easy-spl";
@@ -173,7 +173,8 @@ export function QPoolsProvider(props: any) {
         let _currencyMint = new Token(
             _connection,
             MOCK.DEV.SABER_USDC,
-            new PublicKey("HbJv8zuZ48AaqShNrTCBM3H34i51Vj6q4RfAQfA2iQLN"),
+            TOKEN_PROGRAM_ID,
+            // new PublicKey("HdWi7ZAt1tmWaMJgH37DMqAMqBwjzt56CtiKELBZotrc"),
             airdropAdmin
         );
         let newQpoolsStates = new QPoolsStats(_connection, _currencyMint);
@@ -204,7 +205,8 @@ export function QPoolsProvider(props: any) {
         let _currencyMint = new Token(
             _connection,
             MOCK.DEV.SABER_USDC,
-            new PublicKey("HbJv8zuZ48AaqShNrTCBM3H34i51Vj6q4RfAQfA2iQLN"),
+            TOKEN_PROGRAM_ID,
+            // new PublicKey("HdWi7ZAt1tmWaMJgH37DMqAMqBwjzt56CtiKELBZotrc"),
             payer
         );
 
@@ -220,20 +222,6 @@ export function QPoolsProvider(props: any) {
         setCurrencyMint(() => _currencyMint);
         setPortfolioObject(() => _portfolio);
         setDisplayPortfolio(() => newQpoolsDisplay);
-
-        // TODO: Remove the QPoolsUser object completely! This is legacy
-        // if (!qPoolsUser) {
-        //     setQPoolsUser(() => {
-        //         return new QPoolsUser(
-        //             _provider,
-        //             _connection,
-        //             _currencyMint
-        //         );
-        //     });
-        // } else {
-        //     console.log("qPoolUserTool already exists!");
-        //     // alert("qPoolUserToll already exists!");
-        // }
 
         // Wait for the setState to take effect. I know this is hacky, but for now should suffice
         await delay(800);
@@ -325,6 +313,7 @@ export function QPoolsProvider(props: any) {
     }
 
     const getPortfolioInformation = async () => {
+        console.log("#getPortfolioInformation()");
 
         if (
             !connection ||
@@ -342,8 +331,23 @@ export function QPoolsProvider(props: any) {
         // );
 
         // Removing the fetch-portfolio is disturbing it
-        let portfolio = await portfolioObject!.fetchPortfolio();
-        let positions = await portfolioObject!.fetchAllPositions();
+        // If an error arises, then just return empty stuff
+        let portfolio;
+        try {
+            portfolio = await portfolioObject!.fetchPortfolio();
+        } catch (e: any) {
+            console.log("ERROR: Portfolio could not be loaded");
+            console.log(JSON.stringify(e));
+            return;
+        }
+        let positions;
+        try {
+            positions = await portfolioObject!.fetchAllPositions();
+        } catch (e: any) {
+            console.log("ERROR: Positions could not be loaded");
+            console.log(JSON.stringify(e));
+            return;
+        }
 
         let allAmounts = await Promise.all(positions.map(async (position: any, index: number): Promise<AccountOutput> => {
             // Get all the positions (perhaps combine this in a single get statement at some point
@@ -353,7 +357,6 @@ export function QPoolsProvider(props: any) {
 
             // Also add pool address to this
             // Perhaps also get the stableswap state ? Probably cleaner if we get this in retrospect
-
             return {
                 index: index,
                 poolAddress: portfolioObject!.poolAddresses[index],
@@ -396,17 +399,19 @@ export function QPoolsProvider(props: any) {
             // position.amountLp
 
         });
+        console.log("##getPortfolioInformation()");
     };
+
+    useEffect(() => {
+        if (userAccount && portfolioObject) {
+            // if the account exists already!
+            getPortfolioInformation();
+        }
+    }, [userAccount, portfolioObject]);
 
     useEffect(() => {
         calculateAllUsdcValues();
     }, [allocatedAccounts]);
-
-    useEffect(() => {
-        if (userAccount && portfolioObject) {
-            getPortfolioInformation();
-        }
-    }, [userAccount, portfolioObject]);
 
     const value: IQPool = {
         qPoolsUser,
