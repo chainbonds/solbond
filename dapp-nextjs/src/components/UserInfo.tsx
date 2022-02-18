@@ -1,7 +1,6 @@
 import {useEffect, useState} from "react";
 import {IQPool, useQPoolUserTool} from "../contexts/QPoolsProvider";
 import {delay, getAssociatedTokenAddressOffCurve} from "@qpools/sdk/lib/utils";
-import {BN} from "@project-serum/anchor";
 import {PublicKey} from "@solana/web3.js";
 
 export default function UserInfo(props: any) {
