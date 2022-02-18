@@ -33,36 +33,10 @@ export default function StakeForm() {
     const qPoolContext: IQPool = useQPoolUserTool();
     const loadContext = useLoad();
 
-    const [valueInUsd, setValueInUsd] = useState<number>(0.0);
-    const [valueInQPT, setValueInQpt] = useState<number>(0.0);
-
-    const [balanceUsd, setBalanceUsd] = useState<number>(0.0);
-    const [balanceQpt, setBalanceQpt] = useState<number>(0.0);
-
+    const [valueInUsdc, setValueInUsdc] = useState<number>(0.);
     const [displayBuyModal, setBuyModal] = useState<boolean>(false);
-    const [buyModalInfo, setBuyModalInfo] = useState<any>({});
-
-    useEffect(() => {
-        qPoolContext.qPoolsStats?.calculateTVL().then((out: any) => {
-
-            if (out.tvl.gt(new BN(0))) {
-                // Calculate the conversion rate ...
-                // Add .div(new BN(10 ** out.tvlDecimals))
-                // Add a
-                let newValueBasedOnConversionRateQptPerUsd = new BN(out.totalQPT).mul(new BN(10 ** out.tvlDecimals)).mul(new BN(valueInUsd)).div(out.tvl);
-                setValueInQpt((_: number) => {
-                    return newValueBasedOnConversionRateQptPerUsd.toNumber();
-                });
-            } else {
-                setValueInQpt(valueInUsd);
-            }
-
-        });
-    }, [valueInUsd]);
 
     const submitToContract = async (d: any) => {
-
-        // TODO: Add load counters here again ...
 
         console.log(JSON.stringify(d));
 
@@ -79,14 +53,13 @@ export default function StakeForm() {
             return
         }
 
+        await loadContext.increaseCounter();
+
         // Initialize if not initialized yet
         await qPoolContext.initializeQPoolsUserTool(walletContext);
 
-        // TODO: Uncomment
-        // await loadContext.increaseCounter();
-
         // We can now assume that the portfolio was created in the qpools context.
-        const sendAmount: BN = new BN(valueInUsd).mul(new BN(10**MOCK.DEV.SABER_USDC_DECIMALS));
+        const sendAmount: BN = new BN(valueInUsdc).mul(new BN(10**MOCK.DEV.SABER_USDC_DECIMALS));
 
         // Send "sendAmount" to the PDA pool...
 
@@ -95,7 +68,7 @@ export default function StakeForm() {
         // Also, update the amount / weight change (amount should be calculated by weight + total_amount).
         // const sendAmount: BN = new BN(valueInUsd).mul(new BN(10**MOCK.DEV.SABER_USDC_DECIMALS));
 
-        let amountTokenA = new u64(2_000_000);
+        let amountTokenA = new u64(sendAmount);
         const amounts = [amountTokenA, 0, 0];
         let weights: Array<BN> = [new BN(1000), new BN(0), new BN(0)];
 
@@ -107,6 +80,10 @@ export default function StakeForm() {
         console.log("Done sending USDC to portfolio!!");
         // @ts-ignore
         await qPoolContext.portfolioObject!.createFullPortfolio(weights, amounts);
+
+        await loadContext.decreaseCounter();
+
+        // Display a message "Portfolio created"!
 
     }
 
@@ -142,7 +119,7 @@ export default function StakeForm() {
                                     displayText={"USDC"}
                                     registerFunction={() => register("solana_amount")}
                                     modifiable={true}
-                                    setNewValue={setValueInUsd}
+                                    setNewValue={setValueInUsdc}
                                 />
                             </div>
                         </div>

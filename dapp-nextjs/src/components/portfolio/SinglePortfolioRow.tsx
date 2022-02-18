@@ -5,61 +5,20 @@ import {AllocateParams, PublicKey, TokenAmount} from "@solana/web3.js";
 import ConnectWalletPortfolioRow from "./ConnectWalletPortfolioRow";
 import PortfolioDiagram from "./DetailedDiagram";
 import SinglePortfolioCard from "./SinglePortfolioCard";
+import {solscanLink} from "../../utils/utils";
 
 export default function SinglePortfolioRow(props: any) {
 
-    // Display portfolio value, I guess
-    // const [pnlPercent, setPnlPercent] = useState<number>(-5.);
-    // useEffect(() => {
-    //     setPnlPercent(props.value)
-    // }, []);
-    // const displayReturn = () => {
-    //
-    //     if (pnlPercent >= 0.) {
-    //         return (
-    //             <div className={"flex w-full mx-auto px-auto justify-end text-green-500"}>
-    //                 + {pnlPercent} %
-    //             </div>
-    //         );
-    //     } else {
-    //         return (
-    //             <div className={"flex w-full mx-auto px-auto justify-end text-red-500"}>
-    //                 - {-1. * pnlPercent} %
-    //             </div>
-    //         );
-    //     }
-    // }
-
-    // const displayReturn = () => {
-    //
-    //     if (pnlPercent >= 0.) {
-    //         return (
-    //             <div className={"flex w-full mx-auto px-auto justify-end text-green-500"}>
-    //                 + {pnlPercent} %
-    //             </div>
-    //         );
-    //     } else {
-    //         return (
-    //             <div className={"flex w-full mx-auto px-auto justify-end text-red-500"}>
-    //                 - {-1. * pnlPercent} %
-    //             </div>
-    //         );
-    //     }
-    // }
-
-    // TODO: When click, implement the row
+    const [showPortfolio, setShowPortfolio] = useState<boolean>(false);
 
     return (
         <>
-            {/*
-                Working on a row with two elements
-            */}
-
+            {/* First comes the modal */}
             <SinglePortfolioCard
-                show={true}
+                show={showPortfolio}
+                setShow={(x: boolean) => setShowPortfolio(x)}
             />
-
-
+            {/* Then the actual stuff */}
             <div className="flex items-center justify-center w-full h-full">
 
                 <div className="relative text-gray-400 focus-within:text-gray-400 w-full h-full">
@@ -71,12 +30,22 @@ export default function SinglePortfolioRow(props: any) {
                         <div className={"flex w-full mx-auto px-auto justify-center"}>
                             {props.address}
                         </div>
-                        <div className={"flex w-full mx-auto px-auto justify-end"}>
+                        <div className={"flex w-full mx-auto px-auto justify-center"}>
                             ${props.value && props.value.toFixed(2)}
                         </div>
-                        {/*
-                            TODO: Use this
-                        */}
+                        <div className={"flex w-full mx-auto px-auto justify-end"}>
+                            {/*<button*/}
+                            {/*    className={"rounded-lg bg-pink-700 hover:bg-pink-900 py-1 my-auto w-full content-center"}*/}
+                            {/*>*/}
+                            {/*    View*/}
+                            {/*</button>*/}
+                            <button
+                                onClick={() => {setShowPortfolio(true)}}
+                                className="text-blue-600 dark:text-blue-500"
+                            >
+                                View
+                            </button>
+                        </div>
                     </div>
                 </div>
 

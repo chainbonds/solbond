@@ -118,7 +118,7 @@ export default function UnstakeForm() {
         <>
             <div className="">
                 <div className="">
-                    <form action="#" method="POST" onSubmit={handleSubmit(submitToContract)}>
+                    {/*<form action="#" method="POST" onSubmit={handleSubmit(submitToContract)}>*/}
                         <div className="py-5 bg-slate-800 bg-gray">
                             <div>
                                 {/*
@@ -147,8 +147,7 @@ export default function UnstakeForm() {
                             />
                         </div>
                         }
-                    </form>
-
+                    {/*</form>*/}
                 </div>
             </div>
         </>

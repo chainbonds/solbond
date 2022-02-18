@@ -29,7 +29,7 @@ export default function UserInfo(props: any) {
 
             // Get the balance
         }
-    }, [qPoolContext.userAccount]);
+    }, [qPoolContext.userAccount, qPoolContext.allocatedAccounts]);
 
     return (
         <>
