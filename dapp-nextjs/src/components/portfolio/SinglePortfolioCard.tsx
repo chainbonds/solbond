@@ -80,7 +80,7 @@ export default function SinglePortfolioCard(props: any) {
                                                         {/*{position.amountLp.uiAmount?.toFixed(2)}*/}
                                                     </td>
                                                     <td className="py-4 px-6 text-sm text-right whitespace-nowrap">
-                                                        <a href={solscanLink(position.ataLp)} target={"_blank"}
+                                                        <a href={solscanLink(position.ataLp)} target={"_blank"} rel="noreferrer"
                                                            className="text-blue-600 dark:text-blue-500 hover:underline">See on Solscan</a>
                                                     </td>
                                                 </tr>
