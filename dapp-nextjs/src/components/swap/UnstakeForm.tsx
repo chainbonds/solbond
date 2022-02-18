@@ -35,17 +35,6 @@ export default function UnstakeForm() {
     const [portfolioPDA, setPortfolioPDA] = useState<PublicKey>();
     const [totalPortfolioValueInUsd, setTotalPortfolioValueInUsd] = useState<number>();
 
-    // useEffect(() => {
-    //     setValueInSol((_: number) => {
-    //         // Get the exchange rate between QPT and USDC
-    //         return valueInQPT * 1.;
-    //     });
-    // }, [valueInQPT]);
-
-    useEffect(() => {
-        setPortfolio(setPortfolioPDA);
-    }, [qPoolContext.portfolioObject?.portfolioPDA]);
-
     useEffect(() => {
         setTotalPortfolioValueInUsd(qPoolContext.totalPortfolioValueInUsd);
     }, [qPoolContext.totalPortfolioValueInUsd]);
@@ -89,31 +78,6 @@ export default function UnstakeForm() {
         }
         // initializeQPoolsUserTool
     }, [walletContext.publicKey]);
-
-    const [portfolio, setPortfolio] = useState<any>(null);
-    useEffect(() => {
-        if (qPoolContext.portfolioObject) {
-
-            // console.log("Getting Portfolio Object");
-            // qPoolContext.portfolioObject!.fetchPortfolio().then((x: any) => {
-            //     console.log("Portfolio response is: ", x);
-            // });
-            //
-            // console.log("Getting Two Way Pool Object");
-            // qPoolContext.portfolioObject!.fetchAllPools().then((x: any) => {
-            //     console.log("Pool response is: ", x);
-            // })
-            //
-            // console.log("Getting Position Objects");
-            // qPoolContext.portfolioObject!.fetchAllPositions().then((x: any) => {
-            //     console.log("Position response is: ", x);
-            // })
-            //
-            // console.log("Finally, calculting the total Portfolio Value..");
-            // qPoolContext.portfolioObject!.calculatePortfolioValue();
-
-        }
-    }, [qPoolContext.portfolioObject]);
 
     const displayListOfPortfolios = () => {
 

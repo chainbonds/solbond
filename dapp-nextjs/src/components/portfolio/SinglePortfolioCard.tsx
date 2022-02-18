@@ -203,6 +203,82 @@ export default function SinglePortfolioCard(props: any) {
 
     }
 
+    const displayAllLpsInOneTable = (positions: AccountOutput[]) => {
+        return (
+            <>
+
+                <div className="flex flex-col">
+                    <div className="overflow-x-auto sm:-mx-6 lg:-mx-8">
+                        <div className="inline-block py-2 min-w-full sm:px-6 lg:px-8">
+                            <div className="overflow-hidden shadow-md sm:rounded-lg">
+                                <table className="min-w-full">
+                                    <thead className="bg-gray-50 dark:bg-gray-700">
+                                    <tr>
+                                        <th scope="col"
+                                            className="py-3 px-6 text-xs font-medium tracking-wider text-left text-gray-700 uppercase dark:text-gray-400">
+                                            Asset
+                                        </th>
+                                        <th scope="col"
+                                            className="py-3 px-6 text-xs font-medium tracking-wider text-left text-gray-700 uppercase dark:text-gray-400">
+                                            $ Value
+                                        </th>
+                                        <th scope="col" className="relative py-3 px-6">
+                                            <span className="sr-only">Edit</span>
+                                        </th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    {/*// <!-- Product 1 -->*/}
+
+                                    {positions.map((position: AccountOutput, index: number) => {
+
+                                        // if (!position) {
+                                        //     console.log("Not ready to load just yet..");
+                                        //     return (
+                                        //         <></>
+                                        //     )
+                                        // }
+                                        // if (qPoolContext.positionValuesInUsd.length != qPoolContext.allocatedAccounts.length) {
+                                        // console.log("Lengths do not confirm!");
+                                        // return (
+                                        // <></>
+                                        // )
+                                        // }
+                                        if (!position.amountLp.uiAmount && (position.amountLp.uiAmount != 0)) {
+                                            return <></>
+                                        }
+
+                                        return (
+                                            <>
+                                                <tr className="border-b dark:bg-gray-800 dark:border-gray-700">
+                                                    <td className="py-4 px-6 text-sm font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                                                        {shortenedAddressString(position.mintLp)}
+                                                        {/* TODO: Change this to "Saber USDC-USDT Pool" or whatever (make a dictionary lookup) */}
+                                                    </td>
+                                                    <td className="py-4 px-6 text-sm text-gray-500 whitespace-nowrap dark:text-gray-400">
+                                                        {position.amountLp.uiAmount!.toFixed(2)}
+                                                        {/* TODO: Change this to "Saber USDC-USDT Pool" or whatever (make a dictionary lookup) */}
+                                                        {/*{position.amountLp.uiAmount?.toFixed(2)}*/}
+                                                    </td>
+                                                    <td className="py-4 px-6 text-sm font-medium text-right whitespace-nowrap">
+                                                        <a href={solscanLink(position.ataLp)} target={"_blank"}
+                                                           className="text-blue-600 dark:text-blue-500 hover:underline">Info</a>
+                                                    </td>
+                                                </tr>
+                                            </>
+                                        )
+                                    })}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </>
+        )
+    }
+
     return (
         <>
             {/*<div className="flex items-center justify-center w-full h-full">*/}
@@ -255,14 +331,15 @@ export default function SinglePortfolioCard(props: any) {
 
                                 <div className="flex items-center justify-center w-full h-full">
 
-                                    <div className="flex flex-col rounded-lg max-w-sm text-center content-center">
+                                    <div className="flex flex-col rounded-lg max-w-sm text-center content-center mt-10">
 
-                                        <div className="py-3 px-6 text-gray-900 text-xl font-medium mb-2">
-                                            <PortfolioDiagram values={qPoolContext.positionValuesInUsd}/>
-                                        </div>
+                                        {/*<div className="py-3 px-6 text-gray-900 text-xl font-medium mb-2">*/}
+                                        {/*    <PortfolioDiagram values={qPoolContext.positionValuesInUsd}/>*/}
+                                        {/*</div>*/}
 
                                         {/* Display all positions now ... */}
-                                        {displayAllPositions()}
+                                        {displayAllLpsInOneTable(qPoolContext.allocatedAccounts)}
+                                        {/*{displayAllPositions()}*/}
 
                                     </div>
                                 </div>                                {/*<button*/}
