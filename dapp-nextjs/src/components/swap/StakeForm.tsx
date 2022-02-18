@@ -72,15 +72,47 @@ export default function StakeForm() {
         const amounts = [amountTokenA, 0, 0];
         let weights: Array<BN> = [new BN(1000), new BN(0), new BN(0)];
 
-        // Make the weights, amounts, etc. work together ...
-        await qPoolContext.portfolioObject!.registerPortfolio(weights);
-        // Send some USDC to the wallet's address
-        console.log("Transferring USDC to Portfolio");
-        await qPoolContext.portfolioObject!.transferUsdcToPortfolio(amountTokenA);
-        console.log("Done sending USDC to portfolio!!");
-        // @ts-ignore
-        await qPoolContext.portfolioObject!.createFullPortfolio(weights, amounts);
+        // The first two instructions can work together, I would say ...
+        let tx0: Transaction = new Transaction();
+        console.log("Creating all positions ...");
+        let ix0 = await qPoolContext.portfolioObject!.registerPortfolio(weights);
+        tx0.add(ix0);
+        let ix1 = await qPoolContext.portfolioObject!.registerAllLiquidityPools();
+        tx0.add(ix1);
 
+        console.log("Signing transaction 1...");
+        console.log("Payer is: ", qPoolContext.portfolioObject!.payer);
+        console.log("Wallet is: ", qPoolContext.portfolioObject!.wallet);
+        // await sendAndConfirm();
+        // return web3.sendAndConfirmRawTransaction(conn, tx.serialize(), { commitment: 'confirmed' })
+        const blockhash = await qPoolContext.connection!.getRecentBlockhash();
+        console.log("Added blockhash");
+        tx0.recentBlockhash = blockhash.blockhash;
+        tx0.feePayer = qPoolContext.userAccount!.publicKey;
+        // await qPoolContext.userAccount!.signTransaction(tx0);
+        let sg0 = await qPoolContext._solbondProgram.provider.send(tx0);
+        // let sg0 = await qPoolContext.connection!.sendRawTransaction(tx0.serialize());
+        console.log("sg0 is: ", sg0);
+        await qPoolContext.connection!.confirmTransaction(sg0, 'confirmed');
+
+        // Send and confirm this set of transactions ...
+        console.log("Transferring USDC to positions ...");
+        let tx1: Transaction = new Transaction();
+        let ix2 = await qPoolContext.portfolioObject!.transferUsdcFromUserToPortfolio(amountTokenA);
+        tx1.add(ix2);
+        let ix3 = await qPoolContext.portfolioObject!.depositTokensToLiquidityPools(weights);
+        tx1.add(ix3);
+
+        tx0.recentBlockhash = blockhash.blockhash;
+        tx0.feePayer = qPoolContext.userAccount!.publicKey;
+        // await qPoolContext.userAccount!.signTransaction(tx0);
+        console.log("Signing transaction 2...");
+        let sg1 = await qPoolContext._solbondProgram.provider.send(tx1);
+        console.log("sg1 is: ", sg1);
+        await qPoolContext.connection!.confirmTransaction(sg1);
+
+        // Send some USDC to the wallet's address
+        console.log("Done sending USDC to portfolio!!");
         await loadContext.decreaseCounter();
 
         // Display a message "Portfolio created"!

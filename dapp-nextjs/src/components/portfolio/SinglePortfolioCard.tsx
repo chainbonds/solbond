@@ -108,7 +108,8 @@ export default function SinglePortfolioCard(props: any) {
         await qPoolContext.portfolioObject!.redeemFullPortfolio();
         // Transfer back the contents of the full item. For this, fetch the total USDC amount of the account
 
-        await qPoolContext.portfolioObject!.transferToUser();
+        // await qPoolContext.portfolioObject!.transferToUser();
+
         // Redeem the full portfolio
 
         await loadContext.decreaseCounter();
