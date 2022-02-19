@@ -1,10 +1,10 @@
 import React, {Fragment, useEffect, useRef, useState} from "react";
 import Image from "next/image";
 import {IQPool, useQPoolUserTool} from "../../contexts/QPoolsProvider";
-import {Account, AllocateParams, PublicKey, TokenAmount} from "@solana/web3.js";
+import {Account, AllocateParams, PublicKey, TokenAmount, Transaction, TransactionInstruction} from "@solana/web3.js";
 import ConnectWalletPortfolioRow from "./ConnectWalletPortfolioRow";
 import PortfolioDiagram from "./DetailedDiagram";
-import {shortenedAddressString, solscanLink} from "../../utils/utils";
+import {sendAndConfirmTransaction, shortenedAddressString, solscanLink} from "../../utils/utils";
 import {AccountOutput} from "../../types/AccountOutput";
 import {UsdValuePosition} from "../../types/UsdValuePosition";
 import {Dialog, Transition} from "@headlessui/react";
@@ -104,18 +104,42 @@ export default function SinglePortfolioCard(props: any) {
 
         console.log("About to be redeeming!");
         // Redeem the full portfolio
-        // @ts-ignore
-        await qPoolContext.portfolioObject!.redeemFullPortfolio();
-        // Transfer back the contents of the full item. For this, fetch the total USDC amount of the account
 
-        await qPoolContext.portfolioObject!.transferToUser();
+        // Again, chain transactions together ..
+        let allTxIxs: TransactionInstruction[] = [];
+        (await qPoolContext.portfolioObject!.redeemFullPortfolio()).map((x: TransactionInstruction) => {
+            allTxIxs.push(x);
+        })
+        allTxIxs.push(
+            await qPoolContext.portfolioObject!.transferUsdcFromPortfolioToUser()
+        );
+
+        // Now do some optimized portfolio sending ...
+        let numberIxs = allTxIxs.length;
+        let tx0 = new Transaction();
+        allTxIxs.slice(0, 2).map((x) => tx0.add(x));
+        let tx1 = new Transaction();
+        allTxIxs.slice(2, numberIxs).map((x) => tx1.add(x));
+
+        // Split up the transactions, and
         // Redeem the full portfolio
+        // Finally, also add the instruction to transfer to the user ...
+        await sendAndConfirmTransaction(
+            qPoolContext._solbondProgram!.provider,
+            qPoolContext.connection!,
+            tx0,
+            qPoolContext.userAccount!.publicKey
+        );
+        await sendAndConfirmTransaction(
+            qPoolContext._solbondProgram!.provider,
+            qPoolContext.connection!,
+            tx1,
+            qPoolContext.userAccount!.publicKey
+        );
 
         await loadContext.decreaseCounter();
 
-        // // TODO: All decimals should be registered somewhere!
-        // const sendAmount: BN = new BN(valueInQPT).mul(new BN(10**REDEEMABLES_DECIMALS));
-        // console.log("send amount qpt is: ", sendAmount.toString());
+        // TODO: All decimals should be registered somewhere!
     }
 
     return (

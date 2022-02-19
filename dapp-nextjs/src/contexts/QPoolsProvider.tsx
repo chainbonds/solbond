@@ -13,6 +13,7 @@ import delay from "delay";
 import axios from "axios";
 import {AccountOutput} from "../types/AccountOutput";
 import {UsdValuePosition} from "../types/UsdValuePosition";
+import {PortfolioFrontendFriendlyChainedInstructions} from "../../../../qPools-contract/qpools-sdk/src";
 
 export interface AllocData {
     lp: string,
@@ -23,7 +24,7 @@ export interface AllocData {
 export interface IQPool {
     qPoolsUser: QPoolsUser | undefined,
     qPoolsStats: QPoolsStats | undefined,
-    portfolioObject: PortfolioFrontendFriendly | undefined,
+    portfolioObject: PortfolioFrontendFriendlyChainedInstructions | undefined,
     allocatedAccounts: AccountOutput[],
     positionValuesInUsd: UsdValuePosition[],
     totalPortfolioValueInUsd: number,
@@ -110,7 +111,7 @@ export function QPoolsProvider(props: any) {
 
     const [qPoolsUser, setQPoolsUser] = useState<QPoolsUser | undefined>(undefined);
     const [qPoolsStats, setQPoolsStats] = useState<QPoolsStats | undefined>(undefined);
-    const [portfolioObject, setPortfolioObject] = useState<PortfolioFrontendFriendly | undefined>(undefined);
+    const [portfolioObject, setPortfolioObject] = useState<PortfolioFrontendFriendlyChainedInstructions | undefined>(undefined);
 
     const [connection, setConnection] = useState<Connection | undefined>(undefined);
     const [provider, setProvider] = useState<Provider | undefined>(undefined);
@@ -211,7 +212,7 @@ export function QPoolsProvider(props: any) {
         );
 
         // @ts-ignore
-        let _portfolio = new PortfolioFrontendFriendly(_connection, _provider, _solbondProgram, payer);
+        let _portfolio = new PortfolioFrontendFriendlyChainedInstructions(_connection, _provider, _solbondProgram, payer);
         let newQpoolsDisplay = new DisplayPortfolios(_connection, _provider, _solbondProgram);
 
         // Do a bunch of setstate, and wait ...

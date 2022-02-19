@@ -1,30 +1,21 @@
 /* This example requires Tailwind CSS v2.0+ */
 import {useForm} from "react-hook-form";
 import {useWallet} from '@solana/wallet-adapter-react';
-import * as anchor from "@project-serum/anchor";
-import {Connection, Keypair, PublicKey, Signer, Transaction, TransactionInstruction} from "@solana/web3.js";
-import {AiOutlineArrowDown} from "react-icons/ai";
+import {Transaction, TransactionInstruction} from "@solana/web3.js";
 import InputFieldWithLogo from "../InputFieldWithLogo";
 import CallToActionButton from "../CallToActionButton";
-import {BN, web3} from "@project-serum/anchor";
-import React, {Fragment, useEffect, useState} from "react";
+import {BN} from "@project-serum/anchor";
+import React, {useEffect, useState} from "react";
 import {IQPool, useQPoolUserTool} from "../../contexts/QPoolsProvider";
 import {WalletMultiButton} from "@solana/wallet-adapter-react-ui";
-import {Mint, WalletI} from "easy-spl";
-import {Token, TOKEN_PROGRAM_ID, u64} from "@solana/spl-token";
-// import airdropAdmin from "@qpools/sdk/src/airdropAdmin";
-// import {createAssociatedTokenAccountSendUnsigned, delay} from "@qpools/sdk/src/utils";
-// import {MATH_DENOMINATOR, MOCK} from "@qpools/sdk/src/const";
+import {u64} from "@solana/spl-token";
 import {useLoad} from "../../contexts/LoadingContext";
-// import {SEED} from "@qpools/sdk/lib/seeds";
-import {sendAndConfirm} from "easy-spl/dist/util";
 import ConfirmPortfolioBuyModal from "../ConfirmPortfolioBuyModal";
-import {Modal} from "react-bootstrap";
-import { Transition } from "@headlessui/react";
-import {airdropAdmin, createAssociatedTokenAccountSendUnsigned, MOCK} from "@qpools/sdk";
-import {SEED} from "@qpools/sdk/lib/seeds";
-import {PositionsInput} from "@qpools/sdk/lib/register-portfolio";
-import {tou64} from "@qpools/sdk/lib/utils";
+import {MOCK} from "@qpools/sdk";
+import {sendAndConfirmTransaction} from "../../utils/utils";
+
+// // TODO: Do i need to shorten the instructions even further ...?
+// // TODO: For every two positions, create another instruction ...
 
 export default function StakeForm() {
 
@@ -72,15 +63,81 @@ export default function StakeForm() {
         const amounts = [amountTokenA, 0, 0];
         let weights: Array<BN> = [new BN(1000), new BN(0), new BN(0)];
 
-        // Make the weights, amounts, etc. work together ...
-        await qPoolContext.portfolioObject!.registerPortfolio(weights);
-        // Send some USDC to the wallet's address
-        console.log("Transferring USDC to Portfolio");
-        await qPoolContext.portfolioObject!.transferUsdcToPortfolio(amountTokenA);
-        console.log("Done sending USDC to portfolio!!");
-        // @ts-ignore
-        await qPoolContext.portfolioObject!.createFullPortfolio(weights, amounts);
+        // All transactions
+        // Collect all transactions into one array
+        // And then, split execution to minimize number of clicks
+        // let txs = [];
 
+        /*
+            BLOCK 1: Create Associated Token Accounts for the Portfolio
+         */
+        // First, and if this was not created before, create the associated token accounts
+        let txAssociatedTokenAccounts: Transaction = new Transaction();
+        (await qPoolContext.portfolioObject!.registerAtaForLiquidityPortfolio()).map((x: TransactionInstruction) => {
+            if (x) {
+                txAssociatedTokenAccounts.add(x);
+            }
+        });
+        // If the transaction is not empty
+        console.log("txAssociatedTokenAccounts Instructions are: ", txAssociatedTokenAccounts.instructions);
+        if (txAssociatedTokenAccounts.instructions.length > 0) {
+            await sendAndConfirmTransaction(
+                qPoolContext._solbondProgram!.provider,
+                qPoolContext.connection!,
+                txAssociatedTokenAccounts,
+                qPoolContext.userAccount!.publicKey
+            );
+        }
+
+        // Ok, now associated token accounts are created the first time the user uses the application ...
+        // Or more specifically, the first time the portfolio is used
+
+        /*
+            BLOCK 2: Create the data structures for the portfolio, and liquidity pools
+         */
+        // TODO: Here too, double-check if these accounts were already created.
+        //  If they were not created, then create them. This could possibly also save a couple instructions
+        // Register all pools, and addresses
+        console.log("Registering all accounts ...");
+        let txRegisterDataStructures: Transaction = new Transaction();
+        txRegisterDataStructures.add(
+            await qPoolContext.portfolioObject!.registerPortfolio(weights)
+        );
+        (await qPoolContext.portfolioObject!.registerAllLiquidityPools()).map((x: TransactionInstruction) => {
+            if (x) {
+                txRegisterDataStructures.add(x);
+            }
+        });
+        console.log("txRegisterDataStructures Instructions are: ", txRegisterDataStructures.instructions);
+        await sendAndConfirmTransaction(
+            qPoolContext._solbondProgram!.provider,
+            qPoolContext.connection!,
+            txRegisterDataStructures,
+            qPoolContext.userAccount!.publicKey
+        );
+
+        /*
+            BLOCK 2: Create the data structures for the portfolio, and liquidity pools
+         */
+        // Now apply all functions that send money back and forth
+        console.log("Sending tokens around. This should be atomic, so that liquidity mining is successful, indeed ...");
+        let txPushTokensToLiquidityPoolsThroughPortfolio: Transaction = new Transaction();
+        txPushTokensToLiquidityPoolsThroughPortfolio.add(
+            await qPoolContext.portfolioObject!.transferUsdcFromUserToPortfolio(amountTokenA)
+        );
+        await sendAndConfirmTransaction(
+            qPoolContext._solbondProgram!.provider,
+            qPoolContext.connection!,
+            txPushTokensToLiquidityPoolsThroughPortfolio,
+            qPoolContext.userAccount!.publicKey
+        );
+
+        // Gotta calculate the full distribution of tokens before sending these instrutions ...
+        // Perhaps we should call it 1-by-1 for now?
+        // Calculating the full allocation beforehand seems a bit tough to do right now, no?
+        await qPoolContext.portfolioObject!.depositTokensToLiquidityPools(weights)
+
+        console.log("Done sending USDC to portfolio!!");
         await loadContext.decreaseCounter();
 
         // Display a message "Portfolio created"!
