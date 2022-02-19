@@ -14,6 +14,9 @@ import ConfirmPortfolioBuyModal from "../ConfirmPortfolioBuyModal";
 import {MOCK} from "@qpools/sdk";
 import {sendAndConfirmTransaction} from "../../utils/utils";
 
+// // TODO: Do i need to shorten the instructions even further ...?
+// // TODO: For every two positions, create another instruction ...
+
 export default function StakeForm() {
 
     const {register, handleSubmit} = useForm();
@@ -61,85 +64,116 @@ export default function StakeForm() {
         let weights: Array<BN> = [new BN(1000), new BN(0), new BN(0)];
 
         // All transactions
-        let txs = [];
+        // Collect all transactions into one array
+        // And then, split execution to minimize number of clicks
+        // let txs = [];
 
+        /*
+            BLOCK 1: Create Associated Token Accounts for the Portfolio
+         */
+        // First, and if this was not created before, create the associated token accounts
+        let txAssociatedTokenAccounts: Transaction = new Transaction();
+        (await qPoolContext.portfolioObject!.registerAtaForLiquidityPortfolio()).map((x: TransactionInstruction) => {
+            if (x) {
+                txAssociatedTokenAccounts.add(x);
+            }
+        });
+        // If the transaction is not empty
+        console.log("txAssociatedTokenAccounts Instructions are: ", txAssociatedTokenAccounts.instructions);
+        if (txAssociatedTokenAccounts.instructions.length > 0) {
+            await sendAndConfirmTransaction(
+                qPoolContext._solbondProgram!.provider,
+                qPoolContext.connection!,
+                txAssociatedTokenAccounts,
+                qPoolContext.userAccount!.publicKey
+            );
+        }
 
+        // Ok, now associated token accounts are created the first time the user uses the application ...
+        // Or more specifically, the first time the portfolio is used
+
+        /*
+            BLOCK 2: Create the data structures for the portfolio, and liquidity pools
+         */
+        // TODO: Here too, double-check if these accounts were already created.
+        //  If they were not created, then create them. This could possibly also save a couple instructions
         // Register all pools, and addresses
-        let tx0: Transaction = new Transaction();
-        tx0.add(
+        console.log("Registering all accounts ...");
+        let txRegisterDataStructures: Transaction = new Transaction();
+        txRegisterDataStructures.add(
             await qPoolContext.portfolioObject!.registerPortfolio(weights)
         );
         (await qPoolContext.portfolioObject!.registerAllLiquidityPools()).map((x: TransactionInstruction) => {
-            tx0.add(x);
-        })
+            if (x) {
+                txRegisterDataStructures.add(x);
+            }
+        });
+        console.log("txRegisterDataStructures Instructions are: ", txRegisterDataStructures.instructions);
         await sendAndConfirmTransaction(
-            qPoolContext._solbondProgram!,
+            qPoolContext._solbondProgram!.provider,
             qPoolContext.connection!,
-            tx0,
+            txRegisterDataStructures,
             qPoolContext.userAccount!.publicKey
         );
 
+        /*
+            BLOCK 2: Create the data structures for the portfolio, and liquidity pools
+         */
         // Now apply all functions that send money back and forth
+        console.log("Sending tokens around. This should be atomic, so that liquidity mining is successful, indeed ...");
+        let txPushTokensToLiquidityPoolsThroughPortfolio: Transaction = new Transaction();
+        txPushTokensToLiquidityPoolsThroughPortfolio.add(
+            await qPoolContext.portfolioObject!.transferUsdcFromUserToPortfolio(amountTokenA)
+        );
 
+        // Gotta calculate the full distribution of tokens before sending these instrutions ...
+        // Perhaps we should call it 1-by-1 for now?
+        // Calculating the full allocation beforehand seems a bit tough to do right now, no?
 
+        await qPoolContext.portfolioObject!.depositTokensToLiquidityPools(weights)
 
+        // console.log(txDeposit);
+        // console.log(txDeposit.length);
+        //
+        // let txLength = txDeposit.length;
+        //
+        // let tx0 = txDeposit.slice(0, 2);
+        // let tx1 = txDeposit.slice(2, txLength);
 
-
-
-        // // The first two instructions can work together, I would say ...
-        // let tx0: Transaction = new Transaction();
-        // console.log("Creating all positions ...");
-        // let ix0 = await qPoolContext.portfolioObject!.registerPortfolio(weights);
-        // tx0.add(ix0);
-        // let ix1 = await qPoolContext.portfolioObject!.registerAllLiquidityPools();
-        // tx0.add(ix1);
+        // Split up in multiple parts ...
+        // .map((x: TransactionInstruction) => {
+        //     if (x) {
+        //         txPushTokensToLiquidityPoolsThroughPortfolio.add(x);
+        //     }
+        // });
         //
-        // console.log("Signing transaction 1...");
-        // console.log("Payer is: ", qPoolContext.portfolioObject!.payer);
-        // console.log("Wallet is: ", qPoolContext.portfolioObject!.wallet);
-        // // await sendAndConfirm();
-        // // return web3.sendAndConfirmRawTransaction(conn, tx.serialize(), { commitment: 'confirmed' })
-        // // const blockhash = await qPoolContext.connection!.getRecentBlockhash();
-        // // console.log("Added blockhash");
-        // // tx0.recentBlockhash = blockhash.blockhash;
-        // // tx0.feePayer = qPoolContext.userAccount!.publicKey;
-        // // // await qPoolContext.userAccount!.signTransaction(tx0);
-        // // let sg0 = await qPoolContext._solbondProgram.provider.send(tx0);
-        // // // let sg0 = await qPoolContext.connection!.sendRawTransaction(tx0.serialize());
-        // // console.log("sg0 is: ", sg0);
-        // // await qPoolContext.connection!.confirmTransaction(sg0, 'confirmed');
+        // let txLength = txPushTokensToLiquidityPoolsThroughPortfolio.instructions.length;
         //
-        // // Collect all transactions into one array
-        // // And then, split execution to minimize number of clicks
+        // // Split into two transactions, because they don't fit into a single one!
+        // let transactionPart1 = new Transaction();
+        // txPushTokensToLiquidityPoolsThroughPortfolio.instructions.slice(0, (txLength / 2)).map((x: TransactionInstruction) => {
+        //     transactionPart1.add(x);
+        // })
+        // // Split instructions into multiple ones, if its too long by default
+        // await sendAndConfirmTransaction(
+        //     qPoolContext._solbondProgram!.provider,
+        //     qPoolContext.connection!,
+        //     transactionPart1,
+        //     qPoolContext.userAccount!.publicKey
+        // );
         //
-        // // Send and confirm this set of transactions ...
-        // console.log("Transferring USDC to positions ...");
-        // let ix2 = await qPoolContext.portfolioObject!.transferUsdcFromUserToPortfolio(amountTokenA);
-        // tx0.add(ix2);
-        // const blockhash = await qPoolContext.connection!.getRecentBlockhash();
-        // tx0.recentBlockhash = blockhash.blockhash!;
-        // tx0.feePayer = qPoolContext.userAccount!.publicKey;
-        // // await qPoolContext.userAccount!.signTransaction(tx0);
-        // console.log("Signing transaction 2...");
-        // let sg1 = await qPoolContext._solbondProgram.provider.send(tx0);
-        // console.log("sg1 is: ", sg1);
-        // await qPoolContext.connection!.confirmTransaction(sg1);
-        //
-        // // TODO: Do i need to shorten the instructions even further ...?
-        // // TODO: For every two positions, create another instruction ...
-        // let tx2: Transaction = new Transaction();
-        // let ixsDeposit = await qPoolContext.portfolioObject!.depositTokensToLiquidityPools(weights);
-        // tx2.add(ix3);
-        //
-        //
-        // tx2.recentBlockhash = blockhash.blockhash;
-        // tx2.feePayer = qPoolContext.userAccount!.publicKey;
-        // // await qPoolContext.userAccount!.signTransaction(tx0);
-        // console.log("Signing transaction 2...");
-        // let sg2 = await qPoolContext._solbondProgram.provider.send(tx2);
-        // console.log("sg1 is: ", sg2);
-        // await qPoolContext.connection!.confirmTransaction(sg2);
-        // Send some USDC to the wallet's address
+        // // Split into two transactions, because they don't fit into a single one!
+        // let transactionPart2 = new Transaction();
+        // txPushTokensToLiquidityPoolsThroughPortfolio.instructions.slice((txLength / 2), txLength).map((x: TransactionInstruction) => {
+        //     transactionPart2.add(x);
+        // })
+        // // Split instructions into multiple ones, if its too long by default
+        // await sendAndConfirmTransaction(
+        //     qPoolContext._solbondProgram!.provider,
+        //     qPoolContext.connection!,
+        //     transactionPart2,
+        //     qPoolContext.userAccount!.publicKey
+        // );
 
         console.log("Done sending USDC to portfolio!!");
         await loadContext.decreaseCounter();

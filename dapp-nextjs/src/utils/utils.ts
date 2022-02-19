@@ -32,8 +32,10 @@ export const sendAndConfirmTransaction = async (
     // Assign feePayer
 
     // Send and Confirm
-    console.log("Signing transaction 2...");
-    let sg1 = await programProvider.send(tx);
-    console.log("sg1 is: ", sg1);
-    await connection.confirmTransaction(sg1);
+    console.log("Signing transaction...");
+    console.log("About to send the following transactions: ", tx);
+    console.log("Program provider is: ", programProvider, typeof programProvider);
+    let sg = await programProvider.send(tx);
+    console.log("sg1 is: ", sg);
+    await connection.confirmTransaction(sg, 'confirmed');
 }
