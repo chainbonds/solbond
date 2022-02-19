@@ -1,15 +1,9 @@
-import React, {Fragment, useEffect, useRef, useState} from "react";
-import Image from "next/image";
+import React, {Fragment, useRef} from "react";
 import {IQPool, useQPoolUserTool} from "../../contexts/QPoolsProvider";
-import {Account, AllocateParams, PublicKey, TokenAmount, Transaction, TransactionInstruction} from "@solana/web3.js";
-import ConnectWalletPortfolioRow from "./ConnectWalletPortfolioRow";
-import PortfolioDiagram from "./DetailedDiagram";
+import {Transaction, TransactionInstruction} from "@solana/web3.js";
 import {sendAndConfirmTransaction, shortenedAddressString, solscanLink} from "../../utils/utils";
 import {AccountOutput} from "../../types/AccountOutput";
-import {UsdValuePosition} from "../../types/UsdValuePosition";
 import {Dialog, Transition} from "@headlessui/react";
-import { Disclosure } from '@headlessui/react';
-import {ChevronUpIcon} from "@heroicons/react/solid";
 import {useLoad} from "../../contexts/LoadingContext";
 
 export default function SinglePortfolioCard(props: any) {
