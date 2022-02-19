@@ -30,7 +30,6 @@ export default function UnstakeForm() {
     const loadContext = useLoad();
 
     const [valueInUsdc, setValueInUsdc] = useState<number>(0.0);
-    const [valueInQPT, setValueInQpt] = useState<number>(0.0);
 
     const [portfolioPDA, setPortfolioPDA] = useState<PublicKey>();
     const [totalPortfolioValueInUsd, setTotalPortfolioValueInUsd] = useState<number>();
@@ -38,38 +37,6 @@ export default function UnstakeForm() {
     useEffect(() => {
         setTotalPortfolioValueInUsd(qPoolContext.totalPortfolioValueInUsd);
     }, [qPoolContext.totalPortfolioValueInUsd]);
-
-    useEffect(() => {
-        qPoolContext.qPoolsStats?.calculateTVL().then(out => {
-
-            // Calculate the conversion rate ...
-            // Add this depending on decimals //
-            let newValueBasedOnConversionRateUsdcPerQpt = out.tvl.mul(new BN(valueInQPT)).div(new BN(10**out.tvlDecimals)).div(new BN(out.totalQPT));
-            setValueInUsdc((_: number) => {
-                return newValueBasedOnConversionRateUsdcPerQpt.toNumber();
-            });
-        });
-    }, [valueInQPT]);
-
-    const submitToContract = async (d: any) => {
-
-        console.log(JSON.stringify(d));
-
-        console.log("About to be redeeming!");
-
-        // Redeem the full portfolio
-        // @ts-ignore
-        await qPoolContext.portfolioObject!.redeemFullPortfolio();
-        // Transfer back the contents of the full item. For this, fetch the total USDC amount of the account
-
-        await qPoolContext.portfolioObject!.transferToUser();
-        // Redeem the full portfolio
-
-
-        // // TODO: All decimals should be registered somewhere!
-        // const sendAmount: BN = new BN(valueInQPT).mul(new BN(10**REDEEMABLES_DECIMALS));
-        // console.log("send amount qpt is: ", sendAmount.toString());
-    }
 
     useEffect(() => {
         if (walletContext.publicKey) {
@@ -96,16 +63,7 @@ export default function UnstakeForm() {
                 />
             );
         }
-
-        // <SinglePortfolioCard
-        //     address={"DR24...B6kR"}
-        //     time={"10. Feb. 2022"}
-        //     value={5.2}
-        // />
-
-        // qPoolContext.portfolioObject.
         console.log("Portfolio PDA is: ", qPoolContext.portfolioObject.portfolioPDA);
-
         return (
             <SinglePortfolioRow
                 address={portfolioPDA}
@@ -131,12 +89,6 @@ export default function UnstakeForm() {
                                 {displayListOfPortfolios()}
                             </div>
                         </div>
-                        {/*{qPoolContext.userAccount &&*/}
-                        {/*<CallToActionButton*/}
-                        {/*    type={"submit"}*/}
-                        {/*    text={"REDEEM"}*/}
-                        {/*/>*/}
-                        {/*}*/}
                         {!qPoolContext.userAccount &&
                         <div className={"flex w-full justify-center"}>
                             <WalletMultiButton
