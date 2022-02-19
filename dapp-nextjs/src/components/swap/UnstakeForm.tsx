@@ -1,24 +1,11 @@
 /* This example requires Tailwind CSS v2.0+ */
 import {useForm} from "react-hook-form";
 import {useWallet} from '@solana/wallet-adapter-react';
-import {clusterApiUrl, Connection, PublicKey, Transaction} from "@solana/web3.js";
-import * as anchor from "@project-serum/anchor";
-// web3, Wallet as AnchorWallet
-// import {BN} from "@project-serum/anchor";
-// import {solbondProgram} from "../../programs/solbond";
-import {AiOutlineArrowDown} from "react-icons/ai";
-import InputFieldWithLogo from "../InputFieldWithLogo";
-import CallToActionButton from "../CallToActionButton";
+import {PublicKey} from "@solana/web3.js";
 import React, {useEffect, useState} from "react";
 import {WalletMultiButton} from "@solana/wallet-adapter-react-ui";
 import {IQPool, useQPoolUserTool} from "../../contexts/QPoolsProvider";
-import {BN} from "@project-serum/anchor";
 import {useLoad} from "../../contexts/LoadingContext";
-import {MATH_DENOMINATOR, REDEEMABLES_DECIMALS} from "@qpools/sdk/lib/const";
-import {sendAndConfirm} from "easy-spl/dist/util";
-import {SEED} from "@qpools/sdk/lib/seeds";
-import SinglePortfolioCard from "../portfolio/SinglePortfolioCard";
-import {u64} from "@solana/spl-token";
 import ConnectWalletPortfolioRow from "../portfolio/ConnectWalletPortfolioRow";
 import SinglePortfolioRow from "../portfolio/SinglePortfolioRow";
 
