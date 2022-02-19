@@ -139,9 +139,7 @@ export default function SinglePortfolioCard(props: any) {
 
         await loadContext.decreaseCounter();
 
-        // // TODO: All decimals should be registered somewhere!
-        // const sendAmount: BN = new BN(valueInQPT).mul(new BN(10**REDEEMABLES_DECIMALS));
-        // console.log("send amount qpt is: ", sendAmount.toString());
+        // TODO: All decimals should be registered somewhere!
     }
 
     return (
