@@ -139,6 +139,8 @@ export default function SinglePortfolioCard(props: any) {
 
         await loadContext.decreaseCounter();
 
+        props.setShow(false);
+
         // TODO: All decimals should be registered somewhere!
     }
 
