@@ -5,6 +5,8 @@ import PortfolioChart from "../PortfolioChart";
 
 export default function ConfirmPortfolioBuyModal(props: any) {
 
+    // Add all the logic to buy the product here?
+
     return (
         <>
             {/*<div className="fixed inset-0 flex items-center justify-center">*/}

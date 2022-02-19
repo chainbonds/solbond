@@ -4,11 +4,25 @@ import axios from "axios";
 
 export default function PortfolioChart() {
 
-    const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042"];
+    const COLORS = [
+        "#2196f3",
+        "#f44336",
+        "#00C49F",
+        "#ffeb3b",
+        "#9c27b0"
+    ];
+    // Pick the color based on the index ...
+    let TAILWIND_COLORS = [
+        "bg-blue-500",
+        "bg-red-500",
+        "bg-green-500",
+        "bg-yellow-500",
+        "bg-purple-500"
+    ]
     const RADIAN = Math.PI / 180;
 
     const renderCustomizedLabel = ({cx, cy, midAngle, innerRadius, outerRadius, percent, index}: any) => {
-        const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
+        const radius = innerRadius + (outerRadius - innerRadius) * 1.1;
         const x = cx + radius * Math.cos(-midAngle * RADIAN);
         const y = cy + radius * Math.sin(-midAngle * RADIAN);
         return (
@@ -43,15 +57,17 @@ export default function PortfolioChart() {
     };
 
     // Just run a loop where you update TVL every couple times
-    const [ratios, setRatios] = useState<AllocData[]>([{
-        "lp": "JSOL-SOL",
-        "weight": 1000,
-        "protocol": "saber"
-    }, {"lp": "HBTC-renBTC", "weight": 1000, "protocol": "saber"}, {
-        "lp": "eSOL-SOL",
-        "weight": 1000,
-        "protocol": "saber"
-    }]);
+    const [ratios, setRatios] = useState<AllocData[]>([
+        {
+            "lp": "JSOL-SOL", "weight": 1000, "protocol": "saber"
+        },
+        {
+            "lp": "HBTC-renBTC", "weight": 1000, "protocol": "saber"
+        },
+        {
+            "lp": "eSOL-SOL", "weight": 1000, "protocol": "saber"
+        }
+    ]);
 
 
     useEffect(() => {
@@ -80,6 +96,34 @@ export default function PortfolioChart() {
     }, [ratios]);
 
 
+
+    const singleRow = (row: any, index: number) => {
+
+        let color = TAILWIND_COLORS[index % TAILWIND_COLORS.length];
+
+        return (
+            <tr>
+                <td className="px-2 py-3 whitespace-nowrap">
+                    <div className="flex items-center">
+                        <div className="ml-4">
+                            <div className={"w-4 h-4 rounded-xl " + color}>{}</div>
+                        </div>
+                    </div>
+                </td>
+                <td className="px-6 py-3 whitespace-nowrap">
+                    <div className="text-sm">
+                        {row.name}
+                    </div>
+                </td>
+                <td className="px-6 py-3 whitespace-nowrap">
+                    <div className="text-sm">
+                        {row.value}%
+                    </div>
+                </td>
+            </tr>
+        )
+    }
+
     return (
         <>
             <div className={"flex flex-row my-auto mx-auto"}>
@@ -87,7 +131,7 @@ export default function PortfolioChart() {
                 <div className={"flex my-auto mt-10 -ml-14"}>
                     <PieChart width={300} height={300}>
                         <Pie stroke="none"
-                             data={fixedData}
+                             data={pieChartData}
                              cx="50%"
                              cy="50%"
                              labelLine={false}
@@ -97,7 +141,7 @@ export default function PortfolioChart() {
                              fill="#8884d8"
                              dataKey="value"
                         >
-                            {fixedData.map((entry, index) => (
+                            {pieChartData.map((entry, index) => (
                                 <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]}/>
                             ))}
                         </Pie>
@@ -125,53 +169,61 @@ export default function PortfolioChart() {
 
 
                                     <tbody className="divide-y divide-gray-200">
-                                    <tr>
-                                        <td className="px-2 py-3 whitespace-nowrap">
-                                            <div className="flex items-center">
-                                                <div className="ml-4">
-                                                    <div className="w-4 h-4 rounded-xl bg-blue-500">{}</div>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td className="px-6 py-3 whitespace-nowrap">
-                                            <div className="text-sm">{pieChartData[0].name}</div>
-                                        </td>
-                                        <td className="px-6 py-3 whitespace-nowrap">
-                                            <div className="text-sm">{pieChartData[0].value}%</div>
-                                        </td>
-                                    </tr>
+                                    {pieChartData.map((x, index) => {
+                                        return (
+                                            <>
+                                                {singleRow(x, index)}
+                                            </>
+                                        )
+                                    })}
+                                    {/*<tr>*/}
+                                    {/*    <td className="px-2 py-3 whitespace-nowrap">*/}
+                                    {/*        <div className="flex items-center">*/}
+                                    {/*            <div className="ml-4">*/}
+                                    {/*                <div className="w-4 h-4 rounded-xl bg-blue-500">{}</div>*/}
+                                    {/*            </div>*/}
+                                    {/*        </div>*/}
+                                    {/*    </td>*/}
+                                    {/*    <td className="px-6 py-3 whitespace-nowrap">*/}
+                                    {/*        <div className="text-sm">{pieChartData[0].name}</div>*/}
+                                    {/*    </td>*/}
+                                    {/*    <td className="px-6 py-3 whitespace-nowrap">*/}
+                                    {/*        <div className="text-sm">{pieChartData[0].value}%</div>*/}
+                                    {/*    </td>*/}
+                                    {/*</tr>*/}
 
-                                    <tr>
-                                        <td className="px-2 py-3 whitespace-nowrap">
-                                            <div className="flex items-center">
-                                                <div className="ml-4">
-                                                    <div className="w-4 h-4 rounded-xl bg-red-500">{}</div>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td className="px-6 py-3 whitespace-nowrap">
-                                            <div className="text-sm">{pieChartData[1].name}</div>
-                                        </td>
-                                        <td className="px-6 py-3 whitespace-nowrap">
-                                            <div className="text-sm">{pieChartData[1].value}%</div>
-                                        </td>
-                                    </tr>
+                                    {/*<tr>*/}
+                                    {/*    <td className="px-2 py-3 whitespace-nowrap">*/}
+                                    {/*        <div className="flex items-center">*/}
+                                    {/*            <div className="ml-4">*/}
+                                    {/*                <div className="w-4 h-4 rounded-xl bg-red-500">{}</div>*/}
+                                    {/*            </div>*/}
+                                    {/*        </div>*/}
+                                    {/*    </td>*/}
+                                    {/*    <td className="px-6 py-3 whitespace-nowrap">*/}
+                                    {/*        <div className="text-sm">{pieChartData[1].name}</div>*/}
+                                    {/*    </td>*/}
+                                    {/*    <td className="px-6 py-3 whitespace-nowrap">*/}
+                                    {/*        <div className="text-sm">{pieChartData[1].value}%</div>*/}
+                                    {/*    </td>*/}
+                                    {/*</tr>*/}
 
-                                    <tr>
-                                        <td className="px-2 py-3 whitespace-nowrap">
-                                            <div className="flex items-center">
-                                                <div className="ml-4">
-                                                    <div className="w-4 h-4 rounded-xl bg-green-500">{}</div>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td className="px-6 py-3 whitespace-nowrap">
-                                            <div className="text-sm">{ratios[2].lp}</div>
-                                        </td>
-                                        <td className="px-6 py-3 whitespace-nowrap">
-                                            <div className="text-sm">{ratios[2].weight}%</div>
-                                        </td>
-                                    </tr>
+                                    {/*<tr>*/}
+                                    {/*    <td className="px-2 py-3 whitespace-nowrap">*/}
+                                    {/*        <div className="flex items-center">*/}
+                                    {/*            <div className="ml-4">*/}
+                                    {/*                <div className="w-4 h-4 rounded-xl bg-green-500">{}</div>*/}
+                                    {/*            </div>*/}
+                                    {/*        </div>*/}
+                                    {/*    </td>*/}
+                                    {/*    <td className="px-6 py-3 whitespace-nowrap">*/}
+                                    {/*        <div className="text-sm">{ratios[2].lp}</div>*/}
+                                    {/*    </td>*/}
+                                    {/*    <td className="px-6 py-3 whitespace-nowrap">*/}
+                                    {/*        <div className="text-sm">{ratios[2].weight}%</div>*/}
+                                    {/*    </td>*/}
+                                    {/*</tr>
+                                    */}
                                     </tbody>
                                 </table>
                             </div>
