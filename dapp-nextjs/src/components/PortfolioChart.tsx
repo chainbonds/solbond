@@ -22,13 +22,15 @@ export default function PortfolioChart() {
     const RADIAN = Math.PI / 180;
 
     const renderCustomizedLabel = ({cx, cy, midAngle, innerRadius, outerRadius, percent, index}: any) => {
-        const radius = innerRadius + (outerRadius - innerRadius) * 1.1;
+        const radius = innerRadius + (outerRadius - innerRadius) * 0.4; // 1.05;
         const x = cx + radius * Math.cos(-midAngle * RADIAN);
         const y = cy + radius * Math.sin(-midAngle * RADIAN);
         return (
 
             <text x={x} y={y} fill="white" textAnchor={x > cx ? 'start' : 'end'} dominantBaseline="central">
-                {`${(percent * 100).toFixed(0)}%`}
+                {
+                    percent ? `${ (percent * 100).toFixed(0)}%` : null
+                }
             </text>
 
         );
@@ -59,13 +61,13 @@ export default function PortfolioChart() {
     // Just run a loop where you update TVL every couple times
     const [ratios, setRatios] = useState<AllocData[]>([
         {
-            "lp": "JSOL-SOL", "weight": 1000, "protocol": "saber"
+            "lp": "JSOL-SOL", "weight": 1000, "protocol": "Saber"
         },
         {
-            "lp": "HBTC-renBTC", "weight": 1000, "protocol": "saber"
+            "lp": "HBTC-renBTC", "weight": 1000, "protocol": "Saber"
         },
         {
-            "lp": "eSOL-SOL", "weight": 1000, "protocol": "saber"
+            "lp": "eSOL-SOL", "weight": 1000, "protocol": "Saber"
         }
     ]);
 
@@ -89,9 +91,9 @@ export default function PortfolioChart() {
         console.log(JSON.stringify(ratios))
         let sum = ratios[0].weight + ratios[1].weight + ratios[2].weight ;
         setPieChartData([
-            {name: ratios[0].lp, value: ((100* ratios[0].weight) / sum)},
-            {name: ratios[1].lp, value: ((100* ratios[1].weight) / sum)},
-            {name: ratios[2].lp, value: ((100* ratios[2].weight) / sum)}
+            {name: ratios[0].protocol + " " + ratios[0].lp, value: ((100* ratios[0].weight) / sum)},
+            {name: ratios[1].protocol + " " + ratios[1].lp, value: ((100* ratios[1].weight) / sum)},
+            {name: ratios[2].protocol + " " + ratios[2].lp, value: ((100* ratios[2].weight) / sum)}
         ])
     }, [ratios]);
 
@@ -142,7 +144,9 @@ export default function PortfolioChart() {
                              dataKey="value"
                         >
                             {pieChartData.map((entry, index) => (
-                                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]}/>
+                                <Cell
+                                    key={`cell-${index}`}
+                                    fill={COLORS[index % COLORS.length]}/>
                             ))}
                         </Pie>
                     </PieChart>
