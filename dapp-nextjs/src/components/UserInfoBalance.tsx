@@ -3,7 +3,7 @@ import {IQPool, useQPoolUserTool} from "../contexts/QPoolsProvider";
 import {delay, getAssociatedTokenAddressOffCurve} from "@qpools/sdk/lib/utils";
 import {PublicKey} from "@solana/web3.js";
 
-export default function UserInfo(props: any) {
+export default function UserInfoBalance(props: any) {
 
     // Just run a lop where you update TVL every couple times
     const qPoolContext: IQPool = useQPoolUserTool();
@@ -32,11 +32,12 @@ export default function UserInfo(props: any) {
         }
     }, [qPoolContext.totalPortfolioValueInUsd, qPoolContext.userAccount, qPoolContext.allocatedAccounts, qPoolContext.reloadPriceSentinel]);
 
+    // Perhaps also include a very small logo here
     return (
         <>
-            <div className={"flex flex-col md:flex-row items-center lg:items-begin"}>
+            <div className={"flex flex-col md:flex-row items-center lg:items-begin text-gray-500 text-sm font-semibold "}>
                 {/*{singleBox("Total Value Locked", "$ " + String((tvl / (10 ** tvlDecimals)).toFixed(2) ) + " USD")}*/}
-                USDC Balance in Wallet: {currencyBalance}
+                Wallet Balance: {currencyBalance.toFixed(2)} USDC
                 {/*8.02%*/}
             </div>
         </>

@@ -1,7 +1,7 @@
 import {Button, Modal} from 'react-bootstrap';
 import {Fragment} from "react";
 import { Dialog, Transition} from '@headlessui/react';
-import PieChart from "./PieChart";
+import PieChart from "./PortfolioChart";
 
 export default function ConfirmPortfolioBuyModal(props: any) {
 

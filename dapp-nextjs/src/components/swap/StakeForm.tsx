@@ -13,6 +13,7 @@ import {useLoad} from "../../contexts/LoadingContext";
 import ConfirmPortfolioBuyModal from "../ConfirmPortfolioBuyModal";
 import {MOCK} from "@qpools/sdk";
 import {sendAndConfirmTransaction} from "../../utils/utils";
+import UserInfoBalance from "../UserInfoBalance";
 
 // // TODO: Do i need to shorten the instructions even further ...?
 // // TODO: For every two positions, create another instruction ...
@@ -164,7 +165,7 @@ export default function StakeForm() {
             <div className="">
                 <div className="">
                     <form action="#" method="POST" onSubmit={handleSubmit(submitToContract)}>
-                        <div className="py-5 bg-slate-800 bg-gray">
+                        <div className="pt-5 pb-2 bg-slate-800 bg-gray">
                             <div>
                                 <div className={"flex flex-row w-full justify-center"}>
                                     {/*<div className={"flex flew-row w-full px-8 text-gray-400 justify-center"}>*/}
@@ -181,13 +182,18 @@ export default function StakeForm() {
                                     modifiable={true}
                                     setNewValue={setValueInUsdc}
                                 />
+                                <div className={"flex flex-row justify-end mx-1 mt-1"}>
+                                    <UserInfoBalance />
+                                </div>
                             </div>
                         </div>
                         {qPoolContext.userAccount &&
-                            <CallToActionButton
-                                type={"submit"}
-                                text={"EARN"}
-                            />
+                            <>
+                                <CallToActionButton
+                                    type={"submit"}
+                                    text={"EARN"}
+                                />
+                            </>
                         }
                         {!qPoolContext.userAccount &&
                             <div className={"flex w-full justify-center"}>

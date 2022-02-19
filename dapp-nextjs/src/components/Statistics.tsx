@@ -92,7 +92,7 @@ export default function Statistics(props: any) {
     const emptyBox = () => {
 
         return (
-            <div className={"invisible md:visible m-5 lg:mt-0 lg:ml-0 rounded-lg p-5 w-56 h-30"}></div>
+            <div className={"invisible md:visible mx-5 lg:ml-0 rounded-lg px-5 w-48 h-30"}></div>
         )
 
     }
@@ -101,8 +101,10 @@ export default function Statistics(props: any) {
         <>
             <div className={"flex flex-col md:flex-row items-center lg:items-begin"}>
                 {/*{singleBox("Total Value Locked", "$ " + String((tvl / (10 ** tvlDecimals)).toFixed(2) ) + " USD")}*/}
-                {singleBoxDimmed("Total Value Locked", "Coming Soon")}
-                {singleBoxDimmed("7 Day APY", "Coming Soon")}
+                {/*{singleBoxDimmed("Total Value Locked", "Coming Soon")}*/}
+                {/*{singleBoxDimmed("7 Day APY", "Coming Soon")}*/}
+                {emptyBox()}
+                {emptyBox()}
                 {emptyBox()}
                 {/*8.02%*/}
             </div>

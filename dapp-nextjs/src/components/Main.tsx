@@ -1,5 +1,4 @@
 import React, {FC} from "react";
-import {HeroLeft} from "./HeroLeft";
 import HeroForm from "./HeroForm";
 import Statistics from "./Statistics";
 
@@ -38,6 +37,7 @@ export const Main: FC = ({}) => {
             {/*<div className={"flex flex-row pt-8"}>*/}
             {/*</div>*/}
             {/*className={"flex flex-col md:flex-row   "}*/}
+            {/* Perhaps stats should go in the header ...*/}
             <div className={"flex flex-col lg:flex-row grow w-full justify-center lg:justify-start my-auto"}>
                 {/*className={"flex grow my-auto"}*/}
 
@@ -52,10 +52,10 @@ export const Main: FC = ({}) => {
                             without locking in liquidity. Risk-adjusted for your favorite asset.
                         </p>
                     </div>
-                    <div className={"py-8 mx-0 md:mx-auto"}>
-                        <Statistics />
-                    </div>
-
+                    {/*<div className={"flex flex-row mx-auto my-auto"}>*/}
+                    {/*    <PortfolioChart/>*/}
+                    {/*</div>*/}
+                    <Statistics />
                 </div>
                 {/*<div className={"flex grow"}>*/}
                 {/*    <div className={"py-2 grow w-24"}/>*/}
@@ -64,7 +64,8 @@ export const Main: FC = ({}) => {
                 {/*flex-none*/}
                 {/*justify-center*/}
                 {/* w-full */}
-                <div className={"my-auto flex flex-row grow w-full justify-center lg:justify-end mx-auto"}>
+                {/* lg:justify-end */}
+                <div className={"my-auto flex flex-row w-96 mx-auto lg:mx-0 lg:w-full justify-center lg:justify-end lg:ml-14"}>
                     <HeroForm />
                 </div>
             </div>
