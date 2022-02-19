@@ -2,7 +2,7 @@ import React, {useCallback, useEffect, useState} from "react";
 import {PieChart, Pie, Cell, ResponsiveContainer} from "recharts";
 import axios from "axios";
 
-export default function PortfolioChart() {
+export default function PortfolioChart(props: any) {
 
     const COLORS = [
         "#2196f3",
@@ -71,6 +71,15 @@ export default function PortfolioChart() {
         }
     ]);
 
+    const [totalAmountInUsdc, setTotalAmountInUsdc] = useState<number>(0.);
+    useEffect(() => {
+        if (props.totalAmountInUsdc) {
+            console.log("Defined!", props.totalAmountInUsdc);
+            setTotalAmountInUsdc(props.totalAmountInUsdc);
+        } else {
+            console.log("Undefined!", props.totalAmountInUsdc);
+        }
+    }, [props.totalAmountInUsdc]);
 
     useEffect(() => {
         console.log("Loading the weights");
@@ -103,6 +112,10 @@ export default function PortfolioChart() {
 
         let color = TAILWIND_COLORS[index % TAILWIND_COLORS.length];
 
+        console.log("Value and total amount in usdc are: ");
+        console.log(row.value);
+        console.log(totalAmountInUsdc);
+
         return (
             <tr>
                 <td className="px-2 py-3 whitespace-nowrap">
@@ -112,14 +125,19 @@ export default function PortfolioChart() {
                         </div>
                     </div>
                 </td>
-                <td className="px-6 py-3 whitespace-nowrap">
+                <td className="px-3 py-3 whitespace-nowrap">
                     <div className="text-sm">
                         {row.name}
                     </div>
                 </td>
-                <td className="px-6 py-3 whitespace-nowrap">
+                <td className="px-3 py-3 whitespace-nowrap">
                     <div className="text-sm">
                         {row.value}%
+                    </div>
+                </td>
+                <td className="px-3 py-3 whitespace-nowrap">
+                    <div className="text-sm">
+                        ${(0.01 * row.value * totalAmountInUsdc).toFixed(2)}
                     </div>
                 </td>
             </tr>
@@ -160,13 +178,16 @@ export default function PortfolioChart() {
                                     <thead className="">
                                     <tr>
                                         <th scope="col"
-                                            className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         </th>
                                         <th scope="col"
-                                            className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Asset
+                                            className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Asset
                                         </th>
                                         <th scope="col"
-                                            className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Allocation
+                                            className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Allocation
+                                        </th>
+                                        <th scope="col"
+                                            className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount
                                         </th>
                                     </tr>
                                     </thead>
