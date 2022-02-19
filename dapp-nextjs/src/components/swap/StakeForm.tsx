@@ -125,55 +125,17 @@ export default function StakeForm() {
         txPushTokensToLiquidityPoolsThroughPortfolio.add(
             await qPoolContext.portfolioObject!.transferUsdcFromUserToPortfolio(amountTokenA)
         );
+        await sendAndConfirmTransaction(
+            qPoolContext._solbondProgram!.provider,
+            qPoolContext.connection!,
+            txPushTokensToLiquidityPoolsThroughPortfolio,
+            qPoolContext.userAccount!.publicKey
+        );
 
         // Gotta calculate the full distribution of tokens before sending these instrutions ...
         // Perhaps we should call it 1-by-1 for now?
         // Calculating the full allocation beforehand seems a bit tough to do right now, no?
-
         await qPoolContext.portfolioObject!.depositTokensToLiquidityPools(weights)
-
-        // console.log(txDeposit);
-        // console.log(txDeposit.length);
-        //
-        // let txLength = txDeposit.length;
-        //
-        // let tx0 = txDeposit.slice(0, 2);
-        // let tx1 = txDeposit.slice(2, txLength);
-
-        // Split up in multiple parts ...
-        // .map((x: TransactionInstruction) => {
-        //     if (x) {
-        //         txPushTokensToLiquidityPoolsThroughPortfolio.add(x);
-        //     }
-        // });
-        //
-        // let txLength = txPushTokensToLiquidityPoolsThroughPortfolio.instructions.length;
-        //
-        // // Split into two transactions, because they don't fit into a single one!
-        // let transactionPart1 = new Transaction();
-        // txPushTokensToLiquidityPoolsThroughPortfolio.instructions.slice(0, (txLength / 2)).map((x: TransactionInstruction) => {
-        //     transactionPart1.add(x);
-        // })
-        // // Split instructions into multiple ones, if its too long by default
-        // await sendAndConfirmTransaction(
-        //     qPoolContext._solbondProgram!.provider,
-        //     qPoolContext.connection!,
-        //     transactionPart1,
-        //     qPoolContext.userAccount!.publicKey
-        // );
-        //
-        // // Split into two transactions, because they don't fit into a single one!
-        // let transactionPart2 = new Transaction();
-        // txPushTokensToLiquidityPoolsThroughPortfolio.instructions.slice((txLength / 2), txLength).map((x: TransactionInstruction) => {
-        //     transactionPart2.add(x);
-        // })
-        // // Split instructions into multiple ones, if its too long by default
-        // await sendAndConfirmTransaction(
-        //     qPoolContext._solbondProgram!.provider,
-        //     qPoolContext.connection!,
-        //     transactionPart2,
-        //     qPoolContext.userAccount!.publicKey
-        // );
 
         console.log("Done sending USDC to portfolio!!");
         await loadContext.decreaseCounter();
