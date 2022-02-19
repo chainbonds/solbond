@@ -1,30 +1,18 @@
 /* This example requires Tailwind CSS v2.0+ */
 import {useForm} from "react-hook-form";
 import {useWallet} from '@solana/wallet-adapter-react';
-import * as anchor from "@project-serum/anchor";
-import {Connection, Keypair, PublicKey, Signer, Transaction, TransactionInstruction} from "@solana/web3.js";
-import {AiOutlineArrowDown} from "react-icons/ai";
+import {Transaction, TransactionInstruction} from "@solana/web3.js";
 import InputFieldWithLogo from "../InputFieldWithLogo";
 import CallToActionButton from "../CallToActionButton";
-import {BN, web3} from "@project-serum/anchor";
-import React, {Fragment, useEffect, useState} from "react";
+import {BN} from "@project-serum/anchor";
+import React, {useEffect, useState} from "react";
 import {IQPool, useQPoolUserTool} from "../../contexts/QPoolsProvider";
 import {WalletMultiButton} from "@solana/wallet-adapter-react-ui";
-import {Mint, WalletI} from "easy-spl";
-import {Token, TOKEN_PROGRAM_ID, u64} from "@solana/spl-token";
-// import airdropAdmin from "@qpools/sdk/src/airdropAdmin";
-// import {createAssociatedTokenAccountSendUnsigned, delay} from "@qpools/sdk/src/utils";
-// import {MATH_DENOMINATOR, MOCK} from "@qpools/sdk/src/const";
+import {u64} from "@solana/spl-token";
 import {useLoad} from "../../contexts/LoadingContext";
-// import {SEED} from "@qpools/sdk/lib/seeds";
-import {sendAndConfirm} from "easy-spl/dist/util";
 import ConfirmPortfolioBuyModal from "../ConfirmPortfolioBuyModal";
-import {Modal} from "react-bootstrap";
-import { Transition } from "@headlessui/react";
-import {airdropAdmin, createAssociatedTokenAccountSendUnsigned, MOCK} from "@qpools/sdk";
-import {SEED} from "@qpools/sdk/lib/seeds";
-import {PositionsInput} from "@qpools/sdk/lib/register-portfolio";
-import {tou64} from "@qpools/sdk/lib/utils";
+import {MOCK} from "@qpools/sdk";
+import {sendAndConfirmTransaction} from "../../utils/utils";
 
 export default function StakeForm() {
 
@@ -72,46 +60,87 @@ export default function StakeForm() {
         const amounts = [amountTokenA, 0, 0];
         let weights: Array<BN> = [new BN(1000), new BN(0), new BN(0)];
 
-        // The first two instructions can work together, I would say ...
+        // All transactions
+        let txs = [];
+
+
+        // Register all pools, and addresses
         let tx0: Transaction = new Transaction();
-        console.log("Creating all positions ...");
-        let ix0 = await qPoolContext.portfolioObject!.registerPortfolio(weights);
-        tx0.add(ix0);
-        let ix1 = await qPoolContext.portfolioObject!.registerAllLiquidityPools();
-        tx0.add(ix1);
+        tx0.add(
+            await qPoolContext.portfolioObject!.registerPortfolio(weights)
+        );
+        (await qPoolContext.portfolioObject!.registerAllLiquidityPools()).map((x: TransactionInstruction) => {
+            tx0.add(x);
+        })
+        await sendAndConfirmTransaction(
+            qPoolContext._solbondProgram!,
+            qPoolContext.connection!,
+            tx0,
+            qPoolContext.userAccount!.publicKey
+        );
 
-        console.log("Signing transaction 1...");
-        console.log("Payer is: ", qPoolContext.portfolioObject!.payer);
-        console.log("Wallet is: ", qPoolContext.portfolioObject!.wallet);
-        // await sendAndConfirm();
-        // return web3.sendAndConfirmRawTransaction(conn, tx.serialize(), { commitment: 'confirmed' })
-        const blockhash = await qPoolContext.connection!.getRecentBlockhash();
-        console.log("Added blockhash");
-        tx0.recentBlockhash = blockhash.blockhash;
-        tx0.feePayer = qPoolContext.userAccount!.publicKey;
-        // await qPoolContext.userAccount!.signTransaction(tx0);
-        let sg0 = await qPoolContext._solbondProgram.provider.send(tx0);
-        // let sg0 = await qPoolContext.connection!.sendRawTransaction(tx0.serialize());
-        console.log("sg0 is: ", sg0);
-        await qPoolContext.connection!.confirmTransaction(sg0, 'confirmed');
+        // Now apply all functions that send money back and forth
 
-        // Send and confirm this set of transactions ...
-        console.log("Transferring USDC to positions ...");
-        let tx1: Transaction = new Transaction();
-        let ix2 = await qPoolContext.portfolioObject!.transferUsdcFromUserToPortfolio(amountTokenA);
-        tx1.add(ix2);
-        let ix3 = await qPoolContext.portfolioObject!.depositTokensToLiquidityPools(weights);
-        tx1.add(ix3);
 
-        tx0.recentBlockhash = blockhash.blockhash;
-        tx0.feePayer = qPoolContext.userAccount!.publicKey;
-        // await qPoolContext.userAccount!.signTransaction(tx0);
-        console.log("Signing transaction 2...");
-        let sg1 = await qPoolContext._solbondProgram.provider.send(tx1);
-        console.log("sg1 is: ", sg1);
-        await qPoolContext.connection!.confirmTransaction(sg1);
 
+
+
+
+        // // The first two instructions can work together, I would say ...
+        // let tx0: Transaction = new Transaction();
+        // console.log("Creating all positions ...");
+        // let ix0 = await qPoolContext.portfolioObject!.registerPortfolio(weights);
+        // tx0.add(ix0);
+        // let ix1 = await qPoolContext.portfolioObject!.registerAllLiquidityPools();
+        // tx0.add(ix1);
+        //
+        // console.log("Signing transaction 1...");
+        // console.log("Payer is: ", qPoolContext.portfolioObject!.payer);
+        // console.log("Wallet is: ", qPoolContext.portfolioObject!.wallet);
+        // // await sendAndConfirm();
+        // // return web3.sendAndConfirmRawTransaction(conn, tx.serialize(), { commitment: 'confirmed' })
+        // // const blockhash = await qPoolContext.connection!.getRecentBlockhash();
+        // // console.log("Added blockhash");
+        // // tx0.recentBlockhash = blockhash.blockhash;
+        // // tx0.feePayer = qPoolContext.userAccount!.publicKey;
+        // // // await qPoolContext.userAccount!.signTransaction(tx0);
+        // // let sg0 = await qPoolContext._solbondProgram.provider.send(tx0);
+        // // // let sg0 = await qPoolContext.connection!.sendRawTransaction(tx0.serialize());
+        // // console.log("sg0 is: ", sg0);
+        // // await qPoolContext.connection!.confirmTransaction(sg0, 'confirmed');
+        //
+        // // Collect all transactions into one array
+        // // And then, split execution to minimize number of clicks
+        //
+        // // Send and confirm this set of transactions ...
+        // console.log("Transferring USDC to positions ...");
+        // let ix2 = await qPoolContext.portfolioObject!.transferUsdcFromUserToPortfolio(amountTokenA);
+        // tx0.add(ix2);
+        // const blockhash = await qPoolContext.connection!.getRecentBlockhash();
+        // tx0.recentBlockhash = blockhash.blockhash!;
+        // tx0.feePayer = qPoolContext.userAccount!.publicKey;
+        // // await qPoolContext.userAccount!.signTransaction(tx0);
+        // console.log("Signing transaction 2...");
+        // let sg1 = await qPoolContext._solbondProgram.provider.send(tx0);
+        // console.log("sg1 is: ", sg1);
+        // await qPoolContext.connection!.confirmTransaction(sg1);
+        //
+        // // TODO: Do i need to shorten the instructions even further ...?
+        // // TODO: For every two positions, create another instruction ...
+        // let tx2: Transaction = new Transaction();
+        // let ixsDeposit = await qPoolContext.portfolioObject!.depositTokensToLiquidityPools(weights);
+        // tx2.add(ix3);
+        //
+        //
+        // tx2.recentBlockhash = blockhash.blockhash;
+        // tx2.feePayer = qPoolContext.userAccount!.publicKey;
+        // // await qPoolContext.userAccount!.signTransaction(tx0);
+        // console.log("Signing transaction 2...");
+        // let sg2 = await qPoolContext._solbondProgram.provider.send(tx2);
+        // console.log("sg1 is: ", sg2);
+        // await qPoolContext.connection!.confirmTransaction(sg2);
         // Send some USDC to the wallet's address
+
         console.log("Done sending USDC to portfolio!!");
         await loadContext.decreaseCounter();
 

@@ -1,4 +1,5 @@
-import {PublicKey} from "@solana/web3.js";
+import {Connection, PublicKey, Transaction} from "@solana/web3.js";
+import {Provider} from "@project-serum/anchor";
 
 export const solscanLink = (address: PublicKey) => {
     let out = "https://solscan.io/account/";
@@ -18,5 +19,21 @@ export const shortenedAddressString = (_address: PublicKey) => {
     return out;
 }
 
+export const sendAndConfirmTransaction = async (
+    programProvider: Provider,
+    connection: Connection,
+    tx: Transaction,
+    feePayer: PublicKey
+) => {
+    // Get blockhash
+    const blockhash = await connection.getRecentBlockhash();
+    tx.recentBlockhash = blockhash.blockhash!;
+    tx.feePayer = feePayer;
+    // Assign feePayer
 
-
+    // Send and Confirm
+    console.log("Signing transaction 2...");
+    let sg1 = await programProvider.send(tx);
+    console.log("sg1 is: ", sg1);
+    await connection.confirmTransaction(sg1);
+}
