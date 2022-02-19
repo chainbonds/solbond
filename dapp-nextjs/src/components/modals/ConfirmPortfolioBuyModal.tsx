@@ -9,7 +9,7 @@ import {BN} from "@project-serum/anchor";
 import {u64} from "@solana/spl-token";
 import {Transaction, TransactionInstruction} from "@solana/web3.js";
 import {sendAndConfirmTransaction} from "../../utils/utils";
-import {MOCK} from "../../../../../qPools-contract/qpools-sdk";
+import {MOCK} from "@qpools/sdk";
 
 export default function ConfirmPortfolioBuyModal(props: any) {
 
