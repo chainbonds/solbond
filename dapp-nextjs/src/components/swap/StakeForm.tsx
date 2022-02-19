@@ -10,10 +10,10 @@ import {IQPool, useQPoolUserTool} from "../../contexts/QPoolsProvider";
 import {WalletMultiButton} from "@solana/wallet-adapter-react-ui";
 import {u64} from "@solana/spl-token";
 import {useLoad} from "../../contexts/LoadingContext";
-import ConfirmPortfolioBuyModal from "../ConfirmPortfolioBuyModal";
 import {MOCK} from "@qpools/sdk";
 import {sendAndConfirmTransaction} from "../../utils/utils";
 import UserInfoBalance from "../UserInfoBalance";
+import ConfirmPortfolioBuyModal from "../modals/ConfirmPortfolioBuyModal";
 
 // // TODO: Do i need to shorten the instructions even further ...?
 // // TODO: For every two positions, create another instruction ...

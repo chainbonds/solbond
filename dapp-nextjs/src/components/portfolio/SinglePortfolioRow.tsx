@@ -4,8 +4,7 @@ import {IQPool, useQPoolUserTool} from "../../contexts/QPoolsProvider";
 import {AllocateParams, PublicKey, TokenAmount} from "@solana/web3.js";
 import ConnectWalletPortfolioRow from "./ConnectWalletPortfolioRow";
 import PortfolioDiagram from "./DetailedDiagram";
-import SinglePortfolioCard from "./SinglePortfolioCard";
-import {solscanLink} from "../../utils/utils";
+import SinglePortfolioCard from "../modals/SinglePortfolioCard";
 
 export default function SinglePortfolioRow(props: any) {
 
