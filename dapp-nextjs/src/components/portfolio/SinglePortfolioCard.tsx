@@ -104,9 +104,6 @@ export default function SinglePortfolioCard(props: any) {
         (await qPoolContext.portfolioObject!.redeemFullPortfolio()).map((x: TransactionInstruction) => {
             allTxIxs.push(x);
         })
-        allTxIxs.push(
-            await qPoolContext.portfolioObject!.transferUsdcFromPortfolioToUser()
-        );
 
         // Now do some optimized portfolio sending ...
         let numberIxs = allTxIxs.length;
@@ -128,6 +125,15 @@ export default function SinglePortfolioCard(props: any) {
             qPoolContext._solbondProgram!.provider,
             qPoolContext.connection!,
             tx1,
+            qPoolContext.userAccount!.publicKey
+        );
+
+        let tx2 = new Transaction();
+        tx2.add(await qPoolContext.portfolioObject!.transferUsdcFromPortfolioToUser());
+        await sendAndConfirmTransaction(
+            qPoolContext._solbondProgram!.provider,
+            qPoolContext.connection!,
+            tx2,
             qPoolContext.userAccount!.publicKey
         );
 

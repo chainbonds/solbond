@@ -135,7 +135,7 @@ export default function StakeForm() {
         // Gotta calculate the full distribution of tokens before sending these instrutions ...
         // Perhaps we should call it 1-by-1 for now?
         // Calculating the full allocation beforehand seems a bit tough to do right now, no?
-        await qPoolContext.portfolioObject!.depositTokensToLiquidityPools(weights)
+        await qPoolContext.portfolioObject!.depositTokensToLiquidityPools(weights);
 
         console.log("Done sending USDC to portfolio!!");
         await loadContext.decreaseCounter();
