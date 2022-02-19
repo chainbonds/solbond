@@ -55,7 +55,9 @@ export const Main: FC = ({}) => {
                     {/*<div className={"flex flex-row mx-auto my-auto"}>*/}
                     {/*    <PortfolioChart/>*/}
                     {/*</div>*/}
-                    <Statistics />
+                    <div className={"flex flex-row mx-auto my-auto mt-5"}>
+                        <Statistics />
+                    </div>
                 </div>
                 {/*<div className={"flex grow"}>*/}
                 {/*    <div className={"py-2 grow w-24"}/>*/}

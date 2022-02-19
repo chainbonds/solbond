@@ -101,10 +101,10 @@ export default function Statistics(props: any) {
         <>
             <div className={"flex flex-col md:flex-row items-center lg:items-begin"}>
                 {/*{singleBox("Total Value Locked", "$ " + String((tvl / (10 ** tvlDecimals)).toFixed(2) ) + " USD")}*/}
-                {/*{singleBoxDimmed("Total Value Locked", "Coming Soon")}*/}
-                {/*{singleBoxDimmed("7 Day APY", "Coming Soon")}*/}
-                {emptyBox()}
-                {emptyBox()}
+                {singleBoxDimmed("Total Value Locked", "Coming Soon")}
+                {singleBoxDimmed("7 Day APY", "Coming Soon")}
+                {/*{emptyBox()}*/}
+                {/*{emptyBox()}*/}
                 {emptyBox()}
                 {/*8.02%*/}
             </div>
