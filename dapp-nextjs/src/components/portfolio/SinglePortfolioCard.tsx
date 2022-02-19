@@ -137,11 +137,12 @@ export default function SinglePortfolioCard(props: any) {
             qPoolContext.userAccount!.publicKey
         );
 
-        await loadContext.decreaseCounter();
+        // Make reload
+        await qPoolContext.makePriceReload();
 
+        await loadContext.decreaseCounter();
         props.setShow(false);
 
-        // TODO: All decimals should be registered somewhere!
     }
 
     return (

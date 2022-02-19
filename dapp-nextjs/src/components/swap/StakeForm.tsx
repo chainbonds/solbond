@@ -137,6 +137,9 @@ export default function StakeForm() {
         // Calculating the full allocation beforehand seems a bit tough to do right now, no?
         await qPoolContext.portfolioObject!.depositTokensToLiquidityPools(weights);
 
+        // Make reload
+        await qPoolContext.makePriceReload();
+
         console.log("Done sending USDC to portfolio!!");
         await loadContext.decreaseCounter();
 

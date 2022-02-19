@@ -34,11 +34,13 @@ export interface IQPool {
     totalPortfolioValueInUsd: number,
     initializeQPoolsUserTool: any,
     initializeQPoolsStatsTool: any,
+    reloadPriceSentinel: boolean,
     connection: Connection | undefined,
     displayPortfolio: DisplayPortfolios | undefined,
     portfolioRatios: AllocData[],
     provider: Provider | undefined,
     _solbondProgram: any,
+    makePriceReload: any,
     userAccount: WalletI | undefined,
     currencyMint: Token | undefined,
     QPTokenMint: Token | undefined,
@@ -49,6 +51,8 @@ const defaultValue: IQPool = {
     qPoolsStats: undefined,
     portfolioObject: undefined,
     displayPortfolio: undefined,
+    reloadPriceSentinel: false,
+    makePriceReload: () => console.log("Error not loaded yet!"),
     allocatedAccounts: [],
     positionValuesInUsd: [],
     totalPortfolioValueInUsd: 0,
@@ -128,6 +132,7 @@ export function QPoolsProvider(props: any) {
     const [displayPortfolio, setDisplayPortfolio] = useState<DisplayPortfolios | undefined>(undefined);
     const [positionValuesInUsd, setPositionValuesInUsd] = useState<UsdValuePosition[]>([]);
     const [totalPortfolioValueInUsd, setTotalPortfolioValueUsd] = useState<number>(0.);
+    const [reloadPriceSentinel, setReloadPriceSentinel] = useState<boolean>(false);
 
     const [portfolioRatios, setPortfolioRatios] = useState<AllocData[]>([{
         "lp": "JSOL-SOL",
@@ -157,6 +162,20 @@ export function QPoolsProvider(props: any) {
             console.log(error)
         })
     }, []);
+
+    useEffect(() => {
+        if (userAccount && portfolioObject) {
+            getPortfolioInformation()
+        }
+    }, [userAccount, portfolioObject, reloadPriceSentinel]);
+
+    useEffect(() => {
+        calculateAllUsdcValues();
+    }, [allocatedAccounts, reloadPriceSentinel]);
+
+    const makePriceReload = async () => {
+        setReloadPriceSentinel(!reloadPriceSentinel);
+    }
 
     // Calculate all usdc values
     const calculateAllUsdcValues = async () => {
@@ -390,6 +409,7 @@ export function QPoolsProvider(props: any) {
             console.log(x);
         });
 
+        console.log("Setting allocated accounts: ", allAmounts);
         setAllocatedAccounts(allAmounts);
 
         // Calculate total sum of items
@@ -407,17 +427,6 @@ export function QPoolsProvider(props: any) {
         console.log("##getPortfolioInformation()");
     };
 
-    useEffect(() => {
-        if (userAccount && portfolioObject) {
-            // if the account exists already!
-            getPortfolioInformation();
-        }
-    }, [userAccount, portfolioObject]);
-
-    useEffect(() => {
-        calculateAllUsdcValues();
-    }, [allocatedAccounts]);
-
     const value: IQPool = {
         qPoolsUser,
         qPoolsStats,
@@ -434,7 +443,9 @@ export function QPoolsProvider(props: any) {
         _solbondProgram,
         userAccount,
         currencyMint,
-        QPTokenMint
+        QPTokenMint,
+        makePriceReload,
+        reloadPriceSentinel
     };
 
     return (

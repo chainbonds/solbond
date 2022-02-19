@@ -30,7 +30,7 @@ export default function UserInfo(props: any) {
 
             // Get the balance
         }
-    }, [qPoolContext.userAccount, qPoolContext.allocatedAccounts]);
+    }, [qPoolContext.totalPortfolioValueInUsd, qPoolContext.userAccount, qPoolContext.allocatedAccounts, qPoolContext.reloadPriceSentinel]);
 
     return (
         <>

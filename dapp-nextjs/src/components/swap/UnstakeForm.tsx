@@ -63,6 +63,13 @@ export default function UnstakeForm() {
                 />
             );
         }
+        if (totalPortfolioValueInUsd === 0.00) {
+            return (
+                <ConnectWalletPortfolioRow
+                    text={"No active portfolio position found!"}
+                />
+            );
+        }
         console.log("Portfolio PDA is: ", qPoolContext.portfolioObject.portfolioPDA);
         return (
             <SinglePortfolioRow
