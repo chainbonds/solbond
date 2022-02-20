@@ -106,8 +106,6 @@ export default function PortfolioChart(props: any) {
         ])
     }, [ratios]);
 
-
-
     const singleRow = (row: any, index: number) => {
 
         let color = TAILWIND_COLORS[index % TAILWIND_COLORS.length];
