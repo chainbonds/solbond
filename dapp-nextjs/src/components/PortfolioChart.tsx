@@ -1,8 +1,11 @@
 import React, {useCallback, useEffect, useState} from "react";
 import {PieChart, Pie, Cell, ResponsiveContainer} from "recharts";
 import axios from "axios";
+import {useLoad} from "../contexts/LoadingContext";
 
 export default function PortfolioChart(props: any) {
+
+    const loadContext = useLoad();
 
     const COLORS = [
         "#2196f3",
@@ -83,14 +86,25 @@ export default function PortfolioChart(props: any) {
 
     useEffect(() => {
         console.log("Loading the weights");
+
+        loadContext.increaseCounter();
+
         axios.get<AllocData[]>("https://qpools.serpius.com/weight_status.json").then((response) => {
-            setRatios(response.data)
             console.log("Here is the data :")
             console.log(typeof response.data)
             console.log(JSON.stringify(response.data))
 
+            response.data.map((x: any) => {
+                if (x["type"] === "back") {
+                    let data = x["data"];
+                    setRatios(data);
+                }
+            });
+            loadContext.decreaseCounter();
+            // [{"type":"front","data":[{"lp":"wUST_v1-USDC","weight":1000,"protocol":"saber"}]},{"type":"back","data":[{"lp":"wUST_v1-USDC","weight":1000,"protocol":"saber"},{"lp":"USDCpo-USDC","weight":0,"protocol":"saber"},{"lp":"USDCet-USDC","weight":0,"protocol":"saber"}]}]
         }).catch((error) => {
-            console.log(error)
+            console.log(error);
+            loadContext.decreaseCounter();
         })
     }, []);
 

@@ -146,6 +146,7 @@ export default function ConfirmPortfolioBuyModal(props: any) {
         await loadContext.decreaseCounter();
 
         // Display a message "Portfolio created"!
+        props.onClose()
 
     }
 
