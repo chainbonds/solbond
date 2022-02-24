@@ -1,6 +1,7 @@
 import React, {FC} from "react";
 import HeroForm from "./HeroForm";
 import Statistics from "./displays/Statistics";
+import LoadingItemsModal from "./modals/LoadingItemsModal";
 
 export const Main: FC = ({}) => {
 
@@ -33,6 +34,7 @@ export const Main: FC = ({}) => {
             className={"w-full flex flex-col grow my-auto px-6 lg:px-20"}
             style={{backgroundColor: "#1a202c"}}
         >
+            <LoadingItemsModal />
             <div className={"flex flex-col lg:flex-row grow w-full justify-center lg:justify-start my-auto"}>
                 <div className={"flex flex-col"}>
                     {title()}

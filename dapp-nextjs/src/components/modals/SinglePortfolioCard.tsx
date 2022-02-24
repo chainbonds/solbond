@@ -7,6 +7,7 @@ import {Dialog, Transition} from "@headlessui/react";
 import {useLoad} from "../../contexts/LoadingContext";
 import Image from "next/image";
 import {getIconFromToken} from "../../../../../qPools-contract/qpools-sdk/src/registry/registry-helper";
+import LoadingItemsModal from "./LoadingItemsModal";
 
 export default function SinglePortfolioCard(props: any) {
 
@@ -128,6 +129,10 @@ export default function SinglePortfolioCard(props: any) {
             allTxIxs.push(x);
         })
 
+        // Inject these somehow, once per pool!
+        // let amount_a = (await this.connection.getTokenAccountBalance(userAccountA)).value.amount;
+        // let amount_b = (await this.connection.getTokenAccountBalance(userAccountB)).value.amount;
+
         // Now do some optimized portfolio sending ...
         let numberIxs = allTxIxs.length;
         let tx0 = new Transaction();
@@ -170,7 +175,9 @@ export default function SinglePortfolioCard(props: any) {
 
     return (
         <>
+            {/* Insert another modal here ... */}
             {/*<div className="flex items-center justify-center w-full h-full">*/}
+            <LoadingItemsModal />
             <>
             <Transition show={props.show} as={Fragment}>
                 <Dialog as="div" className="fixed inset-0 z-10 overflow-y-auto" initialFocus={cancelButtonRef} onClose={() => {props.setShow(false)}}>
