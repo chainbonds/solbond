@@ -7,12 +7,13 @@ import {Dialog, Transition} from "@headlessui/react";
 import {useLoad} from "../../contexts/LoadingContext";
 import Image from "next/image";
 import {getIconFromToken} from "../../../../../qPools-contract/qpools-sdk/src/registry/registry-helper";
-import LoadingItemsModal from "./LoadingItemsModal";
+import {useItemsLoad} from "../../contexts/ItemsLoadingContext";
 
 export default function SinglePortfolioCard(props: any) {
 
     const qPoolContext: IQPool = useQPoolUserTool();
     const loadContext = useLoad();
+    const itemLoadContext = useItemsLoad();
     const cancelButtonRef = useRef(null);
 
     /**
@@ -133,6 +134,16 @@ export default function SinglePortfolioCard(props: any) {
         // let amount_a = (await this.connection.getTokenAccountBalance(userAccountA)).value.amount;
         // let amount_b = (await this.connection.getTokenAccountBalance(userAccountB)).value.amount;
 
+        // Don't overoptimize these too much just yet ...
+
+        // Loader, should register all the items that we're gonna go through ..
+        // itemLoadContext.addLoadItem({message: "Creating Associated Token Accounts"});
+        // itemLoadContext.addLoadItem({message: "Depositing USDC to the Portfolio"});
+        // itemLoadContext.addLoadItem({message: "Distributing the Portfolio across the liquidity pools (1)"});
+        // itemLoadContext.addLoadItem({message: "Distributing the Portfolio across the liquidity pools (2)"});
+
+        // Be smarter about the way you split up the transactions into multiple parts ...
+
         // Now do some optimized portfolio sending ...
         let numberIxs = allTxIxs.length;
         let tx0 = new Transaction();
@@ -149,12 +160,15 @@ export default function SinglePortfolioCard(props: any) {
             tx0,
             qPoolContext.userAccount!.publicKey
         );
+        // itemLoadContext.incrementCounter();
+
         await sendAndConfirmTransaction(
             qPoolContext._solbondProgram!.provider,
             qPoolContext.connection!,
             tx1,
             qPoolContext.userAccount!.publicKey
         );
+        // itemLoadContext.incrementCounter();
 
         let tx2 = new Transaction();
         tx2.add(await qPoolContext.portfolioObject!.transferUsdcFromPortfolioToUser());
@@ -164,6 +178,8 @@ export default function SinglePortfolioCard(props: any) {
             tx2,
             qPoolContext.userAccount!.publicKey
         );
+        // itemLoadContext.incrementCounter();
+        // itemLoadContext.resetCounter();
 
         // Make reload
         await qPoolContext.makePriceReload();
@@ -177,7 +193,6 @@ export default function SinglePortfolioCard(props: any) {
         <>
             {/* Insert another modal here ... */}
             {/*<div className="flex items-center justify-center w-full h-full">*/}
-            <LoadingItemsModal />
             <>
             <Transition show={props.show} as={Fragment}>
                 <Dialog as="div" className="fixed inset-0 z-10 overflow-y-auto" initialFocus={cancelButtonRef} onClose={() => {props.setShow(false)}}>

@@ -10,6 +10,7 @@ import {u64} from "@solana/spl-token";
 import {Transaction, TransactionInstruction} from "@solana/web3.js";
 import {sendAndConfirmTransaction} from "../../utils/utils";
 import {MOCK} from "@qpools/sdk";
+import {useItemsLoad} from "../../contexts/ItemsLoadingContext";
 
 export default function ConfirmPortfolioBuyModal(props: any) {
 
@@ -17,6 +18,7 @@ export default function ConfirmPortfolioBuyModal(props: any) {
     const walletContext: any = useWallet();
     const qPoolContext: IQPool = useQPoolUserTool();
     const loadContext = useLoad();
+    const itemLoadContext = useItemsLoad();
 
     const [totalAmountInUsdc, setTotalAmountInUsdc] = useState<number>(0.);
     useEffect(() => {
@@ -35,10 +37,21 @@ export default function ConfirmPortfolioBuyModal(props: any) {
             return
         }
 
-        await loadContext.increaseCounter();
+        // Display a message "Portfolio created"!
+        props.onClose()
+
+        // await loadContext.increaseCounter();
+
+        await itemLoadContext.addLoadItem({message: "Fetching data"});
+        await itemLoadContext.addLoadItem({message: "Creating Associated Token Accounts"});
+        await itemLoadContext.addLoadItem({message: "Register Portfolio & Pool Object"});
+        // await itemLoadContext.addLoadItem({message: "Register Pool Objects"});
+        await itemLoadContext.addLoadItem({message: "Send Currency to Portfolio"});
+        await itemLoadContext.addLoadItem({message: "Distribute Currency amongst liquidity pools"});
 
         // Initialize if not initialized yet
         await qPoolContext.initializeQPoolsUserTool(walletContext);
+        await itemLoadContext.incrementCounter();
 
         console.log("Total amount in Usdc is: ", totalAmountInUsdc);
 
@@ -71,6 +84,7 @@ export default function ConfirmPortfolioBuyModal(props: any) {
                 qPoolContext.userAccount!.publicKey
             );
         }
+        await itemLoadContext.incrementCounter();
 
         /*
             BLOCK 2: Create the data structures for the portfolio, and liquidity pools
@@ -95,6 +109,7 @@ export default function ConfirmPortfolioBuyModal(props: any) {
             txRegisterDataStructures,
             qPoolContext.userAccount!.publicKey
         );
+        await itemLoadContext.incrementCounter();
 
         /*
             BLOCK 2: Create the data structures for the portfolio, and liquidity pools
@@ -111,20 +126,22 @@ export default function ConfirmPortfolioBuyModal(props: any) {
             txPushTokensToLiquidityPoolsThroughPortfolio,
             qPoolContext.userAccount!.publicKey
         );
+        await itemLoadContext.incrementCounter();
 
         // Gotta calculate the full distribution of tokens before sending these instrutions ...
         // Perhaps we should call it 1-by-1 for now?
         // Calculating the full allocation beforehand seems a bit tough to do right now, no?
         await qPoolContext.portfolioObject!.depositTokensToLiquidityPools(weights);
+        await itemLoadContext.incrementCounter();
+
+        // Perhaps, instead of resetting the counter, display some sort of "Ok" button
+        // await itemLoadContext.resetCounter();
 
         // Make reload
         await qPoolContext.makePriceReload();
 
         console.log("Done sending USDC to portfolio!!");
-        await loadContext.decreaseCounter();
-
-        // Display a message "Portfolio created"!
-        props.onClose()
+        // await loadContext.decreaseCounter();
 
     }
 

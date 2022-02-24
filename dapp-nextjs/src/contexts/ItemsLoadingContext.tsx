@@ -5,7 +5,8 @@ export interface IItemsLoad {
     incrementCounter: any,
     resetCounter: any,
     progressCounter: any,
-    loadItems: any
+    loadItems: any,
+    showLoadingModal: boolean
 }
 
 const defaultValue: IItemsLoad = {
@@ -14,7 +15,8 @@ const defaultValue: IItemsLoad = {
     incrementCounter: () => console.error("attempting to use AuthContext outside of a valid provider"),
     resetCounter: () => console.error("attempting to use AuthContext outside of a valid provider"),
     progressCounter: () => console.error("attempting to use AuthContext outside of a valid provider"),
-    loadItems: () => console.error("attempting to use AuthContext outside of a valid provider")
+    loadItems: () => console.error("attempting to use AuthContext outside of a valid provider"),
+    showLoadingModal: false,
 }
 
 const LoadContext = React.createContext<IItemsLoad>(defaultValue);
@@ -24,21 +26,20 @@ export function useItemsLoad() {
 }
 
 export interface LoadingItem {
-    message: string,
-    loadingDone: boolean
+    message: string
 }
 
 export function ItemsLoadProvider(props: any) {
 
     const [loadItems, setLoadItems] = useState<LoadingItem[]>([]);
-    const [progressCounter, setProgressCounter] = useState<number>(1);
-    const [showModal, setShowModal] = useState<boolean>(true);
+    const [progressCounter, setProgressCounter] = useState<number>(0);
+    const [showLoadingModal, setLoadingShowModal] = useState<boolean>(false);
 
     useEffect(() => {
         if (loadItems.length > 0) {
-            setShowModal(true)
+            setLoadingShowModal(true)
         } else {
-            setShowModal(false)
+            setLoadingShowModal(false)
         }
     }, [loadItems]);
 
@@ -62,7 +63,8 @@ export function ItemsLoadProvider(props: any) {
         incrementCounter,
         resetCounter,
         progressCounter,
-        loadItems
+        loadItems,
+        showLoadingModal
     };
 
     return (

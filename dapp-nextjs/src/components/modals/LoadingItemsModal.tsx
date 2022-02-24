@@ -3,59 +3,75 @@ import {Dialog, Transition} from "@headlessui/react";
 import {FaCheckCircle, FaTimesCircle} from "react-icons/fa";
 import {Oval, TailSpin} from "react-loader-spinner";
 import {LoadingItem, useItemsLoad} from "../../contexts/ItemsLoadingContext";
+import useToggleState from "@restart/hooks/useToggleState";
 // import FaCheckCircle from "react-icons/fa/";
 
 // Should replace with an enum, and failed can also be an option
 
 // This should probably much more be a provider, rather than a component like this ...
 // Probably I can load these variables into the loader modal ...
-export default function LoadingItemsModal(props: any) {
+export default function LoadingItemsModal() {
 
     const itemLoadContext = useItemsLoad();
-
-    // Should prob more be like a dictionaty ...
-    // const [loadItems, setLoadItems] = useState<LoadingItem[]>([]);
-    // const [progressCounter, setProgressCounter] = useState<number>(1);
-    const [showModal, setShowModal] = useState<boolean>(true);
+    const [disableButton, setDisableButton] = useState<boolean>(false);
 
     useEffect(() => {
-        if (itemLoadContext.progressCounter === itemLoadContext.loadItems.length) {
-            setShowModal(false);
+        console.log("Progres and items are: ");
+        console.log(itemLoadContext.loadItems);
+        console.log(itemLoadContext.progressCounter);
+
+        console.log("Conditions: ");
+        console.log(itemLoadContext.loadItems.length > 0);
+        console.log(itemLoadContext.progressCounter);
+        console.log(itemLoadContext.loadItems.length);
+
+        if ((itemLoadContext.loadItems.length > 0) && (itemLoadContext.progressCounter < (itemLoadContext.loadItems.length))) {
+            console.log("Disabled?");
+            setDisableButton(true);
+        } else {
+            console.log("Not disabled?");
+            setDisableButton(false);
         }
-    }, [itemLoadContext.progressCounter, itemLoadContext.loadItems]);
+    }, [itemLoadContext.loadItems, itemLoadContext.progressCounter]);
 
-    useEffect(() => {
-
-        itemLoadContext.resetCounter();
-
-        const a: LoadingItem[] = [
-            {
-                message: "Transaction Item 1",
-                loadingDone: true
-            },
-            {
-                message: "Transaction Item 2",
-                loadingDone: false
-            },
-            {
-                message: "Transaction Item 3",
-                loadingDone: false
-            }
-        ];
-        a.map((x: LoadingItem) => {
-            itemLoadContext.addLoadItem(x);
-        });
-
-        setTimeout(() => {
-            console.log("Incrementing counter ..");
-            itemLoadContext.incrementCounter();
-        }, 5000);
-
-    }, []);
+    // useEffect(() => {
+    //
+    //     itemLoadContext.resetCounter();
+    //
+    //     const a: LoadingItem[] = [
+    //         {
+    //             message: "Transaction Item 1",
+    //         },
+    //         {
+    //             message: "Transaction Item 2",
+    //         },
+    //         {
+    //             message: "Transaction Item 3",
+    //         }
+    //     ];
+    //     a.map((x: LoadingItem) => {
+    //         itemLoadContext.addLoadItem(x);
+    //     });
+    //
+    //     setTimeout(() => {
+    //         console.log("Incrementing counter ..");
+    //         itemLoadContext.incrementCounter();
+    //     }, 2000);
+    //
+    //     setTimeout(() => {
+    //         console.log("Incrementing counter ..");
+    //         itemLoadContext.incrementCounter();
+    //     }, 4000);
+    //     setTimeout(() => {
+    //         console.log("Incrementing counter ..");
+    //         itemLoadContext.incrementCounter();
+    //     }, 4000);
+    //
+    // }, []);
 
     return (
         <>
-            <Transition show={showModal} as={Fragment}>
+            <Transition show={itemLoadContext.showLoadingModal} as={Fragment}>
                 <Dialog as="div" className="fixed inset-0 z-10 overflow-y-auto" onClose={() => {}}>
                     <Transition.Child
                         as={Fragment}
@@ -96,7 +112,7 @@ export default function LoadingItemsModal(props: any) {
                                             if (index === itemLoadContext.progressCounter) {
                                                 return (
                                                     <>
-                                                        <div className={"flex flex-row my-3 justify-center"}>
+                                                        <div className={"flex flex-row my-3 justify-start"}>
                                                             <div className={"flex my-auto"}>
                                                                 <Oval color="#00BFFF" height={20} width={20}/>
                                                             </div>
@@ -106,10 +122,10 @@ export default function LoadingItemsModal(props: any) {
                                                         </div>
                                                     </>
                                                 )
-                                            } else if (x.loadingDone) {
+                                            } else if (index < itemLoadContext.progressCounter) {
                                                 return (
                                                     <>
-                                                        <div className={"flex flex-row my-3 justify-center"}>
+                                                        <div className={"flex flex-row my-3 justify-start"}>
                                                             <div className={"flex pl-0.5 my-auto"}>
                                                                 <FaCheckCircle color={"#4ade80"} size={20}/>
                                                             </div>
@@ -122,7 +138,7 @@ export default function LoadingItemsModal(props: any) {
                                             } else {
                                                 return (
                                                     <>
-                                                        <div className={"flex flex-row my-3 justify-center"}>
+                                                        <div className={"flex flex-row my-3 justify-start"}>
                                                             <div className={"flex pl-0.5 my-auto"}>
                                                                 <FaTimesCircle color={"#94a3b8"} size={20}/>
                                                             </div>
@@ -135,14 +151,42 @@ export default function LoadingItemsModal(props: any) {
                                             }
                                         })}
 
-                                        <div className={"flex mt-6 mb-4 flex-row justify-center mx-auto text-gray-300"}>
-                                            {/* Loading screen ...*/}
-                                            Please approve transactions!
+                                        {/*<div className={"flex mt-6 mb-4 flex-row justify-center mx-auto text-gray-300"}>*/}
+                                        {/*    /!* Loading screen ...*!/*/}
+                                        {/*    Please approve transactions!*/}
+                                        {/*</div>*/}
+
+                                        <div className="flex flex-row w-full my-5 mx-auto justify-start">
+                                            {disableButton ?
+                                                <button
+                                                    type="button"
+                                                    className="flex flex-row justify-center w-full px-10 py-2 text-sm font-medium text-gray-500 bg-blue-100 border border-transparent rounded-md w-full"
+                                                    onClick={() => {
+                                                        itemLoadContext.resetCounter()
+                                                    }}
+                                                    disabled={true}
+                                                >
+                                                    Approving transactions
+                                                </button>
+                                                :
+                                                <button
+                                                    type="button"
+                                                    className="flex flex-row justify-center w-full px-10 py-2 text-sm font-medium text-gray-900 bg-blue-100 border border-transparent w-full rounded-md hover:bg-blue-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-gray-500"
+                                                    onClick={() => {
+                                                        itemLoadContext.resetCounter()
+                                                    }}
+                                                >
+                                                    Done!
+                                                </button>
+                                            }
                                         </div>
+
                                     </div>
 
                                 </div>
+
                             </div>
+
                             {/*                    /!*<button*!/*/}
 
                             {/*<div className="flex w-full my-2 px-6 text-gray-400 justify-center">*/}

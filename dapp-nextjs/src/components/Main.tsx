@@ -1,7 +1,8 @@
-import React, {FC} from "react";
+import React, {FC, useEffect} from "react";
 import HeroForm from "./HeroForm";
 import Statistics from "./displays/Statistics";
 import LoadingItemsModal from "./modals/LoadingItemsModal";
+import {useItemsLoad} from "../contexts/ItemsLoadingContext";
 
 export const Main: FC = ({}) => {
 
@@ -27,6 +28,24 @@ export const Main: FC = ({}) => {
             </div>
         )
     }
+
+    // Just testing here ..
+    // const itemsLoad = useItemsLoad();
+    // useEffect(() => {
+    //
+    //     // setInterval(() => {
+    //     //     itemsLoad.addLoadItem({message: "Hello"});
+    //     //     itemsLoad.addLoadItem({message: "Hello 1"});
+    //     //     setTimeout(() => {
+    //     //         itemsLoad.incrementCounter();
+    //     //         setTimeout(() => {
+    //     //             itemsLoad.incrementCounter();
+    //     //         }, 3000);
+    //     //         itemsLoad.resetCounter();
+    //     //     }, 12000);
+    //     // }, 3000);
+    //
+    // },[]);
 
     return (
         <div
