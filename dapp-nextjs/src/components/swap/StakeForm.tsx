@@ -1,29 +1,19 @@
 /* This example requires Tailwind CSS v2.0+ */
 import {useForm} from "react-hook-form";
 import {useWallet} from '@solana/wallet-adapter-react';
-import {Transaction, TransactionInstruction} from "@solana/web3.js";
-import InputFieldWithLogo from "../InputFieldWithLogo";
-import CallToActionButton from "../CallToActionButton";
-import {BN} from "@project-serum/anchor";
-import React, {useEffect, useRef, useState} from "react";
+import InputFieldWithLogo from "../inputs/InputFieldWithLogo";
+import CallToActionButton from "../buttons/CallToActionButton";
+import React, {useEffect, useState} from "react";
 import {IQPool, useQPoolUserTool} from "../../contexts/QPoolsProvider";
 import {WalletMultiButton} from "@solana/wallet-adapter-react-ui";
-import {u64} from "@solana/spl-token";
-import {useLoad} from "../../contexts/LoadingContext";
-import {MOCK} from "@qpools/sdk";
-import {sendAndConfirmTransaction} from "../../utils/utils";
-import UserInfoBalance from "../UserInfoBalance";
+import UserInfoBalance from "../displays/UserInfoBalance";
 import ConfirmPortfolioBuyModal from "../modals/ConfirmPortfolioBuyModal";
-
-// // TODO: Do i need to shorten the instructions even further ...?
-// // TODO: For every two positions, create another instruction ...
 
 export default function StakeForm() {
 
-    const {register, handleSubmit} = useForm();
+    const {register} = useForm();
     const walletContext: any = useWallet();
     const qPoolContext: IQPool = useQPoolUserTool();
-    const loadContext = useLoad();
 
     const [valueInUsdc, setValueInUsdc] = useState<number>(0.);
     const [displayBuyModal, setDisplayBuyModal] = useState<boolean>(false);
@@ -37,7 +27,6 @@ export default function StakeForm() {
             console.log("Walle1t pubkey wallet is:", walletContext.publicKey.toString());
             qPoolContext.initializeQPoolsUserTool(walletContext);
         }
-        // initializeQPoolsUserTool
     }, [walletContext.publicKey]);
 
     return (
@@ -51,16 +40,9 @@ export default function StakeForm() {
             />
             <div className="">
                 <div className="">
-                    {/*<form action="" method="POST">*/}
                         <div className="pt-5 pb-2 bg-slate-800 bg-gray">
                             <div>
                                 <div className={"flex flex-row w-full justify-center"}>
-                                    {/*<div className={"flex flew-row w-full px-8 text-gray-400 justify-center"}>*/}
-                                    {/*    Balance: */}
-                                    {/*</div>*/}
-                                    {/*<div className={"flex flew-row w-full px-8 text-gray-400 justify-center"}>*/}
-                                    {/*    Balance:*/}
-                                    {/*</div>*/}
                                 </div>
                                 <InputFieldWithLogo
                                     logoPath={"/usdc-logo.png"}
@@ -93,7 +75,6 @@ export default function StakeForm() {
                                 />
                             </div>
                         }
-                    {/*</form>*/}
                 </div>
             </div>
         </>

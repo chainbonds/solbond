@@ -1,11 +1,8 @@
 import * as anchor from "@project-serum/anchor";
-import {clusterApiUrl, Connection} from "@solana/web3.js";
-import {useWallet} from "@solana/wallet-adapter-react";
+import {Connection} from "@solana/web3.js";
 
-// // @ts-ignore
-// import _idl from './solbondIdl';
 import {Provider} from "@project-serum/anchor";
-import {SolbondIdl} from "./solbondIdl";
+import { SolbondIdl } from "@qpools/sdk";
 
 export const solbondProgram = (connection: Connection, provider: Provider) => {
 
@@ -17,7 +14,5 @@ export const solbondProgram = (connection: Connection, provider: Provider) => {
         provider,
     );
 
-
     return program;
-
 }

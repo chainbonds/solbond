@@ -1,7 +1,7 @@
 import {Button, Modal} from 'react-bootstrap';
 import {Fragment, useEffect, useState} from "react";
 import {Dialog, Transition} from '@headlessui/react';
-import PortfolioChart from "../PortfolioChart";
+import PortfolioChart from "../portfolio/PortfolioChart";
 import {useWallet} from "@solana/wallet-adapter-react";
 import {IQPool, useQPoolUserTool} from "../../contexts/QPoolsProvider";
 import {useLoad} from "../../contexts/LoadingContext";
@@ -24,20 +24,11 @@ export default function ConfirmPortfolioBuyModal(props: any) {
             console.log("Defined!: ", props.valueInUsdc);
             setTotalAmountInUsdc(props.valueInUsdc);
         } else {
-            console.log("Prop is empty!", props.valueInUsdc);
-            // throw Error("Prop is null! " + String(props.valueInUsdc));
+            console.log("WARNING: Prop is empty!", props.valueInUsdc);
         }
     }, [props.valueInUsdc]);
 
     const buyItem = async () => {
-
-        // The pool addresses will be all hardcoded somewhere
-        // For the three pools we have, calculate these assignments.
-        // Also, devnet will be everything hardcoded:
-        // MOCK.DEV.stableSwapProgramId
-
-        // Pass it on to the confirm modal
-        // positionInput: Array<PositionsInput>, ownerKeypair: Keypair
 
         if (!qPoolContext.userAccount!.publicKey) {
             alert("Please connect your wallet first!");
@@ -54,21 +45,9 @@ export default function ConfirmPortfolioBuyModal(props: any) {
         // We can now assume that the portfolio was created in the qpools context.
         const sendAmount: BN = new BN(totalAmountInUsdc).mul(new BN(10**MOCK.DEV.SABER_USDC_DECIMALS));
 
-        // Send "sendAmount" to the PDA pool...
-
-        // Code copy-pasted from the tests
-        // TODO: Update the amount, match it to the inputs ...
-        // Also, update the amount / weight change (amount should be calculated by weight + total_amount).
-        // const sendAmount: BN = new BN(valueInUsd).mul(new BN(10**MOCK.DEV.SABER_USDC_DECIMALS));
-
         let amountTokenA = new u64(sendAmount);
         const amounts = [amountTokenA, 0, 0];
         let weights: Array<BN> = [new BN(1000), new BN(0), new BN(0)];
-
-        // All transactions
-        // Collect all transactions into one array
-        // And then, split execution to minimize number of clicks
-        // let txs = [];
 
         /*
             BLOCK 1: Create Associated Token Accounts for the Portfolio
@@ -77,12 +56,14 @@ export default function ConfirmPortfolioBuyModal(props: any) {
         let txAssociatedTokenAccounts: Transaction = new Transaction();
         (await qPoolContext.portfolioObject!.registerAtaForLiquidityPortfolio()).map((x: TransactionInstruction) => {
             if (x) {
+                console.log("Adding to the tx: ", x);
                 txAssociatedTokenAccounts.add(x);
             }
         });
         // If the transaction is not empty
         console.log("txAssociatedTokenAccounts Instructions are: ", txAssociatedTokenAccounts.instructions);
         if (txAssociatedTokenAccounts.instructions.length > 0) {
+            console.log("Sending the first set of transactions!!");
             await sendAndConfirmTransaction(
                 qPoolContext._solbondProgram!.provider,
                 qPoolContext.connection!,
@@ -90,9 +71,6 @@ export default function ConfirmPortfolioBuyModal(props: any) {
                 qPoolContext.userAccount!.publicKey
             );
         }
-
-        // Ok, now associated token accounts are created the first time the user uses the application ...
-        // Or more specifically, the first time the portfolio is used
 
         /*
             BLOCK 2: Create the data structures for the portfolio, and liquidity pools

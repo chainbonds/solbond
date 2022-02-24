@@ -2,12 +2,12 @@ import React, {FC} from "react";
 import {FaFly} from "react-icons/fa";
 import {useWallet} from "@solana/wallet-adapter-react";
 import {BN} from "@project-serum/anchor";
-import {IQPool, useQPoolUserTool} from "../contexts/QPoolsProvider";
+import {IQPool, useQPoolUserTool} from "../../contexts/QPoolsProvider";
 import airdropAdmin from "@qpools/sdk/src/airdropAdmin";
 import {Connection, Transaction} from "@solana/web3.js";
 import {Token, TOKEN_PROGRAM_ID} from "@solana/spl-token";
-import {useLoad} from "../contexts/LoadingContext";
-import {createAssociatedTokenAccountSendUnsigned, getAssociatedTokenAddressOffCurve, MOCK} from "@qpools/sdk";
+import {useLoad} from "../../contexts/LoadingContext";
+import {createAssociatedTokenAccountSendUnsigned, MOCK} from "@qpools/sdk";
 import {delay} from "@qpools/sdk/lib/utils";
 
 export const AirdropButton: FC = ({}) => {
@@ -72,30 +72,19 @@ export const AirdropButton: FC = ({}) => {
             qPoolContext.provider!.wallet
         );
         console.log("Currency Mint User Account: ", currencyMintUserAccount.toString());
-
         const currencyAdminAccount = await createAssociatedTokenAccountSendUnsigned(
             qPoolContext.connection!,
             qPoolContext.currencyMint!.publicKey,
             airdropAdmin.publicKey,
             qPoolContext.provider!.wallet
         );
-        // const currencyAdminAccount = await getAssociatedTokenAddressOffCurve(
-        //     qPoolContext.currencyMint!.publicKey,
-        //     airdropAdmin.publicKey
-        // );
+
         console.log("Currency admin account is: ", currencyAdminAccount.toString());
 
         // TODO: Replace this with "transfer-to" instructions
         console.log("Working");
         let transaction = new Transaction();
-        // let mintToInstruction = Token.createMintToInstruction(
-        //     TOKEN_PROGRAM_ID,
-        //     MOCK.DEV.SABER_USDC,
-        //     currencyMintUserAccount,
-        //     airdropAdmin.publicKey,
-        //     [],
-        //     airdropAmount.toNumber()
-        // )
+
         console.log("All items: ",
             {
                 "1": TOKEN_PROGRAM_ID.toString(),
@@ -134,6 +123,8 @@ export const AirdropButton: FC = ({}) => {
         await connection.confirmTransaction(tx1);
         console.log("Should have received: ", airdropAmount.toNumber());
         console.log("Airdropped tokens! ", airdropAmount.toString());
+
+        await qPoolContext.makePriceReload();
 
         await loadContext.decreaseCounter();
     };

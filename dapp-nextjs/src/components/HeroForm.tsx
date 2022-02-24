@@ -1,12 +1,11 @@
 import React, {useState} from "react";
 import StakeForm from "./swap/StakeForm";
 import UnstakeForm from "./swap/UnstakeForm";
-import UserInfoBalance from "./UserInfoBalance";
 
 enum HeroFormState {
     Stake,
     Unstake
-};
+}
 
 export default function HeroForm(props: any) {
 
@@ -61,7 +60,6 @@ export default function HeroForm(props: any) {
         setDisplayForm((_: HeroFormState) => x);
     };
 
-
     const stakingFormNavbar = () => {
         return (
             <>
@@ -79,21 +77,12 @@ export default function HeroForm(props: any) {
 
     return (
         <>
-            {/*pt-64*/}
-            {/*px-auto*/}
-            {/*align-bottom*/}
-            {/*Might need to do 2xl*/}
-            {/* justify-center mx-auto  */}
-            {/*w-3/5*/}
             <div className={"flex flex-col w-full"}>
                 <div className={"flex flex-col"}>
-                    {/*<div className={"flex mx-auto px-auto content-center items-center place-content-center"}>*/}
-                    {/*    <UserInfoBalance />*/}
-                    {/*</div>*/}
-                    <br />
-                    { stakingFormNavbar() }
-                    { (displayForm === HeroFormState.Stake) && <StakeForm /> }
-                    { (displayForm === HeroFormState.Unstake) && <UnstakeForm /> }
+                    <br/>
+                    {stakingFormNavbar()}
+                    {(displayForm === HeroFormState.Stake) && <StakeForm/>}
+                    {(displayForm === HeroFormState.Unstake) && <UnstakeForm/>}
                 </div>
             </div>
         </>

@@ -1,5 +1,5 @@
-import React, {PureComponent, useEffect, useState} from 'react';
-import { BarChart, Bar, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import React, {useEffect, useState} from 'react';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid } from 'recharts';
 import { UsdValuePosition } from 'types/UsdValuePosition';
 
 export default function PortfolioDiagram(props: any) {
@@ -32,7 +32,6 @@ export default function PortfolioDiagram(props: any) {
 
         console.log("Input data is: ", inputData);
 
-        // Iterate through all key-value pairs
         inputData.forEach((obj: UsdValuePosition, index: number) => {
             let tmpObj = {
                 name: String(index + 1),
@@ -65,14 +64,10 @@ export default function PortfolioDiagram(props: any) {
                 <CartesianGrid strokeDasharray="0 0" />
                 <XAxis dataKey="name" />
                 <YAxis />
-                {/*<Tooltip />*/}
-                {/*<Legend />*/}
                 <Bar name="Position 1" dataKey="usdValueA" stackId="a" fill="#DDD6FE" />
                 <Bar name="Position 2" dataKey="usdValueB" stackId="a" fill="#ECE9FE" />
                 <Bar name="Position 3" dataKey="usdValueLp" stackId="a" fill="#baa5ef" />
             </BarChart>
         </>
     );
-    {/*</ResponsiveContainer>*/}
-
 }

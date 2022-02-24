@@ -1,7 +1,12 @@
-import React, {useCallback, useEffect, useState} from "react";
-import {PieChart, Pie, Cell, ResponsiveContainer} from "recharts";
+import React, {useEffect, useState} from "react";
+import {PieChart, Pie, Cell} from "recharts";
 import axios from "axios";
-import {useLoad} from "../contexts/LoadingContext";
+import {useLoad} from "../../contexts/LoadingContext";
+// import {registry} from "@qpools/sdk";
+import {AllocData} from "../../contexts/QPoolsProvider";
+import {getSerpiusEndpoint} from "../../../../../qPools-contract/qpools-sdk/lib/registry/registry-helper";
+import {Property} from "csstype";
+import All = Property.All;
 
 export default function PortfolioChart(props: any) {
 
@@ -32,7 +37,7 @@ export default function PortfolioChart(props: any) {
 
             <text x={x} y={y} fill="white" textAnchor={x > cx ? 'start' : 'end'} dominantBaseline="central">
                 {
-                    percent ? `${ (percent * 100).toFixed(0)}%` : null
+                    percent ? `${(percent * 100).toFixed(0)}%` : null
                 }
             </text>
 
@@ -40,37 +45,29 @@ export default function PortfolioChart(props: any) {
     };
 
     const fixedData = [
-        {name: "Group A", value: 400},
-        {name: "Group B", value: 300},
-        {name: "Group C", value: 300},
-        {name: "Group D", value: 200}
+        {name: "Group A", value: 400, apy_24h: 0.},
+        {name: "Group B", value: 300, apy_24h: 0.},
+        {name: "Group C", value: 300, apy_24h: 0.},
+        {name: "Group D", value: 200, apy_24h: 0.}
     ]
 
     const [pieChartData, setPieChartData] = useState([
-        {name: "Group A", value: 400},
-        {name: "Group B", value: 300},
-        {name: "Group C", value: 300},
-        {name: "Group D", value: 200}
+        {name: "Group A", value: 400, apy_24h: 0.},
+        {name: "Group B", value: 300, apy_24h: 0.},
+        {name: "Group C", value: 300, apy_24h: 0.},
+        {name: "Group D", value: 200, apy_24h: 0.}
     ])
-
-
-    interface AllocData {
-        lp: string,
-        weight: number,
-        protocol: string,
-
-    };
 
     // Just run a loop where you update TVL every couple times
     const [ratios, setRatios] = useState<AllocData[]>([
         {
-            "lp": "JSOL-SOL", "weight": 1000, "protocol": "Saber"
+            "lp": "JSOL-SOL", "weight": 1000, "protocol": "Saber", "apy_24h": 0.
         },
         {
-            "lp": "HBTC-renBTC", "weight": 1000, "protocol": "Saber"
+            "lp": "HBTC-renBTC", "weight": 1000, "protocol": "Saber", "apy_24h": 0.
         },
         {
-            "lp": "eSOL-SOL", "weight": 1000, "protocol": "Saber"
+            "lp": "eSOL-SOL", "weight": 1000, "protocol": "Saber", "apy_24h": 0.
         }
     ]);
 
@@ -89,19 +86,17 @@ export default function PortfolioChart(props: any) {
 
         loadContext.increaseCounter();
 
-        axios.get<AllocData[]>("https://qpools.serpius.com/weight_status.json").then((response) => {
+        axios.get<any>(getSerpiusEndpoint()).then((response) => {
             console.log("Here is the data :")
             console.log(typeof response.data)
             console.log(JSON.stringify(response.data))
 
-            response.data.map((x: any) => {
-                if (x["type"] === "back") {
-                    let data = x["data"];
-                    setRatios(data);
-                }
-            });
+            if ("opt_port" in response.data) {
+                let data: AllocData[] = response.data["opt_port"];
+                setRatios(data);
+            }
+
             loadContext.decreaseCounter();
-            // [{"type":"front","data":[{"lp":"wUST_v1-USDC","weight":1000,"protocol":"saber"}]},{"type":"back","data":[{"lp":"wUST_v1-USDC","weight":1000,"protocol":"saber"},{"lp":"USDCpo-USDC","weight":0,"protocol":"saber"},{"lp":"USDCet-USDC","weight":0,"protocol":"saber"}]}]
         }).catch((error) => {
             console.log(error);
             loadContext.decreaseCounter();
@@ -112,12 +107,19 @@ export default function PortfolioChart(props: any) {
         if (!ratios) return;
         console.log("Here is in the variable:")
         console.log(JSON.stringify(ratios))
-        let sum = ratios[0].weight + ratios[1].weight + ratios[2].weight ;
-        setPieChartData([
-            {name: ratios[0].protocol + " " + ratios[0].lp, value: ((100* ratios[0].weight) / sum)},
-            {name: ratios[1].protocol + " " + ratios[1].lp, value: ((100* ratios[1].weight) / sum)},
-            {name: ratios[2].protocol + " " + ratios[2].lp, value: ((100* ratios[2].weight) / sum)}
-        ])
+
+        // Sum is a
+        let sum = ratios.reduce((sum: number, current: AllocData) => sum + current.weight, 0);
+        setPieChartData((_: any) => {
+                return ratios.map((current: AllocData) => {
+                    return {
+                        name: current.protocol + " " + current.lp,
+                        value: ((100 * current.weight) / sum),
+                        apy_24h: current.apy_24h
+                    }
+                });
+            }
+        )
     }, [ratios]);
 
     const singleRow = (row: any, index: number) => {
@@ -127,6 +129,8 @@ export default function PortfolioChart(props: any) {
         console.log("Value and total amount in usdc are: ");
         console.log(row.value);
         console.log(totalAmountInUsdc);
+        console.log("APY is: ", row);
+        console.log("row.apy_24h is: ", row.apy_24h);
 
         return (
             <tr>
@@ -152,10 +156,16 @@ export default function PortfolioChart(props: any) {
                         ${(0.01 * row.value * totalAmountInUsdc).toFixed(2)}
                     </div>
                 </td>
+                <td className="px-3 py-3 whitespace-nowrap">
+                    <div className="text-sm">
+                        {(row.apy_24h).toFixed(1)}%
+                    </div>
+                </td>
             </tr>
         )
     }
 
+    // TODO: Maybe remove the labelled lines alltogether
     return (
         <>
             <div className={"flex flex-row my-auto mx-auto"}>
@@ -201,10 +211,11 @@ export default function PortfolioChart(props: any) {
                                         <th scope="col"
                                             className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount
                                         </th>
+                                        <th scope="col"
+                                            className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">24h APY
+                                        </th>
                                     </tr>
                                     </thead>
-
-
                                     <tbody className="divide-y divide-gray-200">
                                     {pieChartData.map((x, index) => {
                                         return (
@@ -213,54 +224,6 @@ export default function PortfolioChart(props: any) {
                                             </>
                                         )
                                     })}
-                                    {/*<tr>*/}
-                                    {/*    <td className="px-2 py-3 whitespace-nowrap">*/}
-                                    {/*        <div className="flex items-center">*/}
-                                    {/*            <div className="ml-4">*/}
-                                    {/*                <div className="w-4 h-4 rounded-xl bg-blue-500">{}</div>*/}
-                                    {/*            </div>*/}
-                                    {/*        </div>*/}
-                                    {/*    </td>*/}
-                                    {/*    <td className="px-6 py-3 whitespace-nowrap">*/}
-                                    {/*        <div className="text-sm">{pieChartData[0].name}</div>*/}
-                                    {/*    </td>*/}
-                                    {/*    <td className="px-6 py-3 whitespace-nowrap">*/}
-                                    {/*        <div className="text-sm">{pieChartData[0].value}%</div>*/}
-                                    {/*    </td>*/}
-                                    {/*</tr>*/}
-
-                                    {/*<tr>*/}
-                                    {/*    <td className="px-2 py-3 whitespace-nowrap">*/}
-                                    {/*        <div className="flex items-center">*/}
-                                    {/*            <div className="ml-4">*/}
-                                    {/*                <div className="w-4 h-4 rounded-xl bg-red-500">{}</div>*/}
-                                    {/*            </div>*/}
-                                    {/*        </div>*/}
-                                    {/*    </td>*/}
-                                    {/*    <td className="px-6 py-3 whitespace-nowrap">*/}
-                                    {/*        <div className="text-sm">{pieChartData[1].name}</div>*/}
-                                    {/*    </td>*/}
-                                    {/*    <td className="px-6 py-3 whitespace-nowrap">*/}
-                                    {/*        <div className="text-sm">{pieChartData[1].value}%</div>*/}
-                                    {/*    </td>*/}
-                                    {/*</tr>*/}
-
-                                    {/*<tr>*/}
-                                    {/*    <td className="px-2 py-3 whitespace-nowrap">*/}
-                                    {/*        <div className="flex items-center">*/}
-                                    {/*            <div className="ml-4">*/}
-                                    {/*                <div className="w-4 h-4 rounded-xl bg-green-500">{}</div>*/}
-                                    {/*            </div>*/}
-                                    {/*        </div>*/}
-                                    {/*    </td>*/}
-                                    {/*    <td className="px-6 py-3 whitespace-nowrap">*/}
-                                    {/*        <div className="text-sm">{ratios[2].lp}</div>*/}
-                                    {/*    </td>*/}
-                                    {/*    <td className="px-6 py-3 whitespace-nowrap">*/}
-                                    {/*        <div className="text-sm">{ratios[2].weight}%</div>*/}
-                                    {/*    </td>*/}
-                                    {/*</tr>
-                                    */}
                                     </tbody>
                                 </table>
                             </div>

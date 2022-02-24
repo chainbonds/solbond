@@ -1,6 +1,4 @@
-
 export default function CallToActionButton(props: any) {
-
 
     return (
         <>

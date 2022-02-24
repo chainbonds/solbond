@@ -1,8 +1,7 @@
 import React, {FC} from "react";
-import {LogoWithTitle} from "./LogoWithTitle";
+import {LogoWithTitle} from "./assets/LogoWithTitle";
 import {WalletMultiButton} from "@solana/wallet-adapter-react-ui";
-import {AirdropButton} from "./AirdropButton";
-import UserInfoBalance from "./UserInfoBalance";
+import {AirdropButton} from "./buttons/AirdropButton";
 
 export const Header: FC = ({}) => {
 
@@ -17,12 +16,8 @@ export const Header: FC = ({}) => {
                         <LogoWithTitle/>
                     </div>
                     <div className={"flex-1 px-2 mx-2"}>
-                        {/*<span className="text-lg font-bold">Caw Caw</span>*/}
                     </div>
                     {/*TODO Implement Devnet show (and also faucet maybe)*/}
-                    {/*<div>*/}
-                    {/*    TransparentButton*/}
-                    {/*</div>*/}
                     <div className={"flex my-auto py-auto mx-auto md:mx-0"}>
                         <div className={"flex flex-col md:flex-row"}>
                             <div className={"px-2 py-2 mx-auto md:py-0 md:py-auto md:my-auto"}>

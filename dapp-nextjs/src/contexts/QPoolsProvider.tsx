@@ -1,6 +1,6 @@
 import React, {useState, useContext, useEffect} from 'react';
-import {Provider, web3} from "@project-serum/anchor";
-import {AllocateParams, clusterApiUrl, Connection, Keypair, PublicKey} from "@solana/web3.js";
+import {Provider} from "@project-serum/anchor";
+import {clusterApiUrl, Connection, Keypair, PublicKey} from "@solana/web3.js";
 import {Token, TOKEN_PROGRAM_ID} from "@solana/spl-token";
 import * as anchor from "@project-serum/anchor";
 import {solbondProgram} from "../programs/solbond";
@@ -10,7 +10,6 @@ import {MOCK} from "@qpools/sdk/src/const";
 import {QPoolsStats} from "@qpools/sdk/lib/qpools-stats";
 import {
     airdropAdmin,
-    PortfolioFrontendFriendly,
     DisplayPortfolios,
     PortfolioFrontendFriendlyChainedInstructions
 } from "@qpools/sdk";
@@ -18,11 +17,14 @@ import delay from "delay";
 import axios from "axios";
 import {AccountOutput} from "../types/AccountOutput";
 import {UsdValuePosition} from "../types/UsdValuePosition";
+import {getSerpiusEndpoint} from "../../../../qPools-contract/qpools-sdk/lib/registry/registry-helper";
+// import {registry} from "@qpools/sdk";
 
 export interface AllocData {
     lp: string,
     weight: number,
     protocol: string,
+    apy_24h: number
 };
 
 export interface IQPool {
@@ -46,6 +48,27 @@ export interface IQPool {
     QPTokenMint: Token | undefined,
 }
 
+const hardcodedApiResponse = [
+    {
+        "lp": "JSOL-SOL",
+        "weight": 1000,
+        "protocol": "saber",
+        "apy_24h": 0.
+    },
+    {
+        "lp": "HBTC-renBTC",
+        "weight": 1000,
+        "protocol": "saber",
+        "apy_24h": 0.
+    },
+    {
+        "lp": "eSOL-SOL",
+        "weight": 1000,
+        "protocol": "saber",
+        "apy_24h": 0.
+    }
+]
+
 const defaultValue: IQPool = {
     qPoolsUser: undefined,
     qPoolsStats: undefined,
@@ -56,15 +79,7 @@ const defaultValue: IQPool = {
     allocatedAccounts: [],
     positionValuesInUsd: [],
     totalPortfolioValueInUsd: 0,
-    portfolioRatios: [{
-        "lp": "JSOL-SOL",
-        "weight": 1000,
-        "protocol": "saber"
-    }, {"lp": "HBTC-renBTC", "weight": 1000, "protocol": "saber"}, {
-        "lp": "eSOL-SOL",
-        "weight": 1000,
-        "protocol": "saber"
-    }],
+    portfolioRatios: hardcodedApiResponse,
     initializeQPoolsUserTool: () => console.error("attempting to use AuthContext outside of a valid provider"),
     initializeQPoolsStatsTool: () => console.error("attempting to use AuthContext outside of a valid provider"),
     connection: undefined,
@@ -134,15 +149,7 @@ export function QPoolsProvider(props: any) {
     const [totalPortfolioValueInUsd, setTotalPortfolioValueUsd] = useState<number>(0.);
     const [reloadPriceSentinel, setReloadPriceSentinel] = useState<boolean>(false);
 
-    const [portfolioRatios, setPortfolioRatios] = useState<AllocData[]>([{
-        "lp": "JSOL-SOL",
-        "weight": 1000,
-        "protocol": "saber"
-    }, {"lp": "HBTC-renBTC", "weight": 1000, "protocol": "saber"}, {
-        "lp": "eSOL-SOL",
-        "weight": 1000,
-        "protocol": "saber"
-    }]);
+    const [portfolioRatios, setPortfolioRatios] = useState<AllocData[]>(hardcodedApiResponse);
 
     /**
      * Somewhat legacy, will fix and clear these items at a later stage ...
@@ -152,11 +159,14 @@ export function QPoolsProvider(props: any) {
 
     useEffect(() => {
         console.log("Loading the weights");
-        axios.get<AllocData[]>("https://qpools.serpius.com/weight_status.json").then((response) => {
-            setPortfolioRatios(response.data)
-            console.log("Here is the data :")
-            console.log(typeof response.data)
-            console.log(JSON.stringify(response.data))
+        axios.get<any>(getSerpiusEndpoint()).then((response) => {
+            console.log("Here is the data :");
+            console.log(typeof response.data);
+            console.log(JSON.stringify(response.data));
+            if ("opt_port" in response.data) {
+                let data: AllocData[] = response.data["opt_port"];
+                setPortfolioRatios(data);
+            }
 
         }).catch((error) => {
             console.log(error)

@@ -5,10 +5,9 @@ export const Footer: FC = ({}) => {
 
     return (
         <>
-            {/*  items-end content-end bottom-0 */}
             <div
                 className="w-full flex flex-row justify-center lg:justify-end py-10 lg:px-20 mt-auto"
-                style={{ backgroundColor: "#1a202c" }}
+                style={{backgroundColor: "#1a202c"}}
             >
                 <SocialIcon
                     url={"https://discord.gg/ThFgTPs6t3"}
