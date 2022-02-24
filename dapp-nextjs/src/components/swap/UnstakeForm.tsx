@@ -5,6 +5,7 @@ import {WalletMultiButton} from "@solana/wallet-adapter-react-ui";
 import {IQPool, useQPoolUserTool} from "../../contexts/QPoolsProvider";
 import ConnectWalletPortfolioRow from "../portfolio/ConnectWalletPortfolioRow";
 import SinglePortfolioRow from "../portfolio/SinglePortfolioRow";
+import {shortenedAddressString} from "../../utils/utils";
 
 export default function UnstakeForm() {
 
@@ -47,12 +48,21 @@ export default function UnstakeForm() {
                 />
             );
         }
-        console.log("Portfolio PDA is: ", qPoolContext.portfolioObject.portfolioPDA);
+        if (!qPoolContext.portfolioObject.portfolioPDA) {
+            return (
+                <ConnectWalletPortfolioRow
+                    text={"Loading ..."}
+                />
+            );
+        }
+        console.log("Portfolio PDA (1) is: ", qPoolContext.portfolioObject.portfolioPDA);
         return (
-            <SinglePortfolioRow
-                address={qPoolContext.portfolioObject.portfolioPDA}
-                value={totalPortfolioValueInUsd}
-            />
+            <>
+                <SinglePortfolioRow
+                    address={qPoolContext.portfolioObject.portfolioPDA}
+                    value={totalPortfolioValueInUsd}
+                />
+            </>
         )
     }
 

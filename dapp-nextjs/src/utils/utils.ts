@@ -8,7 +8,11 @@ export const solscanLink = (address: PublicKey) => {
     return out;
 }
 
-export const shortenedAddressString = (_address: PublicKey) => {
+export const shortenedAddressString = (_address: PublicKey): string => {
+    if (!_address) {
+        console.log("WARNING: Shortening address that doesn't exist!");
+        return ""
+    }
     let address: string = _address.toString();
     if (address.length < 6) {
         return address

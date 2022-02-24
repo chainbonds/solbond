@@ -1,9 +1,14 @@
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import SinglePortfolioCard from "../modals/SinglePortfolioCard";
+import {shortenedAddressString, solscanLink} from "../../utils/utils";
 
 export default function SinglePortfolioRow(props: any) {
 
     const [showPortfolio, setShowPortfolio] = useState<boolean>(false);
+
+    useEffect(() => {
+        console.log("Found address is: ", props.address);
+    }, [])
 
     return (
         <>
@@ -19,7 +24,12 @@ export default function SinglePortfolioRow(props: any) {
                             Portfolio
                         </div>
                         <div className={"flex w-full mx-auto px-auto justify-center"}>
-                            {props.address}
+                            {props.address &&
+                                <a href={solscanLink(props.address)} target={"_blank"} rel="noreferrer"
+                                   className="text-blue-600 dark:text-blue-400 hover:underline">
+                                    {shortenedAddressString(props.address)}
+                                </a>
+                            }
                         </div>
                         <div className={"flex w-full mx-auto px-auto justify-center"}>
                             ${props.value && props.value.toFixed(2)}

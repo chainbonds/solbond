@@ -5,6 +5,8 @@ import {sendAndConfirmTransaction, shortenedAddressString, solscanLink} from "..
 import {AccountOutput} from "../../types/AccountOutput";
 import {Dialog, Transition} from "@headlessui/react";
 import {useLoad} from "../../contexts/LoadingContext";
+import Image from "next/image";
+import {getIconFromToken} from "../../../../../qPools-contract/qpools-sdk/src/registry/registry-helper";
 
 export default function SinglePortfolioCard(props: any) {
 
@@ -29,7 +31,11 @@ export default function SinglePortfolioCard(props: any) {
                                     <tr>
                                         <th scope="col"
                                             className="py-3 px-6 text-xs font-medium tracking-wider text-left text-gray-700 uppercase dark:text-gray-400">
-                                            Asset
+                                            Pool
+                                        </th>
+                                        <th scope="col"
+                                            className="py-3 px-6 text-xs font-medium tracking-wider text-left text-gray-700 uppercase dark:text-gray-400">
+                                            Assets
                                         </th>
                                         <th scope="col"
                                             className="py-3 px-6 text-xs font-medium tracking-wider text-left text-gray-700 uppercase dark:text-gray-400">
@@ -57,16 +63,33 @@ export default function SinglePortfolioCard(props: any) {
                                         // <></>
                                         // )
                                         // }
+
                                         if (!position.amountLp.uiAmount && (position.amountLp.uiAmount != 0)) {
                                             return <></>
                                         }
 
+
+                                        // Get the icon from the registry
+                                        let iconMintA = getIconFromToken(position.mintA);
+                                        let iconMintB = getIconFromToken(position.mintB);
+
                                         return (
                                             <>
                                                 <tr className="border-b dark:bg-gray-800 dark:border-gray-700">
+                                                    {/* Show the icons next to this ... */}
                                                     <td className="py-4 px-6 text-sm font-medium text-gray-900 whitespace-nowrap dark:text-white">
                                                         {shortenedAddressString(position.mintLp)}
                                                         {/* TODO: Change this to "Saber USDC-USDT Pool" or whatever (make a dictionary lookup) */}
+                                                    </td>
+                                                    <td className="py-4 px-6 text-sm font-medium text-gray-500 whitespace-nowrap dark:text-gray-400">
+                                                        <a href={solscanLink(position.mintA)} target={"_blank"} rel="noreferrer"
+                                                           className="text-blue-600 dark:text-blue-400 hover:underline">
+                                                            <Image src={iconMintA} width={30} height={30} />
+                                                        </a>
+                                                        <a href={solscanLink(position.mintB)} target={"_blank"} rel="noreferrer"
+                                                           className="text-blue-600 dark:text-blue-400 hover:underline">
+                                                            <Image src={iconMintB} width={30} height={30} />
+                                                        </a>
                                                     </td>
                                                     <td className="py-4 px-6 text-sm font-medium text-gray-500 whitespace-nowrap dark:text-gray-400">
                                                         {position.amountLp.uiAmount!.toFixed(2)}
@@ -173,7 +196,7 @@ export default function SinglePortfolioCard(props: any) {
                             leaveFrom="opacity-50 scale-100"
                             leaveTo="opacity-100 scale-50"
                         >
-                            <div className="bg-gray-900 rounded-lg overflow-hidden shadow-xl transform transition-all sm:my-8 sm:max-w-xl sm:align-middle sm:w-full mx-auto px-auto justify-center">
+                            <div className="bg-gray-900 rounded-lg overflow-hidden shadow-xl transform transition-all sm:my-8 sm:max-w-2xl sm:align-middle sm:w-full mx-auto px-auto justify-center">
                                 <div className="flex items-center justify-center w-full h-full">
                                     <div className="py-2 px-6 text-gray-300 text-2xl font-medium mt-2">
                                         Portfolio Info
@@ -182,7 +205,7 @@ export default function SinglePortfolioCard(props: any) {
 
                                 <div className="flex items-center justify-center w-full h-full">
 
-                                    <div className="flex flex-col rounded-lg max-w-sm text-center content-center">
+                                    <div className="flex flex-col rounded-lg max-w-2xl text-center content-center">
 
                                         <div className={"mb-3"}>
                                             This portfolio is worth an estimated USDC {qPoolContext.totalPortfolioValueInUsd.toFixed(2)}
