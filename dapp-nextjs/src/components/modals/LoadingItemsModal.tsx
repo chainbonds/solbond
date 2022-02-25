@@ -189,15 +189,20 @@ export default function LoadingItemsModal() {
                                                     Approving transactions
                                                 </button>
                                                 :
-                                                <button
-                                                    type="button"
-                                                    className="flex flex-row justify-center w-full px-10 py-2 text-sm font-medium text-gray-900 bg-blue-100 border border-transparent w-full rounded-md hover:bg-blue-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-gray-500"
-                                                    onClick={() => {
-                                                        itemLoadContext.resetCounter()
-                                                    }}
-                                                >
-                                                    Done!
-                                                </button>
+                                                <>
+                                                    {/*<div>*/}
+                                                    {/*    {props.text && props.text}*/}
+                                                    {/*</div>*/}
+                                                    <button
+                                                        type="button"
+                                                        className="flex flex-row justify-center w-full px-10 py-2 text-sm font-medium text-gray-900 bg-blue-100 border border-transparent w-full rounded-md hover:bg-blue-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-gray-500"
+                                                        onClick={() => {
+                                                            itemLoadContext.resetCounter()
+                                                        }}
+                                                    >
+                                                        Done!
+                                                    </button>
+                                                </>
                                             }
                                         </div>
 

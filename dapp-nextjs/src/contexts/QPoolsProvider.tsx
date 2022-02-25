@@ -192,6 +192,7 @@ export function QPoolsProvider(props: any) {
         let usdcResponses: UsdValuePosition[] = await Promise.all(allocatedAccounts.map(async (position: AccountOutput) => {
             return getUserUsdcForPosition(position);
         }));
+        usdcResponses.map((x) => {console.log("USDC amounts are: ", x)})
         setPositionValuesInUsd(usdcResponses);
         let totalPortfolioValue = 0.;
         usdcResponses.map((x) => {
@@ -369,6 +370,7 @@ export function QPoolsProvider(props: any) {
         let portfolio;
         try {
             portfolio = await portfolioObject!.fetchPortfolio();
+            console.log("Portfolio is: ", portfolio);
         } catch (e: any) {
             console.log("ERROR: Portfolio could not be loaded");
             console.log(JSON.stringify(e));
@@ -377,6 +379,8 @@ export function QPoolsProvider(props: any) {
         let positions;
         try {
             positions = await portfolioObject!.fetchAllPositions();
+            console.log("All positions are: ", positions);
+            positions.map((x) => {console.log(x.mintA.toString(), x.mintB.toString())})
         } catch (e: any) {
             console.log("ERROR: Positions could not be loaded");
             console.log(JSON.stringify(e));
