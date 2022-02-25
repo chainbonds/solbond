@@ -194,10 +194,66 @@ export function QPoolsProvider(props: any) {
         }));
         usdcResponses.map((x) => {console.log("USDC amounts are: ", x)})
         setPositionValuesInUsd(usdcResponses);
+
+
         let totalPortfolioValue = 0.;
-        usdcResponses.map((x) => {
-            totalPortfolioValue += x.totalPositionValue;
-        })
+        let includedMints: Set<string> = new Set();
+        await Promise.all(allocatedAccounts.map(async (position: AccountOutput) => {
+
+            // If object is null, then skip!
+            if (!includedMints.has(position.mintA.toString())) {
+                totalPortfolioValue += position.amountA.uiAmount!;
+            }
+            if (!includedMints.has(position.mintB.toString())) {
+                totalPortfolioValue += position.amountB.uiAmount!;
+            }
+
+            includedMints.add(position.mintA.toString());
+            includedMints.add(position.mintB.toString());
+
+
+            const stableSwapState = await portfolioObject!.getPoolState(position.poolAddress);
+            const {state} = stableSwapState;
+
+            // Get Reserve A
+            console.log("Token account address is: ", state.tokenA.reserve);
+            let amountReserveA = (await connection!.getTokenAccountBalance(state.tokenA.reserve)).value.uiAmount;
+            // Get Reserve B
+            console.log("Token account address is: ", state.tokenA.reserve);
+            let amountReserveB = (await connection!.getTokenAccountBalance(state.tokenB.reserve)).value.uiAmount;
+
+            if (!amountReserveA || !amountReserveB) {
+                throw Error("One of the reserve values is null!" + String(amountReserveA) + " " +  String(amountReserveB));
+            }
+            let supplyLpToken = (await connection!.getTokenSupply(state.poolTokenMint)).value.uiAmount;
+            // Get guys' LP tokens
+            let amountUserLp = position.amountLp.uiAmount;
+
+            if (!supplyLpToken) {
+                throw Error("One of the LP information values is null or zero!" + String(supplyLpToken));
+            }
+            // This case is totall fine, actually
+            if ((!amountUserLp) && ((amountUserLp != 0))) {
+                throw Error("One of the LP information values is null or zero!" + String(amountUserLp));
+            }
+
+            // I guess we can assume that the pools are unique ...
+            // Calculate the exchange rate between lp tokens, and the total reserve values
+            let poolContentsInUsdc = amountReserveA + amountReserveB;
+            let exchangeRate = poolContentsInUsdc / supplyLpToken;
+            let usdValueUserLp = amountUserLp * exchangeRate;
+            totalPortfolioValue += usdValueUserLp;
+
+        }));
+
+        // usdcResponses.map((x) => {
+        //
+        //     // TODO: Gotta calculate this the hard way again, while including a set operation ...
+        //     // let includedMints: Set<string> = new Set();
+        //
+        //
+        //     totalPortfolioValue += x.totalPositionValue;
+        // })
         setTotalPortfolioValueUsd(totalPortfolioValue);
     }
 
@@ -429,10 +485,23 @@ export function QPoolsProvider(props: any) {
         // Calculate total sum of items
         // From all accounts except the LP accounts, Collect the amounts
         let usdAmount = 0.;
+        // TODO: This set things is not quite working!!!
+        let includedMints: Set<string> = new Set();
         allAmounts.map((position) => {
+
+            // TODO: Gotta skip Mint's that have been added already.
+            //  gotta create a set here and skip mints that have already counted towards the balance!
+
             // If object is null, then skip!
-            usdAmount += position.amountA.uiAmount!;
-            usdAmount += position.amountB.uiAmount!;
+            if (!includedMints.has(position.mintA.toString())) {
+                usdAmount += position.amountA.uiAmount!;
+            }
+            if (!includedMints.has(position.mintB.toString())) {
+                usdAmount += position.amountB.uiAmount!;
+            }
+
+            includedMints.add(position.mintA.toString());
+            includedMints.add(position.mintB.toString());
 
             // Find a way to convert the LP amount to the real amount!
             // position.amountLp
