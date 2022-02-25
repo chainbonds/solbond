@@ -71,8 +71,9 @@ export default function LoadingItemsModal() {
 
     return (
         <>
-            <Transition show={itemLoadContext.showLoadingModal} as={Fragment}>
-                <Dialog as="div" className="fixed inset-0 z-10 overflow-y-auto" onClose={() => {}}>
+            <Transition.Root appear show={itemLoadContext.showLoadingModal} as={Fragment}>
+                <Dialog as="div" className="fixed inset-0 z-10 overflow-y-auto" onClose={() => {
+                }}>
                     <Transition.Child
                         as={Fragment}
                         enter="ease-out duration-300"
@@ -93,70 +94,89 @@ export default function LoadingItemsModal() {
                         leaveFrom="opacity-50 scale-100"
                         leaveTo="opacity-100 scale-50"
                     >
-                        <div
-                            className="bg-gray-900 rounded-lg overflow-hidden shadow-xl transform transition-all sm:my-8 sm:max-w-md sm:align-middle sm:w-full mx-auto px-auto justify-center">
-                            <div className="flex items-center justify-center w-full h-full">
-                                <div className="py-2 px-6 text-gray-300 text-2xl font-medium mt-2">
-                                    Waiting for Transactions
-                                </div>
-                            </div>
-                            <div className="flex items-center justify-center w-full h-full">
+                        <div className={"mt-52"}>
+                            <div
+                                className="bg-gray-800 rounded-lg overflow-hidden shadow-xl transform transition-all shadow sm:my-2 sm:max-w-md sm:align-middle sm:w-full mx-auto px-auto justify-center">
 
-                                <div className="flex flex-col rounded-lg max-w-2xl text-center content-center">
+                                <div className={"flex flex-col w-full"}>
 
-                                    <div className={"mb-3"}>
+                                    <div className={"flex flex-col justify-start"}>
 
-                                        {itemLoadContext.loadItems.map((x: LoadingItem, index: number) => {
+                                        <Dialog.Title
+                                            as="h3"
+                                            className="flex items-center justify-center w-full h-full text-gray-300 text-2xl font-medium my-6"
+                                        >
+                                            Waiting for Transactions
+                                        </Dialog.Title>
+
+                                        <div className="flex items-center justify-center w-full h-full border-t border-gray-700">
+
+                                            <div
+                                                className="flex flex-col rounded-lg max-w-2xl text-center content-center my-3">
+
+                                                <p className={"flex flex-col text-gray-400"}>
+                                                    Please approve any transaction messages that appear
+                                                </p>
+
+                                                <div className={"mx-auto"}>
+
+                                                    {itemLoadContext.loadItems.map((x: LoadingItem, index: number) => {
 
 
-                                            if (index === itemLoadContext.progressCounter) {
-                                                return (
-                                                    <>
-                                                        <div className={"flex flex-row my-3 justify-start"}>
-                                                            <div className={"flex my-auto"}>
-                                                                <Oval color="#00BFFF" height={20} width={20}/>
-                                                            </div>
-                                                            <div className={"flex pl-4 text-gray-400"}>
-                                                                {x.message}
-                                                            </div>
-                                                        </div>
-                                                    </>
-                                                )
-                                            } else if (index < itemLoadContext.progressCounter) {
-                                                return (
-                                                    <>
-                                                        <div className={"flex flex-row my-3 justify-start"}>
-                                                            <div className={"flex pl-0.5 my-auto"}>
-                                                                <FaCheckCircle color={"#4ade80"} size={20}/>
-                                                            </div>
-                                                            <div className={"flex pl-5 text-gray-400"}>
-                                                                {x.message}
-                                                            </div>
-                                                        </div>
-                                                    </>
-                                                )
-                                            } else {
-                                                return (
-                                                    <>
-                                                        <div className={"flex flex-row my-3 justify-start"}>
-                                                            <div className={"flex pl-0.5 my-auto"}>
-                                                                <FaTimesCircle color={"#94a3b8"} size={20}/>
-                                                            </div>
-                                                            <div className={"flex pl-5 text-gray-400"}>
-                                                                {x.message}
-                                                            </div>
-                                                        </div>
-                                                    </>
-                                                )
-                                            }
-                                        })}
+                                                        if (index === itemLoadContext.progressCounter) {
+                                                            return (
+                                                                <>
+                                                                    <div className={"flex flex-row my-3 justify-start"}>
+                                                                        <div className={"flex my-auto"}>
+                                                                            <Oval color="#00BFFF" height={20}
+                                                                                  width={20}/>
+                                                                        </div>
+                                                                        <div className={"flex pl-4 text-gray-400"}>
+                                                                            {x.message}
+                                                                        </div>
+                                                                    </div>
+                                                                </>
+                                                            )
+                                                        } else if (index < itemLoadContext.progressCounter) {
+                                                            return (
+                                                                <>
+                                                                    <div className={"flex flex-row my-3 justify-start"}>
+                                                                        <div className={"flex pl-0.5 my-auto"}>
+                                                                            <FaCheckCircle color={"#4ade80"} size={20}/>
+                                                                        </div>
+                                                                        <div className={"flex pl-5 text-gray-400"}>
+                                                                            {x.message}
+                                                                        </div>
+                                                                    </div>
+                                                                </>
+                                                            )
+                                                        } else {
+                                                            return (
+                                                                <>
+                                                                    <div className={"flex flex-row my-3 justify-start"}>
+                                                                        <div className={"flex pl-0.5 my-auto"}>
+                                                                            <FaTimesCircle color={"#94a3b8"} size={20}/>
+                                                                        </div>
+                                                                        <div className={"flex pl-5 text-gray-400"}>
+                                                                            {x.message}
+                                                                        </div>
+                                                                    </div>
+                                                                </>
+                                                            )
+                                                        }
+                                                    })}
 
-                                        {/*<div className={"flex mt-6 mb-4 flex-row justify-center mx-auto text-gray-300"}>*/}
-                                        {/*    /!* Loading screen ...*!/*/}
-                                        {/*    Please approve transactions!*/}
-                                        {/*</div>*/}
+                                                    {/*<div className={"flex mt-6 mb-4 flex-row justify-center mx-auto text-gray-300"}>*/}
+                                                    {/*    /!* Loading screen ...*!/*/}
+                                                    {/*    Please approve transactions!*/}
+                                                    {/*</div>*/}
 
-                                        <div className="flex flex-row w-full my-5 mx-auto justify-start">
+                                                </div>
+
+                                            </div>
+                                        </div>
+
+                                        <div className="flex flex-row w-full py-5 mx-auto justify-start border-t border-gray-700 px-20 mx-auto">
                                             {disableButton ?
                                                 <button
                                                     type="button"
@@ -181,21 +201,15 @@ export default function LoadingItemsModal() {
                                             }
                                         </div>
 
+
                                     </div>
 
                                 </div>
-
                             </div>
-
-                            {/*                    /!*<button*!/*/}
-
-                            {/*<div className="flex w-full my-2 px-6 text-gray-400 justify-center">*/}
-                            {/*    Please approve transactions!*/}
-                            {/*</div>*/}
                         </div>
                     </Transition.Child>
                 </Dialog>
-            </Transition>
+            </Transition.Root>
         </>
     );
 
