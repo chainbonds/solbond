@@ -44,9 +44,9 @@ export default function ConfirmPortfolioBuyModal(props: any) {
 
         await itemLoadContext.addLoadItem({message: "Fetching data"});
         await itemLoadContext.addLoadItem({message: "Creating Associated Token Accounts"});
-        await itemLoadContext.addLoadItem({message: "Register Portfolio & Pool Object"});
+        await itemLoadContext.addLoadItem({message: "Register Portfolio & Pools"});
+        await itemLoadContext.addLoadItem({message: "Sending USDC to Portfolio Object"});
         // await itemLoadContext.addLoadItem({message: "Register Pool Objects"});
-        await itemLoadContext.addLoadItem({message: "Send Currency to Portfolio"});
         await itemLoadContext.addLoadItem({message: "Distribute Currency amongst liquidity pools"});
 
         // Initialize if not initialized yet
@@ -64,8 +64,8 @@ export default function ConfirmPortfolioBuyModal(props: any) {
 
         /*
             BLOCK 1: Create Associated Token Accounts for the Portfolio
+            First, and if this was not created before, create the associated token accounts
          */
-        // First, and if this was not created before, create the associated token accounts
         let txAssociatedTokenAccounts: Transaction = new Transaction();
         (await qPoolContext.portfolioObject!.registerAtaForLiquidityPortfolio()).map((x: TransactionInstruction) => {
             if (x) {
@@ -73,7 +73,7 @@ export default function ConfirmPortfolioBuyModal(props: any) {
                 txAssociatedTokenAccounts.add(x);
             }
         });
-        // If the transaction is not empty
+
         console.log("txAssociatedTokenAccounts Instructions are: ", txAssociatedTokenAccounts.instructions);
         if (txAssociatedTokenAccounts.instructions.length > 0) {
             console.log("Sending the first set of transactions!!");
@@ -92,41 +92,48 @@ export default function ConfirmPortfolioBuyModal(props: any) {
         // TODO: Here too, double-check if these accounts were already created.
         //  If they were not created, then create them. This could possibly also save a couple instructions
         // Register all pools, and addresses
-        console.log("Registering all accounts ...");
-        let txRegisterDataStructures: Transaction = new Transaction();
-        txRegisterDataStructures.add(
+        // console.log("Registering all accounts ...");
+        let tx1: Transaction = new Transaction();
+        tx1.add(
             await qPoolContext.portfolioObject!.registerPortfolio(weights)
         );
+        // And register all liquidity pools
         (await qPoolContext.portfolioObject!.registerAllLiquidityPools()).map((x: TransactionInstruction) => {
             if (x) {
-                txRegisterDataStructures.add(x);
+                tx1.add(x);
             }
         });
-        console.log("txRegisterDataStructures Instructions are: ", txRegisterDataStructures.instructions);
+        // Also send USDC to this account!
+        tx1.add(
+            await qPoolContext.portfolioObject!.transferUsdcFromUserToPortfolio(amountTokenA)
+        );
+        console.log("txRegisterDataStructures Instructions are: ", tx1.instructions);
         await sendAndConfirmTransaction(
             qPoolContext._solbondProgram!.provider,
             qPoolContext.connection!,
-            txRegisterDataStructures,
+            tx1,
             qPoolContext.userAccount!.publicKey
         );
+        await itemLoadContext.incrementCounter();
+        await itemLoadContext.incrementCounter();
         await itemLoadContext.incrementCounter();
 
         /*
-            BLOCK 2: Create the data structures for the portfolio, and liquidity pools
+            BLOCK 3: Push liquidity to the liquidity pools
          */
         // Now apply all functions that send money back and forth
         console.log("Sending tokens around. This should be atomic, so that liquidity mining is successful, indeed ...");
-        let txPushTokensToLiquidityPoolsThroughPortfolio: Transaction = new Transaction();
-        txPushTokensToLiquidityPoolsThroughPortfolio.add(
-            await qPoolContext.portfolioObject!.transferUsdcFromUserToPortfolio(amountTokenA)
-        );
-        await sendAndConfirmTransaction(
-            qPoolContext._solbondProgram!.provider,
-            qPoolContext.connection!,
-            txPushTokensToLiquidityPoolsThroughPortfolio,
-            qPoolContext.userAccount!.publicKey
-        );
-        await itemLoadContext.incrementCounter();
+        // let tx2: Transaction = new Transaction();
+        // tx2.add(
+        //     await qPoolContext.portfolioObject!.transferUsdcFromUserToPortfolio(amountTokenA)
+        // );
+        // await sendAndConfirmTransaction(
+        //     qPoolContext._solbondProgram!.provider,
+        //     qPoolContext.connection!,
+        //     tx2,
+        //     qPoolContext.userAccount!.publicKey
+        // );
+        // await itemLoadContext.incrementCounter();
 
         // Gotta calculate the full distribution of tokens before sending these instrutions ...
         // Perhaps we should call it 1-by-1 for now?
