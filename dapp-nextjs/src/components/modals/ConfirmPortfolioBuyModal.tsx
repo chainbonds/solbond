@@ -109,20 +109,21 @@ export default function ConfirmPortfolioBuyModal(props: any) {
 
         // The finally, deposit the Tokens to the liquidity pools
         // Might have to approve these one-by-one, because just so many accounts!!
-        let ixList3: TransactionInstruction[] = await qPoolContext.portfolioObject!.depositTokensToLiquidityPools();
-        // TODO: It is very important that this goes through atomatically
-        await Promise.all(
-            ixList3.map(async (x: TransactionInstruction) => {
-                let tmpTx = new Transaction();
-                tmpTx.add(x);
-                await sendAndConfirmTransaction(
-                    qPoolContext._solbondProgram!.provider,
-                    qPoolContext.connection!,
-                    tmpTx,
-                    qPoolContext.userAccount!.publicKey
-                )
-            })
-        );
+        await qPoolContext.portfolioObject!.depositTokensToLiquidityPools();
+        // let ixList3: TransactionInstruction[] = await qPoolContext.portfolioObject!.depositTokensToLiquidityPools();
+        // // TODO: It is very important that this goes through atomatically
+        // await Promise.all(
+        //     ixList3.map(async (x: TransactionInstruction) => {
+        //         let tmpTx = new Transaction();
+        //         tmpTx.add(x);
+        //         await sendAndConfirmTransaction(
+        //             qPoolContext._solbondProgram!.provider,
+        //             qPoolContext.connection!,
+        //             tmpTx,
+        //             qPoolContext.userAccount!.publicKey
+        //         )
+        //     })
+        // );
         await itemLoadContext.incrementCounter();
         await qPoolContext.makePriceReload();
 
