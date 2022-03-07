@@ -17,8 +17,7 @@ import delay from "delay";
 import axios from "axios";
 import {AccountOutput} from "../types/AccountOutput";
 import {UsdValuePosition} from "../types/UsdValuePosition";
-import {getSerpiusEndpoint} from "../../../../qPools-contract/qpools-sdk/lib/registry/registry-helper";
-// import {registry} from "@qpools/sdk";
+import {registry} from "@qpools/sdk";
 
 export interface AllocData {
     lp: string,
@@ -159,7 +158,7 @@ export function QPoolsProvider(props: any) {
 
     useEffect(() => {
         console.log("Loading the weights");
-        axios.get<any>(getSerpiusEndpoint()).then((response) => {
+        axios.get<any>(registry.getSerpiusEndpoint()).then((response) => {
             console.log("Here is the data :");
             console.log(typeof response.data);
             console.log(JSON.stringify(response.data));

@@ -253,7 +253,7 @@ export default function ConfirmPortfolioBuyModal(props: any) {
 
     return (
         <>
-            <Transition.Root appear show={props.isOpen} as={Fragment}>
+            <Transition.Root appear show={true} as={Fragment}>
                 <Dialog
                     as="div"
                     className="fixed inset-0 z-10 overflow-y-auto"

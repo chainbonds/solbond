@@ -6,7 +6,7 @@ import {AccountOutput} from "../../types/AccountOutput";
 import {Dialog, Transition} from "@headlessui/react";
 import {useLoad} from "../../contexts/LoadingContext";
 import Image from "next/image";
-import {getIconFromToken} from "../../../../../qPools-contract/qpools-sdk/src/registry/registry-helper";
+import {getIconFromToken} from "@qpools/sdk";
 import {useItemsLoad} from "../../contexts/ItemsLoadingContext";
 
 export default function SinglePortfolioCard(props: any) {

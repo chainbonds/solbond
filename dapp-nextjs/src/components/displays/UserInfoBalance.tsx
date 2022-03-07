@@ -2,7 +2,8 @@ import {useEffect, useState} from "react";
 import {IQPool, useQPoolUserTool} from "../../contexts/QPoolsProvider";
 import {getAssociatedTokenAddressOffCurve} from "@qpools/sdk/lib/utils";
 import {PublicKey} from "@solana/web3.js";
-import {tokenAccountExists} from "../../../../../qPools-contract/qpools-sdk/src/utils";
+// import {tokenAccountExists} from "../../../../../qPools-contract/qpools-sdk/src/utils";
+import {tokenAccountExists} from "@qpools/sdk";
 
 export default function UserInfoBalance() {
 
