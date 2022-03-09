@@ -7,7 +7,7 @@ import {IQPool, useQPoolUserTool} from "../../contexts/QPoolsProvider";
 import {useLoad} from "../../contexts/LoadingContext";
 import {BN} from "@project-serum/anchor";
 import {u64} from "@solana/spl-token";
-import {Transaction, TransactionInstruction} from "@solana/web3.js";
+import {PublicKey, Transaction, TransactionInstruction} from "@solana/web3.js";
 import {sendAndConfirmTransaction} from "../../utils/utils";
 import {MOCK} from "@qpools/sdk";
 import {useItemsLoad} from "../../contexts/ItemsLoadingContext";
@@ -42,12 +42,13 @@ export default function ConfirmPortfolioBuyModal(props: any) {
 
         // await loadContext.increaseCounter();
 
-        await itemLoadContext.addLoadItem({message: "Fetching data"});
-        await itemLoadContext.addLoadItem({message: "Creating Associated Token Accounts"});
-        await itemLoadContext.addLoadItem({message: "Register Portfolio & Pools"});
-        await itemLoadContext.addLoadItem({message: "Sending USDC to Portfolio Object"});
+        await itemLoadContext.addLoadItem({message: "Creating or Loading Associated Token Accounts"});
+        await itemLoadContext.addLoadItem({message: "Loading Instructions to Register Portfolio & Pools"});
+        await itemLoadContext.addLoadItem({message: "Loading Instructions to Send USDC to Portfolio"});
+        await itemLoadContext.addLoadItem({message: "Signing Transaction"});
+        // await itemLoadContext.addLoadItem({message: "Sending USDC to Portfolio Object"});
         // await itemLoadContext.addLoadItem({message: "Register Pool Objects"});
-        await itemLoadContext.addLoadItem({message: "Distribute Currency amongst liquidity pools"});
+        // await itemLoadContext.addLoadItem({message: "Distribute Currency amongst liquidity pools"});
 
         // Initialize if not initialized yet
         await qPoolContext.initializeQPoolsUserTool(walletContext);
@@ -61,15 +62,35 @@ export default function ConfirmPortfolioBuyModal(props: any) {
             List all instructions here first ...
             Let's assume, we will not send more than 5 transactions ...
          */
-        let tx1: Transaction = new Transaction();
-        let tx2: Transaction = new Transaction();
-        let tx3: Transaction = new Transaction();
-        let tx4: Transaction = new Transaction();
-        let tx5: Transaction = new Transaction();
-        let tx6: Transaction = new Transaction();
-        let tx7: Transaction = new Transaction();
 
-        // Calculate total transaction size for these items.
+        // BEGIN OF Permissionless
+
+
+        /**
+         * This model creates a portfolio where the base currency is USDC i.e the user only pays in USDC.
+         * The steps 1-3 are permissioned, meaning that the user has to sign client side. The point is to
+         * make these instructions fairly small such that they can all be bundled together in one transaction.
+         * Create a Portfolio workflow:
+         * 1) create_portfolio(ctx,bump,weights,num_pos,amount_total):
+         *      ctx: context of the portfolio
+         *      bump: bump for the portfolio_pda
+         *      weights: the weights in the portfolio (check if sum is normalized)
+         *      num_positions: number of positions this portfolio will have
+         *      amount: total amount of USDC in the portfolio
+         *
+         * 2) for position_i in range(num_positions):
+         *          approve_position_weight_{PROTOCOL_NAME}(ctx, args)
+         *
+         * 3) transfer_to_portfolio():
+         *      transfers the agreed upon amount to a ATA owned by portfolio_pda
+         *
+         */
+
+        /**
+         * Create Associated Token Accounts for the PDA, if not exists, yet
+         */
+        // Have a look at this; but this is still needed!
+        let tx1: Transaction = new Transaction();
         let ixList1: TransactionInstruction[] = await qPoolContext.portfolioObject!.registerAtaForLiquidityPortfolio();
         ixList1.map((x: TransactionInstruction) => {tx1.add(x)});
         if (tx1.instructions.length > 0) {
@@ -82,64 +103,190 @@ export default function ConfirmPortfolioBuyModal(props: any) {
             );
         }
         await itemLoadContext.incrementCounter();
-        // This should be one transaction, in the very first instance of buying a portfolio ...
 
-        // Chain the next two instructions together ...
-        let ix1: TransactionInstruction = await qPoolContext.portfolioObject!.registerPortfolio(weights);
-        let ix2: TransactionInstruction = await qPoolContext.portfolioObject!.transferUsdcFromUserToPortfolio(sendAmount);
-        tx2.add(ix1); tx2.add(ix2);
+        /**
+         *
+         */
+
+        let allInstructions: Transaction = new Transaction();
+
+        let IxCreatePortfolioPda: TransactionInstruction = await qPoolContext.portfolioObject!.createPortfolioSigned(
+            weights, sendAmount
+        );
+        allInstructions.add(IxCreatePortfolioPda);
+
+        // TODO: Gotta double-check if A or B is the right one
+        // Get the user's complete tokenA, and do tokenA times weight to be deposited here
+        // Get the user's complete tokenB, and do tokenB times weight to be deposited here
+        // Same for every pool
+        qPoolContext.portfolioObject!.poolAddresses.map(async (poolAddress: PublicKey, index: number) => {
+
+            const stableSwapState = await qPoolContext.portfolioObject!.getPoolState(poolAddress);
+            const {state} = stableSwapState;
+
+            // get the PortfolioATA for TokenA
+            let portfolioAtaA = await qPoolContext.portfolioObject!.getAccountForMintAndPDADontCreate(
+                state.tokenA.mint,
+                qPoolContext.portfolioObject!.portfolioPDA
+            );
+            // get the PortfolioATA for TokenB
+            let portfolioAtaB = await qPoolContext.portfolioObject!.getAccountForMintAndPDADontCreate(
+                state.tokenB.mint,
+                qPoolContext.portfolioObject!.portfolioPDA
+            );
+
+            let amountA = new BN((await qPoolContext.connection!.getTokenAccountBalance(portfolioAtaA)).value.amount);
+            let amountB = new BN((await qPoolContext.connection!.getTokenAccountBalance(portfolioAtaB)).value.amount);
+            console.log("Amount before multiply by weight is.. ", amountA.toString());
+            console.log("Amount before multiply by weight is.. ", amountB.toString());
+
+            // Only initiate this transaction, if either of amountA or amountB is not zero
+            if (!amountA.eq(new BN(0)) && !amountB.eq(new BN(0))) {
+                // Gotta translate to BN, or otherwise there will be truncation errors!
+                let weight = weights[index];
+                amountA = weight.mul(amountA);
+                amountB = weight.mul(amountB);
+                console.log("Amount after multiply weight is.. ", amountA.toString());
+                console.log("Amount after multiply weight is.. ", amountB.toString());
+                let IxApprovePositionWeightSaber = await qPoolContext.portfolioObject!.approvePositionWeightSaber(amountA, amountB, new BN(0), index, weight);
+                allInstructions.add(IxApprovePositionWeightSaber);
+            }
+
+        });
+        await itemLoadContext.incrementCounter();
+
+        // Finally, also transfer the USDC to the portfolio
+        let IxSendUsdcToPortfolio = await qPoolContext.portfolioObject!.transferUsdcFromUserToPortfolio();
+        allInstructions.add(IxSendUsdcToPortfolio);
+
+        let tx = new Transaction(allInstructions);
+        // Now sign this transaction
         await sendAndConfirmTransaction(
             qPoolContext._solbondProgram!.provider,
             qPoolContext.connection!,
-            tx2,
+            tx,
             qPoolContext.userAccount!.publicKey
         );
         await itemLoadContext.incrementCounter();
 
-        // Finally, the pools can all be registered separately (but in one transaction)
-        let ixList2: TransactionInstruction[] = await qPoolContext.portfolioObject!.registerAllLiquidityPools();
-        ixList2.map((x: TransactionInstruction) => {tx3.add(x)});
-        await sendAndConfirmTransaction(
-            qPoolContext._solbondProgram!.provider,
-            qPoolContext.connection!,
-            tx3,
-            qPoolContext.userAccount!.publicKey
-        );
-        await itemLoadContext.incrementCounter();
 
-        // The finally, deposit the Tokens to the liquidity pools
-        // Might have to approve these one-by-one, because just so many accounts!!
-        await qPoolContext.portfolioObject!.depositTokensToLiquidityPools();
-        // let ixList3: TransactionInstruction[] = await qPoolContext.portfolioObject!.depositTokensToLiquidityPools();
-        // // TODO: It is very important that this goes through atomatically
-        // await Promise.all(
-        //     ixList3.map(async (x: TransactionInstruction) => {
-        //         let tmpTx = new Transaction();
-        //         tmpTx.add(x);
-        //         await sendAndConfirmTransaction(
-        //             qPoolContext._solbondProgram!.provider,
-        //             qPoolContext.connection!,
-        //             tmpTx,
-        //             qPoolContext.userAccount!.publicKey
-        //         )
-        //     })
+        /**
+         * Now we will run a crank every 5 minutes to deposit all the user's funds into the respective positions
+         */
+
+        // Now we will manually ask the user to sign the transaction to send it to the portfolio.
+        // Later on, we need to write a crank for it, or for example introduce another button to make it into a crank
+
+
+        // END OF Permissionless
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        // // BEGIN OF START PERMISSIONLESS
+        //
+        // let tx2: Transaction = new Transaction();
+        // let tx3: Transaction = new Transaction();
+        // let tx4: Transaction = new Transaction();
+        // let tx5: Transaction = new Transaction();
+        // let tx6: Transaction = new Transaction();
+        // let tx7: Transaction = new Transaction();
+        //
+        // // Calculate total transaction size for these items.
+        // let ixList1: TransactionInstruction[] = await qPoolContext.portfolioObject!.registerAtaForLiquidityPortfolio();
+        // ixList1.map((x: TransactionInstruction) => {tx1.add(x)});
+        // if (tx1.instructions.length > 0) {
+        //     console.log("Sending the first set of transactions!!");
+        //     await sendAndConfirmTransaction(
+        //         qPoolContext._solbondProgram!.provider,
+        //         qPoolContext.connection!,
+        //         tx1,
+        //         qPoolContext.userAccount!.publicKey
+        //     );
+        // }
+        // await itemLoadContext.incrementCounter();
+        // // This should be one transaction, in the very first instance of buying a portfolio ...
+        //
+        // // Chain the next two instructions together ...
+        // let ix1: TransactionInstruction = await qPoolContext.portfolioObject!.registerPortfolio(weights);
+        // console.log("Send Amount is this much!");
+        // console.log("Sendamount is: ", sendAmount.toString());
+        // let ix2: TransactionInstruction = await qPoolContext.portfolioObject!.transferUsdcFromUserToPortfolio(sendAmount);
+        // tx2.add(ix1); tx2.add(ix2);
+        // await sendAndConfirmTransaction(
+        //     qPoolContext._solbondProgram!.provider,
+        //     qPoolContext.connection!,
+        //     tx2,
+        //     qPoolContext.userAccount!.publicKey
         // );
-        await itemLoadContext.incrementCounter();
-        await qPoolContext.makePriceReload();
-
-        // These ones are not instructions anymore, these are just RPC calls
-        let length = 0.;
-        console.log("Single Instruction is: ", ix1);
-        ixList1.map((x: TransactionInstruction) => length += x.keys.length);
-        console.log("Length up to this point is: ", length);
-        length += ix1.keys.length;
-        console.log("Length up to this point is: ", length);
-        length += ix2.keys.length;
-        console.log("Length up to this point is: ", length);
-        ixList2.map((x: TransactionInstruction) => length += x.keys.length);
-        console.log("Length up to this point is: ", length);
-        // ixList3.map((x: TransactionInstruction) => length += x.keys.length);
+        // await itemLoadContext.incrementCounter();
+        //
+        // // Finally, the pools can all be registered separately (but in one transaction)
+        // let ixList2: TransactionInstruction[] = await qPoolContext.portfolioObject!.registerAllLiquidityPools();
+        // ixList2.map((x: TransactionInstruction) => {tx3.add(x)});
+        // await sendAndConfirmTransaction(
+        //     qPoolContext._solbondProgram!.provider,
+        //     qPoolContext.connection!,
+        //     tx3,
+        //     qPoolContext.userAccount!.publicKey
+        // );
+        // await itemLoadContext.incrementCounter();
+        //
+        // // The finally, deposit the Tokens to the liquidity pools
+        // // Might have to approve these one-by-one, because just so many accounts!!
+        // await qPoolContext.portfolioObject!.depositTokensToLiquidityPools();
+        // // let ixList3: TransactionInstruction[] = await qPoolContext.portfolioObject!.depositTokensToLiquidityPools();
+        // // // TODO: It is very important that this goes through atomatically
+        // // await Promise.all(
+        // //     ixList3.map(async (x: TransactionInstruction) => {
+        // //         let tmpTx = new Transaction();
+        // //         tmpTx.add(x);
+        // //         await sendAndConfirmTransaction(
+        // //             qPoolContext._solbondProgram!.provider,
+        // //             qPoolContext.connection!,
+        // //             tmpTx,
+        // //             qPoolContext.userAccount!.publicKey
+        // //         )
+        // //     })
+        // // );
+        // await itemLoadContext.incrementCounter();
+        // await qPoolContext.makePriceReload();
+        //
+        // // These ones are not instructions anymore, these are just RPC calls
+        // let length = 0.;
+        // console.log("Single Instruction is: ", ix1);
+        // ixList1.map((x: TransactionInstruction) => length += x.keys.length);
         // console.log("Length up to this point is: ", length);
+        // length += ix1.keys.length;
+        // console.log("Length up to this point is: ", length);
+        // length += ix2.keys.length;
+        // console.log("Length up to this point is: ", length);
+        // ixList2.map((x: TransactionInstruction) => length += x.keys.length);
+        // console.log("Length up to this point is: ", length);
+        // // ixList3.map((x: TransactionInstruction) => length += x.keys.length);
+        // // console.log("Length up to this point is: ", length);
+        //
+        //
+        //
+        //
+        //
+        // // END OF BEFORE PERMISSIONLESS
+
 
 
 
