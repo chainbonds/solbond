@@ -42,13 +42,11 @@ export default function ConfirmPortfolioBuyModal(props: any) {
 
         // await loadContext.increaseCounter();
 
-        await itemLoadContext.addLoadItem({message: "Creating or Loading Associated Token Accounts"});
-        await itemLoadContext.addLoadItem({message: "Loading Instructions to Register Portfolio & Pools"});
-        await itemLoadContext.addLoadItem({message: "Loading Instructions to Send USDC to Portfolio"});
-        await itemLoadContext.addLoadItem({message: "Signing Transaction"});
-        // await itemLoadContext.addLoadItem({message: "Sending USDC to Portfolio Object"});
-        // await itemLoadContext.addLoadItem({message: "Register Pool Objects"});
-        // await itemLoadContext.addLoadItem({message: "Distribute Currency amongst liquidity pools"});
+        await itemLoadContext.addLoadItem({message: "Preparing Transaction"});
+        await itemLoadContext.addLoadItem({message: "(Sign): Creating Associated Token Accounts"});
+        await itemLoadContext.addLoadItem({message: "Sign: Create Portfolio & Send USDC"});
+        await itemLoadContext.addLoadItem({message: "Register Portfolio & Pools"});
+
 
         // Initialize if not initialized yet
         await qPoolContext.initializeQPoolsUserTool(walletContext);
@@ -105,32 +103,48 @@ export default function ConfirmPortfolioBuyModal(props: any) {
         await itemLoadContext.incrementCounter();
 
         /**
-         *
+         * Send USDC to the portfolio. Later on, we can create instructions to send all assets into the portfolio
          */
+        // Finally, also transfer the USDC to the portfolio
+        console.log("Creating Portfolio");
+        let tx: Transaction = new Transaction();
+        // Only create this portfolio, if it doesn't exist ...
+        // TODO: Create portfolio should be able to be called multiple times
 
-        let allInstructions: Transaction = new Transaction();
-
+        console.log("Adding createPortfolioSigned");
         let IxCreatePortfolioPda: TransactionInstruction = await qPoolContext.portfolioObject!.createPortfolioSigned(
             weights, sendAmount
         );
-        allInstructions.add(IxCreatePortfolioPda);
+        tx.add(IxCreatePortfolioPda);
+        await itemLoadContext.incrementCounter();
+        console.log("Adding transferUsdcFromUserToPortfolio");
+        let IxSendUsdcToPortfolio = await qPoolContext.portfolioObject!.transferUsdcFromUserToPortfolio();
+        tx.add(IxSendUsdcToPortfolio);
+        await itemLoadContext.incrementCounter();
 
+        /**
+         *
+         */
+        console.log("Other instructions ...");
         // TODO: Gotta double-check if A or B is the right one
         // Get the user's complete tokenA, and do tokenA times weight to be deposited here
         // Get the user's complete tokenB, and do tokenB times weight to be deposited here
         // Same for every pool
+
+        // Calculate according to totalSendAmount
         qPoolContext.portfolioObject!.poolAddresses.map(async (poolAddress: PublicKey, index: number) => {
 
             const stableSwapState = await qPoolContext.portfolioObject!.getPoolState(poolAddress);
             const {state} = stableSwapState;
 
             // get the PortfolioATA for TokenA
-            let portfolioAtaA = await qPoolContext.portfolioObject!.getAccountForMintAndPDADontCreate(
+            // For the mintA, get the user's wallet balance
+            let userAtaA = await qPoolContext.portfolioObject!.getAccountForMintAndPDADontCreate(
                 state.tokenA.mint,
                 qPoolContext.portfolioObject!.portfolioPDA
             );
             // get the PortfolioATA for TokenB
-            let portfolioAtaB = await qPoolContext.portfolioObject!.getAccountForMintAndPDADontCreate(
+            let userAtaB = await qPoolContext.portfolioObject!.getAccountForMintAndPDADontCreate(
                 state.tokenB.mint,
                 qPoolContext.portfolioObject!.portfolioPDA
             );
@@ -144,22 +158,18 @@ export default function ConfirmPortfolioBuyModal(props: any) {
             if (!amountA.eq(new BN(0)) && !amountB.eq(new BN(0))) {
                 // Gotta translate to BN, or otherwise there will be truncation errors!
                 let weight = weights[index];
-                amountA = weight.mul(amountA);
-                amountB = weight.mul(amountB);
+                // denominator
+                let weightDenominator = weights.reduce((a, b) => {return a.add(b)}, new BN(0));
+                amountA = weight.mul(amountA).div(weightDenominator);
+                amountB = weight.mul(amountB).div(weightDenominator);
                 console.log("Amount after multiply weight is.. ", amountA.toString());
                 console.log("Amount after multiply weight is.. ", amountB.toString());
                 let IxApprovePositionWeightSaber = await qPoolContext.portfolioObject!.approvePositionWeightSaber(amountA, amountB, new BN(0), index, weight);
-                allInstructions.add(IxApprovePositionWeightSaber);
+                tx.add(IxApprovePositionWeightSaber);
             }
 
         });
-        await itemLoadContext.incrementCounter();
 
-        // Finally, also transfer the USDC to the portfolio
-        let IxSendUsdcToPortfolio = await qPoolContext.portfolioObject!.transferUsdcFromUserToPortfolio();
-        allInstructions.add(IxSendUsdcToPortfolio);
-
-        let tx = new Transaction(allInstructions);
         // Now sign this transaction
         await sendAndConfirmTransaction(
             qPoolContext._solbondProgram!.provider,
@@ -168,6 +178,8 @@ export default function ConfirmPortfolioBuyModal(props: any) {
             qPoolContext.userAccount!.publicKey
         );
         await itemLoadContext.incrementCounter();
+        // This function should be renamed to "make user info reload"
+        await qPoolContext.makePriceReload();
 
 
         /**
