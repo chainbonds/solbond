@@ -416,11 +416,6 @@ export function QPoolsProvider(props: any) {
             console.log("Portfolio Object not loaded yet! Gotta make sure to load it first ...")
         }
 
-        // let [portfolioPDA, _] = await PublicKey.findProgramAddress(
-        //     [this.owner.publicKey.toBuffer(), Buffer.from(anchor.utils.bytes.utf8.encode(SEED.PORTFOLIO_ACCOUNT))],
-        //     this.solbondProgram.programId
-        // );
-
         // Removing the fetch-portfolio is disturbing it
         // If an error arises, then just return empty stuff
         let portfolio;

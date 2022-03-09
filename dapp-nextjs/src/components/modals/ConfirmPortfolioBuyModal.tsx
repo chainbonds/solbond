@@ -11,6 +11,7 @@ import {PublicKey, Transaction, TransactionInstruction} from "@solana/web3.js";
 import {sendAndConfirmTransaction} from "../../utils/utils";
 import {MOCK} from "@qpools/sdk";
 import {useItemsLoad} from "../../contexts/ItemsLoadingContext";
+import Error from "next/error";
 
 export default function ConfirmPortfolioBuyModal(props: any) {
 
@@ -45,7 +46,7 @@ export default function ConfirmPortfolioBuyModal(props: any) {
         await itemLoadContext.addLoadItem({message: "Preparing Transaction"});
         await itemLoadContext.addLoadItem({message: "(Sign): Creating Associated Token Accounts"});
         await itemLoadContext.addLoadItem({message: "Sign: Create Portfolio & Send USDC"});
-        await itemLoadContext.addLoadItem({message: "Register Portfolio & Pools"});
+        await itemLoadContext.addLoadItem({message: "Sign: Register Portfolio & Pools"});
 
 
         // Initialize if not initialized yet
@@ -116,11 +117,9 @@ export default function ConfirmPortfolioBuyModal(props: any) {
             weights, sendAmount
         );
         tx.add(IxCreatePortfolioPda);
-        await itemLoadContext.incrementCounter();
         console.log("Adding transferUsdcFromUserToPortfolio");
         let IxSendUsdcToPortfolio = await qPoolContext.portfolioObject!.transferUsdcFromUserToPortfolio();
         tx.add(IxSendUsdcToPortfolio);
-        await itemLoadContext.incrementCounter();
 
         /**
          *
@@ -139,23 +138,41 @@ export default function ConfirmPortfolioBuyModal(props: any) {
 
             // get the PortfolioATA for TokenA
             // For the mintA, get the user's wallet balance
-            let userAtaA = await qPoolContext.portfolioObject!.getAccountForMintAndPDADontCreate(
-                state.tokenA.mint,
-                qPoolContext.portfolioObject!.portfolioPDA
-            );
-            // get the PortfolioATA for TokenB
-            let userAtaB = await qPoolContext.portfolioObject!.getAccountForMintAndPDADontCreate(
-                state.tokenB.mint,
-                qPoolContext.portfolioObject!.portfolioPDA
-            );
+            // let userAtaA = await qPoolContext.portfolioObject!.getAccountForMintAndPDADontCreate(
+            //     state.tokenA.mint,
+            //     user
+            //     // qPoolContext.portfolioObject!.portfolioPDA
+            // );
+            // // get the PortfolioATA for TokenB
+            // let userAtaB = await qPoolContext.portfolioObject!.getAccountForMintAndPDADontCreate(
+            //     state.tokenB.mint,
+            //
+            //     // qPoolContext.portfolioObject!.portfolioPDA
+            // );
+            //
+            // let amountA = new BN((await qPoolContext.connection!.getTokenAccountBalance(userAtaA)).value.amount);
+            // let amountB = new BN((await qPoolContext.connection!.getTokenAccountBalance(userAtaB)).value.amount);
+            let amountA = new BN(0);
+            let amountB = new BN(0);
 
-            let amountA = new BN((await qPoolContext.connection!.getTokenAccountBalance(portfolioAtaA)).value.amount);
-            let amountB = new BN((await qPoolContext.connection!.getTokenAccountBalance(portfolioAtaB)).value.amount);
+            // Now make an if-else, based on which mintA or mintB corresponds to the USDC
+            if ((new PublicKey(MOCK.DEV.SABER_USDC)).equals(state.tokenA.mint)) {
+                // On a separate occasion, check if the sendAmount is higher than the max amount, etc.
+                amountB = sendAmount;
+            } else if ((new PublicKey(MOCK.DEV.SABER_USDC)).equals(state.tokenB.mint)) {
+                amountA = sendAmount;
+            } else {
+                console.log('Saber USDC does not correspond to either entity!');
+                return
+            }
+
             console.log("Amount before multiply by weight is.. ", amountA.toString());
             console.log("Amount before multiply by weight is.. ", amountB.toString());
+            console.log("Condition1: ", !amountA.eq(new BN(0)));
+            console.log("Condition2: ", !amountB.eq(new BN(0)));
 
             // Only initiate this transaction, if either of amountA or amountB is not zero
-            if (!amountA.eq(new BN(0)) && !amountB.eq(new BN(0))) {
+            if (!(amountA.eq(new BN(0)) && amountB.eq(new BN(0)))) {
                 // Gotta translate to BN, or otherwise there will be truncation errors!
                 let weight = weights[index];
                 // denominator
@@ -177,6 +194,22 @@ export default function ConfirmPortfolioBuyModal(props: any) {
             tx,
             qPoolContext.userAccount!.publicKey
         );
+
+        // TODO: Pull all the cranks
+
+        // try {
+        //     await sendAndConfirmTransaction(
+        //         qPoolContext._solbondProgram!.provider,
+        //         qPoolContext.connection!,
+        //         tx,
+        //         qPoolContext.userAccount!.publicKey
+        //     );
+        // } catch (e) {
+        //     console.log(e);
+        //     // console.log(JSON.stringify(e));
+        //     alert("Error happened");
+        //
+        // }
         await itemLoadContext.incrementCounter();
         // This function should be renamed to "make user info reload"
         await qPoolContext.makePriceReload();
