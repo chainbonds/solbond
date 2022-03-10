@@ -34,13 +34,6 @@ export default function UnstakeForm() {
                 />
             )
         }
-        if (qPoolContext.allocatedAccounts.length === 0) {
-            return (
-                <ConnectWalletPortfolioRow
-                    text={"You have not created any positions yet!"}
-                />
-            );
-        }
         if (totalPortfolioValueInUsd === 0.00) {
             return (
                 <ConnectWalletPortfolioRow
@@ -48,6 +41,13 @@ export default function UnstakeForm() {
                 />
             );
         }
+        // if (qPoolContext.allocatedAccounts.length === 0) {
+        //     return (
+        //         <ConnectWalletPortfolioRow
+        //             text={"You have not created any positions yet!"}
+        //         />
+        //     );
+        // }
         if (!qPoolContext.portfolioObject.portfolioPDA) {
             return (
                 <ConnectWalletPortfolioRow

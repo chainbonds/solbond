@@ -12,6 +12,7 @@ import {sendAndConfirmTransaction} from "../../utils/utils";
 import {MOCK} from "@qpools/sdk";
 import {useItemsLoad} from "../../contexts/ItemsLoadingContext";
 import Error from "next/error";
+import {Promise} from "es6-promise";
 
 export default function ConfirmPortfolioBuyModal(props: any) {
 
@@ -120,6 +121,7 @@ export default function ConfirmPortfolioBuyModal(props: any) {
         console.log("Adding transferUsdcFromUserToPortfolio");
         let IxSendUsdcToPortfolio = await qPoolContext.portfolioObject!.transferUsdcFromUserToPortfolio();
         tx.add(IxSendUsdcToPortfolio);
+        await itemLoadContext.incrementCounter();
 
         /**
          *
@@ -131,7 +133,7 @@ export default function ConfirmPortfolioBuyModal(props: any) {
         // Same for every pool
 
         // Calculate according to totalSendAmount
-        qPoolContext.portfolioObject!.poolAddresses.map(async (poolAddress: PublicKey, index: number) => {
+        await Promise.all(qPoolContext.portfolioObject!.poolAddresses.map(async (poolAddress: PublicKey, index: number) => {
 
             const stableSwapState = await qPoolContext.portfolioObject!.getPoolState(poolAddress);
             const {state} = stableSwapState;
@@ -185,7 +187,7 @@ export default function ConfirmPortfolioBuyModal(props: any) {
                 tx.add(IxApprovePositionWeightSaber);
             }
 
-        });
+        }));
 
         // Now sign this transaction
         await sendAndConfirmTransaction(

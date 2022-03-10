@@ -430,8 +430,6 @@ export function QPoolsProvider(props: any) {
         let positions;
         try {
             positions = await portfolioObject!.fetchAllPositions();
-            console.log("All positions are: ", positions);
-            positions.map((x) => {console.log(x.mintA.toString(), x.mintB.toString())})
         } catch (e: any) {
             console.log("ERROR: Positions could not be loaded");
             console.log(JSON.stringify(e));
@@ -439,6 +437,13 @@ export function QPoolsProvider(props: any) {
         }
 
         let allAmounts = await Promise.all(positions.map(async (position: any, index: number): Promise<AccountOutput> => {
+
+            // From the position, infer all the rest of items ...
+
+
+
+            // TODO: Also include the case where you have excess tokens
+
             // Get all the positions (perhaps combine this in a single get statement at some point
             let tokenAAmount = (await connection!.getTokenAccountBalance(position.ownerTokenAccountA)).value;
             let tokenBAmount = (await connection!.getTokenAccountBalance(position.ownerTokenAccountB)).value;
