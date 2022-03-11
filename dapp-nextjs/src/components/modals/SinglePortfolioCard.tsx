@@ -2,17 +2,15 @@ import React, {Fragment, useRef} from "react";
 import {IQPool, useQPoolUserTool} from "../../contexts/QPoolsProvider";
 import {PublicKey, Transaction, TransactionInstruction} from "@solana/web3.js";
 import {sendAndConfirmTransaction, shortenedAddressString, solscanLink} from "../../utils/utils";
-import {AccountOutput} from "../../types/AccountOutput";
 import {Dialog, Transition} from "@headlessui/react";
 import {useLoad} from "../../contexts/LoadingContext";
 import Image from "next/image";
-// import {getIconFromToken} from "../../../../../qPools-contract/qpools-sdk/src/registry/registry-helper";
 import {registry} from "@qpools/sdk";
 import {PortfolioAccount} from "@qpools/sdk";
 import {useItemsLoad} from "../../contexts/ItemsLoadingContext";
-import {BN} from "@project-serum/anchor";
 import stringify from "fast-safe-stringify";
-import stable = stringify.stable;
+import {PositionInfo} from "@qpools/sdk";
+
 
 export default function SinglePortfolioCard(props: any) {
 
@@ -25,7 +23,7 @@ export default function SinglePortfolioCard(props: any) {
      * Disclose copied from headless UI https://headlessui.dev/react/disclosure
      * Table copied from https://flowbite.com/docs/components/tables/
      */
-    const displayAllLpsInOneTable = (positions: AccountOutput[]) => {
+    const displayAllLpsInOneTable = (positions: PositionInfo[]) => {
         return (
             <>
 
@@ -56,7 +54,7 @@ export default function SinglePortfolioCard(props: any) {
                                     <tbody>
                                     {/*// <!-- Product 1 -->*/}
 
-                                    {positions.map((position: AccountOutput, index: number) => {
+                                    {positions.map((position: PositionInfo, index: number) => {
 
                                         // if (!position) {
                                         //     console.log("Not ready to load just yet..");
@@ -339,7 +337,7 @@ export default function SinglePortfolioCard(props: any) {
                                             This portfolio is worth an estimated USDC {qPoolContext.totalPortfolioValueInUsd.toFixed(2)}
                                         </div>
 
-                                        {displayAllLpsInOneTable(qPoolContext.allocatedAccounts)}
+                                        {displayAllLpsInOneTable(qPoolContext.positionInfos)}
                                         {/*{displayAllPositions()}*/}
 
                                     </div>

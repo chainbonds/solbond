@@ -5,7 +5,6 @@ import {WalletMultiButton} from "@solana/wallet-adapter-react-ui";
 import {IQPool, useQPoolUserTool} from "../../contexts/QPoolsProvider";
 import ConnectWalletPortfolioRow from "../portfolio/ConnectWalletPortfolioRow";
 import SinglePortfolioRow from "../portfolio/SinglePortfolioRow";
-import {shortenedAddressString} from "../../utils/utils";
 
 export default function UnstakeForm() {
 

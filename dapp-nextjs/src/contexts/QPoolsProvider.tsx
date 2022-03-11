@@ -5,9 +5,7 @@ import {Token, TOKEN_PROGRAM_ID} from "@solana/spl-token";
 import * as anchor from "@project-serum/anchor";
 import {solbondProgram} from "../programs/solbond";
 import {WalletI} from "easy-spl";
-import {QPoolsUser} from "@qpools/sdk/src/qpools-user";
 import {MOCK} from "@qpools/sdk/src/const";
-import {QPoolsStats} from "@qpools/sdk/lib/qpools-stats";
 import {
     airdropAdmin,
     DisplayPortfolios,
@@ -15,10 +13,11 @@ import {
 } from "@qpools/sdk";
 import delay from "delay";
 import axios from "axios";
-import {AccountOutput} from "../types/AccountOutput";
 import {UsdValuePosition} from "../types/UsdValuePosition";
-import {getSerpiusEndpoint} from "../../../../qPools-contract/qpools-sdk/lib/registry/registry-helper";
-// import {registry} from "@qpools/sdk";
+import {registry} from "@qpools/sdk";
+import {PositionInfo} from "@qpools/sdk";
+import {position} from "dom-helpers";
+import {Promise} from "es6-promise";
 
 export interface AllocData {
     lp: string,
@@ -28,10 +27,8 @@ export interface AllocData {
 };
 
 export interface IQPool {
-    qPoolsUser: QPoolsUser | undefined,
-    qPoolsStats: QPoolsStats | undefined,
     portfolioObject: PortfolioFrontendFriendlyChainedInstructions | undefined,
-    allocatedAccounts: AccountOutput[],
+    positionInfos: PositionInfo[],
     positionValuesInUsd: UsdValuePosition[],
     totalPortfolioValueInUsd: number,
     initializeQPoolsUserTool: any,
@@ -70,18 +67,16 @@ const hardcodedApiResponse = [
 ]
 
 const defaultValue: IQPool = {
-    qPoolsUser: undefined,
-    qPoolsStats: undefined,
     portfolioObject: undefined,
     displayPortfolio: undefined,
     reloadPriceSentinel: false,
     makePriceReload: () => console.log("Error not loaded yet!"),
-    allocatedAccounts: [],
+    initializeQPoolsUserTool: () => console.log("Error not loaded yet!"),
+    initializeQPoolsStatsTool: () => console.log("Error not loaded yet!"),
+    positionInfos: [],
     positionValuesInUsd: [],
     totalPortfolioValueInUsd: 0,
     portfolioRatios: hardcodedApiResponse,
-    initializeQPoolsUserTool: () => console.error("attempting to use AuthContext outside of a valid provider"),
-    initializeQPoolsStatsTool: () => console.error("attempting to use AuthContext outside of a valid provider"),
     connection: undefined,
     provider: undefined,
     _solbondProgram: () => console.error("attempting to use AuthContext outside of a valid provider"),
@@ -132,15 +127,13 @@ function getConnectionString(): Connection {
 
 export function QPoolsProvider(props: any) {
 
-    const [qPoolsUser, setQPoolsUser] = useState<QPoolsUser | undefined>(undefined);
-    const [qPoolsStats, setQPoolsStats] = useState<QPoolsStats | undefined>(undefined);
     const [portfolioObject, setPortfolioObject] = useState<PortfolioFrontendFriendlyChainedInstructions | undefined>(undefined);
 
     const [connection, setConnection] = useState<Connection | undefined>(undefined);
     const [provider, setProvider] = useState<Provider | undefined>(undefined);
     const [_solbondProgram, setSolbondProgram] = useState<any>(null);
     const [userAccount, setUserAccount] = useState<WalletI | undefined>(undefined);
-    const [allocatedAccounts, setAllocatedAccounts] = useState<AccountOutput[]>([]);
+    const [positionInfos, setPositionInfos] = useState<PositionInfo[]>([]);
 
     const [currencyMint, setCurrencyMint] = useState<Token | undefined>(undefined);
     const [QPTokenMint, setQPTokenMint] = useState<Token | undefined>(undefined);
@@ -158,8 +151,9 @@ export function QPoolsProvider(props: any) {
     // Provider to get the JSON code ..
 
     useEffect(() => {
+        console.log("#useEffect getSerpiusEndpoint");
         console.log("Loading the weights");
-        axios.get<any>(getSerpiusEndpoint()).then((response) => {
+        axios.get<any>(registry.getSerpiusEndpoint()).then((response) => {
             console.log("Here is the data :");
             console.log(typeof response.data);
             console.log(JSON.stringify(response.data));
@@ -171,94 +165,44 @@ export function QPoolsProvider(props: any) {
         }).catch((error) => {
             console.log(error)
         })
+        console.log("##useEffect getSerpiusEndpoint");
     }, []);
 
-    useEffect(() => {
-        if (userAccount && portfolioObject) {
-            getPortfolioInformation()
-        }
-    }, [userAccount, portfolioObject, reloadPriceSentinel]);
+    // useEffect(() => {
+    //     if (userAccount && portfolioObject) {
+    //         getPortfolioInformation();
+    //     }
+    // }, [userAccount, portfolioObject, reloadPriceSentinel]);
 
     useEffect(() => {
         calculateAllUsdcValues();
-    }, [allocatedAccounts, reloadPriceSentinel]);
+    }, [userAccount, positionInfos, reloadPriceSentinel]);
+
+    // const getPortfolioInformation = async () => {
+    //     let allPositions: PositionInfo[] = await portfolioObject!.getPortfolioInformation();
+    //     setPositionInfos(allPositions);
+    // }
 
     const makePriceReload = async () => {
+        console.log("#useEffect makePriceReload");
         setReloadPriceSentinel(!reloadPriceSentinel);
+        console.log("##useEffect makePriceReload");
     }
 
     // Calculate all usdc values
     const calculateAllUsdcValues = async () => {
-        let usdcResponses: UsdValuePosition[] = await Promise.all(allocatedAccounts.map(async (position: AccountOutput) => {
-            return getUserUsdcForPosition(position);
-        }));
-        usdcResponses.map((x) => {console.log("USDC amounts are: ", x)})
-        setPositionValuesInUsd(usdcResponses);
-
-
-        let totalPortfolioValue = 0.;
-        let includedMints: Set<string> = new Set();
-        await Promise.all(allocatedAccounts.map(async (position: AccountOutput) => {
-
-            // If object is null, then skip!
-            if (!includedMints.has(position.mintA.toString())) {
-                totalPortfolioValue += position.amountA.uiAmount!;
-            }
-            if (!includedMints.has(position.mintB.toString())) {
-                totalPortfolioValue += position.amountB.uiAmount!;
-            }
-
-            includedMints.add(position.mintA.toString());
-            includedMints.add(position.mintB.toString());
-
-
-            const stableSwapState = await portfolioObject!.getPoolState(position.poolAddress);
-            const {state} = stableSwapState;
-
-            // Get Reserve A
-            console.log("Token account address is: ", state.tokenA.reserve);
-            let amountReserveA = (await connection!.getTokenAccountBalance(state.tokenA.reserve)).value.uiAmount;
-            // Get Reserve B
-            console.log("Token account address is: ", state.tokenA.reserve);
-            let amountReserveB = (await connection!.getTokenAccountBalance(state.tokenB.reserve)).value.uiAmount;
-
-            if (!amountReserveA || !amountReserveB) {
-                throw Error("One of the reserve values is null!" + String(amountReserveA) + " " +  String(amountReserveB));
-            }
-            let supplyLpToken = (await connection!.getTokenSupply(state.poolTokenMint)).value.uiAmount;
-            // Get guys' LP tokens
-            let amountUserLp = position.amountLp.uiAmount;
-
-            if (!supplyLpToken) {
-                throw Error("One of the LP information values is null or zero!" + String(supplyLpToken));
-            }
-            // This case is totall fine, actually
-            if ((!amountUserLp) && ((amountUserLp != 0))) {
-                throw Error("One of the LP information values is null or zero!" + String(amountUserLp));
-            }
-
-            // I guess we can assume that the pools are unique ...
-            // Calculate the exchange rate between lp tokens, and the total reserve values
-            let poolContentsInUsdc = amountReserveA + amountReserveB;
-            let exchangeRate = poolContentsInUsdc / supplyLpToken;
-            let usdValueUserLp = amountUserLp * exchangeRate;
-            totalPortfolioValue += usdValueUserLp;
-
-        }));
-
-        // usdcResponses.map((x) => {
-        //
-        //     // TODO: Gotta calculate this the hard way again, while including a set operation ...
-        //     // let includedMints: Set<string> = new Set();
-        //
-        //
-        //     totalPortfolioValue += x.totalPositionValue;
-        // })
-        setTotalPortfolioValueUsd(totalPortfolioValue);
+        console.log("#useEffect calculateAllUsdcValues");
+        if (userAccount && portfolioObject) {
+            let { storedPositions, usdAmount, storedPositionUsdcAmounts } = await portfolioObject.getPortfolioUsdcValue();
+            setPositionValuesInUsd(storedPositionUsdcAmounts);
+            setTotalPortfolioValueUsd(usdAmount);
+            setPositionInfos(storedPositions);
+        }
+        console.log("##useEffect calculateAllUsdcValues");
     }
 
     const initializeQPoolsStatsTool = () => {
-        console.log("InitializeQPoolsStatsTool");
+        console.log("#InitializeQPoolsStatsTool");
         console.log("Cluster URL is: ", String(process.env.NEXT_PUBLIC_CLUSTER_URL));
         let _connection: Connection = getConnectionString();
         let _currencyMint = new Token(
@@ -268,21 +212,18 @@ export function QPoolsProvider(props: any) {
             // new PublicKey("HdWi7ZAt1tmWaMJgH37DMqAMqBwjzt56CtiKELBZotrc"),
             airdropAdmin
         );
-        let newQpoolsStates = new QPoolsStats(_connection, _currencyMint);
-        console.log("Setting the qpools stats newly, ", newQpoolsStates);
 
         // All the setters
         setConnection(_connection);
         setCurrencyMint(_currencyMint);
-        setQPoolsStats(newQpoolsStates);
         // Wait for setter to kick in
         delay(1000);
-        return;
+        console.log("##InitializeQPoolsStatsTool");
     }
 
     // Make a creator that loads the qPoolObject if it not created yet
     const initializeQPoolsUserTool = async (walletContext: any) => {
-
+        console.log("#initializeQPoolsUserTool");
         console.log("Cluster URL is: ", String(process.env.NEXT_PUBLIC_CLUSTER_URL));
         let _connection: Connection = getConnectionString();
         const _provider = new anchor.Provider(_connection, walletContext, anchor.Provider.defaultOptions());
@@ -315,210 +256,17 @@ export function QPoolsProvider(props: any) {
         setDisplayPortfolio(() => newQpoolsDisplay);
 
         // Wait for the setState to take effect. I know this is hacky, but for now should suffice
-        await delay(800);
-
-    };
-
-    /**
-     * Right now, this is a very approximate value
-     * I would assume that the true function is a bit more involved.
-     */
-    const getUserUsdcForPosition = async (position: AccountOutput): Promise<UsdValuePosition> => {
-
-        // Get the pool
-        console.log("Pool addresses are: ", portfolioObject!.poolAddresses);
-        // Get the pool account
-        console.log("Pool account is: ", position.poolAddress);
-        // For the saber stableswap, get the stableswap states
-        const stableSwapState = await portfolioObject!.getPoolState(position.poolAddress);
-        const {state} = stableSwapState;
-
-        // Get Reserve A
-        console.log("Token account address is: ", state.tokenA.reserve);
-        let amountReserveA = (await connection!.getTokenAccountBalance(state.tokenA.reserve)).value.uiAmount;
-        // Get Reserve B
-        console.log("Token account address is: ", state.tokenA.reserve);
-        let amountReserveB = (await connection!.getTokenAccountBalance(state.tokenB.reserve)).value.uiAmount;
-
-        if (!amountReserveA || !amountReserveB) {
-            throw Error("One of the reserve values is null!" + String(amountReserveA) + " " +  String(amountReserveB));
-        }
-        // Convert Reserve A to it's USD value
-        // Convert Reserve B to it's USD value
-        // Convert to the USD currency (We can skip this step because we focus on USD stablecoins for now..)
-
-        // Add these up, to get an idea of how much total value is in the pool
-        let poolContentsInUsdc = amountReserveA + amountReserveB;
-
-        // Now, get the total LP supply
-        // Get total LP supply
-        let supplyLpToken = (await connection!.getTokenSupply(state.poolTokenMint)).value.uiAmount;
-        // Get guys' LP tokens
-        let amountUserLp = position.amountLp.uiAmount;
-
-        if (!supplyLpToken) {
-            throw Error("One of the LP information values is null or zero!" + String(supplyLpToken));
-        }
-        // This case is totall fine, actually
-        if ((!amountUserLp) && ((amountUserLp != 0))) {
-            throw Error("One of the LP information values is null or zero!" + String(amountUserLp));
-        }
-
-        // Calculate the exchange rate between lp tokens, and the total reserve values
-        let exchangeRate = poolContentsInUsdc / supplyLpToken;
-        let usdValueUserLp = amountUserLp * exchangeRate;
-        console.log("User portfolio value is: ", usdValueUserLp);
-
-        // Also add the individual tokens held by that portfolio ...
-        // Finally, get the user's reserves
-        // Get Reserve A
-        console.log("Token account address is: ", state.tokenA.reserve);
-        let amountUserA = position.amountA.uiAmount;
-        // Get Reserve B
-        console.log("Token account address is: ", state.tokenB.reserve);
-        let amountUserB = position.amountB.uiAmount;
-
-        if ((!amountUserA && amountUserA != 0) || (!amountUserB && amountUserB != 0)) {
-            throw Error("One of the reserve values is null!" + String(amountUserA) + " " +  String(amountUserB));
-        }
-
-        // Also convert here to USD,
-        let usdValueUserA = amountUserA;
-        let usdValueUserB = amountUserB;
-
-        // We can skip this step, bcs again, we only use stablecoins for now
-        let userPositionValue = usdValueUserA + usdValueUserB + usdValueUserLp;
-
-        // Pick the one address, where the LP corresponds to
-        // Get the exchange rate of LP per USD Value
-        // Multiply guys' LP tokens by exchange rate
-
-        // TODO: Maybe also add information on the title of the pool, etc.
-        let out: UsdValuePosition = {
-            totalPositionValue: userPositionValue,
-            usdValueA: amountUserA,
-            usdValueB: amountUserB,
-            usdValueLp: usdValueUserLp
-        };
-        return out;
-    }
-
-    const getPortfolioInformation = async () => {
-        console.log("#getPortfolioInformation()");
-
-        if (
-            !connection ||
-            !userAccount ||
-            !portfolioObject ||
-            !portfolioObject ||
-            !qPoolsUser
-        ) {
-            console.log("Portfolio Object not loaded yet! Gotta make sure to load it first ...")
-        }
-
-        // Removing the fetch-portfolio is disturbing it
-        // If an error arises, then just return empty stuff
-        let portfolio;
-        try {
-            portfolio = await portfolioObject!.fetchPortfolio();
-            console.log("Portfolio is: ", portfolio);
-        } catch (e: any) {
-            console.log("ERROR: Portfolio could not be loaded");
-            console.log(JSON.stringify(e));
-            return;
-        }
-        let positions;
-        try {
-            positions = await portfolioObject!.fetchAllPositions();
-        } catch (e: any) {
-            console.log("ERROR: Positions could not be loaded");
-            console.log(JSON.stringify(e));
-            return;
-        }
-
-        let allAmounts = await Promise.all(positions.map(async (position: any, index: number): Promise<AccountOutput> => {
-
-            // From the position, infer all the rest of items ...
-
-
-
-            // TODO: Also include the case where you have excess tokens
-
-            // Get all the positions (perhaps combine this in a single get statement at some point
-            let tokenAAmount = (await connection!.getTokenAccountBalance(position.ownerTokenAccountA)).value;
-            let tokenBAmount = (await connection!.getTokenAccountBalance(position.ownerTokenAccountB)).value;
-            let tokenLPAmount = (await connection!.getTokenAccountBalance(position.ownerTokenAccountLp)).value;
-
-            // Also add pool address to this
-            // Perhaps also get the stableswap state ? Probably cleaner if we get this in retrospect
-            return {
-                index: index,
-                poolAddress: portfolioObject!.poolAddresses[index],
-                owner: position.owner,
-                // portfolio: portfolioPDA,
-                positionPda: position.poolPda,
-                mintA: position.mintA,
-                ataA: position.ownerTokenAccountA,
-                amountA: tokenAAmount,
-                mintB: position.mintB,
-                ataB: position.ownerTokenAccountB,
-                amountB: tokenBAmount,
-                mintLp: position.mintLp,
-                ataLp: position.ownerTokenAccountLp,
-                amountLp: tokenLPAmount
-            }
-
-        }));
-
-        console.log("All fetched data is: ");
-        allAmounts = allAmounts.sort((a: AccountOutput, b: AccountOutput) => {
-            return Number(a.ataLp.toBytes());
-        })
-        console.log("All elements are: ");
-        allAmounts.forEach((x: any) => {
-            console.log(x);
-        });
-
-        console.log("Setting allocated accounts: ", allAmounts);
-        setAllocatedAccounts(allAmounts);
-
-        // Calculate total sum of items
-        // From all accounts except the LP accounts, Collect the amounts
-        let usdAmount = 0.;
-        // TODO: This set things is not quite working!!!
-        let includedMints: Set<string> = new Set();
-        allAmounts.map((position) => {
-
-            // TODO: Gotta skip Mint's that have been added already.
-            //  gotta create a set here and skip mints that have already counted towards the balance!
-
-            // If object is null, then skip!
-            if (!includedMints.has(position.mintA.toString())) {
-                usdAmount += position.amountA.uiAmount!;
-            }
-            if (!includedMints.has(position.mintB.toString())) {
-                usdAmount += position.amountB.uiAmount!;
-            }
-
-            includedMints.add(position.mintA.toString());
-            includedMints.add(position.mintB.toString());
-
-            // Find a way to convert the LP amount to the real amount!
-            // position.amountLp
-
-        });
-        console.log("##getPortfolioInformation()");
+        await delay(1000);
+        console.log("##initializeQPoolsUserTool");
     };
 
     const value: IQPool = {
-        qPoolsUser,
-        qPoolsStats,
         portfolioObject,
+        portfolioRatios,
+        positionInfos,
+        positionValuesInUsd,
         initializeQPoolsUserTool,
         initializeQPoolsStatsTool,
-        portfolioRatios,
-        allocatedAccounts,
-        positionValuesInUsd,
         totalPortfolioValueInUsd,
         displayPortfolio,
         connection,

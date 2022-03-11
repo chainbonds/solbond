@@ -2,9 +2,8 @@ import React, {useEffect, useState} from "react";
 import {PieChart, Pie, Cell} from "recharts";
 import axios from "axios";
 import {useLoad} from "../../contexts/LoadingContext";
-// import {registry} from "@qpools/sdk";
+import {registry} from "@qpools/sdk";
 import {AllocData} from "../../contexts/QPoolsProvider";
-import {getSerpiusEndpoint} from "../../../../../qPools-contract/qpools-sdk/lib/registry/registry-helper";
 import {Property} from "csstype";
 import All = Property.All;
 
@@ -86,7 +85,7 @@ export default function PortfolioChart(props: any) {
 
         loadContext.increaseCounter();
 
-        axios.get<any>(getSerpiusEndpoint()).then((response) => {
+        axios.get<any>(registry.getSerpiusEndpoint()).then((response) => {
             console.log("Here is the data :")
             console.log(typeof response.data)
             console.log(JSON.stringify(response.data))

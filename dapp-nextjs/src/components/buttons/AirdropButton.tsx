@@ -3,7 +3,7 @@ import {FaFly} from "react-icons/fa";
 import {useWallet} from "@solana/wallet-adapter-react";
 import {BN} from "@project-serum/anchor";
 import {IQPool, useQPoolUserTool} from "../../contexts/QPoolsProvider";
-import airdropAdmin from "@qpools/sdk/src/airdropAdmin";
+import airdropAdmin from "@qpools/sdk/src/devnet/airdropAdmin";
 import {Connection, Transaction} from "@solana/web3.js";
 import {Token, TOKEN_PROGRAM_ID} from "@solana/spl-token";
 import {useLoad} from "../../contexts/LoadingContext";

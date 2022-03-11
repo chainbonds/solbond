@@ -2,7 +2,7 @@ import {useEffect, useState} from "react";
 import {IQPool, useQPoolUserTool} from "../../contexts/QPoolsProvider";
 import {getAssociatedTokenAddressOffCurve} from "@qpools/sdk/lib/utils";
 import {PublicKey} from "@solana/web3.js";
-import {tokenAccountExists} from "../../../../../qPools-contract/qpools-sdk/src/utils";
+import {tokenAccountExists} from "@qpools/sdk";
 
 export default function UserInfoBalance() {
 
@@ -10,7 +10,7 @@ export default function UserInfoBalance() {
     const [currencyBalance, setCurrencyBalance] = useState<number>(0.);
 
     useEffect(() => {
-
+        console.log("#useEffect UserInfoBalance");
         if (qPoolContext.connection && qPoolContext.currencyMint && qPoolContext.userAccount) {
             // Get the associated token account
             console.log("Getting associated token account")
@@ -39,7 +39,8 @@ export default function UserInfoBalance() {
 
             })
         }
-    }, [qPoolContext.totalPortfolioValueInUsd, qPoolContext.userAccount, qPoolContext.allocatedAccounts, qPoolContext.reloadPriceSentinel]);
+        console.log("##useEffect UserInfoBalance");
+    }, [qPoolContext.totalPortfolioValueInUsd, qPoolContext.userAccount, qPoolContext.positionInfos, qPoolContext.reloadPriceSentinel]);
 
     return (
         <>
