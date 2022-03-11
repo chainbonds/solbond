@@ -168,20 +168,21 @@ export default function SinglePortfolioCard(props: any) {
         }));
         await itemLoadContext.incrementCounter();
 
-        await Promise.all(qPoolContext.portfolioObject!.poolAddresses.map(async (poolAddress: PublicKey, index: number) => {
-
-            const stableSwapState = await qPoolContext.portfolioObject!.getPoolState(poolAddress);
-            const {state} = stableSwapState;
-
-            let IxRedeemOneSideSaber = await qPoolContext.portfolioObject!.redeemSinglePositionOneSide(
-                index,
-                poolAddress,
-                state,
-                stableSwapState
-            );
-            tx.add(IxRedeemOneSideSaber);
-        }));
-        await itemLoadContext.incrementCounter();
+        // Put this together with sending USDC back ...
+        // await Promise.all(qPoolContext.portfolioObject!.poolAddresses.map(async (poolAddress: PublicKey, index: number) => {
+        //
+        //     const stableSwapState = await qPoolContext.portfolioObject!.getPoolState(poolAddress);
+        //     const {state} = stableSwapState;
+        //
+        //     let IxRedeemOneSideSaber = await qPoolContext.portfolioObject!.redeemSinglePositionOneSide(
+        //         index,
+        //         poolAddress,
+        //         state,
+        //         stableSwapState
+        //     );
+        //     tx.add(IxRedeemOneSideSaber);
+        // }));
+        // await itemLoadContext.incrementCounter();
 
         let IxSendUsdcFromPortfolioToUser = await qPoolContext.portfolioObject!.transferUsdcFromPortfolioToUser();
         tx.add(IxSendUsdcFromPortfolioToUser);

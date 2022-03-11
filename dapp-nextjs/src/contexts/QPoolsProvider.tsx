@@ -1,5 +1,5 @@
 import React, {useState, useContext, useEffect} from 'react';
-import {Provider} from "@project-serum/anchor";
+import {Provider, web3} from "@project-serum/anchor";
 import {clusterApiUrl, Connection, Keypair, PublicKey} from "@solana/web3.js";
 import {Token, TOKEN_PROGRAM_ID} from "@solana/spl-token";
 import * as anchor from "@project-serum/anchor";
@@ -16,8 +16,6 @@ import axios from "axios";
 import {UsdValuePosition} from "../types/UsdValuePosition";
 import {registry} from "@qpools/sdk";
 import {PositionInfo} from "@qpools/sdk";
-import {position} from "dom-helpers";
-import {Promise} from "es6-promise";
 
 export interface AllocData {
     lp: string,
@@ -43,6 +41,7 @@ export interface IQPool {
     userAccount: WalletI | undefined,
     currencyMint: Token | undefined,
     QPTokenMint: Token | undefined,
+    localTmpKeypair: Keypair | undefined,
 }
 
 const hardcodedApiResponse = [
@@ -83,6 +82,7 @@ const defaultValue: IQPool = {
     userAccount: undefined,
     currencyMint: undefined,
     QPTokenMint: undefined,
+    localTmpKeypair: undefined,
 }
 
 const QPoolContext = React.createContext<IQPool>(defaultValue);
@@ -144,6 +144,55 @@ export function QPoolsProvider(props: any) {
 
     const [portfolioRatios, setPortfolioRatios] = useState<AllocData[]>(hardcodedApiResponse);
 
+    const [localTmpKeypair, setLocalTmpKeypair] = useState<Keypair | undefined>();
+
+    /**
+     * At the beginning of running the app, generate a temporary keypair
+     * This keypair will never hold any SOL above 0.02
+     *
+     * It will be used to run the cranks from the client-side
+     * It can also be used to make get-requests (because providers require to have a keypair provided)
+     *
+     * Saving and retrieving base64 string according to
+     * https://stackoverflow.com/questions/12710001/how-to-convert-uint8-array-to-base64-encoded-string
+     */
+    useEffect(() => {
+
+        // Load Keypair from Local Storage
+        let tmpKeypairSecretKey: string | null = localStorage.getItem("tmpKeypairSecretKey");
+        if (!tmpKeypairSecretKey) {
+            console.log("Generating a new keypair!!");
+            console.log("This keypair will never hold more than 0.02 SOL, and this will also be used instantenously");
+            const tmpKeypair: Keypair = Keypair.generate();
+            setLocalTmpKeypair(tmpKeypair);
+            // Save it into localStorage
+            localStorage.setItem("tmpKeypairPublicKey", tmpKeypair.publicKey.toString());
+            // let dec = new TextDecoder();
+            // localStorage.setItem("tmpKeypairSecretKey", dec.decode(tmpKeypair.secretKey.buffer));
+            localStorage.setItem("tmpKeypairSecretKey", Buffer.from(tmpKeypair.secretKey).toString('base64'));
+
+        } else {
+            console.log("Loading keypair...");
+            // let enc = new TextEncoder();
+            setLocalTmpKeypair((_: any) => {
+                // let secretKeyUint8Array: Uint8Array = enc.encode(tmpKeypairSecretKey!);
+                let secretKeyUint8Array: Uint8Array = new Uint8Array(Buffer.from(tmpKeypairSecretKey!, 'base64'))
+                console.log("Secret key size is: ", secretKeyUint8Array);
+
+                // Remove the storage for now
+                // localStorage.removeItem("tmpKeypairSecretKey");
+                // localStorage.removeItem("tmpKeypairPublicKey");
+
+                return Keypair.fromSecretKey(secretKeyUint8Array);
+            })
+        }
+
+        console.log("Local keypair is: ");
+        console.log(tmpKeypairSecretKey);
+
+    }, [])
+
+
     /**
      * Somewhat legacy, will fix and clear these items at a later stage ...
      */
@@ -168,20 +217,9 @@ export function QPoolsProvider(props: any) {
         console.log("##useEffect getSerpiusEndpoint");
     }, []);
 
-    // useEffect(() => {
-    //     if (userAccount && portfolioObject) {
-    //         getPortfolioInformation();
-    //     }
-    // }, [userAccount, portfolioObject, reloadPriceSentinel]);
-
     useEffect(() => {
         calculateAllUsdcValues();
     }, [userAccount, positionInfos, reloadPriceSentinel]);
-
-    // const getPortfolioInformation = async () => {
-    //     let allPositions: PositionInfo[] = await portfolioObject!.getPortfolioInformation();
-    //     setPositionInfos(allPositions);
-    // }
 
     const makePriceReload = async () => {
         console.log("#useEffect makePriceReload");
@@ -276,7 +314,8 @@ export function QPoolsProvider(props: any) {
         currencyMint,
         QPTokenMint,
         makePriceReload,
-        reloadPriceSentinel
+        reloadPriceSentinel,
+        localTmpKeypair
     };
 
     return (
