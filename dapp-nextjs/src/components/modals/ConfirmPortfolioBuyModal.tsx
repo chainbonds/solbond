@@ -1,17 +1,14 @@
-import {Button, Modal} from 'react-bootstrap';
 import {Fragment, useEffect, useState} from "react";
 import {Dialog, Transition} from '@headlessui/react';
 import PortfolioChart from "../portfolio/PortfolioChart";
 import {useWallet} from "@solana/wallet-adapter-react";
-import {IQPool, useQPoolUserTool} from "../../contexts/QPoolsProvider";
+import {AllocData, IQPool, useQPoolUserTool} from "../../contexts/QPoolsProvider";
 import {useLoad} from "../../contexts/LoadingContext";
 import {BN} from "@project-serum/anchor";
-import {u64} from "@solana/spl-token";
 import {PublicKey, Transaction, TransactionInstruction} from "@solana/web3.js";
 import {sendAndConfirmTransaction} from "../../utils/utils";
 import {MOCK} from "@qpools/sdk";
 import {useItemsLoad} from "../../contexts/ItemsLoadingContext";
-import Error from "next/error";
 import {Promise} from "es6-promise";
 
 export default function ConfirmPortfolioBuyModal(props: any) {
@@ -39,15 +36,22 @@ export default function ConfirmPortfolioBuyModal(props: any) {
             return
         }
 
-        // Display a message "Portfolio created"!
-        props.onClose()
+        // Also make sure that the portfolio was loaded ...
+        if (!qPoolContext.portfolioRatios) {
+            alert("Please try again in a couple of seconds (We should really fix this error message)");
+            return
+        }
 
-        // await loadContext.increaseCounter();
+        if (!qPoolContext.portfolioRatios[0].pool) {
+            alert("Please try again in a couple of seconds (We should really fix this error message) 2");
+            return
+        }
 
         await itemLoadContext.addLoadItem({message: "Preparing Transaction"});
         await itemLoadContext.addLoadItem({message: "(Sign): Creating Associated Token Accounts"});
         await itemLoadContext.addLoadItem({message: "Sign: Create Portfolio & Send USDC"});
         await itemLoadContext.addLoadItem({message: "Sign: Register Portfolio & Pools"});
+        await itemLoadContext.addLoadItem({message: "Running cranks to distribute assets across liquidity pools..."});
 
 
         // Initialize if not initialized yet
@@ -56,7 +60,18 @@ export default function ConfirmPortfolioBuyModal(props: any) {
 
         console.log("Total amount in Usdc is: ", totalAmountInUsdc);
         const sendAmount: BN = new BN(totalAmountInUsdc).mul(new BN(10**MOCK.DEV.SABER_USDC_DECIMALS));
-        let weights: Array<BN> = [new BN(1000), new BN(0), new BN(0)];
+
+        // Again, these weights need to be retrieved from the Serpius API
+        let weights = qPoolContext.portfolioRatios
+            .filter((item: AllocData) => {return item.weight > 0})
+            .map((item: AllocData) => {return new BN(item.weight)});
+        let poolAddresses = qPoolContext.portfolioRatios
+            .filter((item: AllocData) => {return item.weight > 0})
+            .map((item: AllocData) => {return item.pool!.swap.config.swapAccount});
+
+        // Take the weights from the portfolio ratios ...
+        // let weights: Array<BN> = [new BN(1000), new BN(0), new BN(0)];
+        // TODO: Gotta normalize weights up to 1000
 
         /*
             List all instructions here first ...
@@ -91,7 +106,7 @@ export default function ConfirmPortfolioBuyModal(props: any) {
          */
         // Have a look at this; but this is still needed!
         let tx1: Transaction = new Transaction();
-        let ixList1: TransactionInstruction[] = await qPoolContext.portfolioObject!.registerAtaForLiquidityPortfolio();
+        let ixList1: TransactionInstruction[] = await qPoolContext.portfolioObject!.registerAtaForLiquidityPortfolio(poolAddresses);
         ixList1.map((x: TransactionInstruction) => {tx1.add(x)});
         if (tx1.instructions.length > 0) {
             console.log("Sending the first set of transactions!!");
@@ -115,7 +130,9 @@ export default function ConfirmPortfolioBuyModal(props: any) {
 
         console.log("Adding createPortfolioSigned");
         let IxCreatePortfolioPda: TransactionInstruction = await qPoolContext.portfolioObject!.createPortfolioSigned(
-            weights, sendAmount
+            weights,
+            poolAddresses,
+            sendAmount
         );
         tx.add(IxCreatePortfolioPda);
         console.log("Adding transferUsdcFromUserToPortfolio");
@@ -133,27 +150,11 @@ export default function ConfirmPortfolioBuyModal(props: any) {
         // Same for every pool
 
         // Calculate according to totalSendAmount
-        await Promise.all(qPoolContext.portfolioObject!.poolAddresses.map(async (poolAddress: PublicKey, index: number) => {
+        await Promise.all(poolAddresses.map(async (poolAddress: PublicKey, index: number) => {
 
             const stableSwapState = await qPoolContext.portfolioObject!.getPoolState(poolAddress);
             const {state} = stableSwapState;
 
-            // get the PortfolioATA for TokenA
-            // For the mintA, get the user's wallet balance
-            // let userAtaA = await qPoolContext.portfolioObject!.getAccountForMintAndPDADontCreate(
-            //     state.tokenA.mint,
-            //     user
-            //     // qPoolContext.portfolioObject!.portfolioPDA
-            // );
-            // // get the PortfolioATA for TokenB
-            // let userAtaB = await qPoolContext.portfolioObject!.getAccountForMintAndPDADontCreate(
-            //     state.tokenB.mint,
-            //
-            //     // qPoolContext.portfolioObject!.portfolioPDA
-            // );
-            //
-            // let amountA = new BN((await qPoolContext.connection!.getTokenAccountBalance(userAtaA)).value.amount);
-            // let amountB = new BN((await qPoolContext.connection!.getTokenAccountBalance(userAtaB)).value.amount);
             let amountA = new BN(0);
             let amountB = new BN(0);
 
@@ -179,15 +180,33 @@ export default function ConfirmPortfolioBuyModal(props: any) {
                 let weight = weights[index];
                 // denominator
                 let weightDenominator = weights.reduce((a, b) => {return a.add(b)}, new BN(0));
+                console.log("Weight denominator is: ", weightDenominator)
                 amountA = weight.mul(amountA).div(weightDenominator);
                 amountB = weight.mul(amountB).div(weightDenominator);
                 console.log("Amount after multiply weight is.. ", amountA.toString());
                 console.log("Amount after multiply weight is.. ", amountB.toString());
-                let IxApprovePositionWeightSaber = await qPoolContext.portfolioObject!.approvePositionWeightSaber(amountA, amountB, new BN(0), index, weight);
+                let IxApprovePositionWeightSaber = await qPoolContext.portfolioObject!.approvePositionWeightSaber(
+                    poolAddresses,
+                    amountA,
+                    amountB,
+                    new BN(0),
+                    index,
+                    weight
+                );
                 tx.add(IxApprovePositionWeightSaber);
             }
 
         }));
+
+        // Finally, send some funds to the local tmp keypair
+        // By default, just send some SOL
+        // For now, just send 0.1 SOL to the crank wallet. This should be enough.
+        // We can send this back, when the items are redeemed
+        let IxSendToCrankWallet = await qPoolContext.portfolioObject!.sendToCrankWallet(
+            qPoolContext.localTmpKeypair!.publicKey,
+            100_000_000
+        );
+        tx.add(IxSendToCrankWallet);
 
         // Now sign this transaction
         await sendAndConfirmTransaction(
@@ -196,6 +215,21 @@ export default function ConfirmPortfolioBuyModal(props: any) {
             tx,
             qPoolContext.userAccount!.publicKey
         );
+
+        // Now run cranks ...
+        // Get all positions that were created,
+        // Iterate through all
+        // And execute all of them ...
+        await Promise.all(poolAddresses.map(async (poolAddress: PublicKey, index: number) => {
+
+            // Get the maximum index of the positions,
+            // And for each of those, run the permissionless fulfill saber function
+            // Must have a new provider with the new keypair to run all the cranks ...
+            await qPoolContext.crankRpcTool!.permissionlessFulfillSaber(index);
+
+        }));
+
+
 
         // TODO: Pull all the cranks
 
@@ -224,6 +258,8 @@ export default function ConfirmPortfolioBuyModal(props: any) {
         // Now we will manually ask the user to sign the transaction to send it to the portfolio.
         // Later on, we need to write a crank for it, or for example introduce another button to make it into a crank
 
+        // Display a message "Portfolio created"!
+        props.onClose()
 
         // END OF Permissionless
 

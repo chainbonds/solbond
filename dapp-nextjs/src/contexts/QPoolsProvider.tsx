@@ -1,5 +1,5 @@
 import React, {useState, useContext, useEffect} from 'react';
-import {Provider, web3} from "@project-serum/anchor";
+import {Provider} from "@project-serum/anchor";
 import {clusterApiUrl, Connection, Keypair, PublicKey} from "@solana/web3.js";
 import {Token, TOKEN_PROGRAM_ID} from "@solana/spl-token";
 import * as anchor from "@project-serum/anchor";
@@ -15,13 +15,14 @@ import delay from "delay";
 import axios from "axios";
 import {UsdValuePosition} from "../types/UsdValuePosition";
 import {registry} from "@qpools/sdk";
-import {PositionInfo} from "@qpools/sdk";
+import {PositionInfo, CrankRpcCalls} from "@qpools/sdk";
 
 export interface AllocData {
     lp: string,
     weight: number,
     protocol: string,
-    apy_24h: number
+    apy_24h: number,
+    pool?: registry.ExplicitSaberPool
 };
 
 export interface IQPool {
@@ -42,6 +43,7 @@ export interface IQPool {
     currencyMint: Token | undefined,
     QPTokenMint: Token | undefined,
     localTmpKeypair: Keypair | undefined,
+    crankRpcTool: CrankRpcCalls | undefined,
 }
 
 const hardcodedApiResponse = [
@@ -83,6 +85,7 @@ const defaultValue: IQPool = {
     currencyMint: undefined,
     QPTokenMint: undefined,
     localTmpKeypair: undefined,
+    crankRpcTool: undefined
 }
 
 const QPoolContext = React.createContext<IQPool>(defaultValue);
@@ -145,6 +148,7 @@ export function QPoolsProvider(props: any) {
     const [portfolioRatios, setPortfolioRatios] = useState<AllocData[]>(hardcodedApiResponse);
 
     const [localTmpKeypair, setLocalTmpKeypair] = useState<Keypair | undefined>();
+    const [crankRpcTool, setCrankRpcTool] = useState<CrankRpcCalls | undefined>();
 
     /**
      * At the beginning of running the app, generate a temporary keypair
@@ -155,6 +159,7 @@ export function QPoolsProvider(props: any) {
      *
      * Saving and retrieving base64 string according to
      * https://stackoverflow.com/questions/12710001/how-to-convert-uint8-array-to-base64-encoded-string
+     *
      */
     useEffect(() => {
 
@@ -167,22 +172,12 @@ export function QPoolsProvider(props: any) {
             setLocalTmpKeypair(tmpKeypair);
             // Save it into localStorage
             localStorage.setItem("tmpKeypairPublicKey", tmpKeypair.publicKey.toString());
-            // let dec = new TextDecoder();
-            // localStorage.setItem("tmpKeypairSecretKey", dec.decode(tmpKeypair.secretKey.buffer));
             localStorage.setItem("tmpKeypairSecretKey", Buffer.from(tmpKeypair.secretKey).toString('base64'));
-
         } else {
             console.log("Loading keypair...");
-            // let enc = new TextEncoder();
             setLocalTmpKeypair((_: any) => {
-                // let secretKeyUint8Array: Uint8Array = enc.encode(tmpKeypairSecretKey!);
                 let secretKeyUint8Array: Uint8Array = new Uint8Array(Buffer.from(tmpKeypairSecretKey!, 'base64'))
                 console.log("Secret key size is: ", secretKeyUint8Array);
-
-                // Remove the storage for now
-                // localStorage.removeItem("tmpKeypairSecretKey");
-                // localStorage.removeItem("tmpKeypairPublicKey");
-
                 return Keypair.fromSecretKey(secretKeyUint8Array);
             })
         }
@@ -190,7 +185,24 @@ export function QPoolsProvider(props: any) {
         console.log("Local keypair is: ");
         console.log(tmpKeypairSecretKey);
 
-    }, [])
+    }, []);
+
+    /**
+     * Everytime ther is a change in the Keypair, create a
+     */
+    useEffect(() => {
+        if (localTmpKeypair && connection && provider) {
+            setCrankRpcTool((_: any) => {
+                let crankRpcCalls = new CrankRpcCalls(
+                    connection!,
+                    localTmpKeypair!,
+                    provider!,
+                    _solbondProgram!
+                );
+                return crankRpcCalls;
+            });
+        }
+    }, [localTmpKeypair, connection, provider]);
 
 
     /**
@@ -198,23 +210,54 @@ export function QPoolsProvider(props: any) {
      */
 
     // Provider to get the JSON code ..
+    // Function to load and store the serpius data
+    const fetchAndParseSerpiusEndpoint = async () => {
+            console.log("#useEffect getSerpiusEndpoint");
+            console.log("Loading the weights");
+            let response = await axios.get<any>(registry.getSerpiusEndpoint());
 
-    useEffect(() => {
-        console.log("#useEffect getSerpiusEndpoint");
-        console.log("Loading the weights");
-        axios.get<any>(registry.getSerpiusEndpoint()).then((response) => {
             console.log("Here is the data :");
             console.log(typeof response.data);
             console.log(JSON.stringify(response.data));
+            console.log("Next!?");
+
             if ("opt_port" in response.data) {
+                console.log("Trying to get the data ...");
+                console.log("response.data", response.data);
+                console.log("response.data.opt_port", response.data["opt_port"]);
+                console.log("Now loading again ...")
                 let data: AllocData[] = response.data["opt_port"];
-                setPortfolioRatios(data);
+                console.log("After..");
+                // setPortfolioRatios(data);
+                console.log("(2) Data and type is: ", typeof data, data);
+
+                // Fetch the additional token account for each data item in AllocData
+                setPortfolioRatios((_: AllocData[]) => {
+
+                    // Now add the information about the ExplicitSaberPool into it as well
+                    let newData = data.map((dataItem: AllocData) => {
+                        dataItem.pool = registry.getPoolFromSplStringId(dataItem.lp);
+                        return dataItem;
+                    });
+
+                    console.log("Returning new data to be: ", newData);
+                    return newData
+                });
+            } else {
+                console.log("opt port not found in data!");
             }
 
-        }).catch((error) => {
-            console.log(error)
-        })
-        console.log("##useEffect getSerpiusEndpoint");
+            // From the Serpius Endpoints, Gather the respective Pool Accounts by from the unique identifier
+            // User should be able to add more tokens from a saerch dropdown
+
+            // .catch((error) => {
+            //     console.log(error);
+            // })
+            console.log("##useEffect getSerpiusEndpoint");
+    }
+
+    useEffect(() => {
+        fetchAndParseSerpiusEndpoint();
     }, []);
 
     useEffect(() => {
@@ -315,7 +358,8 @@ export function QPoolsProvider(props: any) {
         QPTokenMint,
         makePriceReload,
         reloadPriceSentinel,
-        localTmpKeypair
+        localTmpKeypair,
+        crankRpcTool
     };
 
     return (

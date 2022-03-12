@@ -3,12 +3,13 @@ import {PieChart, Pie, Cell} from "recharts";
 import axios from "axios";
 import {useLoad} from "../../contexts/LoadingContext";
 import {registry} from "@qpools/sdk";
-import {AllocData} from "../../contexts/QPoolsProvider";
+import {AllocData, IQPool, useQPoolUserTool} from "../../contexts/QPoolsProvider";
 import {Property} from "csstype";
 import All = Property.All;
 
 export default function PortfolioChart(props: any) {
 
+    const qPoolContext: IQPool = useQPoolUserTool();
     const loadContext = useLoad();
 
     const COLORS = [
@@ -58,17 +59,18 @@ export default function PortfolioChart(props: any) {
     ])
 
     // Just run a loop where you update TVL every couple times
-    const [ratios, setRatios] = useState<AllocData[]>([
-        {
-            "lp": "JSOL-SOL", "weight": 1000, "protocol": "Saber", "apy_24h": 0.
-        },
-        {
-            "lp": "HBTC-renBTC", "weight": 1000, "protocol": "Saber", "apy_24h": 0.
-        },
-        {
-            "lp": "eSOL-SOL", "weight": 1000, "protocol": "Saber", "apy_24h": 0.
-        }
-    ]);
+    // [
+    // {
+    //     "lp": "JSOL-SOL", "weight": 1000, "protocol": "Saber", "apy_24h": 0.
+    // },
+    //     {
+    //         "lp": "HBTC-renBTC", "weight": 1000, "protocol": "Saber", "apy_24h": 0.
+    //     },
+    //     {
+    //         "lp": "eSOL-SOL", "weight": 1000, "protocol": "Saber", "apy_24h": 0.
+    //     }
+    // ]
+    const [ratios, setRatios] = useState<AllocData[] | null>(null);
 
     const [totalAmountInUsdc, setTotalAmountInUsdc] = useState<number>(0.);
     useEffect(() => {
@@ -80,27 +82,51 @@ export default function PortfolioChart(props: any) {
         }
     }, [props.totalAmountInUsdc]);
 
-    useEffect(() => {
-        console.log("Loading the weights");
-
-        loadContext.increaseCounter();
-
-        axios.get<any>(registry.getSerpiusEndpoint()).then((response) => {
-            console.log("Here is the data :")
-            console.log(typeof response.data)
-            console.log(JSON.stringify(response.data))
-
-            if ("opt_port" in response.data) {
-                let data: AllocData[] = response.data["opt_port"];
-                setRatios(data);
+    // Maybe set loading until we are able to read the serpius API
+    const keepLoading = async () => {
+        while (true) {
+            if (!ratios) {
+                await setTimeout(() => {}, 500);
+            } else {
+                loadContext.decreaseCounter();
+                break
             }
+        }
+    }
 
-            loadContext.decreaseCounter();
-        }).catch((error) => {
-            console.log(error);
-            loadContext.decreaseCounter();
-        })
+    useEffect(() => {
+        loadContext.increaseCounter();
+        keepLoading();
     }, []);
+
+
+    useEffect(() => {
+        setRatios((_: AllocData[] | null) => {
+            return qPoolContext.portfolioRatios!;
+        });
+    }, [qPoolContext.portfolioRatios]);
+
+    // useEffect(() => {
+    //     console.log("Loading the weights");
+    //
+    //     loadContext.increaseCounter();
+    //
+    //     axios.get<any>(registry.getSerpiusEndpoint()).then((response) => {
+    //         console.log("Here is the data :")
+    //         console.log(typeof response.data)
+    //         console.log(JSON.stringify(response.data))
+    //
+    //         if ("opt_port" in response.data) {
+    //             let data: AllocData[] = response.data["opt_port"];
+    //             setRatios(data);
+    //         }
+    //
+    //         loadContext.decreaseCounter();
+    //     }).catch((error) => {
+    //         console.log(error);
+    //         loadContext.decreaseCounter();
+    //     })
+    // }, []);
 
     useEffect(() => {
         if (!ratios) return;
