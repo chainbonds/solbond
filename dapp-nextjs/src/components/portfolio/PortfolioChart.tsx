@@ -1,11 +1,7 @@
 import React, {useEffect, useState} from "react";
 import {PieChart, Pie, Cell} from "recharts";
-import axios from "axios";
 import {useLoad} from "../../contexts/LoadingContext";
-import {registry} from "@qpools/sdk";
 import {AllocData, IQPool, useQPoolUserTool} from "../../contexts/QPoolsProvider";
-import {Property} from "csstype";
-import All = Property.All;
 
 export default function PortfolioChart(props: any) {
 
@@ -83,23 +79,6 @@ export default function PortfolioChart(props: any) {
     }, [props.totalAmountInUsdc]);
 
     // Maybe set loading until we are able to read the serpius API
-    const keepLoading = async () => {
-        while (true) {
-            if (!ratios) {
-                await setTimeout(() => {}, 500);
-            } else {
-                loadContext.decreaseCounter();
-                break
-            }
-        }
-    }
-
-    useEffect(() => {
-        loadContext.increaseCounter();
-        keepLoading();
-    }, []);
-
-
     useEffect(() => {
         setRatios((_: AllocData[] | null) => {
             return qPoolContext.portfolioRatios!;
@@ -145,6 +124,7 @@ export default function PortfolioChart(props: any) {
                 });
             }
         )
+
     }, [ratios]);
 
     const singleRow = (row: any, index: number) => {

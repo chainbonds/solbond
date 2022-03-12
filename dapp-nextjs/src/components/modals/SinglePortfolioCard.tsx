@@ -1,5 +1,5 @@
 import React, {Fragment, useRef} from "react";
-import {IQPool, useQPoolUserTool} from "../../contexts/QPoolsProvider";
+import {AllocData, IQPool, useQPoolUserTool} from "../../contexts/QPoolsProvider";
 import {PublicKey, Transaction, TransactionInstruction} from "@solana/web3.js";
 import {sendAndConfirmTransaction, shortenedAddressString, solscanLink} from "../../utils/utils";
 import {Dialog, Transition} from "@headlessui/react";
@@ -8,7 +8,6 @@ import Image from "next/image";
 import {registry} from "@qpools/sdk";
 import {PortfolioAccount} from "@qpools/sdk";
 import {useItemsLoad} from "../../contexts/ItemsLoadingContext";
-import stringify from "fast-safe-stringify";
 import {PositionInfo} from "@qpools/sdk";
 
 
@@ -132,6 +131,12 @@ export default function SinglePortfolioCard(props: any) {
         await itemLoadContext.addLoadItem({message: "Redeeming Positions"});
         await itemLoadContext.addLoadItem({message: "Transferring USDC Back to Your Wallet"});
 
+        // Again, these weights need to be retrieved from the Serpius API
+        // TODO: Get all poolAddresses by querying all existent positions
+        // let poolAddresses = qPoolContext.portfolioRatios
+        //     .filter((item: AllocData) => {return item.weight > 0})
+        //     .map((item: AllocData) => {return item.pool!.swap.config.swapAccount});
+
         /**
          * Withdraw a Portfolio workflow:
          * 1) approve_withdraw_to_user(ctx,amount_total):
@@ -160,13 +165,14 @@ export default function SinglePortfolioCard(props: any) {
         tx.add(IxApproveWithdraw);
         await itemLoadContext.incrementCounter();
 
-        await Promise.all(qPoolContext.portfolioObject!.poolAddresses.map(async (poolAddress: PublicKey, index: number) => {
-
-            // Get as much as the position permits to be taken lol
-            let IxApproveWithdrawSaber = await qPoolContext.portfolioObject!.approveWithdrawAmountSaber(index);
-            tx.add(IxApproveWithdrawSaber);
-        }));
-        await itemLoadContext.incrementCounter();
+        // TODO: Replace these lines since the newest addition
+        // await Promise.all(qPoolContext.portfolioObject!.poolAddresses.map(async (poolAddress: PublicKey, index: number) => {
+        //
+        //     // Get as much as the position permits to be taken lol
+        //     let IxApproveWithdrawSaber = await qPoolContext.portfolioObject!.approveWithdrawAmountSaber(index);
+        //     tx.add(IxApproveWithdrawSaber);
+        // }));
+        // await itemLoadContext.incrementCounter();
 
         // Put this together with sending USDC back ...
         // await Promise.all(qPoolContext.portfolioObject!.poolAddresses.map(async (poolAddress: PublicKey, index: number) => {
@@ -195,96 +201,6 @@ export default function SinglePortfolioCard(props: any) {
         );
         await itemLoadContext.incrementCounter();
 
-
-
-
-
-
-
-
-        // BEGIN BEFORE 1 TRANSACTION
-
-        // Again, chain transactions together ..
-        // (await qPoolContext.portfolioObject!.redeemFullPortfolio()).map((x: TransactionInstruction) => {
-        //     tx1.add(x);
-        // });
-        // // Gotta check if all these transactions work when pushed into one Transaction
-        // await sendAndConfirmTransaction(
-        //     qPoolContext._solbondProgram!.provider,
-        //     qPoolContext.connection!,
-        //     tx1,
-        //     qPoolContext.userAccount!.publicKey
-        // );
-        // await itemLoadContext.incrementCounter();
-        //
-        // tx2.add(
-        //     await qPoolContext.portfolioObject!.transferUsdcFromPortfolioToUser()
-        // );
-        // await sendAndConfirmTransaction(
-        //     qPoolContext._solbondProgram!.provider,
-        //     qPoolContext.connection!,
-        //     tx2,
-        //     qPoolContext.userAccount!.publicKey
-        // );
-        // await itemLoadContext.incrementCounter();
-
-        // END BEFORE 1 TRANSACTION
-
-
-        // Inject these somehow, once per pool!
-        // let amount_a = (await this.connection.getTokenAccountBalance(userAccountA)).value.amount;
-        // let amount_b = (await this.connection.getTokenAccountBalance(userAccountB)).value.amount;
-
-        // Don't overoptimize these too much just yet ...
-
-        // Loader, should register all the items that we're gonna go through ..
-        // itemLoadContext.addLoadItem({message: "Creating Associated Token Accounts"});
-        // itemLoadContext.addLoadItem({message: "Depositing USDC to the Portfolio"});
-        // itemLoadContext.addLoadItem({message: "Distributing the Portfolio across the liquidity pools (1)"});
-        // itemLoadContext.addLoadItem({message: "Distributing the Portfolio across the liquidity pools (2)"});
-
-        // Be smarter about the way you split up the transactions into multiple parts ...
-
-        // Collect all transactions
-        // Can be dynamic, especially if we have more than 3 assets later
-
-
-        // Now do some optimized portfolio sending ...
-        // let numberIxs = allTxIxs.length;
-        // let tx0 = new Transaction();
-        // allTxIxs.slice(0, 2).map((x) => tx0.add(x));
-        // let tx1 = new Transaction();
-        // allTxIxs.slice(2, numberIxs).map((x) => tx1.add(x));
-
-        // Split up the transactions, and
-        // Redeem the full portfolio
-        // Finally, also add the instruction to transfer to the user ...
-        // await sendAndConfirmTransaction(
-        //     qPoolContext._solbondProgram!.provider,
-        //     qPoolContext.connection!,
-        //     tx0,
-        //     qPoolContext.userAccount!.publicKey
-        // );
-        // // itemLoadContext.incrementCounter();
-        //
-        // await sendAndConfirmTransaction(
-        //     qPoolContext._solbondProgram!.provider,
-        //     qPoolContext.connection!,
-        //     tx1,
-        //     qPoolContext.userAccount!.publicKey
-        // );
-        // // itemLoadContext.incrementCounter();
-        //
-        // let tx2 = new Transaction();
-        // tx2.add(await qPoolContext.portfolioObject!.transferUsdcFromPortfolioToUser());
-        // await sendAndConfirmTransaction(
-        //     qPoolContext._solbondProgram!.provider,
-        //     qPoolContext.connection!,
-        //     tx2,
-        //     qPoolContext.userAccount!.publicKey
-        // );
-        // // itemLoadContext.incrementCounter();
-        // // itemLoadContext.resetCounter();
 
         // Make reload
         await qPoolContext.makePriceReload();
