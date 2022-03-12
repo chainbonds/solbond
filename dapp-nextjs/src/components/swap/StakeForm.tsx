@@ -8,6 +8,8 @@ import {IQPool, useQPoolUserTool} from "../../contexts/QPoolsProvider";
 import {WalletMultiButton} from "@solana/wallet-adapter-react-ui";
 import UserInfoBalance from "../displays/UserInfoBalance";
 import ConfirmPortfolioBuyModal from "../modals/ConfirmPortfolioBuyModal";
+import OnramperModal from "../modals/OnramperModal";
+
 
 export default function StakeForm() {
 
@@ -17,6 +19,7 @@ export default function StakeForm() {
 
     const [valueInUsdc, setValueInUsdc] = useState<number>(0.);
     const [displayBuyModal, setDisplayBuyModal] = useState<boolean>(false);
+    const [displayOnramperModal, setDisplayOnramperModal] = useState<boolean>(false);
 
     useEffect(() => {
         console.log("Value in USDC changes", valueInUsdc);
@@ -38,6 +41,16 @@ export default function StakeForm() {
                 }}
                 valueInUsdc={valueInUsdc}
             />
+
+            <OnramperModal
+                isOpen={displayOnramperModal}
+                onClose={() => {
+                    setDisplayOnramperModal(false)
+                }}
+                valueInUsdc={valueInUsdc}
+            />
+            
+            
             <div className="">
                 <div className="">
                         <div className="pt-5 pb-2 bg-slate-800 bg-gray">

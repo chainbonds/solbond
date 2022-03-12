@@ -3,7 +3,7 @@ import {IQPool, useQPoolUserTool} from "../../contexts/QPoolsProvider";
 import {getAssociatedTokenAddressOffCurve} from "@qpools/sdk/lib/utils";
 import {PublicKey} from "@solana/web3.js";
 // import {tokenAccountExists} from "../../../../../qPools-contract/qpools-sdk/src/utils";
-import {tokenAccountExists} from "@qpools/sdk";
+import {tokenAccountExists, registry} from "@qpools/sdk";
 
 export default function UserInfoBalance() {
 
@@ -41,6 +41,27 @@ export default function UserInfoBalance() {
             })
         }
     }, [qPoolContext.totalPortfolioValueInUsd, qPoolContext.userAccount, qPoolContext.allocatedAccounts, qPoolContext.reloadPriceSentinel]);
+    
+    /*
+        //this was being written for the recommendation of the amount that a user should buy in order to pay less swap fees.
+        const getUsdcBalance = async () => {
+        if (qPoolContext.connection && qPoolContext.currencyMint && qPoolContext.userAccount) {
+
+            let mintList : {symbol : string, address : PublicKey}[] = registry.getSearchableTokensInWallet()
+            let existingCurrencies
+            for (var val of mintList) {
+                let userCurrencyAta = await getAssociatedTokenAddressOffCurve(
+                    val.address, qPoolContext.userAccount.publicKey
+                )
+
+                tokenAccountExists(qPoolContext.connection!, userCurrencyAta
+                console.log(val); // prints values: 10, 20, 30, 40
+            }
+
+
+
+        }
+    }*/
 
     return (
         <>
