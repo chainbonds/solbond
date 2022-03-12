@@ -1,6 +1,6 @@
 import React, {FC} from "react";
 import {FaBroom} from "react-icons/fa";
-import {IQPool, useQPoolUserTool} from "../../contexts/QPoolsProvider";
+import {AllocData, IQPool, useQPoolUserTool} from "../../contexts/QPoolsProvider";
 import {useLoad} from "../../contexts/LoadingContext";
 import {PortfolioAccount} from "@qpools/sdk";
 
@@ -13,15 +13,22 @@ export const RunCrankButton: FC = ({}) => {
     const airdropCurrency = async () => {
         console.log("Requesting airdrop...");
 
-        if (!qPoolContext.userAccount || !qPoolContext.userAccount!.publicKey || !qPoolContext.crankRpcTool ) {
+        if (!qPoolContext.userAccount || !qPoolContext.userAccount!.publicKey || !qPoolContext.crankRpcTool || !qPoolContext.crankRpcTool.solbondProgram ) {
             alert("Please connect your wallet first!");
             return
         }
-        await loadContext.increaseCounter();
-        let portfolio: PortfolioAccount = await qPoolContext.portfolioObject!.fetchPortfolio();
-        for (let index = 0; index < portfolio.numPositions; index++) {
-            await qPoolContext.crankRpcTool!.permissionlessFulfillSaber(index);
+        // Also make sure that the portfolio was loaded ...
+        if (!qPoolContext.portfolioRatios) {
+            alert("Please try again in a couple of seconds (We should really fix this error message)");
+            return
         }
+        if (!qPoolContext.portfolioRatios[0].pool) {
+            alert("Please try again in a couple of seconds (We should really fix this error message) 2");
+            return
+        }
+
+        await loadContext.increaseCounter();
+        await qPoolContext.crankRpcTool!.fullfillAllPermissionless();
         await loadContext.decreaseCounter();
     };
 

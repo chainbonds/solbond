@@ -59,12 +59,12 @@ export default function ConfirmPortfolioBuyModal(props: any) {
         const sendAmount: BN = new BN(totalAmountInUsdc).mul(new BN(10**MOCK.DEV.SABER_USDC_DECIMALS));
 
         // Again, these weights need to be retrieved from the Serpius API
-        let weights = qPoolContext.portfolioRatios
+        let weights: BN[] = qPoolContext.portfolioRatios
             .filter((item: AllocData) => {return item.weight > 0})
             .map((item: AllocData) => {return new BN(item.weight)});
-        let poolAddresses = qPoolContext.portfolioRatios
+        let poolAddresses: PublicKey[] = qPoolContext.portfolioRatios
             .filter((item: AllocData) => {return item.weight > 0})
-            .map((item: AllocData) => {return item.pool!.swap.config.swapAccount});
+            .map((item: AllocData) => {return new PublicKey(item.pool!.swap.config.swapAccount)});
 
         // TODO: Gotta normalize weights up to 1000
         /**
@@ -126,9 +126,6 @@ export default function ConfirmPortfolioBuyModal(props: any) {
         tx.add(IxSendUsdcToPortfolio);
         await itemLoadContext.incrementCounter();
 
-        /**
-         *
-         */
         console.log("Other instructions ...");
         // TODO: Gotta double-check if A or B is the right one
         // Get the user's complete tokenA, and do tokenA times weight to be deposited here
@@ -147,9 +144,9 @@ export default function ConfirmPortfolioBuyModal(props: any) {
             // Now make an if-else, based on which mintA or mintB corresponds to the USDC
             if ((new PublicKey(MOCK.DEV.SABER_USDC)).equals(state.tokenA.mint)) {
                 // On a separate occasion, check if the sendAmount is higher than the max amount, etc.
-                amountB = sendAmount;
-            } else if ((new PublicKey(MOCK.DEV.SABER_USDC)).equals(state.tokenB.mint)) {
                 amountA = sendAmount;
+            } else if ((new PublicKey(MOCK.DEV.SABER_USDC)).equals(state.tokenB.mint)) {
+                amountB = sendAmount;
             } else {
                 console.log('Saber USDC does not correspond to either entity!');
                 return
@@ -202,17 +199,27 @@ export default function ConfirmPortfolioBuyModal(props: any) {
             qPoolContext.userAccount!.publicKey
         );
 
+        // TODO: Should be taken from positions, not from the saved list!
+        // Perhaps you should encapsulate all this logic in a separate "run-all-cranks" function
         // Now run cranks. Get all positions that were created. Iterate through all. And execute all of them.
-        await Promise.all(poolAddresses.map(async (poolAddress: PublicKey, index: number) => {
-
-            // Get the maximum index of the positions,
-            // And for each of those, run the permissionless fulfill saber function
-            // Must have a new provider with the new keypair to run all the cranks ...
-            await qPoolContext.crankRpcTool!.permissionlessFulfillSaber(index);
-
-        }));
-
+        // positionAccount
         await itemLoadContext.incrementCounter();
+        await qPoolContext.crankRpcTool!.fullfillAllPermissionless();
+        let tmpWalletBalance: number = await qPoolContext.connection!.getBalance(qPoolContext.localTmpKeypair!.publicKey);
+        let ix = await qPoolContext.crankRpcTool!.sendToUsersWallet(
+            qPoolContext.localTmpKeypair!.publicKey,
+            tmpWalletBalance
+        );
+        let tx2 = new Transaction();
+        tx2.add(ix);
+        await sendAndConfirmTransaction(
+            qPoolContext.crankRpcTool!.crankProvider,
+            qPoolContext.connection!,
+            tx2,
+            qPoolContext.userAccount!.publicKey
+        );
+        await itemLoadContext.incrementCounter();
+        // Add another Counter "running cranks"
         await qPoolContext.makePriceReload();
 
         // TODO: Display a message "Portfolio created"!
