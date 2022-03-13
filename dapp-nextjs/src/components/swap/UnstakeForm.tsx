@@ -73,31 +73,32 @@ export default function UnstakeForm() {
 
     return (
         <>
-            <div className="">
-                <div className="">
-                        <div className="py-5 bg-slate-800 bg-gray">
-                            <div>
-                                {/*
-                                    TODO: Have perhaps one line "Portfolio, with this allocaiton
-                                    We can also just display how much profit or loss it accumulated so far
-
-                                    For each portfolio that is loaded, display one of these...
-                                    And you can also include a button to redeem, for each single one...
-                                */}
-                                {displayListOfPortfolios()}
-                            </div>
-                        </div>
-                        {!qPoolContext.userAccount &&
-                        <div className={"flex w-full justify-center"}>
-                            <WalletMultiButton
-                                className={"btn btn-ghost"}
-                                onClick={() => {
-                                    console.log("click");
-                                }}
-                            />
-                        </div>
-                        }
+            <div  className={"flex flex-col w-full font-medium"}>
+                <div>
+                    You existing positions
                 </div>
+                <div className={"flex py-5 w-full"}>
+                    <div className={"flex flex-col w-full"}>
+                        {/*
+                                        TODO: Have perhaps one line "Portfolio, with this allocaiton
+                                        We can also just display how much profit or loss it accumulated so far
+
+                                        For each portfolio that is loaded, display one of these...
+                                        And you can also include a button to redeem, for each single one...
+                                    */}
+                        {displayListOfPortfolios()}
+                    </div>
+                </div>
+                {!qPoolContext.userAccount &&
+                <div className={"flex w-full justify-center"}>
+                    <WalletMultiButton
+                        className={"btn btn-ghost"}
+                        onClick={() => {
+                            console.log("click");
+                        }}
+                    />
+                </div>
+                }
             </div>
         </>
     );

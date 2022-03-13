@@ -1,78 +1,134 @@
-import React, {FC, useEffect} from "react";
-import HeroForm from "./HeroForm";
-import Statistics from "./displays/Statistics";
+import React, {FC, useEffect, useState} from "react";
 import LoadingItemsModal from "./modals/LoadingItemsModal";
-import {useItemsLoad} from "../contexts/ItemsLoadingContext";
+import PortfolioChart from "./portfolio/PortfolioChart";
+import {IQPool, useQPoolUserTool} from "../contexts/QPoolsProvider";
+import StakeForm from "./swap/StakeForm";
+import UnstakeForm from "./swap/UnstakeForm";
+
+enum HeroFormState {
+    Stake,
+    Unstake
+}
 
 export const Main: FC = ({}) => {
 
-    const title = () => {
-        return (
-            <div
-                id="slogan-wrapper"
-                className="w-full h-full flex"
-                style={{backgroundColor: "#1a202c"}}
-            >
-                <div className={"relative text-center lg:text-left mx-auto lg:mx-0"}>
-                    <h1 className="absolute text-4xl lg:text-7xl font-bold transform -translate-x-1 -translate-y-1">
-                        Generate Yields
-                        <br/>
-                        Adjust Risk
-                    </h1>
-                    <h1 className="text-4xl lg:text-7xl font-bold text-pink-500">
-                        Generate Yields
-                        <br/>
-                        Adjust Risk
-                    </h1>
-                </div>
-            </div>
-        )
-    }
+    // const title = () => {
+    //     return (
+    //         <div
+    //             id="slogan-wrapper"
+    //             className="w-full h-full flex"
+    //             style={{ backgroundColor: "#0f172a" }}
+    //         >
+    //             <div className={"relative text-center lg:text-left mx-auto lg:mx-0"}>
+    //                 <h1 className="absolute text-4xl lg:text-7xl font-bold transform -translate-x-1 -translate-y-1">
+    //                     Generate Yields
+    //                     <br/>
+    //                     Adjust Risk
+    //                 </h1>
+    //                 <h1 className="text-4xl lg:text-7xl font-bold text-pink-500">
+    //                     Generate Yields
+    //                     <br/>
+    //                     Adjust Risk
+    //                 </h1>
+    //             </div>
+    //         </div>
+    //     )
+    // }
 
-    // Just testing here ..
-    // const itemsLoad = useItemsLoad();
+    const [totalAmountInUsdc, setTotalAmountInUsdc] = useState<number>(0.);
+    // Get the total USD value from the Stake Form or sth.
     // useEffect(() => {
-    //
-    //     // setInterval(() => {
-    //     //     itemsLoad.addLoadItem({message: "Hello"});
-    //     //     itemsLoad.addLoadItem({message: "Hello 1"});
-    //     //     setTimeout(() => {
-    //     //         itemsLoad.incrementCounter();
-    //     //         setTimeout(() => {
-    //     //             itemsLoad.incrementCounter();
-    //     //         }, 3000);
-    //     //         itemsLoad.resetCounter();
-    //     //     }, 12000);
-    //     // }, 3000);
-    //
-    // },[]);
+    //     if (props.valueInUsdc) {
+    //         console.log("Defined!: ", props.valueInUsdc);
+    //         setTotalAmountInUsdc(props.valueInUsdc);
+    //     } else {
+    //         console.log("WARNING: Prop is empty!", props.valueInUsdc);
+    //     }
+    // }, [props.valueInUsdc]);
+
+    // Let this state be determined if the user has a portfolio
+    const [displayForm, setDisplayForm] = useState<HeroFormState>(HeroFormState.Stake);
+    const qPoolContext: IQPool = useQPoolUserTool();
+
+    const fetchAndDisplay = async () => {
+        if (qPoolContext.portfolioObject) {
+            let isFulfilled = await qPoolContext.portfolioObject!.portfolioExistsAndIsFulfilled();
+            if (isFulfilled) {
+                setDisplayForm(HeroFormState.Unstake);
+            } else {
+                setDisplayForm(HeroFormState.Stake);
+            }
+        }
+    };
+
+    useEffect(() => {
+        // Check if the account exists, and if it was fulfilled
+        fetchAndDisplay();
+    }, [qPoolContext.portfolioObject, qPoolContext.makePriceReload]);
+
+    const formComponent = () => {
+        if (displayForm === HeroFormState.Stake) {
+            return (
+                <StakeForm/>
+            );
+        } else if (displayForm === HeroFormState.Unstake) {
+            return (
+                <UnstakeForm/>
+            );
+        }
+    }
 
     return (
         <div
             id="content"
-            className={"w-full flex flex-col grow my-auto px-6 lg:px-20"}
-            style={{backgroundColor: "#1a202c"}}
+            className={"flex flex-col grow my-auto"}
+            style={{ backgroundColor: "#0f172a" }}
         >
             <LoadingItemsModal />
-            <div className={"flex flex-col lg:flex-row grow w-full justify-center lg:justify-start my-auto"}>
-                <div className={"flex flex-col"}>
-                    {title()}
-                    <div className="pt-4 pb-1 text-2xl text-gray-100 leading-10 text-center lg:text-left">
-                        <p>
-                            The most convenient way to generate passive income
-                        </p>
-                        <p>
-                            without locking in liquidity. Risk-adjusted for your favorite asset.
-                        </p>
+            <div className={"flex flex-col grow w-full my-auto"}>
+                <div className={"flex flex-col mx-auto"}>
+                    <div className={"flex flex-row w-full"}>
+                        <h1 className={"text-3xl font-bold"}>
+                            Please Select Your Portfolio
+                        </h1>
+                        {/*
+                            Implement buttons, depending on
+                                (1) Sharpe Optimized
+                                (2) Best Yield
+                                (3) Take Wallet
+                        */}
                     </div>
-                    <div className={"flex flex-row mx-auto my-auto mt-5"}>
-                        <Statistics/>
+                    {/*<div className={"flex flex-row mx-auto w-full"}>*/}
+                    <div className={"flex flex-row my-auto mt-10"}>
+                        <PortfolioChart
+                                totalAmountInUsdc={100}
+                            />
                     </div>
+                    {/*</div>*/}
+                    {/*<div className={"flex flex-row mx-auto w-full"}>*/}
+                    <div className={"flex flex-row my-auto mt-10"}>
+                        {formComponent()}
+                    </div>
+
+                    {/*</div>*/}
+
+                    {/*{title()}*/}
+                    {/*<div className="pt-4 pb-1 text-2xl text-gray-100 leading-10 text-center lg:text-left">*/}
+                    {/*    <p>*/}
+                    {/*        The most convenient way to generate passive income*/}
+                    {/*    </p>*/}
+                    {/*    <p>*/}
+                    {/*        without locking in liquidity. Risk-adjusted for your favorite asset.*/}
+                    {/*    </p>*/}
+                    {/*</div>*/}
+                    {/*<div className={"flex flex-row mx-auto my-auto mt-5"}>*/}
+                    {/*    <Statistics/>*/}
+                    {/*</div>*/}
                 </div>
-                <div
-                    className={"my-auto flex flex-row w-96 mx-auto lg:mx-0 lg:w-full justify-center lg:justify-end lg:ml-14"}>
-                    <HeroForm/>
-                </div>
+                {/*<div*/}
+                {/*    className={"my-auto w-96 mx-auto lg:mx-0 lg:w-full justify-center lg:justify-end lg:ml-14"}>*/}
+                {/*    <HeroForm/>*/}
+                {/*</div>*/}
             </div>
         </div>
     );

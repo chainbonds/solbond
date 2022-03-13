@@ -24,6 +24,29 @@ export default function StakeForm() {
         }
     }, [walletContext.publicKey]);
 
+    const getActionButton = () => {
+        if (qPoolContext.userAccount) {
+            return (
+                <CallToActionButton
+                    onClick={() => {
+                        setDisplayBuyModal(true)
+                    }}
+                    type={"button"}
+                    text={"EARN"}
+                />
+            )
+        } else {
+            return (
+                <WalletMultiButton
+                    className={"btn btn-ghost"}
+                    onClick={() => {
+                        console.log("click");
+                    }}
+                />
+            );
+        }
+    }
+
     return (
         <>
             <ConfirmPortfolioBuyModal
@@ -33,43 +56,26 @@ export default function StakeForm() {
                 }}
                 valueInUsdc={valueInUsdc}
             />
-            <div className="">
-                <div className="">
-                        <div className="pt-5 pb-2 bg-slate-800 bg-gray">
-                            <div>
-                                <div className={"flex flex-row w-full justify-center"}>
-                                </div>
-                                <InputFieldWithLogo
-                                    logoPath={"/usdc-logo.png"}
-                                    displayText={"USDC"}
-                                    registerFunction={() => register("solana_amount")}
-                                    modifiable={true}
-                                    setNewValue={setValueInUsdc}
-                                />
-                                <div className={"flex flex-row justify-end mx-1 mt-1"}>
-                                    <UserInfoBalance />
-                                </div>
-                            </div>
+            <div className={"flex pt-5 pb-2 bg-slate-800 bg-gray w-full"}>
+                <div className={"flex flex-col w-full"}>
+                    <div className={"flex flex-row"}>
+                        <div className={"flex flex-row w-9/12 mr-4"}>
+                            <InputFieldWithLogo
+                                className={""}
+                                logoPath={"/usdc-logo.png"}
+                                displayText={"USDC"}
+                                registerFunction={() => register("solana_amount")}
+                                modifiable={true}
+                                setNewValue={setValueInUsdc}
+                            />
                         </div>
-                        {qPoolContext.userAccount &&
-                            <>
-                                <CallToActionButton
-                                    onClick={() => {setDisplayBuyModal(true)}}
-                                    type={"button"}
-                                    text={"EARN"}
-                                />
-                            </>
-                        }
-                        {!qPoolContext.userAccount &&
-                            <div className={"flex w-full justify-center"}>
-                                <WalletMultiButton
-                                    className={"btn btn-ghost"}
-                                    onClick={() => {
-                                        console.log("click");
-                                    }}
-                                />
-                            </div>
-                        }
+                        <div className={"flex flex-row ml-auto my-auto"}>
+                            {getActionButton()}
+                        </div>
+                    </div>
+                    <div className={"flex flex-row mx-1 mt-1"}>
+                        <UserInfoBalance/>
+                    </div>
                 </div>
             </div>
         </>
