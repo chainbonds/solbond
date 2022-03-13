@@ -74,10 +74,10 @@ export default function UnstakeForm() {
     return (
         <>
             <div  className={"flex flex-col w-full font-medium"}>
-                <h2 className={"text-2xl font-semibold"}>
-                    Your Portfolio
-                </h2>
-                <div className={"font-normal mt-3"}>
+                {/*<h2 className={"text-2xl font-light"}>*/}
+                {/*    Your Portfolio*/}
+                {/*</h2>*/}
+                <div className={"text-xl font-light mt-3"}>
                     The Portfolio you see is worth an estimated USDC {qPoolContext.totalPortfolioValueInUsd.toFixed(2)}
                 </div>
                 <div className={"flex py-5 w-full"}>

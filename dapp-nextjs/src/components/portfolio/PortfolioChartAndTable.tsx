@@ -136,7 +136,7 @@ export default function PortfolioChartAndTable(props: any) {
     return (
         <>
             {/*-ml-14*/}
-            <div className={"flex my-auto mt-10"}>
+            <div className={"flex mt-0"}>
                 <PieChart width={200} height={200}>
                     <Pie stroke="none"
                          data={pieChartData}
@@ -158,7 +158,7 @@ export default function PortfolioChartAndTable(props: any) {
                 </PieChart>
             </div>
 
-            <div className="flex flex-col my-auto text-gray-300 md:pl-10">
+            <div className="flex flex-col mt-0 text-gray-300 md:pl-10">
                 {/*lg:-mx-8*/}
                 {/*sm:-mx-6*/}
                 {/*<div className="-my-2 overflow-x-auto">*/}

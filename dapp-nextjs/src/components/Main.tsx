@@ -86,6 +86,14 @@ export const Main: FC = ({}) => {
         }
     }
 
+    const descriptionString = () => {
+        if (displayForm === HeroFormState.Stake) {
+            return "Please Select Your Portfolio";
+        } else if (displayForm === HeroFormState.Unstake) {
+            return "See the assets for your current portfolio";
+        }
+    }
+
     return (
         <div
             id="content"
@@ -96,7 +104,7 @@ export const Main: FC = ({}) => {
             <div className={"flex flex-col grow w-full my-auto"}>
                 <div className={"flex flex-col mx-auto"}>
                     <div className={"flex flex-row w-full"}>
-                        <h1 className={"text-3xl font-bold"}>
+                        <h1 className={"text-3xl font-light"}>
                             {titleString()}
                         </h1>
                         {/*
@@ -106,8 +114,13 @@ export const Main: FC = ({}) => {
                                 (3) Take Wallet
                         */}
                     </div>
+                    <div className={"flex flex-row mt-2"}>
+                        <h2 className={"text-2xl font-light"}>
+                            {descriptionString()}
+                        </h2>
+                    </div>
                     {/*<div className={"flex flex-row mx-auto w-full"}>*/}
-                    <div className={"flex flex-row my-auto mt-10"}>
+                    <div className={"flex flex-row mt-6"}>
                         <PortfolioChartAndTable
                                 totalAmountInUsdc={100}
                             />

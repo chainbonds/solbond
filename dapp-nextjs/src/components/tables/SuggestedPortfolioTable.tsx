@@ -64,7 +64,7 @@ export default function ExistingPortfolioTable() {
 
         return (
             <>
-                <tr className="border-b dark:bg-gray-800 dark:border-gray-700">
+                <tr className="dark:bg-gray-800">
                     {/* Show the icons next to this ... */}
                     <td className="py-4 px-6 text-sm font-medium text-gray-900 whitespace-nowrap dark:text-white">
                         {shortenedAddressString(position.mintLp)}
@@ -96,7 +96,7 @@ export default function ExistingPortfolioTable() {
         <>
             <div className="flex flex-col">
                 <div className="overflow-x-auto sm:-mx-6 lg:-mx-8">
-                    <div className="inline-block py-2 min-w-full sm:px-6 lg:px-8">
+                    <div className="inline-block pb-2 min-w-full sm:px-6 lg:px-8">
                         <div className="overflow-hidden shadow-md sm:rounded-lg">
                             <table className="min-w-full">
                                 {tableHeader(tableColumns)}
