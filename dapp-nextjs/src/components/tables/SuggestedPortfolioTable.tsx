@@ -43,7 +43,7 @@ export default function SuggestedPortfolioTable() {
                         if (x) {
                             return (
                                 <th scope="col"
-                                    className="py-3 px-6 text-xs font-medium tracking-wider text-center text-gray-700 uppercase dark:text-gray-400">
+                                    className="py-3 px-6 mx-auto text-xs text-center font-medium tracking-wider text-center text-gray-700 uppercase dark:text-gray-400">
                                     {x}
                                 </th>
                             )
@@ -121,7 +121,7 @@ export default function SuggestedPortfolioTable() {
             <>
                 <tr className="dark:bg-gray-800">
                     {/* Show the icons next to this ... */}
-                    <td className="py-4 px-6 text-sm font-normal text-gray-900 whitespace-nowrap dark:text-white">
+                    <td className="py-4 px-6 text-sm text--center font-normal text-gray-900 whitespace-nowrap dark:text-white">
                         <div className="flex items-center">
                             <div className="ml-4">
                                 <div
@@ -140,11 +140,11 @@ export default function SuggestedPortfolioTable() {
                     </td>
                     <td className="py-4 px-6 text-sm text-center font-normal text-gray-500 whitespace-nowrap dark:text-gray-400">
                         <a href={solscanLink(mintA)} target={"_blank"} rel="noreferrer"
-                           className="text-blue-600 dark:text-blue-400 hover:underline">
+                           className="text-blue-600 dark:text-blue-400 hover:underline mr-1">
                             <Image src={iconMintA} width={30} height={30} />
                         </a>
                         <a href={solscanLink(mintB)} target={"_blank"} rel="noreferrer"
-                           className="text-blue-600 dark:text-blue-400 hover:underline">
+                           className="text-blue-600 dark:text-blue-400 hover:underline ml-1">
                             <Image src={iconMintB} width={30} height={30} />
                         </a>
                     </td>
@@ -166,7 +166,7 @@ export default function SuggestedPortfolioTable() {
     return (
         <>
             <div className="flex flex-col">
-                <div className="overflow-x-auto">
+                <div className="overflow-x-auto w-full">
                     <div className="inline-block pb-2 min-w-full">
                         <div className="overflow-hidden shadow-md sm:rounded-lg">
                             <table className="min-w-full">

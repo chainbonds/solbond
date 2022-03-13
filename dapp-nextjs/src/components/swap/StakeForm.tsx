@@ -8,6 +8,7 @@ import {IQPool, useQPoolUserTool} from "../../contexts/QPoolsProvider";
 import {WalletMultiButton} from "@solana/wallet-adapter-react-ui";
 import UserInfoBalance from "../displays/UserInfoBalance";
 import ConfirmPortfolioBuyModal from "../modals/ConfirmPortfolioBuyModal";
+import PurchaseButton from "../buttons/PurchaseButton";
 
 export default function StakeForm() {
 
@@ -27,13 +28,7 @@ export default function StakeForm() {
     const getActionButton = () => {
         if (qPoolContext.userAccount) {
             return (
-                <CallToActionButton
-                    onClick={() => {
-                        setDisplayBuyModal(true)
-                    }}
-                    type={"button"}
-                    text={"EARN"}
-                />
+                <PurchaseButton />
             )
         } else {
             return (
@@ -56,7 +51,7 @@ export default function StakeForm() {
                 }}
                 valueInUsdc={valueInUsdc}
             />
-            <div className={"flex pt-5 pb-2 bg-slate-800 bg-gray w-full"}>
+            <div className={"flex pb-2 w-full"}>
                 <div className={"flex flex-col w-full"}>
                     <div className={"flex flex-row"}>
                         <div className={"flex flex-row w-9/12 mr-4"}>

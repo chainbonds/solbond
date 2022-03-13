@@ -34,7 +34,7 @@ export default function ExistingPortfolioTable() {
                         if (x) {
                             return (
                                 <th scope="col"
-                                    className="py-3 px-6 text-xs font-medium tracking-wider text-left text-gray-700 uppercase dark:text-gray-400">
+                                    className="py-3 px-6 text-center text-xs font-medium tracking-wider text-left text-gray-700 uppercase dark:text-gray-400">
                                     {x}
                                 </th>
                             )
@@ -66,10 +66,15 @@ export default function ExistingPortfolioTable() {
             <>
                 <tr className="dark:bg-gray-800">
                     {/* Show the icons next to this ... */}
-                    <td className="py-4 px-6 text-sm font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                        {shortenedAddressString(position.mintLp)}
+                    <td className="py-4 px-6 text-center text-sm font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                        <a href={solscanLink(position.mintLp)} target={"_blank"} rel="noreferrer"
+                           className="text-blue-600 dark:text-blue-500 hover:underline">
+                            {/*{registry.getPool(position.poolAddress)?.name}*/}
+                            {shortenedAddressString(position.mintLp)}
+                            {/* TODO: Change to registry name perhaps    */}
+                        </a>
                     </td>
-                    <td className="py-4 px-6 text-sm font-medium text-gray-500 whitespace-nowrap dark:text-gray-400">
+                    <td className="py-4 px-6 text-center text-sm font-medium text-gray-500 whitespace-nowrap dark:text-gray-400">
                         <a href={solscanLink(position.mintA)} target={"_blank"} rel="noreferrer"
                            className="text-blue-600 dark:text-blue-400 hover:underline">
                             <Image src={iconMintA} width={30} height={30} />
@@ -79,10 +84,10 @@ export default function ExistingPortfolioTable() {
                             <Image src={iconMintB} width={30} height={30} />
                         </a>
                     </td>
-                    <td className="py-4 px-6 text-sm font-medium text-gray-500 whitespace-nowrap dark:text-gray-400">
+                    <td className="py-4 px-6 text-center text-sm font-medium text-gray-500 whitespace-nowrap dark:text-gray-400">
                         {position.amountLp.uiAmount!.toFixed(2)}
                     </td>
-                    <td className="py-4 px-6 text-sm text-right whitespace-nowrap">
+                    <td className="py-4 px-6 text-center text-sm text-right whitespace-nowrap">
                         <a href={solscanLink(position.ataLp)} target={"_blank"} rel="noreferrer"
                            className="text-blue-600 dark:text-blue-500 hover:underline">See on Solscan</a>
                     </td>

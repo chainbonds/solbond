@@ -121,7 +121,7 @@ export const Main: FC = ({}) => {
                         </h2>
                     </div>
                     {/*<div className={"flex flex-row mx-auto w-full"}>*/}
-                    <div className={"flex flex-row mt-7"}>
+                    <div className={"flex flex-row mt-8"}>
                         <PortfolioChartAndTable
                                 totalAmountInUsdc={100}
                             />

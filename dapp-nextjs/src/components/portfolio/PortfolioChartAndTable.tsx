@@ -119,7 +119,7 @@ export default function PortfolioChartAndTable(props: any) {
     return (
         <>
             {/*-ml-14*/}
-            <div className={"flex mt-0"}>
+            <div className={"flex my-auto mx-auto p-8"}>
                 <PieChart width={200} height={200}>
                     <Pie stroke="none"
                          data={pieChartData}
@@ -141,51 +141,12 @@ export default function PortfolioChartAndTable(props: any) {
                 </PieChart>
             </div>
 
-            <div className="flex flex-col mt-0 text-gray-300 md:pl-10">
-                {/*lg:-mx-8*/}
-                {/*sm:-mx-6*/}
-                {/*<div className="-my-2 overflow-x-auto">*/}
-                {/*    /!*sm:px-6 lg:px-8*!/*/}
-                {/*    <div className="py-2 align-middle inline-block min-w-full">*/}
-                {/*        <div className="overflow-hidden border-b border-gray-200 ">*/}
-                {/*            <table className="min-w-full divide-y divide-gray-200">*/}
-                {/*                <thead className="">*/}
-                {/*                <tr>*/}
-                {/*                    <th scope="col"*/}
-                {/*                        className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">*/}
-                {/*                    </th>*/}
-                {/*                    <th scope="col"*/}
-                {/*                        className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Asset*/}
-                {/*                    </th>*/}
-                {/*                    <th scope="col"*/}
-                {/*                        className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Allocation*/}
-                {/*                    </th>*/}
-                {/*                    <th scope="col"*/}
-                {/*                        className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount*/}
-                {/*                    </th>*/}
-                {/*                    <th scope="col"*/}
-                {/*                        className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">24h APY*/}
-                {/*                    </th>*/}
-                {/*                </tr>*/}
-                {/*                </thead>*/}
-                {/*                <tbody className="divide-y divide-gray-200">*/}
-                {/*                {pieChartData.map((x, index) => {*/}
-                {/*                    return (*/}
-                {/*                        <>*/}
-                {/*                            {singleRow(x, index)}*/}
-                {/*                        </>*/}
-                {/*                    )*/}
-                {/*                })}*/}
-                {/*                </tbody>*/}
-                {/*            </table>*/}
-                {/*        </div>*/}
-                {/*    </div>*/}
-                {/*</div>*/}
+            <div className="flex flex-col text-gray-300 my-auto">
                 {/*
                     Only show this Portfolio if the wallet is connected ...
                 */}
-                {/*<ExistingPortfolioTable />*/}
-                <SuggestedPortfolioTable />
+                <ExistingPortfolioTable />
+                {/*<SuggestedPortfolioTable />*/}
             </div>
         </>
     );

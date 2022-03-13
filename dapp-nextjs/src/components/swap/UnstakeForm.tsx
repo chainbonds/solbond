@@ -39,20 +39,21 @@ export default function UnstakeForm() {
         console.log(qPoolContext!.positionInfos);
         console.log(qPoolContext!.positionValuesInUsd);
 
-        if (totalPortfolioValueInUsd === 0.00) {
-            return (
-                <ConnectWalletPortfolioRow
-                    text={"No active portfolio position found!"}
-                />
-            );
-        }
-        // if (qPoolContext.allocatedAccounts.length === 0) {
+        // if (totalPortfolioValueInUsd === 0.00) {
         //     return (
         //         <ConnectWalletPortfolioRow
-        //             text={"You have not created any positions yet!"}
+        //             text={"No active portfolio position found!"}
         //         />
         //     );
         // }
+        if (qPoolContext.positionInfos.length === 0) {
+            // TODO: Here, the user should for some reason run the cranks (?)
+            return (
+                <ConnectWalletPortfolioRow
+                    text={"You have not created any positions yet!"}
+                />
+            );
+        }
         if (!qPoolContext.portfolioObject.portfolioPDA) {
             return (
                 <ConnectWalletPortfolioRow

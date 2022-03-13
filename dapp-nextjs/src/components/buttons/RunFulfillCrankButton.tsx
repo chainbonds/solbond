@@ -33,6 +33,7 @@ export const RunFulfillCrankButton: FC = ({}) => {
 
         await loadContext.increaseCounter();
         await qPoolContext.crankRpcTool!.fullfillAllPermissionless();
+        await qPoolContext.makePriceReload();
         await loadContext.decreaseCounter();
     };
 
