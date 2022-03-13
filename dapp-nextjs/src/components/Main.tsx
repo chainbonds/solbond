@@ -78,6 +78,14 @@ export const Main: FC = ({}) => {
         }
     }
 
+    const titleString = () => {
+        if (displayForm === HeroFormState.Stake) {
+            return "Please Select Your Portfolio";
+        } else if (displayForm === HeroFormState.Unstake) {
+            return "Your Portfolio";
+        }
+    }
+
     return (
         <div
             id="content"
@@ -89,7 +97,7 @@ export const Main: FC = ({}) => {
                 <div className={"flex flex-col mx-auto"}>
                     <div className={"flex flex-row w-full"}>
                         <h1 className={"text-3xl font-bold"}>
-                            Please Select Your Portfolio
+                            {titleString()}
                         </h1>
                         {/*
                             Implement buttons, depending on

@@ -5,7 +5,7 @@ import Image from "next/image";
 import {PositionInfo, registry} from "@qpools/sdk";
 import {useWallet} from "@solana/wallet-adapter-react";
 
-const tableColumns: (string | null)[] = ["Pool", "Assets", "USDC Value", null]
+const tableColumns: (string | null)[] = ["Asset", "Allocation", "Amount", "24H APY"]
 
 export default function ExistingPortfolioTable() {
 
