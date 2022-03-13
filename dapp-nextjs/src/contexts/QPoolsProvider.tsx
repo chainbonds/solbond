@@ -246,13 +246,6 @@ export function QPoolsProvider(props: any) {
             } else {
                 console.log("opt port not found in data!");
             }
-
-            // From the Serpius Endpoints, Gather the respective Pool Accounts by from the unique identifier
-            // User should be able to add more tokens from a saerch dropdown
-
-            // .catch((error) => {
-            //     console.log(error);
-            // })
             console.log("##useEffect getSerpiusEndpoint");
     }
 
@@ -262,7 +255,7 @@ export function QPoolsProvider(props: any) {
 
     useEffect(() => {
         calculateAllUsdcValues();
-    }, [userAccount, positionInfos, reloadPriceSentinel]);
+    }, [userAccount, reloadPriceSentinel]);
 
     const makePriceReload = async () => {
         console.log("#useEffect makePriceReload");

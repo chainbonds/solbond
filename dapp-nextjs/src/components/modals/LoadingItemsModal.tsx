@@ -1,10 +1,8 @@
 import React, {Fragment, useEffect, useState} from "react";
 import {Dialog, Transition} from "@headlessui/react";
 import {FaCheckCircle, FaTimesCircle} from "react-icons/fa";
-import {Oval, TailSpin} from "react-loader-spinner";
+import {Oval} from "react-loader-spinner";
 import {LoadingItem, useItemsLoad} from "../../contexts/ItemsLoadingContext";
-import useToggleState from "@restart/hooks/useToggleState";
-// import FaCheckCircle from "react-icons/fa/";
 
 // Should replace with an enum, and failed can also be an option
 
@@ -16,58 +14,13 @@ export default function LoadingItemsModal() {
     const [disableButton, setDisableButton] = useState<boolean>(false);
 
     useEffect(() => {
-        console.log("Progres and items are: ");
-        console.log(itemLoadContext.loadItems);
-        console.log(itemLoadContext.progressCounter);
-
-        console.log("Conditions: ");
-        console.log(itemLoadContext.loadItems.length > 0);
-        console.log(itemLoadContext.progressCounter);
-        console.log(itemLoadContext.loadItems.length);
-
         if ((itemLoadContext.loadItems.length > 0) && (itemLoadContext.progressCounter < (itemLoadContext.loadItems.length))) {
-            console.log("Disabled?");
             setDisableButton(true);
         } else {
-            console.log("Not disabled?");
             setDisableButton(false);
         }
     }, [itemLoadContext.loadItems, itemLoadContext.progressCounter]);
 
-    // useEffect(() => {
-    //
-    //     itemLoadContext.resetCounter();
-    //
-    //     const a: LoadingItem[] = [
-    //         {
-    //             message: "Transaction Item 1",
-    //         },
-    //         {
-    //             message: "Transaction Item 2",
-    //         },
-    //         {
-    //             message: "Transaction Item 3",
-    //         }
-    //     ];
-    //     a.map((x: LoadingItem) => {
-    //         itemLoadContext.addLoadItem(x);
-    //     });
-    //
-    //     setTimeout(() => {
-    //         console.log("Incrementing counter ..");
-    //         itemLoadContext.incrementCounter();
-    //     }, 2000);
-    //
-    //     setTimeout(() => {
-    //         console.log("Incrementing counter ..");
-    //         itemLoadContext.incrementCounter();
-    //     }, 4000);
-    //     setTimeout(() => {
-    //         console.log("Incrementing counter ..");
-    //         itemLoadContext.incrementCounter();
-    //     }, 4000);
-    //
-    // }, []);
 
     return (
         <>
@@ -166,11 +119,6 @@ export default function LoadingItemsModal() {
                                                         }
                                                     })}
 
-                                                    {/*<div className={"flex mt-6 mb-4 flex-row justify-center mx-auto text-gray-300"}>*/}
-                                                    {/*    /!* Loading screen ...*!/*/}
-                                                    {/*    Please approve transactions!*/}
-                                                    {/*</div>*/}
-
                                                 </div>
 
                                             </div>
@@ -190,9 +138,6 @@ export default function LoadingItemsModal() {
                                                 </button>
                                                 :
                                                 <>
-                                                    {/*<div>*/}
-                                                    {/*    {props.text && props.text}*/}
-                                                    {/*</div>*/}
                                                     <button
                                                         type="button"
                                                         className="flex flex-row justify-center w-full px-10 py-2 text-sm font-medium text-gray-900 bg-blue-100 border border-transparent w-full rounded-md hover:bg-blue-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-gray-500"
@@ -217,6 +162,5 @@ export default function LoadingItemsModal() {
             </Transition.Root>
         </>
     );
-
 
 }

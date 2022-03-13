@@ -19,12 +19,7 @@ export default function StakeForm() {
     const [displayBuyModal, setDisplayBuyModal] = useState<boolean>(false);
 
     useEffect(() => {
-        console.log("Value in USDC changes", valueInUsdc);
-    }, [valueInUsdc]);
-
-    useEffect(() => {
         if (walletContext.publicKey) {
-            console.log("Walle1t pubkey wallet is:", walletContext.publicKey.toString());
             qPoolContext.initializeQPoolsUserTool(walletContext);
         }
     }, [walletContext.publicKey]);

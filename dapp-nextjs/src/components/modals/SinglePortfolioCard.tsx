@@ -51,27 +51,11 @@ export default function SinglePortfolioCard(props: any) {
                                     </tr>
                                     </thead>
                                     <tbody>
-                                    {/*// <!-- Product 1 -->*/}
 
                                     {positions.map((position: PositionInfo, index: number) => {
-
-                                        // if (!position) {
-                                        //     console.log("Not ready to load just yet..");
-                                        //     return (
-                                        //         <></>
-                                        //     )
-                                        // }
-                                        // if (qPoolContext.positionValuesInUsd.length != qPoolContext.allocatedAccounts.length) {
-                                        // console.log("Lengths do not confirm!");
-                                        // return (
-                                        // <></>
-                                        // )
-                                        // }
-
                                         if (!position.amountLp.uiAmount && (position.amountLp.uiAmount != 0)) {
                                             return <></>
                                         }
-
 
                                         // Get the icon from the registry
                                         let iconMintA = registry.getIconFromToken(position.mintA);
@@ -83,7 +67,6 @@ export default function SinglePortfolioCard(props: any) {
                                                     {/* Show the icons next to this ... */}
                                                     <td className="py-4 px-6 text-sm font-medium text-gray-900 whitespace-nowrap dark:text-white">
                                                         {shortenedAddressString(position.mintLp)}
-                                                        {/* TODO: Change this to "Saber USDC-USDT Pool" or whatever (make a dictionary lookup) */}
                                                     </td>
                                                     <td className="py-4 px-6 text-sm font-medium text-gray-500 whitespace-nowrap dark:text-gray-400">
                                                         <a href={solscanLink(position.mintA)} target={"_blank"} rel="noreferrer"
@@ -97,8 +80,6 @@ export default function SinglePortfolioCard(props: any) {
                                                     </td>
                                                     <td className="py-4 px-6 text-sm font-medium text-gray-500 whitespace-nowrap dark:text-gray-400">
                                                         {position.amountLp.uiAmount!.toFixed(2)}
-                                                        {/* TODO: Change this to "Saber USDC-USDT Pool" or whatever (make a dictionary lookup) */}
-                                                        {/*{position.amountLp.uiAmount?.toFixed(2)}*/}
                                                     </td>
                                                     <td className="py-4 px-6 text-sm text-right whitespace-nowrap">
                                                         <a href={solscanLink(position.ataLp)} target={"_blank"} rel="noreferrer"
@@ -121,21 +102,11 @@ export default function SinglePortfolioCard(props: any) {
 
     const submitToContract = async () => {
 
-        // await loadContext.increaseCounter();
-
         console.log("About to be redeeming!");
-        // Redeem the full portfolio
-
         await itemLoadContext.addLoadItem({message: "Fetching Account Information"});
         await itemLoadContext.addLoadItem({message: "Approving Redeem & Redeeming Positions"});
         await itemLoadContext.addLoadItem({message: "Redeeming Positions"});
         await itemLoadContext.addLoadItem({message: "Transferring USDC Back to Your Wallet"});
-
-        // Again, these weights need to be retrieved from the Serpius API
-        // TODO: Get all poolAddresses by querying all existent positions
-        // let poolAddresses = qPoolContext.portfolioRatios
-        //     .filter((item: AllocData) => {return item.weight > 0})
-        //     .map((item: AllocData) => {return item.pool!.swap.config.swapAccount});
 
         /**
          * Withdraw a Portfolio workflow:
@@ -218,13 +189,9 @@ export default function SinglePortfolioCard(props: any) {
 
     return (
         <>
-            {/* Insert another modal here ... */}
-            {/*<div className="flex items-center justify-center w-full h-full">*/}
             <>
             <Transition show={props.show} as={Fragment}>
                 <Dialog as="div" className="fixed inset-0 z-10 overflow-y-auto" initialFocus={cancelButtonRef} onClose={() => {props.setShow(false)}}>
-                    {/*<div className="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">*/}
-                    {/*<div className="min-h-screen px-4 text-center">*/}
                         <Transition.Child
                             as={Fragment}
                             enter="ease-out duration-300"
@@ -251,7 +218,6 @@ export default function SinglePortfolioCard(props: any) {
                                         Portfolio Info
                                     </div>
                                 </div>
-
                                 <div className="flex items-center justify-center w-full h-full">
 
                                     <div className="flex flex-col rounded-lg max-w-2xl text-center content-center">
@@ -261,11 +227,8 @@ export default function SinglePortfolioCard(props: any) {
                                         </div>
 
                                         {displayAllLpsInOneTable(qPoolContext.positionInfos)}
-                                        {/*{displayAllPositions()}*/}
-
                                     </div>
-                                </div>                                {/*<button*/}
-
+                                </div>
                                 <div className="flex w-full py-3 px-6 text-gray-600 justify-center">
                                     <button
                                         type="button"
@@ -285,26 +248,11 @@ export default function SinglePortfolioCard(props: any) {
                                         Back
                                     </button>
                                 </div>
-
-                                {/*    type="button"*/}
-                                {/*    className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"*/}
-                                {/*    onClick={() => setShow(false)}*/}
-                                {/*    ref={cancelButtonRef}*/}
-                                {/*>*/}
-                                {/*    Cancel*/}
-                                {/*</button>*/}
                             </div>
-                            {/*</div>*/}
                         </Transition.Child>
-                    {/*</div>*/}
                 </Dialog>
             </Transition>
             </>
-            {/*    <Transition.Root show={show} as={Fragment}>*/}
-            {/*            /!*<div className="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">*!/*/}
-            {/*    </Transition.Root>*/}
-
-            {/*</div>*/}
         </>
     );
 }

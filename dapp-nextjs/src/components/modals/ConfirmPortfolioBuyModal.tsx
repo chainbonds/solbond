@@ -237,17 +237,8 @@ export default function ConfirmPortfolioBuyModal(props: any) {
                             leaveFrom="opacity-100"
                             leaveTo="opacity-0"
                         >
-                            {/*<Dialog.Overlay className="fixed inset-0" />*/}
                             <Dialog.Overlay className="fixed inset-0 bg-black opacity-70"/>
                         </Transition.Child>
-
-                        {/* This element is to trick the browser into centering the modal contents. */}
-                        {/*<span*/}
-                        {/*    className="inline-block h-screen align-middle"*/}
-                        {/*    aria-hidden="true"*/}
-                        {/*>*/}
-                        {/*  &#8203;*/}
-                        {/*</span>*/}
                         <Transition.Child
                             as={Fragment}
                             enter="ease-out duration-300"
@@ -257,24 +248,16 @@ export default function ConfirmPortfolioBuyModal(props: any) {
                             leaveFrom="opacity-50 scale-100"
                             leaveTo="opacity-0 scale-50"
                         >
-                            {/**/}
-                            <div
-                                className="mx-auto mt-52 w-full shadow shadow-lg max-w-3xl p-6 my-8 overflow-hidden text-left align-middle transition-all transform shadow rounded-sm bg-gray-800">
-
-                                {/*<div className={"flex flex-row w-full"}>*/}
+                            <div className="mx-auto mt-52 w-full shadow shadow-lg max-w-3xl p-6 my-8 overflow-hidden text-left align-middle transition-all transform shadow rounded-sm bg-gray-800">
                                 <div className={"justify-start my-auto"}>
-
                                     <div className={"flex flex-col w-full"}>
-
                                         <div className={"flex flex-col justify-start mx-auto"}>
-
                                             <Dialog.Title
                                                 as="h3"
                                                 className="text-2xl text-start font-medium leading-6 text-gray-200 my-3"
                                             >
                                                 Portfolio Allocation
                                             </Dialog.Title>
-
                                             <p className="text-start text-gray-400">
                                                 The asset allocation that optimizes for the Sharpe ratio is the following.
                                             </p>
@@ -283,13 +266,10 @@ export default function ConfirmPortfolioBuyModal(props: any) {
                                                 Do you want to proceed?
                                             </p>
                                         </div>
-
                                         <div className={"flex flex-col -my-12 -mt-14 justify-center mx-auto"}>
                                             {portfolioChart()}
                                         </div>
-
                                     </div>
-
                                     <div className="flex flex-row w-full my-1 mx-auto justify-end -ml-7">
                                         <button
                                             type="button"
@@ -299,11 +279,7 @@ export default function ConfirmPortfolioBuyModal(props: any) {
                                             Confirm
                                         </button>
                                     </div>
-
                                 </div>
-
-                                {/*</div>*/}
-
                             </div>
                         </Transition.Child>
                     </div>
@@ -311,5 +287,4 @@ export default function ConfirmPortfolioBuyModal(props: any) {
             </Transition.Root>
         </>
     )
-
 }

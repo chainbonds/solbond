@@ -9,38 +9,36 @@ export default function UserInfoBalance() {
     const qPoolContext: IQPool = useQPoolUserTool();
     const [currencyBalance, setCurrencyBalance] = useState<number>(0.);
 
-    useEffect(() => {
+    const updateAccountBalance = async () => {
         console.log("#useEffect UserInfoBalance");
         if (qPoolContext.connection && qPoolContext.currencyMint && qPoolContext.userAccount) {
             // Get the associated token account
             console.log("Getting associated token account")
-            getAssociatedTokenAddressOffCurve(
+            let userCurrencyAta: PublicKey = await getAssociatedTokenAddressOffCurve(
                 qPoolContext.currencyMint.publicKey, qPoolContext.userAccount.publicKey
-            ).then((userCurrencyAta: PublicKey) => {
+            )
+            let existsBool = await tokenAccountExists(qPoolContext.connection!, userCurrencyAta);
 
-                (tokenAccountExists(qPoolContext.connection!, userCurrencyAta).then((existsBool: boolean) => {
-
-                    if (existsBool) {
-                        // Check if this account exists, first of all
-                        qPoolContext.connection!.getTokenAccountBalance(userCurrencyAta).then((x) => {
-                            if (x.value && x.value.uiAmount) {
-                                console.log("Balance is: ", x.value);
-                                setCurrencyBalance(x.value.uiAmount!);
-                            } else {
-                                console.log("ERROR: Something went wrong unpacking the balance!");
-                            }
-                            console.log("Done fetching");
-                        });
-                    } else {
-                        console.log("Account doesn't exist yet");
-                    }
-
-                }));
-
-            })
+            if (existsBool) {
+                // Check if this account exists, first of all
+                let x = await qPoolContext.connection!.getTokenAccountBalance(userCurrencyAta);
+                if (x.value && x.value.uiAmount) {
+                    console.log("Balance is: ", x.value);
+                    setCurrencyBalance(x.value.uiAmount!);
+                } else {
+                    console.log("ERROR: Something went wrong unpacking the balance!");
+                }
+                console.log("Done fetching");
+            } else {
+                console.log("Account doesn't exist yet");
+            }
         }
         console.log("##useEffect UserInfoBalance");
-    }, [qPoolContext.totalPortfolioValueInUsd, qPoolContext.userAccount, qPoolContext.positionInfos, qPoolContext.reloadPriceSentinel]);
+    }
+
+    useEffect(() => {
+        updateAccountBalance();
+    }, [qPoolContext.totalPortfolioValueInUsd, qPoolContext.positionInfos, qPoolContext.reloadPriceSentinel]);
 
     return (
         <>
