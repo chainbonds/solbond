@@ -33,17 +33,17 @@ export const AirdropButton: FC = ({}) => {
 
         // Airdrop some solana first, to make sure we can run this transaction ...
         // if ((await qPoolContext.connection!.getBalance(qPoolContext.userAccount!.publicKey)) <= 5e8) {
-        //     let tx0 = await qPoolContext.connection!.requestAirdrop(qPoolContext.userAccount!.publicKey, 1e9);
-        //     await qPoolContext.connection!.confirmTransaction(tx0, 'finalized');
-        //     console.log("Airdropped 1!");
-        // }
-
-        // To airdrop some devnet SOL to pouya
         let tx0 = await qPoolContext.connection!.requestAirdrop(qPoolContext.userAccount!.publicKey, 1e9);
         await qPoolContext.connection!.confirmTransaction(tx0, 'finalized');
         console.log("Airdropped 1!");
-        await loadContext.decreaseCounter();
-        return;
+        // }
+
+        // To airdrop some devnet SOL to pouya
+        // let tx0 = await qPoolContext.connection!.requestAirdrop(qPoolContext.userAccount!.publicKey, 1e9);
+        // await qPoolContext.connection!.confirmTransaction(tx0, 'finalized');
+        // console.log("Airdropped 1!");
+        // await loadContext.decreaseCounter();
+        // return;
 
         console.log("Initializing QPoolsUserTool");
         await qPoolContext.initializeQPoolsUserTool(walletContext);
