@@ -3,6 +3,7 @@ import HeroForm from "./HeroForm";
 import Statistics from "./displays/Statistics";
 import LoadingItemsModal from "./modals/LoadingItemsModal";
 import {useItemsLoad} from "../contexts/ItemsLoadingContext";
+import JupiSwap from "./swap/JupiSwap"
 
 export const Main: FC = ({}) => {
 
@@ -54,6 +55,7 @@ export const Main: FC = ({}) => {
             style={{backgroundColor: "#1a202c"}}
         >
             <LoadingItemsModal />
+            <JupiSwap/>
             <div className={"flex flex-col lg:flex-row grow w-full justify-center lg:justify-start my-auto"}>
                 <div className={"flex flex-col"}>
                     {title()}

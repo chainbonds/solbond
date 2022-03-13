@@ -11,6 +11,7 @@ import "../styles/App.css";
 import {QPoolsProvider} from "../contexts/QPoolsProvider";
 import {LoadProvider} from "../contexts/LoadingContext";
 import {ItemsLoadProvider} from "../contexts/ItemsLoadingContext";
+import JupiterApp from "../contexts/JupiterContext";
 
 const SOLANA_NETWORK = WalletAdapterNetwork.Mainnet;
 // const SOLANA_NETWORK = WalletAdapterNetwork.Devnet;
@@ -35,7 +36,9 @@ function MyApp({ Component, pageProps }: AppProps) {
             <ConnectionProvider endpoint={endpoint}>
               <WalletProvider>
                   <QPoolsProvider>
-                    <Component {...pageProps} />
+                      <JupiterApp>
+                        <Component {...pageProps} />
+                      </JupiterApp>
                   </QPoolsProvider>
               </WalletProvider>
             </ConnectionProvider>

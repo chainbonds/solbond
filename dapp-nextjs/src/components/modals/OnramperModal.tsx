@@ -29,7 +29,7 @@ export default function OnramperModal(props: any) {
 
     return (
         <>
-            <Transition.Root appear show={true} as={Fragment}>
+            <Transition.Root appear show={false} as={Fragment}>
                 <Dialog
                     as="div"
                     className="fixed inset-0 z-10 overflow-y-auto"
