@@ -1,9 +1,8 @@
 import React, {useEffect, useState} from "react";
 import {PieChart, Pie, Cell} from "recharts";
-import {useLoad} from "../../contexts/LoadingContext";
 import {AllocData, IQPool, useQPoolUserTool} from "../../contexts/QPoolsProvider";
 
-export default function PortfolioChart(props: any) {
+export default function PortfolioChartAndTable(props: any) {
 
     const qPoolContext: IQPool = useQPoolUserTool();
 
@@ -21,16 +20,6 @@ export default function PortfolioChart(props: any) {
         "#fafafa",
         "#0369a1",
     ];
-    // Pick the color based on the index ...
-    let TAILWIND_COLORS = [
-        "bg-blue-900",
-        "bg-pink-000",
-        "bg-pink-200",
-        "bg-blue-200",
-        "bg-gray-400",
-        "bg-gray-50",
-        "bg-blue-700",
-    ]
     const RADIAN = Math.PI / 180;
 
     const renderCustomizedLabel = ({cx, cy, midAngle, innerRadius, outerRadius, percent, index}: any) => {
@@ -47,13 +36,6 @@ export default function PortfolioChart(props: any) {
 
         );
     };
-
-    const fixedData = [
-        {name: "Group A", value: 400, apy_24h: 0.},
-        {name: "Group B", value: 300, apy_24h: 0.},
-        {name: "Group C", value: 300, apy_24h: 0.},
-        {name: "Group D", value: 200, apy_24h: 0.}
-    ]
 
     const [pieChartData, setPieChartData] = useState([
         {name: "Group A", value: 400, apy_24h: 0.},
@@ -103,7 +85,7 @@ export default function PortfolioChart(props: any) {
 
     const singleRow = (row: any, index: number) => {
 
-        let color = TAILWIND_COLORS[index % TAILWIND_COLORS.length];
+        let color = COLORS[index % COLORS.length];
 
         console.log("Value and total amount in usdc are: ");
         console.log(row.value);
@@ -111,12 +93,17 @@ export default function PortfolioChart(props: any) {
         console.log("APY is: ", row);
         console.log("row.apy_24h is: ", row.apy_24h);
 
+        let style = {backgroundColor: color};
+
         return (
             <tr>
                 <td className="px-2 py-3 whitespace-nowrap">
                     <div className="flex items-center">
                         <div className="ml-4">
-                            <div className={"w-4 h-4 rounded-xl " + color}>{}</div>
+                            <div
+                                className={"w-4 h-4 rounded-xl"}
+                                style={style}
+                            >{}</div>
                         </div>
                     </div>
                 </td>

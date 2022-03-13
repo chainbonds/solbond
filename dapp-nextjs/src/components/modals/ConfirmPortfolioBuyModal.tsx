@@ -1,6 +1,6 @@
 import {Fragment, useEffect, useState} from "react";
 import {Dialog, Transition} from '@headlessui/react';
-import PortfolioChart from "../portfolio/PortfolioChart";
+import PortfolioChartAndTable from "../portfolio/PortfolioChartAndTable";
 import {useWallet} from "@solana/wallet-adapter-react";
 import {AllocData, IQPool, useQPoolUserTool} from "../../contexts/QPoolsProvider";
 import {BN} from "@project-serum/anchor";
@@ -214,7 +214,7 @@ export default function ConfirmPortfolioBuyModal(props: any) {
     }
 
     const portfolioChart = () => {
-        return (<PortfolioChart
+        return (<PortfolioChartAndTable
             totalAmountInUsdc={totalAmountInUsdc}
         />)
     }

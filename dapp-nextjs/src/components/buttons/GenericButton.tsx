@@ -1,7 +1,6 @@
 export default function CallToActionButton(props: any) {
 
     // Also add a tailwind style for when the button is selected ...
-
     return (
         <>
             <div className="flex w-full bg-slate-800 justify-center md:justify-end">

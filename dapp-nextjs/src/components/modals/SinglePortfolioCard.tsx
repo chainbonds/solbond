@@ -25,7 +25,6 @@ export default function SinglePortfolioCard(props: any) {
     const displayAllLpsInOneTable = (positions: PositionInfo[]) => {
         return (
             <>
-
                 <div className="flex flex-col">
                     <div className="overflow-x-auto sm:-mx-6 lg:-mx-8">
                         <div className="inline-block py-2 min-w-full sm:px-6 lg:px-8">
@@ -46,7 +45,7 @@ export default function SinglePortfolioCard(props: any) {
                                             USDC Value
                                         </th>
                                         <th scope="col" className="relative py-3 px-6">
-                                            <span className="sr-only">Edit</span>
+                                            <span className="sr-only"></span>
                                         </th>
                                     </tr>
                                     </thead>

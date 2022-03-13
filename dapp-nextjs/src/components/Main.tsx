@@ -1,6 +1,6 @@
 import React, {FC, useEffect, useState} from "react";
 import LoadingItemsModal from "./modals/LoadingItemsModal";
-import PortfolioChart from "./portfolio/PortfolioChart";
+import PortfolioChartAndTable from "./portfolio/PortfolioChartAndTable";
 import {IQPool, useQPoolUserTool} from "../contexts/QPoolsProvider";
 import StakeForm from "./swap/StakeForm";
 import UnstakeForm from "./swap/UnstakeForm";
@@ -100,7 +100,7 @@ export const Main: FC = ({}) => {
                     </div>
                     {/*<div className={"flex flex-row mx-auto w-full"}>*/}
                     <div className={"flex flex-row my-auto mt-10"}>
-                        <PortfolioChart
+                        <PortfolioChartAndTable
                                 totalAmountInUsdc={100}
                             />
                     </div>
