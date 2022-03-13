@@ -39,7 +39,7 @@ export const RunWithdrawCrankButton: FC = ({}) => {
     return (
         <>
             <button
-                style={{ backgroundColor: "#1a202c" }}
+                // style={{ backgroundColor: "#1a202c" }}
                 className="border border-gray-500 text-white font-bold py-3 px-7 rounded "
                 onClick={() => airdropCurrency()}
             >

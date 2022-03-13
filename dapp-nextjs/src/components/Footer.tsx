@@ -1,5 +1,6 @@
 import React, {FC} from "react";
 import {SocialIcon} from 'react-social-icons';
+import {BRAND_COLORS} from "../const";
 
 export const Footer: FC = ({}) => {
 
@@ -7,7 +8,7 @@ export const Footer: FC = ({}) => {
         <>
             <div
                 className="w-full flex flex-row justify-center lg:justify-end py-10 lg:px-20 mt-auto"
-                style={{ backgroundColor: "#0f172a" }}
+                style={{ backgroundColor: BRAND_COLORS.slate900 }}
                 // style={{backgroundColor: "#1a202c"}}
             >
                 <SocialIcon

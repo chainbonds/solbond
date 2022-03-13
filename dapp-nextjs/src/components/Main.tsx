@@ -4,6 +4,7 @@ import PortfolioChartAndTable from "./portfolio/PortfolioChartAndTable";
 import {IQPool, useQPoolUserTool} from "../contexts/QPoolsProvider";
 import StakeForm from "./swap/StakeForm";
 import UnstakeForm from "./swap/UnstakeForm";
+import {BRAND_COLORS} from "../const";
 
 enum HeroFormState {
     Stake,
@@ -88,7 +89,7 @@ export const Main: FC = ({}) => {
 
     const descriptionString = () => {
         if (displayForm === HeroFormState.Stake) {
-            return "Please Select Your Portfolio";
+            return "This will be the allocation in which your assets generate yields";
         } else if (displayForm === HeroFormState.Unstake) {
             return "See the assets for your current portfolio";
         }
@@ -98,7 +99,7 @@ export const Main: FC = ({}) => {
         <div
             id="content"
             className={"flex flex-col grow my-auto"}
-            style={{ backgroundColor: "#0f172a" }}
+            style={{ backgroundColor: BRAND_COLORS.slate900 }}
         >
             <LoadingItemsModal />
             <div className={"flex flex-col grow w-full my-auto"}>
@@ -120,14 +121,14 @@ export const Main: FC = ({}) => {
                         </h2>
                     </div>
                     {/*<div className={"flex flex-row mx-auto w-full"}>*/}
-                    <div className={"flex flex-row mt-6"}>
+                    <div className={"flex flex-row mt-7"}>
                         <PortfolioChartAndTable
                                 totalAmountInUsdc={100}
                             />
                     </div>
                     {/*</div>*/}
                     {/*<div className={"flex flex-row mx-auto w-full"}>*/}
-                    <div className={"flex flex-row my-auto mt-10"}>
+                    <div className={"flex flex-row my-auto mt-7"}>
                         {formComponent()}
                     </div>
 

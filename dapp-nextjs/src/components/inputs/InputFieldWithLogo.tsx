@@ -1,12 +1,14 @@
 import React from "react";
 import Image from "next/image";
+import {BRAND_COLORS} from "../../const";
 
 export default function InputFieldWithLogo(props: any) {
 
     const inputField = () => {
         return (<>
             <input
-                className="rounded-lg w-full bg-gray-200 items-end text-right h-12 p-4 text-gray-900"
+                className="rounded-lg w-full items-end text-right h-12 p-4"
+                style={{backgroundColor: BRAND_COLORS.slate700}}
                 type="number"
                 id="stake_amount"
                 {...props.registerFunction()}
@@ -26,7 +28,8 @@ export default function InputFieldWithLogo(props: any) {
     const displayField = () => {
         return (
             <div
-                className="rounded-lg w-full bg-gray-200 items-end text-right h-12 p-4"
+                className="rounded-lg w-full items-end text-right h-12 p-4"
+                style={{backgroundColor: BRAND_COLORS.slate700}}
                 id="stake_amount"
                 placeholder="0.0"
             >
@@ -38,11 +41,11 @@ export default function InputFieldWithLogo(props: any) {
     return (
         <>
             <div className="flex flex-row w-full h-full mx-0">
-                <div className="relative text-gray-900 focus-within:text-gray-900 w-full h-full">
-                  <span className="absolute inset-y-0 left-0 flex items-center pl-2 w-full">
-                    <div className={"flex w-full"}>
+                <div className="relative text-gray-300 focus-within:text-gray-300 w-full h-full">
+                  <span className="absolute inset-y-0 left-0 flex items-center pl-2 h-full">
+                    <div className={"flex w-full my-auto text-center content-center"}>
                         <Image alt={props.displayText} src={props.logoPath} height={34} width={34}/>
-                        <text className={"my-auto mx-2 w-full"}>
+                        <text className={"my-auto text-center content-center mx-2"}>
                             {props.displayText}
                         </text>
                     </div>

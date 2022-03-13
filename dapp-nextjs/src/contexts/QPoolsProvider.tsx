@@ -50,19 +50,19 @@ const hardcodedApiResponse = [
     {
         "lp": "JSOL-SOL",
         "weight": 1000,
-        "protocol": "saber",
+        "protocol": "Saber",
         "apy_24h": 0.
     },
     {
         "lp": "HBTC-renBTC",
         "weight": 1000,
-        "protocol": "saber",
+        "protocol": "Saber",
         "apy_24h": 0.
     },
     {
         "lp": "eSOL-SOL",
         "weight": 1000,
-        "protocol": "saber",
+        "protocol": "Saber",
         "apy_24h": 0.
     }
 ]
@@ -216,10 +216,10 @@ export function QPoolsProvider(props: any) {
             console.log("Loading the weights");
             let response = await axios.get<any>(registry.getSerpiusEndpoint());
 
-            console.log("Here is the data :");
-            console.log(typeof response.data);
-            console.log(JSON.stringify(response.data));
-            console.log("Next!?");
+            // console.log("Here is the data :");
+            // console.log(typeof response.data);
+            // console.log(JSON.stringify(response.data));
+            // console.log("Next!?");
 
             if ("opt_port" in response.data) {
                 console.log("Trying to get the data ...");

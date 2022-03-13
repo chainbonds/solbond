@@ -5,6 +5,7 @@ import {Main} from "../../components/Main";
 // @ts-ignore
 import LoadingOverlay from "react-loading-overlay";
 import {useLoad} from "../../contexts/LoadingContext";
+import {BRAND_COLORS} from "../../const";
 
 export const HomeView: FC = ({}) => {
 
@@ -37,7 +38,7 @@ export const HomeView: FC = ({}) => {
             >
                 <div
                     className="flex flex-col h-screen w-full w-screen text-white"
-                    style={{ backgroundColor: "#0f172a" }}
+                    style={{ backgroundColor: BRAND_COLORS.slate900 }}
                 >
                     {/*{devnetBanner()}*/}
                     <Header />

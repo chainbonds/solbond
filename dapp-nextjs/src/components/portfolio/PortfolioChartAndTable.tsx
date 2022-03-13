@@ -2,26 +2,12 @@ import React, {useEffect, useState} from "react";
 import {PieChart, Pie, Cell} from "recharts";
 import {AllocData, IQPool, useQPoolUserTool} from "../../contexts/QPoolsProvider";
 import ExistingPortfolioTable from "../tables/ExistingPortfolioTable";
+import {COLORS, RADIAN} from "../../const";
+import SuggestedPortfolioTable from "../tables/SuggestedPortfolioTable";
 
 export default function PortfolioChartAndTable(props: any) {
 
     const qPoolContext: IQPool = useQPoolUserTool();
-
-    const COLORS = [
-        // "#2196f3",
-        // "#f44336",
-        // "#00C49F",
-        // "#ffeb3b",
-        // "#9c27b0",
-        "#0c4a6e",
-        "#831843",
-        "#fbcfe8",
-        "#bae6fd",
-        "#94a3b8",
-        "#fafafa",
-        "#0369a1",
-    ];
-    const RADIAN = Math.PI / 180;
 
     const renderCustomizedLabel = ({cx, cy, midAngle, innerRadius, outerRadius, percent, index}: any) => {
         const radius = innerRadius + (outerRadius - innerRadius) * 0.4; // 1.05;
@@ -46,7 +32,6 @@ export default function PortfolioChartAndTable(props: any) {
     ])
 
     const [ratios, setRatios] = useState<AllocData[] | null>(null);
-
     const [totalAmountInUsdc, setTotalAmountInUsdc] = useState<number>(0.);
     useEffect(() => {
         if (props.totalAmountInUsdc) {
@@ -66,8 +51,6 @@ export default function PortfolioChartAndTable(props: any) {
 
     useEffect(() => {
         if (!ratios) return;
-        console.log("Here is in the variable:")
-        console.log(JSON.stringify(ratios))
 
         // Sum is a
         let sum = ratios.reduce((sum: number, current: AllocData) => sum + current.weight, 0);
@@ -201,7 +184,8 @@ export default function PortfolioChartAndTable(props: any) {
                 {/*
                     Only show this Portfolio if the wallet is connected ...
                 */}
-                <ExistingPortfolioTable />
+                {/*<ExistingPortfolioTable />*/}
+                <SuggestedPortfolioTable />
             </div>
         </>
     );
