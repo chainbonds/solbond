@@ -2,7 +2,8 @@ import React, {FC} from "react";
 import {LogoWithTitle} from "./assets/LogoWithTitle";
 import {WalletMultiButton} from "@solana/wallet-adapter-react-ui";
 import {AirdropButton} from "./buttons/AirdropButton";
-import {RunCrankButton} from "./buttons/RunCrankButton";
+import {RunFulfillCrankButton} from "./buttons/RunFulfillCrankButton";
+import {RunWithdrawCrankButton} from "./buttons/RunWithdrawCrankButton";
 
 export const Header: FC = ({}) => {
 
@@ -25,7 +26,10 @@ export const Header: FC = ({}) => {
                                 <AirdropButton/>
                             </div>
                             <div className={"px-2 py-2 mx-auto md:py-0 md:py-auto md:my-auto"}>
-                                <RunCrankButton />
+                                <RunFulfillCrankButton />
+                            </div>
+                            <div className={"px-2 py-2 mx-auto md:py-0 md:py-auto md:my-auto"}>
+                                <RunWithdrawCrankButton />
                             </div>
                             <WalletMultiButton
                                 className={"btn btn-ghost"}

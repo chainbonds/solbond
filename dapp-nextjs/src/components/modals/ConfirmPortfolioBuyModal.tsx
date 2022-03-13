@@ -198,32 +198,19 @@ export default function ConfirmPortfolioBuyModal(props: any) {
             tx,
             qPoolContext.userAccount!.publicKey
         );
+        await itemLoadContext.incrementCounter();
 
         // TODO: Should be taken from positions, not from the saved list!
         // Perhaps you should encapsulate all this logic in a separate "run-all-cranks" function
         // Now run cranks. Get all positions that were created. Iterate through all. And execute all of them.
         // positionAccount
-        await itemLoadContext.incrementCounter();
         await qPoolContext.crankRpcTool!.fullfillAllPermissionless();
-        let tmpWalletBalance: number = await qPoolContext.connection!.getBalance(qPoolContext.localTmpKeypair!.publicKey);
-        let ix = await qPoolContext.crankRpcTool!.sendToUsersWallet(
-            qPoolContext.localTmpKeypair!.publicKey,
-            tmpWalletBalance
-        );
-        let tx2 = new Transaction();
-        tx2.add(ix);
-        await sendAndConfirmTransaction(
-            qPoolContext.crankRpcTool!.crankProvider,
-            qPoolContext.connection!,
-            tx2,
-            qPoolContext.userAccount!.publicKey
-        );
         await itemLoadContext.incrementCounter();
         // Add another Counter "running cranks"
         await qPoolContext.makePriceReload();
 
         // TODO: Display a message "Portfolio created"!
-        props.onClose()
+        props.onClose();
     }
 
     const portfolioChart = () => {

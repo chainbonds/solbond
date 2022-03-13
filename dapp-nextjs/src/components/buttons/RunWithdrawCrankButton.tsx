@@ -1,10 +1,14 @@
 import React, {FC} from "react";
 import {FaBroom} from "react-icons/fa";
-import {AllocData, IQPool, useQPoolUserTool} from "../../contexts/QPoolsProvider";
+import {IQPool, useQPoolUserTool} from "../../contexts/QPoolsProvider";
 import {useLoad} from "../../contexts/LoadingContext";
-import {PortfolioAccount} from "@qpools/sdk";
 
-export const RunCrankButton: FC = ({}) => {
+/**
+ * TODO: Perhaps you should have a button somewhere near the input field
+ * "experiencing interruptions with displaying your position... run crank"
+ * @constructor
+ */
+export const RunWithdrawCrankButton: FC = ({}) => {
 
     const qPoolContext: IQPool = useQPoolUserTool();
     const loadContext = useLoad();
@@ -44,7 +48,7 @@ export const RunCrankButton: FC = ({}) => {
                         {/* Could also be FaCarrot, FaCandyCane, FaFaucet, FaGavel, FaDraftingCompass */}
                         <FaBroom />
                     </div>
-                    RUN CRANK
+                    RUN WITHDRAW CRANK
                 </div>
             </button>
         </>

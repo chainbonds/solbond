@@ -157,42 +157,27 @@ export default function SinglePortfolioCard(props: any) {
         // TODO: Call Crank API to withdraw for this user lol
 
         // Get the total amount from the initialUsdcAmount
-
+        /**
+         * Send some SOL to the crank wallet to run the cranks ...
+         */
         let portfolioContents = (await qPoolContext._solbondProgram!.account.portfolioAccount.fetch(qPoolContext.portfolioObject!.portfolioPDA)) as PortfolioAccount;
         let initialUsdcAmount = portfolioContents.initialAmountUSDC;
-
+        // Instead of initial amount, we should try to get the maximum. But for now, this should suffice
         let IxApproveWithdraw = await qPoolContext.portfolioObject!.signApproveWithdrawToUser(initialUsdcAmount);
         tx.add(IxApproveWithdraw);
+        let IxRedeemPositions = await qPoolContext.portfolioObject!.approveRedeemFullPortfolio();
+        IxRedeemPositions.map((x: TransactionInstruction) => {
+            tx.add(x)
+        });
+        // Now send the transaction ...
+        // Amount of SOL is pretty high probably.
+        let IxSendToCrankWallet = await qPoolContext.portfolioObject!.sendToCrankWallet(
+            qPoolContext.localTmpKeypair!.publicKey,
+            100_000_000
+        );
+        tx.add(IxSendToCrankWallet);
         await itemLoadContext.incrementCounter();
-
-        // TODO: Replace these lines since the newest addition
-        // await Promise.all(qPoolContext.portfolioObject!.poolAddresses.map(async (poolAddress: PublicKey, index: number) => {
-        //
-        //     // Get as much as the position permits to be taken lol
-        //     let IxApproveWithdrawSaber = await qPoolContext.portfolioObject!.approveWithdrawAmountSaber(index);
-        //     tx.add(IxApproveWithdrawSaber);
-        // }));
-        // await itemLoadContext.incrementCounter();
-
-        // Put this together with sending USDC back ...
-        // await Promise.all(qPoolContext.portfolioObject!.poolAddresses.map(async (poolAddress: PublicKey, index: number) => {
-        //
-        //     const stableSwapState = await qPoolContext.portfolioObject!.getPoolState(poolAddress);
-        //     const {state} = stableSwapState;
-        //
-        //     let IxRedeemOneSideSaber = await qPoolContext.portfolioObject!.redeemSinglePositionOneSide(
-        //         index,
-        //         poolAddress,
-        //         state,
-        //         stableSwapState
-        //     );
-        //     tx.add(IxRedeemOneSideSaber);
-        // }));
-        // await itemLoadContext.incrementCounter();
-
-        let IxSendUsdcFromPortfolioToUser = await qPoolContext.portfolioObject!.transferUsdcFromPortfolioToUser();
-        tx.add(IxSendUsdcFromPortfolioToUser);
-
+        // Now sign this transaction
         await sendAndConfirmTransaction(
             qPoolContext._solbondProgram!.provider,
             qPoolContext.connection!,
@@ -201,11 +186,32 @@ export default function SinglePortfolioCard(props: any) {
         );
         await itemLoadContext.incrementCounter();
 
+        /**
+         * Run all cranks to take back the orders ...
+         */
+        // Run all the cranks here ...
+        await qPoolContext.crankRpcTool!.fullfillAllWithdrawalsPermissionless();
+        await itemLoadContext.incrementCounter();
+        await qPoolContext.crankRpcTool!.transferToUser();
+        await itemLoadContext.incrementCounter();
+
+        let tmpWalletBalance: number = await qPoolContext.connection!.getBalance(qPoolContext.localTmpKeypair!.publicKey);
+        let ix = await qPoolContext.crankRpcTool!.sendToUsersWallet(
+            qPoolContext.localTmpKeypair!.publicKey,
+            Math.min(tmpWalletBalance - 5_001, 0.0)
+        );
+        let tx2 = new Transaction();
+        tx2.add(ix);
+        await sendAndConfirmTransaction(
+            qPoolContext.crankRpcTool!.crankProvider,
+            qPoolContext.connection!,
+            tx2,
+            qPoolContext.userAccount!.publicKey
+        );
 
         // Make reload
         await qPoolContext.makePriceReload();
 
-        await loadContext.decreaseCounter();
         props.setShow(false);
 
     }
