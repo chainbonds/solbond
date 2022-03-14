@@ -2,7 +2,7 @@ import {useEffect, useState} from "react";
 import {IQPool, useQPoolUserTool} from "../../contexts/QPoolsProvider";
 import {getAssociatedTokenAddressOffCurve} from "@qpools/sdk/lib/utils";
 import {PublicKey} from "@solana/web3.js";
-import {tokenAccountExists} from "@qpools/sdk";
+import {tokenAccountExists, MOCK} from "@qpools/sdk";
 
 export default function UserInfoBalance() {
 
@@ -11,11 +11,11 @@ export default function UserInfoBalance() {
 
     const updateAccountBalance = async () => {
         console.log("#useEffect UserInfoBalance");
-        if (qPoolContext.connection && qPoolContext.currencyMint && qPoolContext.userAccount) {
+        if (qPoolContext.connection && qPoolContext.userAccount) {
             // Get the associated token account
             console.log("Getting associated token account")
             let userCurrencyAta: PublicKey = await getAssociatedTokenAddressOffCurve(
-                qPoolContext.currencyMint.publicKey, qPoolContext.userAccount.publicKey
+                MOCK.DEV.SABER_USDC, qPoolContext.userAccount.publicKey
             )
             let existsBool = await tokenAccountExists(qPoolContext.connection!, userCurrencyAta);
             console.log("User ATA: ", userCurrencyAta.toString(), existsBool);

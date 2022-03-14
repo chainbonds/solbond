@@ -3,12 +3,7 @@ import {Dialog, Transition} from '@headlessui/react';
 import PortfolioChartAndTable from "../portfolio/PortfolioChartAndTable";
 import {useWallet} from "@solana/wallet-adapter-react";
 import {AllocData, IQPool, useQPoolUserTool} from "../../contexts/QPoolsProvider";
-import {BN} from "@project-serum/anchor";
-import {PublicKey, Transaction, TransactionInstruction} from "@solana/web3.js";
-import {sendAndConfirmTransaction} from "../../utils/utils";
-import {MOCK} from "@qpools/sdk";
 import {useItemsLoad} from "../../contexts/ItemsLoadingContext";
-import {Promise} from "es6-promise";
 import PurchaseButton from "../buttons/PurchaseButton";
 
 export default function ConfirmPortfolioBuyModal(props: any) {

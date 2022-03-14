@@ -28,7 +28,9 @@ export default function StakeForm() {
     const getActionButton = () => {
         if (qPoolContext.userAccount) {
             return (
-                <PurchaseButton />
+                <PurchaseButton
+                    valueInUsdc={valueInUsdc}
+                />
             )
         } else {
             return (

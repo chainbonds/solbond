@@ -145,8 +145,8 @@ export default function PortfolioChartAndTable(props: any) {
                 {/*
                     Only show this Portfolio if the wallet is connected ...
                 */}
-                <ExistingPortfolioTable />
-                {/*<SuggestedPortfolioTable />*/}
+                {/*<ExistingPortfolioTable />*/}
+                <SuggestedPortfolioTable />
             </div>
         </>
     );

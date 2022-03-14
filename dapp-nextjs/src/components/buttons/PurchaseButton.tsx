@@ -14,17 +14,19 @@ export default function PurchaseButton(props: any) {
     const qPoolContext: IQPool = useQPoolUserTool();
     const itemLoadContext = useItemsLoad();
 
-    const [totalAmountInUsdc, setTotalAmountInUsdc] = useState<number>(0.);
-    useEffect(() => {
-        if (props.valueInUsdc) {
-            console.log("Defined!: ", props.valueInUsdc);
-            setTotalAmountInUsdc(props.valueInUsdc);
-        } else {
-            console.log("WARNING: Prop is empty!", props.valueInUsdc);
-        }
-    }, [props.valueInUsdc]);
+    // const [totalAmountInUsdc, setTotalAmountInUsdc] = useState<number>(0.);
+    // useEffect(() => {
+    //     if (props.valueInUsdc) {
+    //         console.log("Defined!: ", props.valueInUsdc);
+    //         setTotalAmountInUsdc(props.valueInUsdc);
+    //     } else {
+    //         console.log("WARNING: Prop is empty!", props.valueInUsdc);
+    //     }
+    // }, [props.valueInUsdc]);
 
     const buyItem = async () => {
+
+        let valueInUsdc = props.valueInUsdc;
 
         if (!qPoolContext.userAccount!.publicKey) {
             alert("Please connect your wallet first!");
@@ -42,6 +44,15 @@ export default function PurchaseButton(props: any) {
             return
         }
 
+        // TODO: Add this
+        // if ((typeof valueInUsdc) != number) {
+        //     throw Error("Value in USDC is not a number");
+        // }
+
+        if (!(valueInUsdc > 0)) {
+            throw Error("Amount to be paid in must be bigger than 0");
+        }
+
         await itemLoadContext.addLoadItem({message: "Preparing Transaction"});
         await itemLoadContext.addLoadItem({message: "(Sign): Creating Associated Token Accounts"});
         await itemLoadContext.addLoadItem({message: "Sign: Create Portfolio & Send USDC"});
@@ -52,8 +63,8 @@ export default function PurchaseButton(props: any) {
         await qPoolContext.initializeQPoolsUserTool(walletContext);
         await itemLoadContext.incrementCounter();
 
-        console.log("Total amount in Usdc is: ", totalAmountInUsdc);
-        const sendAmount: BN = new BN(totalAmountInUsdc).mul(new BN(10**MOCK.DEV.SABER_USDC_DECIMALS));
+        console.log("Total amount in Usdc is: ", valueInUsdc);
+        const sendAmount: BN = new BN(valueInUsdc).mul(new BN(10**MOCK.DEV.SABER_USDC_DECIMALS));
 
         // Again, these weights need to be retrieved from the Serpius API
         let weights: BN[] = qPoolContext.portfolioRatios
@@ -69,6 +80,9 @@ export default function PurchaseButton(props: any) {
         }
         if (weights.length != poolAddresses.length) {
             throw Error("Weights and PoolAddresses do not conform!");
+        }
+        if (!(weights.length > 0)) {
+            throw Error("All weights are zero! Doesn't make sense to create a portfolio");
         }
 
         // TODO: Gotta normalize weights up to 1000
@@ -137,6 +151,8 @@ export default function PurchaseButton(props: any) {
         // Get the user's complete tokenB, and do tokenB times weight to be deposited here
         // Same for every pool
 
+        let instructionsBeforeAdding: number = tx.instructions.length;
+
         // Calculate according to totalSendAmount
         await Promise.all(poolAddresses.map(async (poolAddress: PublicKey, index: number) => {
 
@@ -185,6 +201,10 @@ export default function PurchaseButton(props: any) {
             }
 
         }));
+
+        if (instructionsBeforeAdding === tx.instructions.length) {
+            throw Error("No positions added, aborting transaction!");
+        }
 
         // Finally, send some funds to the local tmp keypair
         // By default, just send some SOL
