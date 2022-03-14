@@ -209,7 +209,7 @@ export function QPoolsProvider(props: any) {
      */
     const runCrankInBackground = async () => {
         // Check
-        if (await accountExists(crankRpcTool!.portfolioPDA)) {
+        if (await accountExists(connection, crankRpcTool!.portfolioPDA)) {
             await crankRpcTool!.fullfillAllPermissionless();
             await makePriceReload();
         }
@@ -283,14 +283,14 @@ export function QPoolsProvider(props: any) {
     // Calculate all usdc values
     const calculateAllUsdcValues = async () => {
         console.log("#useEffect calculateAllUsdcValues");
-        if (userAccount && portfolioObject && (await accountExists(portfolioObject.portfolioPDA))) {
+        if (userAccount && portfolioObject && (await accountExists(connection, portfolioObject.portfolioPDA))) {
             console.log("Going in here ..");
             let { storedPositions, usdAmount, storedPositionUsdcAmounts } = await portfolioObject.getPortfolioUsdcValue();
             setPositionValuesInUsd(storedPositionUsdcAmounts);
             setTotalPortfolioValueUsd(usdAmount);
             setPositionInfos(storedPositions);
         } else {
-            console.log("Not going in here bcs: ",userAccount, portfolioObject, portfolioObject && (await accountExists(portfolioObject.portfolioPDA)) );
+            console.log("Not going in here bcs: ",userAccount, portfolioObject, portfolioObject && (await accountExists(connection, portfolioObject.portfolioPDA)) );
         }
         console.log("##useEffect calculateAllUsdcValues");
     }
