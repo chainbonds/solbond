@@ -18,8 +18,9 @@ export default function UserInfoBalance() {
                 qPoolContext.currencyMint.publicKey, qPoolContext.userAccount.publicKey
             )
             let existsBool = await tokenAccountExists(qPoolContext.connection!, userCurrencyAta);
-
+            console.log("User ATA: ", userCurrencyAta.toString(), existsBool);
             if (existsBool) {
+                console.log("Exists!");
                 // Check if this account exists, first of all
                 let x = await qPoolContext.connection!.getTokenAccountBalance(userCurrencyAta);
                 if (x.value && x.value.uiAmount) {

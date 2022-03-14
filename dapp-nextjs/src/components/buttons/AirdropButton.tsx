@@ -32,11 +32,11 @@ export const AirdropButton: FC = ({}) => {
         await loadContext.increaseCounter();
 
         // Airdrop some solana first, to make sure we can run this transaction ...
-        // if ((await qPoolContext.connection!.getBalance(qPoolContext.userAccount!.publicKey)) <= 5e8) {
-        let tx0 = await qPoolContext.connection!.requestAirdrop(qPoolContext.userAccount!.publicKey, 1e9);
-        await qPoolContext.connection!.confirmTransaction(tx0, 'finalized');
-        console.log("Airdropped 1!");
-        // }
+        if ((await qPoolContext.connection!.getBalance(qPoolContext.userAccount!.publicKey)) <= 5e8) {
+            let tx0 = await qPoolContext.connection!.requestAirdrop(qPoolContext.userAccount!.publicKey, 1e9);
+            await qPoolContext.connection!.confirmTransaction(tx0, 'finalized');
+            console.log("Airdropped 1!");
+        }
 
         // To airdrop some devnet SOL to pouya
         // let tx0 = await qPoolContext.connection!.requestAirdrop(qPoolContext.userAccount!.publicKey, 1e9);
@@ -47,13 +47,12 @@ export const AirdropButton: FC = ({}) => {
 
         console.log("Initializing QPoolsUserTool");
         await qPoolContext.initializeQPoolsUserTool(walletContext);
-        await delay(1000);
+        await delay(1500);
 
         // console.log("Initializing QPoolsUserTool");
         // await qPoolContext.qPoolsUser!.loadExistingQPTReserve(qPoolContext.currencyMint!.publicKey!);
 
         // TODO: Generate a USDC account
-
         console.log("Registering Account");
         console.log(airdropAdmin);
         console.log("Currency mint is: ", qPoolContext.currencyMint!.publicKey.toString());

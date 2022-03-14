@@ -204,6 +204,23 @@ export function QPoolsProvider(props: any) {
         }
     }, [localTmpKeypair, connection, provider]);
 
+    /**
+     * Implement logic to run cranks if not all positions have been fulfilled
+     */
+    const runCrankInBackground = async () => {
+
+        // Check
+
+        await crankRpcTool!.fullfillAllPermissionless();
+        await makePriceReload();
+    }
+
+    useEffect(() => {
+        if (crankRpcTool) {
+            runCrankInBackground();
+        }
+    },[crankRpcTool]);
+
 
     /**
      * Somewhat legacy, will fix and clear these items at a later stage ...

@@ -78,18 +78,21 @@ export const RedeemPortfolioButton: FC = ({}) => {
         await itemLoadContext.incrementCounter();
 
         let tmpWalletBalance: number = await qPoolContext.connection!.getBalance(qPoolContext.localTmpKeypair!.publicKey);
-        let ix = await qPoolContext.crankRpcTool!.sendToUsersWallet(
-            qPoolContext.localTmpKeypair!.publicKey,
-            Math.min(tmpWalletBalance - 7_001, 0.0)
-        );
-        let tx2 = new Transaction();
-        tx2.add(ix);
-        await sendAndConfirmTransaction(
-            qPoolContext.crankRpcTool!.crankProvider,
-            qPoolContext.connection!,
-            tx2,
-            qPoolContext.userAccount!.publicKey
-        );
+        let lamportsBack = Math.min(tmpWalletBalance - 7_001, 0.0);
+        if (lamportsBack > 0) {
+            let ix = await qPoolContext.crankRpcTool!.sendToUsersWallet(
+                qPoolContext.localTmpKeypair!.publicKey,
+                lamportsBack
+            );
+            let tx2 = new Transaction();
+            tx2.add(ix);
+            await sendAndConfirmTransaction(
+                qPoolContext.crankRpcTool!.crankProvider,
+                qPoolContext.connection!,
+                tx2,
+                qPoolContext.userAccount!.publicKey
+            );
+        }
 
         // Make reload
         await qPoolContext.makePriceReload();
