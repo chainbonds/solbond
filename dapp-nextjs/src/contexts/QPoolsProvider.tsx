@@ -14,7 +14,7 @@ import {
 import delay from "delay";
 import axios from "axios";
 import {UsdValuePosition} from "../types/UsdValuePosition";
-import {registry} from "@qpools/sdk";
+import {registry, accountExists} from "@qpools/sdk";
 import {PositionInfo, CrankRpcCalls} from "@qpools/sdk";
 
 export interface AllocData {
@@ -208,11 +208,11 @@ export function QPoolsProvider(props: any) {
      * Implement logic to run cranks if not all positions have been fulfilled
      */
     const runCrankInBackground = async () => {
-
         // Check
-
-        await crankRpcTool!.fullfillAllPermissionless();
-        await makePriceReload();
+        if (await accountExists(crankRpcTool!.portfolioPDA)) {
+            await crankRpcTool!.fullfillAllPermissionless();
+            await makePriceReload();
+        }
     }
 
     useEffect(() => {
@@ -272,7 +272,7 @@ export function QPoolsProvider(props: any) {
 
     useEffect(() => {
         calculateAllUsdcValues();
-    }, [userAccount, reloadPriceSentinel]);
+    }, [userAccount, provider, reloadPriceSentinel]);
 
     const makePriceReload = async () => {
         console.log("#useEffect makePriceReload");
@@ -283,11 +283,14 @@ export function QPoolsProvider(props: any) {
     // Calculate all usdc values
     const calculateAllUsdcValues = async () => {
         console.log("#useEffect calculateAllUsdcValues");
-        if (userAccount && portfolioObject) {
+        if (userAccount && portfolioObject && (await accountExists(portfolioObject.portfolioPDA))) {
+            console.log("Going in here ..");
             let { storedPositions, usdAmount, storedPositionUsdcAmounts } = await portfolioObject.getPortfolioUsdcValue();
             setPositionValuesInUsd(storedPositionUsdcAmounts);
             setTotalPortfolioValueUsd(usdAmount);
             setPositionInfos(storedPositions);
+        } else {
+            console.log("Not going in here bcs: ",userAccount, portfolioObject, portfolioObject && (await accountExists(portfolioObject.portfolioPDA)) );
         }
         console.log("##useEffect calculateAllUsdcValues");
     }

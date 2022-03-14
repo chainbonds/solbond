@@ -53,7 +53,7 @@ export const Main: FC = ({}) => {
 
     const fetchAndDisplay = async () => {
         if (qPoolContext.portfolioObject) {
-            let isFulfilled = await qPoolContext.portfolioObject!.portfolioExistsAndIsFulfilled();
+            let isFulfilled = await qPoolContext.portfolioObject!.portfolioExists();
             if (isFulfilled) {
                 setDisplayForm(HeroFormState.Unstake);
             } else {
@@ -61,7 +61,7 @@ export const Main: FC = ({}) => {
             }
         }
     };
-
+    //
     useEffect(() => {
         // Check if the account exists, and if it was fulfilled
         fetchAndDisplay();
