@@ -3,6 +3,7 @@ import {IQPool, useQPoolUserTool} from "../../contexts/QPoolsProvider";
 import {getAssociatedTokenAddressOffCurve} from "@qpools/sdk/lib/utils";
 import {PublicKey} from "@solana/web3.js";
 import {tokenAccountExists, MOCK} from "@qpools/sdk";
+import {useWallet} from '@solana/wallet-adapter-react';
 
 export default function UserInfoBalance() {
 
@@ -39,7 +40,7 @@ export default function UserInfoBalance() {
 
     useEffect(() => {
         updateAccountBalance();
-    }, [qPoolContext.totalPortfolioValueInUsd, qPoolContext.positionInfos, qPoolContext.reloadPriceSentinel]);
+    }, [qPoolContext.reloadPriceSentinel, qPoolContext.userAccount, qPoolContext.connection ]);
 
     return (
         <>

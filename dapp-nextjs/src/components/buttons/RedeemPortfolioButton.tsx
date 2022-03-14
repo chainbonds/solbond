@@ -74,6 +74,7 @@ export const RedeemPortfolioButton: FC = ({}) => {
         // Run all the cranks here ...
         await qPoolContext.crankRpcTool!.fullfillAllWithdrawalsPermissionless();
         await itemLoadContext.incrementCounter();
+        console.log("I TRY TO TRANSFER TO USER --------------------------------------------------------------------");
         await qPoolContext.crankRpcTool!.transferToUser();
         await itemLoadContext.incrementCounter();
 
