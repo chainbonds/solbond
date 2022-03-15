@@ -39,7 +39,7 @@ export default function UserInfoBalance() {
 
     useEffect(() => {
         updateAccountBalance();
-    }, [qPoolContext.totalPortfolioValueInUsd, qPoolContext.positionInfos, qPoolContext.reloadPriceSentinel]);
+    }, [qPoolContext.totalPortfolioValueInUsd, qPoolContext.provider, qPoolContext.positionInfos, qPoolContext.reloadPriceSentinel]);
 
     return (
         <>

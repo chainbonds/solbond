@@ -4,6 +4,7 @@ import {AllocData, IQPool, useQPoolUserTool} from "../../contexts/QPoolsProvider
 import ExistingPortfolioTable from "../tables/ExistingPortfolioTable";
 import {COLORS, RADIAN} from "../../const";
 import SuggestedPortfolioTable from "../tables/SuggestedPortfolioTable";
+import {HeroFormState} from "../Main";
 
 export default function PortfolioChartAndTable(props: any) {
 
@@ -145,8 +146,8 @@ export default function PortfolioChartAndTable(props: any) {
                 {/*
                     Only show this Portfolio if the wallet is connected ...
                 */}
-                {/*<ExistingPortfolioTable />*/}
-                <SuggestedPortfolioTable />
+                {(props.displayMode === HeroFormState.Unstake) && <ExistingPortfolioTable />}
+                {(props.displayMode === HeroFormState.Stake) && <SuggestedPortfolioTable />}
             </div>
         </>
     );
