@@ -16,7 +16,7 @@ export default function Onramper() {
             defaultFiat = "USD"
             API_KEY="pk_test_eu92eCNlBbOhGlyQ3qOojn9ELvZMHkoVqtTZxAknRlE0"
             filters={{
-                onlyCryptos: ["USDC"]
+                //onlyCryptos: ["USDC"]
             }}
 
         />
