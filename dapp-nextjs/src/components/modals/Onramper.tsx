@@ -32,7 +32,7 @@ export default function Onramper() {
             defaultAmount={50}
             defaultFiat = "USD"
             defaultAddrs={getWalletAddress()}
-            API_KEY="pk_test_eu92eCNlBbOhGlyQ3qOojn9ELvZMHkoVqtTZxAknRlE0"
+            API_KEY="pk_prod_JEwfnwPsVPy6gOeHuV3xxjdQesmGvdKHObbWwzGlak40"
             filters={{
                 onlyCryptos: ["USDC_SOL"]
             }}
