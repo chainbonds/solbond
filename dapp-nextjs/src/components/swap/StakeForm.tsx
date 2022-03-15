@@ -60,6 +60,7 @@ export default function StakeForm() {
                 isOpen={displayOnramperModal}
                 onClose={() => {
                     setDisplayOnramperModal(false)
+                    
                 }}
             />
 
