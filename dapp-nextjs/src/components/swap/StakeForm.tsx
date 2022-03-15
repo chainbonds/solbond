@@ -9,6 +9,7 @@ import {WalletMultiButton} from "@solana/wallet-adapter-react-ui";
 import UserInfoBalance from "../displays/UserInfoBalance";
 import ConfirmPortfolioBuyModal from "../modals/ConfirmPortfolioBuyModal";
 import PurchaseButton from "../buttons/PurchaseButton";
+import OnramperModal from "../modals/OnramperModal"
 
 export default function StakeForm() {
 
@@ -18,6 +19,8 @@ export default function StakeForm() {
 
     const [valueInUsdc, setValueInUsdc] = useState<number>(0.);
     const [displayBuyModal, setDisplayBuyModal] = useState<boolean>(false);
+    const [displayOnramperModal, setDisplayOnramperModal] = useState<boolean>(false);
+
 
     useEffect(() => {
         if (walletContext.publicKey) {
@@ -53,9 +56,22 @@ export default function StakeForm() {
                 }}
                 valueInUsdc={valueInUsdc}
             />
+            <OnramperModal
+                isOpen={displayOnramperModal}
+                onClose={() => {
+                    setDisplayOnramperModal(false)
+                }}
+            />
+
             <div className={"flex pb-2 w-full"}>
                 <div className={"flex flex-col w-full"}>
                     <div className={"flex flex-row"}>
+                        <div className={"flex flex-row mr-4"}>
+                            <CallToActionButton
+                                onClick = {() => {setDisplayOnramperModal(true)}}
+                                text = {"Purchase Asset"}
+                            />
+                        </div>
                         <div className={"flex flex-row w-9/12 mr-4"}>
                             <InputFieldWithLogo
                                 className={""}
