@@ -7,6 +7,7 @@ export default function ConnectWalletButton() {
         style={{
             background: BRAND_COLORS.slate900,
             color: "white",
+            width: 150,
             borderStyle : "solid",
             borderWidth : 0.3,
             borderColor : "#6b7280"

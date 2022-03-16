@@ -12,10 +12,6 @@ import PurchaseButton from "../buttons/PurchaseButton";
 import OnramperModal from "../modals/OnramperModal"
 import {COLORS} from "../../const"
 import ConnectWalletButton from "../buttons/ConnectWalletButton";
-import dynamic from 'next/dynamic'
-const Onramper = dynamic(() => import('../modals/Onramper'), {
-    ssr: false
-})
 
 export default function StakeForm() {
 
@@ -62,7 +58,6 @@ export default function StakeForm() {
                 onClose={() => {
                     setDisplayOnramperModal(false)
                 }}
-                theWidget = {() => {return <Onramper/>}}
             />
 
             <div className={"flex pb-2 w-full"}>
