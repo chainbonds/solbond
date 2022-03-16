@@ -4,8 +4,9 @@ import {getAssociatedTokenAddressOffCurve} from "@qpools/sdk/lib/utils";
 import {PublicKey} from "@solana/web3.js";
 import {tokenAccountExists, MOCK} from "@qpools/sdk";
 import {useWallet} from '@solana/wallet-adapter-react';
+import {COLORS} from "../../const"
 
-export default function UserInfoBalance() {
+export default function UserInfoBalance(props : any) {
 
     const qPoolContext: IQPool = useQPoolUserTool();
     const [currencyBalance, setCurrencyBalance] = useState<number>(0.);
@@ -46,7 +47,16 @@ export default function UserInfoBalance() {
         <>
             <div
                 className={"flex flex-col md:flex-row items-center lg:items-begin text-gray-500 text-sm font-semibold "}>
-                Wallet Balance: {currencyBalance.toFixed(2)} USDC
+                Wallet Balance: {currencyBalance.toFixed(2)} USDC.
+            </div>
+            <div className={"flex flex-row mr-4"}>
+                <button
+                    style = {{textDecoration : "underline" }}//background : COLORS[0]
+                    className={"flex flex-col md:flex-row items-center lg:items-begin text-gray-500 text-sm font-semibold "}
+                    onClick = {() => {props.onClick()}}
+                >
+                    <text>	&nbsp;Buy more?</text>
+                </button>
             </div>
         </>
     )

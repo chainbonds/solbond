@@ -231,6 +231,7 @@ export function QPoolsProvider(props: any) {
     const fetchAndParseSerpiusEndpoint = async () => {
             console.log("#useEffect getSerpiusEndpoint");
             console.log("Loading the weights");
+
             let response = await axios.get<any>(registry.getSerpiusEndpoint());
 
             // console.log("Here is the data :");

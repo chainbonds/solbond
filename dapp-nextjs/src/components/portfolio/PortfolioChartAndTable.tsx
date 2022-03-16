@@ -8,6 +8,7 @@ import SuggestedPortfolioTable from "../tables/SuggestedPortfolioTable";
 export default function PortfolioChartAndTable(props: any) {
 
     const qPoolContext: IQPool = useQPoolUserTool();
+    const showPercentage = false;
 
     const renderCustomizedLabel = ({cx, cy, midAngle, innerRadius, outerRadius, percent, index}: any) => {
         const radius = innerRadius + (outerRadius - innerRadius) * 0.4; // 1.05;
@@ -127,8 +128,9 @@ export default function PortfolioChartAndTable(props: any) {
                          cy="50%"
                          labelLine={false}
                          isAnimationActive={false} // this line is needed in order to see the labels. https://github.com/recharts/recharts/issues/929
-                         label={renderCustomizedLabel}
+                         label={showPercentage ? renderCustomizedLabel : false}
                          outerRadius={100}
+                         innerRadius={40}
                          // fill="#8884d8"
                          dataKey="value"
                     >
@@ -141,7 +143,7 @@ export default function PortfolioChartAndTable(props: any) {
                 </PieChart>
             </div>
 
-            <div className="flex flex-col text-gray-300 my-auto">
+            <div className="flex flex-col text-gray-300 my-auto divide-y divide-white">
                 {/*
                     Only show this Portfolio if the wallet is connected ...
                 */}

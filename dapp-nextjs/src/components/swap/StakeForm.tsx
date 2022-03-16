@@ -10,6 +10,12 @@ import UserInfoBalance from "../displays/UserInfoBalance";
 import ConfirmPortfolioBuyModal from "../modals/ConfirmPortfolioBuyModal";
 import PurchaseButton from "../buttons/PurchaseButton";
 import OnramperModal from "../modals/OnramperModal"
+import {COLORS} from "../../const"
+import ConnectWalletButton from "../buttons/ConnectWalletButton";
+import dynamic from 'next/dynamic'
+const Onramper = dynamic(() => import('../modals/Onramper'), {
+    ssr: false
+})
 
 export default function StakeForm() {
 
@@ -37,12 +43,7 @@ export default function StakeForm() {
             )
         } else {
             return (
-                <WalletMultiButton
-                    className={"btn btn-ghost"}
-                    onClick={() => {
-                        console.log("click");
-                    }}
-                />
+                <ConnectWalletButton/>
             );
         }
     }
@@ -60,20 +61,14 @@ export default function StakeForm() {
                 isOpen={displayOnramperModal}
                 onClose={() => {
                     setDisplayOnramperModal(false)
-                    
                 }}
+                theWidget = {() => {return <Onramper/>}}
             />
 
             <div className={"flex pb-2 w-full"}>
                 <div className={"flex flex-col w-full"}>
                     <div className={"flex flex-row"}>
-                        <div className={"flex flex-row mr-4"}>
-                            <CallToActionButton
-                                onClick = {() => {setDisplayOnramperModal(true)}}
-                                text = {"Purchase Asset"}
-                            />
-                        </div>
-                        <div className={"flex flex-row w-9/12 mr-4"}>
+                        <div className={"flex flex-row w-full mr-4"}>
                             <InputFieldWithLogo
                                 className={""}
                                 logoPath={"/usdc-logo.png"}
@@ -88,7 +83,9 @@ export default function StakeForm() {
                         </div>
                     </div>
                     <div className={"flex flex-row mx-1 mt-1"}>
-                        <UserInfoBalance/>
+                        <UserInfoBalance
+                        onClick = {() => {setDisplayOnramperModal(true)}}
+                        />
                     </div>
                 </div>
             </div>

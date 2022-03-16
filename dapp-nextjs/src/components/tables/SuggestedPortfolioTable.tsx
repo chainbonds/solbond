@@ -36,7 +36,7 @@ export default function SuggestedPortfolioTable() {
      */
     const tableHeader = (columns: (string | null)[]) => {
         return (
-            <thead className="bg-gray-50 dark:bg-gray-700">
+            <thead className="bg-gray-100 dark:bg-gray-700">
             <tr>
                 {
                     columns.map((x: (string | null)) => {
@@ -148,7 +148,7 @@ export default function SuggestedPortfolioTable() {
                             <Image src={iconMintB} width={30} height={30} />
                         </a>
                     </td>
-                    <td className="py-4 px-6 text-sm text-center font-normal text-gray-500 whitespace-nowrap dark:text-gray-400">
+                    <td className="py-4 px-6 text-sm text-center font-normal  whitespace-nowrap dark:text-gray-400">
                         {item.value.toFixed(0)}%
                     </td>
                     <td className="py-4 px-6 text-sm text-center text-right whitespace-nowrap">
@@ -171,7 +171,7 @@ export default function SuggestedPortfolioTable() {
                         <div className="overflow-hidden shadow-md sm:rounded-lg">
                             <table className="min-w-full">
                                 {tableHeader(tableColumns)}
-                                <tbody>
+                                <tbody className={"divide-y divide-white"}>
                                     {pieChartData.map((position: ChartableItemType, index: number) => tableSingleRow(position, index))}
                                 </tbody>
                             </table>

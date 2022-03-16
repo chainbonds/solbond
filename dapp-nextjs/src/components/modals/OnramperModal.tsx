@@ -1,6 +1,6 @@
 import {Button, Modal} from 'react-bootstrap';
 import {Fragment, useEffect, useState} from "react";
-import {Dialog, Transition} from '@headlessui/react';
+import {Transition} from '@headlessui/react';
 import {useWallet} from "@solana/wallet-adapter-react";
 import {IQPool, useQPoolUserTool} from "../../contexts/QPoolsProvider";
 import {useLoad} from "../../contexts/LoadingContext";
@@ -16,7 +16,6 @@ const Onramper = dynamic(() => import('./Onramper'), {
     ssr: false
 })
 
-
 export default function OnramperModal(props: any) {
 
     // Add all the logic to buy the product here?
@@ -24,17 +23,11 @@ export default function OnramperModal(props: any) {
     const qPoolContext: IQPool = useQPoolUserTool();
     const loadContext = useLoad();
     const itemLoadContext = useItemsLoad();
-    
-
 
     return (
         <>
             <Transition.Root appear show={props.isOpen} as={Fragment}>
-                <Dialog
-                    as="div"
-                    className="fixed inset-0 z-10 overflow-y-auto"
-                    onClose={() => {props.onClose()}}
-                >
+                <div className="fixed inset-0 z-10 overflow-y-auto">
                     <div className="min-h-screen px-4 text-center">
                         <Transition.Child
                             as={Fragment}
@@ -46,16 +39,9 @@ export default function OnramperModal(props: any) {
                             leaveTo="opacity-0"
                         >
                             {/*<Dialog.Overlay className="fixed inset-0" />*/}
-                            <Dialog.Overlay onClick ={() => {props.onClose()}}  className="fixed inset-0 bg-black opacity-70"/>
+                            <div className="fixed inset-0 bg-black opacity-70"/>
                         </Transition.Child>
 
-                        {/* This element is to trick the browser into centering the modal contents. */}
-                        {/*<span*/}
-                        {/*    className="inline-block h-screen align-middle"*/}
-                        {/*    aria-hidden="true"*/}
-                        {/*>*/}
-                        {/*  &#8203;*/}
-                        {/*</span>*/}
                         <Transition.Child
                             as={Fragment}
                             enter="ease-out duration-300"
@@ -65,30 +51,20 @@ export default function OnramperModal(props: any) {
                             leaveFrom="opacity-50 scale-100"
                             leaveTo="opacity-0 scale-50"
                         >
-                            {/**/}
-                            {/*<div
-                                className="mx-auto mt-52 w-full shadow shadow-lg max-w-3xl p-6 my-8 overflow-hidden text-left align-middle transition-all transform shadow rounded-sm bg-gray-800">
-
-                                <div className={"justify-start my-auto font-black"}>*/}
                                 <div className="flex h-screen">
-                                    <div className={"m-auto"} //mx-auto my-auto
-                                        style={{
-                                            width: "440px",
-                                            height: "595px",
-                                            boxShadow: "0 2px 10px 0 rgba(0, 0, 0, 0.1)",
-                                            borderRadius: "10px",
-                                            margin: "auto",
-                                            fontFamily: "Roboto sans-serif",
-                                            color: "black"
-                                        }}
-                                    >
+                                    <div className={"m-auto relative"}>
+                                            <button className={"absolute -top-0 -right-0 rounded-bl-md w-16 h-6 z-10"}
+                                                    style={{background : "#266678"}}
+                                                    onClick = {() => {props.onClose()}}
+                                            >
+                                                &times;
+                                            </button>
                                             <Onramper/>
                                     </div>
                                 </div>
-                            {/*    </div>*/}
                         </Transition.Child>
                     </div>
-                </Dialog>
+                </div>
             </Transition.Root>
         </>
     )

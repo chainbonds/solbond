@@ -6,7 +6,7 @@ export default function CallToActionButton(props: any) {
                 <button
                     type={props.type}
                     onClick={props.onClick}
-                    className={"rounded-lg text-m font-semibold bg-pink-700 hover:bg-pink-900 h-12 w-full text-center align-middle"}
+                    className={"rounded-lg text-xl font-semibold bg-pink-700 hover:bg-pink-900 h-12 w-full text-center align-middle"}
                 >
                     {props.text}
                 </button>

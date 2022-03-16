@@ -103,7 +103,7 @@ export const Main: FC = ({}) => {
         >
             <LoadingItemsModal />
             <div className={"flex flex-col grow w-full my-auto"}>
-                <div className={"flex flex-col mx-auto"}>
+                <div className={"flex flex-col mx-auto "}>
                     <div className={"flex flex-row w-full"}>
                         <h1 className={"text-3xl font-light"}>
                             {titleString()}
