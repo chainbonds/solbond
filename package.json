@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "@jup-ag/core": "^1.0.0-beta.17",
+    "@jup-ag/react-hook": "^1.0.0-beta.17"
+  }
+}
