@@ -3,6 +3,30 @@ import {Token} from "@solana/spl-token";
 
 // TODO: Need to have a switch between devnet and mainnet
 
+export const BRAND_COLORS = {
+    slate900: "#0f172a",
+    slate700: "#334155",
+    slate400: "#94a3b8",
+    slate200: "#e2e8f0",
+    neutral50: "#fafafa",
+}
+
+export const COLORS = [
+    // "#2196f3",
+    // "#f44336",
+    // "#00C49F",
+    // "#ffeb3b",
+    // "#9c27b0",
+    "#0c4a6e",
+    "#831843",
+    "#fbcfe8",
+    "#bae6fd",
+    "#94a3b8",
+    "#fafafa",
+    "#0369a1",
+];
+export const RADIAN = Math.PI / 180;
+
 export interface TokenInfo {
     readonly chainId: number;
     readonly address: string;
@@ -13,7 +37,7 @@ export interface TokenInfo {
 }
 // Gotta copy the keypair and distribute this amongst all developers
 export const PROGRAM_ID_SOLBOND: PublicKey = new PublicKey(
-    '3vTbhuwJwR5BadSH9wt29rLf91S57x31ynQZJpG9cf7E'
+    '4bLkaDJ2KAcGoo3cvbdhkX87Bc9jZnmDzR9LTn2P48Vw'
 );
 
 // Taken from https://docs.marinade.finance/deit velopers/contract-addresses

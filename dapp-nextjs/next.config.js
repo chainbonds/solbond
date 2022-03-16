@@ -59,6 +59,13 @@ const nextConfig = {
     }
     return config;
   },
+  images: {
+    domains: [
+        'registry.saber.so',
+        'spl-token-icons.static-assets.ship.capital',
+        'cdn.jsdelivr.net',
+    ],
+  }
 };
 
 module.exports = withPlugins(plugins, nextConfig);

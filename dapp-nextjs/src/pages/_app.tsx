@@ -10,6 +10,7 @@ import "../styles/globals.css";
 import "../styles/App.css";
 import {QPoolsProvider} from "../contexts/QPoolsProvider";
 import {LoadProvider} from "../contexts/LoadingContext";
+import {ItemsLoadProvider} from "../contexts/ItemsLoadingContext";
 
 const SOLANA_NETWORK = WalletAdapterNetwork.Mainnet;
 // const SOLANA_NETWORK = WalletAdapterNetwork.Devnet;
@@ -30,13 +31,15 @@ function MyApp({ Component, pageProps }: AppProps) {
 
   return (
       <LoadProvider>
-        <ConnectionProvider endpoint={endpoint}>
-          <WalletProvider>
-              <QPoolsProvider>
-                <Component {...pageProps} />
-              </QPoolsProvider>
-          </WalletProvider>
-        </ConnectionProvider>
+          <ItemsLoadProvider>
+            <ConnectionProvider endpoint={endpoint}>
+              <WalletProvider>
+                  <QPoolsProvider>
+                    <Component {...pageProps} />
+                  </QPoolsProvider>
+              </WalletProvider>
+            </ConnectionProvider>
+          </ItemsLoadProvider>
       </LoadProvider>
   );
 }

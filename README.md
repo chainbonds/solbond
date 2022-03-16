@@ -126,3 +126,9 @@ lib.rs
 solbond-program.ts
 Anchor.toml
 ```
+
+
+David's path for the SDK
+```
+"@qpools/sdk": "file:/Users/davidal/qPools-contract/qpools-sdk",
+```
