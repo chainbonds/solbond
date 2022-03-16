@@ -52,7 +52,7 @@ export default function UserInfoBalance(props : any) {
             <div className={"flex flex-row mr-4"}>
                 <button
                     style = {{textDecoration : "underline" }}//background : COLORS[0]
-                    className={"flex flex-col md:flex-row items-center lg:items-begin text-gray-500 text-sm font-semibold "}
+                    className={"flex flex-col md:flex-row items-center lg:items-begin text-gray-500 hover:text-white text-sm font-semibold "}
                     onClick = {() => {props.onClick()}}
                 >
                     <text>	&nbsp;Buy more?</text>

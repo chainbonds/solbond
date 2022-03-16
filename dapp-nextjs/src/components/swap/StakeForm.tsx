@@ -20,6 +20,8 @@ export default function StakeForm() {
     const qPoolContext: IQPool = useQPoolUserTool();
 
     const [valueInUsdc, setValueInUsdc] = useState<number>(0.);
+    const [amountSol, setAmountSol] = useState<number>(0.);
+
     const [displayBuyModal, setDisplayBuyModal] = useState<boolean>(false);
     const [displayOnramperModal, setDisplayOnramperModal] = useState<boolean>(false);
 
@@ -35,6 +37,7 @@ export default function StakeForm() {
             return (
                 <PurchaseButton
                     valueInUsdc={valueInUsdc}
+                    amountSol = {amountSol}
                 />
             )
         } else {
@@ -63,14 +66,20 @@ export default function StakeForm() {
             <div className={"flex pb-2 w-full"}>
                 <div className={"flex flex-col w-full"}>
                     <div className={"flex flex-row"}>
-                        <div className={"flex flex-row w-full mr-4"}>
+                        <div className={"flex flex-col w-full mr-4 space-y-2"}>
                             <InputFieldWithLogo
-                                className={""}
                                 logoPath={"/usdc-logo.png"}
                                 displayText={"USDC"}
                                 registerFunction={() => register("solana_amount")}
                                 modifiable={true}
                                 setNewValue={setValueInUsdc}
+                            />
+                            <InputFieldWithLogo
+                                logoPath={"https://spl-token-icons.static-assets.ship.capital/icons/101/So11111111111111111111111111111111111111112.png"}
+                                displayText={"SOL"}
+                                registerFunction={() => register("solana_amount")}
+                                modifiable={true}
+                                setNewValue={setAmountSol}
                             />
                         </div>
                         <div className={"flex flex-row ml-auto my-auto"}>
