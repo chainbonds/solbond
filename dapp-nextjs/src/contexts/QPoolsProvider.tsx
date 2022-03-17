@@ -262,11 +262,11 @@ export function QPoolsProvider(props: any) {
 
                     // HARDCODED DATA BELOW !!!!! SHOULD BE DELETED EVENTAULLY
 
-                    newData[0].lp = "renBTC-WBTC"
+                    newData[0].lp = "USDC-USDT"
                     newData[1].lp = "USDC-CASH"
                     console.log("Returning new data to be: ", newData);
                     console.log("Active pools", registry.getActivePools());
-                    newData[0].pool = registry.getPoolFromSplStringId("renBTC-WBTC")
+                    newData[0].pool = registry.getPoolFromSplStringId("rUSDC-USDT")
                     newData[1].pool = registry.getPoolFromSplStringId("USDC-CASH")
                     let temp = newData[1]
                     newData[1] = newData[2]

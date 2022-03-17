@@ -1,5 +1,4 @@
 import React, {useEffect, useState} from "react";
-import SinglePortfolioCard from "../modals/SinglePortfolioCard";
 import {shortenedAddressString, solscanLink} from "../../utils/utils";
 import {RedeemPortfolioButton} from "../buttons/RedeemPortfolioButton";
 
@@ -13,10 +12,6 @@ export default function SinglePortfolioRow(props: any) {
 
     return (
         <>
-            <SinglePortfolioCard
-                show={showPortfolio}
-                setShow={(x: boolean) => setShowPortfolio(x)}
-            />
             <div className="flex items-center justify-center w-full h-full">
 
                 <div className="relative text-gray-200 focus-within:text-gray-200 w-full h-full">

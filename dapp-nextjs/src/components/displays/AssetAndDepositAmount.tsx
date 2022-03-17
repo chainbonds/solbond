@@ -65,24 +65,8 @@ export default function AssetAndDepositAmount(props : any) {
     const solAddress  = "https://spl-token-icons.static-assets.ship.capital/icons/101/So11111111111111111111111111111111111111112.png"
     return (
         <div className={"flex flex-col w-full"}>
-
-                <div className={"flex flex-row ml-10 place-content-evenly space-x-2"}>
-                    <InputFieldWithLogo
-                        logoPath={"/usdc-logo.png"}
-                        displayText={"USDC"}
-                        modifiable={true}
-                        setNewValue={setDepositAmountUsdc}
-                    />
-                    <InputFieldWithLogo
-                        logoPath={solAddress}
-                        displayText={"SOL"}
-                        modifiable={false}
-                        setNewValue={setDepositAmountUsdc}
-                    />
-                    {/*<AssetRatio/>*/}
-                </div>
-            <div className = "pl-10 place-content-center">
-                <div className={"bg-white"}>
+            <div className = "pl-52 place-content-center">
+                <div className={""}>
                     <InputSlider
                     setPercentage = {setPercentage}
                 />

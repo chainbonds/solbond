@@ -33,7 +33,7 @@ export default function InputSlider(props : any) {
     };
 
     return (
-        <Box sx={{ width: 250 }}>
+        <Box sx={{ width: 350 }}>
             <Typography id="input-slider" gutterBottom>
                 Percentage
             </Typography>
@@ -47,6 +47,7 @@ export default function InputSlider(props : any) {
                 </Grid>
                 <Grid item>
                     <Input
+                        style={{color : "white"}}
                         value={value}
                         size="small"
                         onChange={handleInputChange}
@@ -57,6 +58,7 @@ export default function InputSlider(props : any) {
                             max: 100,
                             type: 'number',
                             'aria-labelledby': 'input-slider',
+                            color : 'white'
                         }}
                     />
                 </Grid>

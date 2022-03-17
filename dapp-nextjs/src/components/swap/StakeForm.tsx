@@ -7,7 +7,6 @@ import React, {useEffect, useState} from "react";
 import {IQPool, useQPoolUserTool} from "../../contexts/QPoolsProvider";
 import {WalletMultiButton} from "@solana/wallet-adapter-react-ui";
 import UserInfoBalance from "../displays/UserInfoBalance";
-import ConfirmPortfolioBuyModal from "../modals/ConfirmPortfolioBuyModal";
 import PurchaseButton from "../buttons/PurchaseButton";
 import OnramperModal from "../modals/OnramperModal"
 import {COLORS} from "../../const"
@@ -49,13 +48,6 @@ export default function StakeForm() {
 
     return (
         <>
-            <ConfirmPortfolioBuyModal
-                isOpen={displayBuyModal}
-                onClose={() => {
-                    setDisplayBuyModal(false)
-                }}
-                valueInUsdc={depositAmountUsdc}
-            />
             <OnramperModal
                 isOpen={displayOnramperModal}
                 onClose={() => {
