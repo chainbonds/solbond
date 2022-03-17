@@ -57,8 +57,18 @@ export default function SinglePortfolioCard(props: any) {
                                         }
 
                                         // Get the icon from the registry
-                                        let iconMintA = registry.getIconFromToken(position.mintA);
-                                        let iconMintB = registry.getIconFromToken(position.mintB);
+                                        let iconMintA = "https://spl-token-icons.static-assets.ship.capital/icons/101/mSoLzYCxHdYgdzU16g5QSh3i5K3z3KZK7ytfqcJm7So.png";
+                                        let iconMintB = "https://spl-token-icons.static-assets.ship.capital/icons/101/mSoLzYCxHdYgdzU16g5QSh3i5K3z3KZK7ytfqcJm7So.png";
+                                        if (position.mintA.equals(new PublicKey("mSoLzYCxHdYgdzU16g5QSh3i5K3z3KZK7ytfqcJm7So"))){
+                                            iconMintA = "https://spl-token-icons.static-assets.ship.capital/icons/101/mSoLzYCxHdYgdzU16g5QSh3i5K3z3KZK7ytfqcJm7So.png";
+                                            iconMintB = "https://spl-token-icons.static-assets.ship.capital/icons/101/mSoLzYCxHdYgdzU16g5QSh3i5K3z3KZK7ytfqcJm7So.png";
+                                        } else {
+                                            iconMintA = registry.getIconFromToken(position.mintA);
+                                            iconMintB = registry.getIconFromToken(position.mintB);
+                                        }
+
+                                        console.log("Icon A Icon B 2 ", iconMintA, iconMintB)
+
 
                                         return (
                                             <>

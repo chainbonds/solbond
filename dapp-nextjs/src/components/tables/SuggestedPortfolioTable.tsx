@@ -23,21 +23,27 @@ export default function SuggestedPortfolioTable() {
         "name": "marinade",
         "tokens": [
             {
-                "address": "So11111111111111111111111111111111111111112",
+                "address": "mSoLzYCxHdYgdzU16g5QSh3i5K3z3KZK7ytfqcJm7So",
                 "chainId": 101,
                 "decimals": 9,
                 "extensions": {
-                    "coingeckoId": "solana",
+                    "coingeckoId": "msol",
                     "currency": "SOL",
-                    "serumV3Usdc": "9wFFyRfZBsuAha4YcuxcXLKwMxJR43S7fPfQLusDBzvT",
-                    "serumV3Usdt": "HWHvQhFmJB3NUcu1aihKmrKegfVxBEHzwVX6yZCKEsi1",
-                    "website": "https://solana.com/"
+                    "discord": "https://discord.gg/mGqZA5pjRN",
+                    "github": "https://github.com/marinade-finance",
+                    "medium": "https://medium.com/marinade-finance",
+                    "serumV3Usdc": "6oGsL2puUgySccKzn9XA9afqF217LfxP5ocq4B3LWsjy",
+                    "serumV3Usdt": "HxkQdUnrPdHwXP5T9kewEXs3ApgvbufuTfdw9v1nApFd",
+                    "source": "marinade",
+                    "sourceUrl": "https://marinade.finance/app/staking",
+                    "twitter": "https://twitter.com/MarinadeFinance",
+                    "website": "https://marinade.finance"
                 },
-                "logoURI": "https://spl-token-icons.static-assets.ship.capital/icons/101/So11111111111111111111111111111111111111112.png",
-                "name": "Wrapped SOL",
-                "symbol": "SOL",
+                "logoURI": "https://spl-token-icons.static-assets.ship.capital/icons/101/mSoLzYCxHdYgdzU16g5QSh3i5K3z3KZK7ytfqcJm7So.png",
+                "name": "Marinade staked SOL (mSOL)",
+                "symbol": "mSOL",
                 "tags": ["saber-mkt-sol"],
-                "pyth": {}
+                "pyth": {},
             }
         ],
         "currency": "mSOL",
@@ -191,12 +197,24 @@ export default function SuggestedPortfolioTable() {
 
         // Gotta make sure it's fine
         let mintA = new PublicKey(item.pool!.tokens[0].address);
-        let mintB = new PublicKey(item.pool!.tokens[1].address);
+        let mintB = new PublicKey(item.pool!.tokens.length > 1 ? item.pool!.tokens[1].address : item.pool!.tokens[0].address);
         let mintLP = new PublicKey(item.pool!.lpToken.address);
 
         // Get the icon from the registry
-        let iconMintA = registry.getIconFromToken(mintA);
-        let iconMintB = registry.getIconFromToken(mintB);
+        // let iconMintA = registry.getIconFromToken(mintA);
+        // let iconMintB = registry.getIconFromToken(mintB);
+        let iconMintA = "https://spl-token-icons.static-assets.ship.capital/icons/101/mSoLzYCxHdYgdzU16g5QSh3i5K3z3KZK7ytfqcJm7So.png";
+        let iconMintB = "https://spl-token-icons.static-assets.ship.capital/icons/101/mSoLzYCxHdYgdzU16g5QSh3i5K3z3KZK7ytfqcJm7So.png";
+        if (mintA.equals(new PublicKey("mSoLzYCxHdYgdzU16g5QSh3i5K3z3KZK7ytfqcJm7So"))){
+            iconMintA = "https://spl-token-icons.static-assets.ship.capital/icons/101/mSoLzYCxHdYgdzU16g5QSh3i5K3z3KZK7ytfqcJm7So.png";
+            iconMintB = "https://spl-token-icons.static-assets.ship.capital/icons/101/mSoLzYCxHdYgdzU16g5QSh3i5K3z3KZK7ytfqcJm7So.png";
+        } else {
+            console.log("mint a and b are: 3", mintA.toString(), mintB.toString());
+            iconMintA = registry.getIconFromToken(mintA);
+            iconMintB = registry.getIconFromToken(mintB);
+        }
+        console.log("Icon A Icon B 3 ", iconMintA, iconMintB)
+
 
         console.log("iconmint A ", iconMintA)
         console.log("iconmint B ", iconMintB)
