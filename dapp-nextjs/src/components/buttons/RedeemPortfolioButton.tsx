@@ -117,9 +117,7 @@ export const RedeemPortfolioButton: FC = ({}) => {
          */
 
         // let tx: Transaction = new Transaction();
-        //
         // // TODO: Call Crank API to withdraw for this user lol
-        //
         // // Get the total amount from the initialUsdcAmount
         // /**
         //  * Send some SOL to the crank wallet to run the cranks ...
@@ -130,27 +128,9 @@ export const RedeemPortfolioButton: FC = ({}) => {
         // });
         // // Now sign this transaction
         //
-        //
         // // Run all the cranks here ...
         // await qPoolContext.crankRpcTool!.fullfillAllWithdrawalsPermissionless();
         // await itemLoadContext.incrementCounter();
-        //
-        // let tmpWalletBalance: number = await qPoolContext.connection!.getBalance(qPoolContext.localTmpKeypair!.publicKey);
-        // let lamportsBack = Math.min(tmpWalletBalance - 7_001, 0.0);
-        // if (lamportsBack > 0) {
-        //     let ix = await qPoolContext.crankRpcTool!.sendToUsersWallet(
-        //         qPoolContext.localTmpKeypair!.publicKey,
-        //         lamportsBack
-        //     );
-        //     let tx2 = new Transaction();
-        //     tx2.add(ix);
-        //     await sendAndConfirmTransaction(
-        //         qPoolContext.crankRpcTool!.crankProvider,
-        //         qPoolContext.connection!,
-        //         tx2,
-        //         qPoolContext.userAccount!.publicKey
-        //     );
-        // }
         //
         // // Make reload
         // await qPoolContext.makePriceReload();
