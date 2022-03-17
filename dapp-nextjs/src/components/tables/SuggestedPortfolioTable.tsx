@@ -164,14 +164,16 @@ export default function SuggestedPortfolioTable() {
                         name: current.protocol.charAt(0).toUpperCase() + current.protocol.slice(1) + " " + current.lp,
                         value: ((100 * current.weight) / sum),
                         apy_24h: current.apy_24h,
-                        pool: registry.getPoolFromSplStringId(current.lp)
+                        pool: (current.protocol == 'marinade') ? marinadePool : registry.getPoolFromSplStringId(current.lp)
                     })
-
+                    console.log("protocol : ",current.protocol);
+                    console.log("pool : ",current.lp);
+                    console.log("BOOLEAN  : " ,(current.protocol  == 'marinade'));
                     return {
                         name: current.protocol.charAt(0).toUpperCase() + current.protocol.slice(1) + " " + current.lp,
                         value: ((100 * current.weight) / sum),
                         apy_24h: current.apy_24h,
-                        pool: current.protocol == 'marinade' ? marinadePool : registry.getPoolFromSplStringId(current.lp)
+                        pool: (current.protocol == 'marinade') ? marinadePool : registry.getPoolFromSplStringId(current.lp)
                     }
                 });
             }
@@ -185,7 +187,7 @@ export default function SuggestedPortfolioTable() {
         let color = COLORS[index % COLORS.length];
 
         // I guess we need the rich data ...
-        console.log("THEREEEEEEEE")
+        console.log("THEREEEEEEEE", item.pool)
         // Gotta make the switch manually here ...
         if (!item.pool) {
             return (
