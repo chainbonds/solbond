@@ -46,6 +46,8 @@ export interface IQPool {
     QPTokenMint: Token | undefined,
     localTmpKeypair: Keypair | undefined,
     crankRpcTool: CrankRpcCalls | undefined,
+    walletAmountUsdc : number,
+    walletAmountSol : number
 }
 
 const hardcodedApiResponse = [
@@ -87,7 +89,9 @@ const defaultValue: IQPool = {
     currencyMint: undefined,
     QPTokenMint: undefined,
     localTmpKeypair: undefined,
-    crankRpcTool: undefined
+    crankRpcTool: undefined,
+    walletAmountUsdc: 0,
+    walletAmountSol: 0
 }
 
 const QPoolContext = React.createContext<IQPool>(defaultValue);
@@ -467,7 +471,9 @@ export function QPoolsProvider(props: any) {
         makePriceReload,
         reloadPriceSentinel,
         localTmpKeypair,
-        crankRpcTool
+        crankRpcTool,
+        walletAmountUsdc,
+        walletAmountSol
     };
 
     return (

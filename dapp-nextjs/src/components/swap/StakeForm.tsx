@@ -1,17 +1,14 @@
 /* This example requires Tailwind CSS v2.0+ */
 import {useForm} from "react-hook-form";
 import {useWallet} from '@solana/wallet-adapter-react';
-import InputFieldWithLogo from "../inputs/InputFieldWithLogo";
 import CallToActionButton from "../buttons/CallToActionButton";
 import React, {useEffect, useState} from "react";
 import {IQPool, useQPoolUserTool} from "../../contexts/QPoolsProvider";
 import {WalletMultiButton} from "@solana/wallet-adapter-react-ui";
-import UserInfoBalance from "../displays/UserInfoBalance";
 import PurchaseButton from "../buttons/PurchaseButton";
 import OnramperModal from "../modals/OnramperModal"
 import {COLORS} from "../../const"
 import ConnectWalletButton from "../buttons/ConnectWalletButton";
-import AssetAndDepositAmount from "../displays/AssetAndDepositAmount"
 import InputSlider from "../inputs/Slider"
 
 export default function StakeForm() {
@@ -28,6 +25,13 @@ export default function StakeForm() {
     const [displayOnramperModal, setDisplayOnramperModal] = useState<boolean>(false);
 
     const [percentage, setPercentage] = useState<number>(0.);
+
+    useEffect(()=>{
+        if(qPoolContext.connection && qPoolContext.userAccount && qPoolContext.userAccount!.publicKey){
+            setDepositAmountSol(qPoolContext.walletAmountSol * percentage)
+            setDepositAmountUsdc(qPoolContext.walletAmountUsdc * percentage)
+        }
+    },[percentage])
 
     //TODO : fetch solana price
     const solanaPrice = 100;
