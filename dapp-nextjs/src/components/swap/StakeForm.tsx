@@ -2,12 +2,10 @@
 import {useForm} from "react-hook-form";
 import {useWallet} from '@solana/wallet-adapter-react';
 import InputFieldWithLogo from "../inputs/InputFieldWithLogo";
-import CallToActionButton from "../buttons/CallToActionButton";
 import React, {useEffect, useState} from "react";
 import {IQPool, useQPoolUserTool} from "../../contexts/QPoolsProvider";
 import {WalletMultiButton} from "@solana/wallet-adapter-react-ui";
 import UserInfoBalance from "../displays/UserInfoBalance";
-import ConfirmPortfolioBuyModal from "../modals/ConfirmPortfolioBuyModal";
 import PurchaseButton from "../buttons/PurchaseButton";
 
 export default function StakeForm() {
@@ -46,13 +44,7 @@ export default function StakeForm() {
 
     return (
         <>
-            <ConfirmPortfolioBuyModal
-                isOpen={displayBuyModal}
-                onClose={() => {
-                    setDisplayBuyModal(false)
-                }}
-                valueInUsdc={valueInUsdc}
-            />
+
             <div className={"flex pb-2 w-full"}>
                 <div className={"flex flex-col w-full"}>
                     <div className={"flex flex-row"}>

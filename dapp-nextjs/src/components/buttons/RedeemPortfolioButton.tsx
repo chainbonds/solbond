@@ -41,6 +41,7 @@ export const RedeemPortfolioButton: FC = ({}) => {
         // We will probably need to apply a hack, where we replace the mSOL with SOL, bcs devnet.
         // Probably easiest to do so is by swapping on the frontend, once we are mainnet ready
         let mSOL = qPoolContext.portfolioObject!.marinadeState.mSolMint.address;
+        console.log("mSOL address is: ", mSOL.toString());
 
         /**
          *

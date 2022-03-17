@@ -1,13 +1,11 @@
-import React, {useEffect, useState} from "react";
+import React from "react";
 import {BN} from "@project-serum/anchor";
-import {AllocData, IQPool, useQPoolUserTool} from "../../contexts/QPoolsProvider";
-import {PublicKey, Transaction, TransactionInstruction} from "@solana/web3.js";
+import {IQPool, useQPoolUserTool} from "../../contexts/QPoolsProvider";
+import {PublicKey, Transaction} from "@solana/web3.js";
 import {sendAndConfirmTransaction} from "../../utils/utils";
-import {Promise} from "es6-promise";
 import {useWallet} from "@solana/wallet-adapter-react";
 import {useItemsLoad} from "../../contexts/ItemsLoadingContext";
 import {MOCK} from "@qpools/sdk";
-import {u64} from "@solana/spl-token";
 
 export default function PurchaseButton(props: any) {
 
@@ -27,8 +25,7 @@ export default function PurchaseButton(props: any) {
 
     const buyItem = async () => {
 
-        let valueInUsdc = props.valueInUsdc;
-
+        // let valueInUsdc = props.valueInUsdc;
         if (!qPoolContext.userAccount!.publicKey) {
             alert("Please connect your wallet first!");
             return
@@ -50,10 +47,6 @@ export default function PurchaseButton(props: any) {
         //     throw Error("Value in USDC is not a number");
         // }
 
-        if (!(valueInUsdc > 0)) {
-            throw Error("Amount to be paid in must be bigger than 0");
-        }
-
         await itemLoadContext.addLoadItem({message: "Preparing Transaction"});
         await itemLoadContext.addLoadItem({message: "(Sign): Creating Associated Token Accounts"});
         await itemLoadContext.addLoadItem({message: "Sign: Create Portfolio & Send USDC"});
@@ -72,8 +65,6 @@ export default function PurchaseButton(props: any) {
 
         // ==> Let that be like part of the wallet
         // We can also airdrop some stuff for now
-
-        console.log("Total amount in Usdc is: ", valueInUsdc);
 
         // Define the same for wrapped SOL, lol
 
@@ -144,7 +135,14 @@ export default function PurchaseButton(props: any) {
         // TODO: Gotta normalize weights up to 1000
         // TODO:
         // Have a look at this; but this is still needed!
-        // let tx1: Transaction = new Transaction();
+        console.log("Creating associated token accounts ...");
+        let txCreateATA = await qPoolContext.portfolioObject!.createAssociatedTokenAccounts([poolAddresses[0]], qPoolContext.provider!.wallet);
+        await sendAndConfirmTransaction(
+            qPoolContext._solbondProgram!.provider,
+            qPoolContext.connection!,
+            txCreateATA,
+            qPoolContext.userAccount!.publicKey
+        );
         // let ixList1: TransactionInstruction[] = await qPoolContext.portfolioObject!.registerAtaForLiquidityPortfolio(poolAddresses);
         // ixList1.map((x: TransactionInstruction) => {tx1.add(x)});
         // if (tx1.instructions.length > 0) {
@@ -156,14 +154,19 @@ export default function PurchaseButton(props: any) {
         //         qPoolContext.userAccount!.publicKey
         //     );
         // }
-        // await itemLoadContext.incrementCounter();
+        await itemLoadContext.incrementCounter();
 
         // TODO: change depending on user input
         let valueInUsdc: number = 2;
         let AmountUsdc: BN = new BN(valueInUsdc).mul(new BN(10**MOCK.DEV.SABER_USDC_DECIMALS));
-        let valueInSol: number = 0.5;
+        let valueInSol: number = 0.3;
         // I guess mSOL has 9 decimal points
         let AmountSol: BN = new BN(valueInSol).mul(new BN(10**9));
+        console.log("Total amount in Usdc is: ", valueInUsdc);
+
+        if (!(valueInUsdc > 0)) {
+            throw Error("Amount to be paid in must be bigger than 0");
+        }
 
         /**
          *

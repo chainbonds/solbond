@@ -207,19 +207,18 @@ export function QPoolsProvider(props: any) {
     /**
      * Implement logic to run cranks if not all positions have been fulfilled
      */
-    const runCrankInBackground = async () => {
-        // Check
-        if (await accountExists(connection!, crankRpcTool!.portfolioPDA)) {
-            await crankRpcTool!.fullfillAllPermissionless();
-            await makePriceReload();
-        }
-    }
-
-    useEffect(() => {
-        if (crankRpcTool) {
-            runCrankInBackground();
-        }
-    },[crankRpcTool]);
+    // const runCrankInBackground = async () => {
+    //     // Check
+    //     if (await accountExists(connection!, crankRpcTool!.portfolioPDA)) {
+    //         await crankRpcTool!.fullfillAllPermissionless();
+    //         await makePriceReload();
+    //     }
+    // }
+    // useEffect(() => {
+    //     if (crankRpcTool) {
+    //         runCrankInBackground();
+    //     }
+    // },[crankRpcTool]);
 
 
     /**
