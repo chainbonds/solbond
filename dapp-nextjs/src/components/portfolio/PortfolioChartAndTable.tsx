@@ -4,16 +4,18 @@ import {AllocData, IQPool, useQPoolUserTool} from "../../contexts/QPoolsProvider
 import ExistingPortfolioTable from "../tables/ExistingPortfolioTable";
 import {COLORS, RADIAN} from "../../const";
 import SuggestedPortfolioTable from "../tables/SuggestedPortfolioTable";
+import {PublicKey} from "@solana/web3.js";
+
 
 export default function PortfolioChartAndTable(props: any) {
 
     const qPoolContext: IQPool = useQPoolUserTool();
     const showPercentage = false;
 
-    const [walletAmountUsdc, setWalletAmountUsdc] = useState<number>(0.);
-    const [walletAmountSol, setWalletAmountSol] = useState<number>(0.);
+    const [percentage, setPercentage] = useState<number>(0.);
 
-
+    const [ratios, setRatios] = useState<AllocData[] | null>(null);
+    const [totalAmountInUsdc, setTotalAmountInUsdc] = useState<number>(0.);
 
 
     const renderCustomizedLabel = ({cx, cy, midAngle, innerRadius, outerRadius, percent, index}: any) => {
@@ -38,8 +40,8 @@ export default function PortfolioChartAndTable(props: any) {
         {name: "Group D", value: 200, apy_24h: 0.}
     ])
 
-    const [ratios, setRatios] = useState<AllocData[] | null>(null);
-    const [totalAmountInUsdc, setTotalAmountInUsdc] = useState<number>(0.);
+
+
     useEffect(() => {
         if (props.totalAmountInUsdc) {
             console.log("Defined!", props.totalAmountInUsdc);
@@ -48,6 +50,10 @@ export default function PortfolioChartAndTable(props: any) {
             console.log("Undefined!", props.totalAmountInUsdc);
         }
     }, [props.totalAmountInUsdc]);
+
+    {/* useEffect(() => {
+        window.location.reload();
+    }, [pieChartData]); */}
 
     // Maybe set loading until we are able to read the serpius API
     useEffect(() => {
@@ -122,12 +128,14 @@ export default function PortfolioChartAndTable(props: any) {
         )
     }
 
+
+
     // TODO: Maybe remove the labelled lines alltogether
     return (
         <>
             {/*-ml-14*/}
             <div className={"flex my-auto mx-auto p-8"}>
-                <PieChart width={200} height={200}>
+                <PieChart key={Math.random() + pieChartData[0].value} width={200} height={200}>
                     <Pie stroke="none"
                          data={pieChartData}
                          cx="50%"
@@ -142,7 +150,7 @@ export default function PortfolioChartAndTable(props: any) {
                     >
                         {pieChartData.map((entry, index) => (
                             <Cell
-                                key={`cell-${index}`}
+                                key={`cell-${Math.random() + pieChartData[index].value +index}`}
                                 fill={COLORS[index % COLORS.length]}/>
                         ))}
                     </Pie>

@@ -148,13 +148,18 @@ export default function SuggestedPortfolioTable() {
     // Make sure types conform ...
     useEffect(() => {
         setRatios((_: AllocData[] | null) => {
+            console.log(" CAMOOOOOOOOOOON THIS FUNCTION SHOULD WORK")
+            console.log(" CAMOOOOOOOOOOON " , qPoolContext.portfolioRatios)
             return qPoolContext.portfolioRatios!;
         });
-    }, [qPoolContext.portfolioRatios]);
+    }, [qPoolContext.connection, qPoolContext.userAccount  , qPoolContext.portfolioRatios]);
 
     useEffect(() => {
+        console.log("DUDE 1" , ratios)
+        console.log(ratios)
         if (!ratios) return;
-
+        console.log("DUDE 2" , ratios)
+        console.log(ratios)
         // Sum is a
         let sum = ratios.reduce((sum: number, current: AllocData) => sum + current.weight, 0);
         console.log("xyz" , sum)
@@ -169,6 +174,7 @@ export default function SuggestedPortfolioTable() {
                     console.log("protocol : ",current.protocol);
                     console.log("pool : ",current.lp);
                     console.log("BOOLEAN  : " ,(current.protocol  == 'marinade'));
+                    console.log("DUDE 3" , ratios)
                     return {
                         name: current.protocol.charAt(0).toUpperCase() + current.protocol.slice(1) + " " + current.lp,
                         value: ((100 * current.weight) / sum),
@@ -226,9 +232,13 @@ export default function SuggestedPortfolioTable() {
 
         let style = {backgroundColor: color};
 
+        console.log("item :", item.value);
+
+        let theKey = Math.random() + pieChartData[index].value + index;
+        console.log("new Key", theKey, "for index", index)
         return (
             <>
-                <tr className="dark:bg-gray-800">
+                <tr key={theKey} className="dark:bg-gray-800">
                     {/* Show the icons next to this ... */}
                     <td className="py-4 px-6 text-sm text--center font-normal text-gray-900 whitespace-nowrap dark:text-white">
                         <div className="flex items-center">
@@ -280,7 +290,7 @@ export default function SuggestedPortfolioTable() {
                         <div className="overflow-hidden shadow-md sm:rounded-lg">
                             <table className="min-w-full">
                                 {tableHeader(tableColumns)}
-                                <tbody className={"divide-y divide-white"}>
+                                <tbody key={Math.random() + pieChartData[0].value} className={"divide-y divide-white"}>
                                     {pieChartData.map((position: ChartableItemType, index: number) => tableSingleRow(position, index))}
                                 </tbody>
                             </table>

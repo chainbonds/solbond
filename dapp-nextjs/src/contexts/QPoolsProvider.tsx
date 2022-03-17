@@ -5,7 +5,6 @@ import {Token, TOKEN_PROGRAM_ID} from "@solana/spl-token";
 import * as anchor from "@project-serum/anchor";
 import {solbondProgram} from "../programs/solbond";
 import {WalletI} from "easy-spl";
-import {MOCK} from "@qpools/sdk/src/const";
 import {
     airdropAdmin,
     DisplayPortfolios,
@@ -16,6 +15,9 @@ import axios from "axios";
 import {UsdValuePosition} from "../types/UsdValuePosition";
 import {registry, accountExists} from "@qpools/sdk";
 import {PositionInfo, CrankRpcCalls} from "@qpools/sdk";
+import {getAssociatedTokenAddressOffCurve} from "@qpools/sdk/lib/utils";
+
+import {tokenAccountExists, MOCK} from "@qpools/sdk";
 
 export interface AllocData {
     lp: string,
@@ -187,6 +189,85 @@ export function QPoolsProvider(props: any) {
 
     }, []);
 
+    //--------------------------------------------------------   
+
+    const [walletAmountUsdc, setWalletAmountUsdc] = useState<number>(0.);
+    const [walletAmountSol, setWalletAmountSol] = useState<number>(0.);
+
+    const solanaPrice = 90;
+
+    const updateTheRatiosAfterConnecting = () => {
+        setPortfolioRatios((_: AllocData[] | null) => {
+            let oldRatios = portfolioRatios!
+            oldRatios[0].weight = walletAmountUsdc
+            oldRatios[1].weight = walletAmountSol
+            console.log("wallet Amount USDC : ", walletAmountUsdc)
+
+            console.log("wallet Amount SOL : ", walletAmountSol)
+            console.log("THE CHART SHOULD UPDATE-----------------------------------------------");
+            console.log(oldRatios);
+            return oldRatios;
+        });
+    }
+
+    useEffect(() => {
+        updateAccountBalance(MOCK.DEV.SABER_USDC, setWalletAmountUsdc);
+        updateSolBalance();
+        updateTheRatiosAfterConnecting();
+
+    }, [reloadPriceSentinel, userAccount, connection]);
+    
+
+    useEffect(() => {
+        updateTheRatiosAfterConnecting()
+
+    } , [walletAmountUsdc, walletAmountSol])
+
+    const updateAccountBalance = async (mintAddress : PublicKey, setAmountFunction :any ) => {
+        console.log("#useEffect UserInfoBalance");
+        if (connection && userAccount) {
+            // Get the associated token account
+            console.log("Getting associated token account")
+            let userCurrencyAta: PublicKey = await getAssociatedTokenAddressOffCurve(
+                mintAddress, userAccount.publicKey
+            )
+            let existsBool = await tokenAccountExists(connection!, userCurrencyAta);
+            console.log("User ATA: ", userCurrencyAta.toString(), existsBool);
+            if (existsBool) {
+                console.log("Exists!");
+                // Check if this account exists, first of all
+                let x = await connection!.getTokenAccountBalance(userCurrencyAta);
+                if (x.value && x.value.uiAmount) {
+                    console.log("Balance is: ", x.value);
+                    setAmountFunction(x.value.uiAmount!);
+                } else {
+                    console.log("ERROR: Something went wrong unpacking the balance!");
+                }
+                console.log("Done fetching");
+            } else {
+                console.log("Account doesn't exist yet");
+            }
+        }
+        console.log("##useEffect UserInfoBalance");
+    }
+
+
+    const updateSolBalance = async () => {
+        if(connection){
+            let x= await connection!.getBalance(userAccount!.publicKey);
+            setWalletAmountSol(x * solanaPrice / 1000000000);
+        }
+        else{
+            "LOLVELEEEEEEEEL"
+        }
+    }
+    
+    useEffect(() => {
+
+        
+
+    }, [userAccount, connection]);
+    //--------------------------------------------------------------------------------
     /**
      * Everytime ther is a change in the Keypair, create a
      */
