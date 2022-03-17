@@ -73,7 +73,7 @@ export default function PurchaseButton(props: any) {
          * The weights will be defined (exactly), by the mSOL and USDC ratio, the total should sum to 1000
          * Until then, assume that we have a weight of 500 each (this weight thing is confusing when it's multi-asset)
          */
-        let weights: BN[] = [new BN(500), new BN(500)];
+        let weights: Array<BN> = [new BN(500), new BN(500)];
         // The pool addresses right now will probably just be hardcoded.
         // One is USDC, one is mSOL
         let USDC_mint = new PublicKey("2tWC4JAdL4AxEFJySziYJfsAnW2MHKRo98vbAPiRDSk8");
@@ -81,7 +81,7 @@ export default function PurchaseButton(props: any) {
 
         let USDC_USDT_pubkey: PublicKey = new PublicKey("VeNkoB1HvSP6bSeGybQDnx9wTWFsQb2NBCemeCDSuKL");  // This is the pool address, not the LP token ...
         let mSOLLpToken: PublicKey = new PublicKey("mSoLzYCxHdYgdzU16g5QSh3i5K3z3KZK7ytfqcJm7So");  // Assume the LP token to be the denominator for what underlying asset we target ...
-        let poolAddresses: PublicKey[] = [USDC_USDT_pubkey, mSOLLpToken];
+        let poolAddresses: Array<PublicKey> = [USDC_USDT_pubkey, mSOLLpToken];
 
         // Filter these, if any is 0
         // TODO: Not going for this right now. Just check that the user actually has enough balance in his wallet
@@ -136,24 +136,16 @@ export default function PurchaseButton(props: any) {
         // TODO:
         // Have a look at this; but this is still needed!
         console.log("Creating associated token accounts ...");
-        let txCreateATA = await qPoolContext.portfolioObject!.createAssociatedTokenAccounts([poolAddresses[0]], qPoolContext.provider!.wallet);
-        await sendAndConfirmTransaction(
-            qPoolContext._solbondProgram!.provider,
-            qPoolContext.connection!,
-            txCreateATA,
-            qPoolContext.userAccount!.publicKey
-        );
-        // let ixList1: TransactionInstruction[] = await qPoolContext.portfolioObject!.registerAtaForLiquidityPortfolio(poolAddresses);
-        // ixList1.map((x: TransactionInstruction) => {tx1.add(x)});
-        // if (tx1.instructions.length > 0) {
-        //     console.log("Sending the first set of transactions!!");
-        //     await sendAndConfirmTransaction(
-        //         qPoolContext._solbondProgram!.provider,
-        //         qPoolContext.connection!,
-        //         tx1,
-        //         qPoolContext.userAccount!.publicKey
-        //     );
-        // }
+        let txCreateATA: Transaction = await qPoolContext.portfolioObject!.createAssociatedTokenAccounts([poolAddresses[0]], qPoolContext.provider!.wallet);
+        if (!(txCreateATA.instructions.length > 0)) {
+            await sendAndConfirmTransaction(
+                qPoolContext._solbondProgram!.provider,
+                qPoolContext.connection!,
+                txCreateATA,
+                qPoolContext.userAccount!.publicKey
+            );
+        }
+
         await itemLoadContext.incrementCounter();
 
         // TODO: change depending on user input
@@ -202,15 +194,16 @@ export default function PurchaseButton(props: any) {
         console.log("Approve Position Saber");
         // I guess we gotta make the case distinction here lol
         // TODO: Copy the case-distinction from below. Then you can continue
-        // let IxApproveiPositionWeightSaber = await qPoolContext.portfolioObject!.approvePositionWeightSaber(
-        //     poolAddresses[0],
-        //     token_a_amount,
-        //     token_b_amount,
-        //     min_mint_amount,
-        //     0,
-        //     weights[0]
-        // )
-        // tx.add(IxRegisterCurrencyMSolInput);
+        // TODO: figure out tokenA and tokenB ==> Currently hard-coded...
+        let IxApproveiPositionWeightSaber = await qPoolContext.portfolioObject!.approvePositionWeightSaber(
+            poolAddresses[0],
+            AmountUsdc,
+            new BN(0),  // Will be flipped in the backend ..
+            new BN(0),
+            0,  // Hardcoded
+            weights[0]
+        )
+        tx.add(IxApproveiPositionWeightSaber);
 
         console.log("Approve Position Marinade");
         let IxApprovePositionWeightMarinade = await qPoolContext.portfolioObject!.approvePositionWeightMarinade(

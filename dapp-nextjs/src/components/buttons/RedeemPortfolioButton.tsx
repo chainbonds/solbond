@@ -3,7 +3,7 @@ import {IQPool, useQPoolUserTool} from "../../contexts/QPoolsProvider";
 import {PublicKey, Transaction, TransactionInstruction} from "@solana/web3.js";
 import {sendAndConfirmTransaction} from "../../utils/utils";
 import {useItemsLoad} from "../../contexts/ItemsLoadingContext";
-import {PortfolioAccount} from "@qpools/sdk";
+import {BN} from "@project-serum/anchor";
 
 export const RedeemPortfolioButton: FC = ({}) => {
 
@@ -56,9 +56,9 @@ export const RedeemPortfolioButton: FC = ({}) => {
 
         console.log("Approving Saber Withdraw");
         // TODO: Check which of the tokens is tokenA, and withdraw accordingly ...
-        // let tokenA = 0;
-        // let IxApproveWithdrawSaber = await qPoolContext.portfolioObject!.signApproveWithdrawAmountSaber(0, tokenA);
-        // tx.add(IxApproveWithdrawSaber);
+        let tokenA = 0;  // This is the minimum amount of tokens that should be put out ...
+        let IxApproveWithdrawSaber = await qPoolContext.portfolioObject!.signApproveWithdrawAmountSaber(0, new BN(tokenA));
+        tx.add(IxApproveWithdrawSaber);
 
         console.log("Approving Marinade Withdraw");
         let IxApproveWithdrawMarinade = await qPoolContext.portfolioObject!.approveWithdrawToMarinade(1);
@@ -70,12 +70,14 @@ export const RedeemPortfolioButton: FC = ({}) => {
             100_000_000
         );
         tx.add(IxSendToCrankWallet);
-        await sendAndConfirmTransaction(
-            qPoolContext._solbondProgram!.provider,
-            qPoolContext.connection!,
-            tx,
-            qPoolContext.userAccount!.publicKey
-        );
+        if (!(tx.instructions.length > 0)) {
+            await sendAndConfirmTransaction(
+                qPoolContext._solbondProgram!.provider,
+                qPoolContext.connection!,
+                tx,
+                qPoolContext.userAccount!.publicKey
+            );
+        }
 
         /**
          *
