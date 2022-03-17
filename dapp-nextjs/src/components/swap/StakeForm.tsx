@@ -12,32 +12,32 @@ import PurchaseButton from "../buttons/PurchaseButton";
 import OnramperModal from "../modals/OnramperModal"
 import {COLORS} from "../../const"
 import ConnectWalletButton from "../buttons/ConnectWalletButton";
+import AssetAndDepositAmount from "../displays/AssetAndDepositAmount"
+import InputSlider from "../inputs/Slider"
 
 export default function StakeForm() {
 
-    const {register} = useForm();
     const walletContext: any = useWallet();
     const qPoolContext: IQPool = useQPoolUserTool();
 
-    const [valueInUsdc, setValueInUsdc] = useState<number>(0.);
-    const [amountSol, setAmountSol] = useState<number>(0.);
+
+    const [depositAmountUsdc, setDepositAmountUsdc] = useState<number>(0.);
+    const [depositAmountSol, setDepositAmountSol] = useState<number>(0.);
+
+    const [allowSwap, setAllowSwap] = useState<boolean>(true);
 
     const [displayBuyModal, setDisplayBuyModal] = useState<boolean>(false);
     const [displayOnramperModal, setDisplayOnramperModal] = useState<boolean>(false);
 
-
-    useEffect(() => {
-        if (walletContext.publicKey) {
-            qPoolContext.initializeQPoolsUserTool(walletContext);
-        }
-    }, [walletContext.publicKey]);
+    //TODO : fetch solana price
+    const solanaPrice = 100;
 
     const getActionButton = () => {
         if (qPoolContext.userAccount) {
             return (
                 <PurchaseButton
-                    valueInUsdc={valueInUsdc}
-                    amountSol = {amountSol}
+                    valueInUsdc={depositAmountUsdc}
+                    amountSol = {depositAmountSol}
                 />
             )
         } else {
@@ -54,7 +54,7 @@ export default function StakeForm() {
                 onClose={() => {
                     setDisplayBuyModal(false)
                 }}
-                valueInUsdc={valueInUsdc}
+                valueInUsdc={depositAmountUsdc}
             />
             <OnramperModal
                 isOpen={displayOnramperModal}
@@ -64,32 +64,13 @@ export default function StakeForm() {
             />
 
             <div className={"flex pb-2 w-full"}>
-                <div className={"flex flex-col w-full"}>
-                    <div className={"flex flex-row"}>
-                        <div className={"flex flex-col w-full mr-4 space-y-2"}>
-                            <InputFieldWithLogo
-                                logoPath={"/usdc-logo.png"}
-                                displayText={"USDC"}
-                                registerFunction={() => register("solana_amount")}
-                                modifiable={true}
-                                setNewValue={setValueInUsdc}
-                            />
-                            <InputFieldWithLogo
-                                logoPath={"https://spl-token-icons.static-assets.ship.capital/icons/101/So11111111111111111111111111111111111111112.png"}
-                                displayText={"SOL"}
-                                registerFunction={() => register("solana_amount")}
-                                modifiable={true}
-                                setNewValue={setAmountSol}
-                            />
-                        </div>
-                        <div className={"flex flex-row ml-auto my-auto"}>
-                            {getActionButton()}
-                        </div>
-                    </div>
-                    <div className={"flex flex-row mx-1 mt-1"}>
-                        <UserInfoBalance
-                        onClick = {() => {setDisplayOnramperModal(true)}}
-                        />
+                <div className={"flex flex-row space-x-6"}>
+                    <AssetAndDepositAmount
+                        setDepositAmountUsdc = {(amount :number) => {setDepositAmountUsdc(amount)}}
+                        setDepositAmountSol = {(amount :number) => {setDepositAmountSol(amount)}}
+                    />
+                    <div className={"flex flex-row ml-auto my-auto"}>
+                        {getActionButton()}
                     </div>
                 </div>
             </div>

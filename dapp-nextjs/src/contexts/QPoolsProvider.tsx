@@ -231,9 +231,10 @@ export function QPoolsProvider(props: any) {
     const fetchAndParseSerpiusEndpoint = async () => {
             console.log("#useEffect getSerpiusEndpoint");
             console.log("Loading the weights");
-
-            let response = await axios.get<any>(registry.getSerpiusEndpoint());
-
+            //registry.getSerpiusEndpoint()
+        //"https://qpools.serpius.com/weight_status_v2.json"
+            let response = await axios.get<any>("https://qpools.serpius.com/weight_status_v2.json");
+            //let response = await axios.get<any>(registry.getSerpiusEndpoint());
             // console.log("Here is the data :");
             // console.log(typeof response.data);
             // console.log(JSON.stringify(response.data));
@@ -255,6 +256,7 @@ export function QPoolsProvider(props: any) {
                     // Now add the information about the ExplicitSaberPool into it as well
                     let newData = data.map((dataItem: AllocData) => {
                         dataItem.pool = registry.getPoolFromSplStringId(dataItem.lp);
+                        console.log("data item is", dataItem)
                         return dataItem;
                     });
 

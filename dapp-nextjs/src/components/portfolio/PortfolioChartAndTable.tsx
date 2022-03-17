@@ -10,6 +10,12 @@ export default function PortfolioChartAndTable(props: any) {
     const qPoolContext: IQPool = useQPoolUserTool();
     const showPercentage = false;
 
+    const [walletAmountUsdc, setWalletAmountUsdc] = useState<number>(0.);
+    const [walletAmountSol, setWalletAmountSol] = useState<number>(0.);
+
+
+
+
     const renderCustomizedLabel = ({cx, cy, midAngle, innerRadius, outerRadius, percent, index}: any) => {
         const radius = innerRadius + (outerRadius - innerRadius) * 0.4; // 1.05;
         const x = cx + radius * Math.cos(-midAngle * RADIAN);
