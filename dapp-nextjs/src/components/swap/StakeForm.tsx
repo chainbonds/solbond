@@ -19,7 +19,6 @@ export default function StakeForm() {
     const walletContext: any = useWallet();
     const qPoolContext: IQPool = useQPoolUserTool();
 
-
     const [depositAmountUsdc, setDepositAmountUsdc] = useState<number>(0.);
     const [depositAmountSol, setDepositAmountSol] = useState<number>(0.);
 
@@ -27,6 +26,8 @@ export default function StakeForm() {
 
     const [displayBuyModal, setDisplayBuyModal] = useState<boolean>(false);
     const [displayOnramperModal, setDisplayOnramperModal] = useState<boolean>(false);
+
+    const [percentage, setPercentage] = useState<number>(0.);
 
     //TODO : fetch solana price
     const solanaPrice = 100;
@@ -57,11 +58,10 @@ export default function StakeForm() {
 
             <div className={"flex pb-2 w-full"}>
                 <div className={"flex flex-row space-x-6"}>
-                    <AssetAndDepositAmount
-                        setDepositAmountUsdc = {(amount :number) => {setDepositAmountUsdc(amount)}}
-                        setDepositAmountSol = {(amount :number) => {setDepositAmountSol(amount)}}
-                    />
-                    <div className={"flex flex-row ml-auto my-auto"}>
+                    <div className={"flex flex-row ml-52 my-auto"}>
+                        <InputSlider
+                            setPercentage = {setPercentage}
+                        />
                         {getActionButton()}
                     </div>
                 </div>
