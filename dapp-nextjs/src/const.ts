@@ -12,11 +12,6 @@ export const BRAND_COLORS = {
 }
 
 export const COLORS = [
-    // "#2196f3",
-    // "#f44336",
-    // "#00C49F",
-    // "#ffeb3b",
-    // "#9c27b0",
     "#0c4a6e",
     "#831843",
     "#fbcfe8",
