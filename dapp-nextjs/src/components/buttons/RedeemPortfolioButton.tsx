@@ -63,6 +63,19 @@ export const RedeemPortfolioButton: FC = ({}) => {
         let IxApproveWithdrawMarinade = await qPoolContext.portfolioObject!.approveWithdrawToMarinade(1);
         tx.add(IxApproveWithdrawMarinade);
 
+        console.log("Send some to Crank Wallet");
+        let IxSendToCrankWallet = await qPoolContext.portfolioObject!.sendToCrankWallet(
+            qPoolContext.localTmpKeypair!.publicKey,
+            100_000_000
+        );
+        tx.add(IxSendToCrankWallet);
+        await sendAndConfirmTransaction(
+            qPoolContext._solbondProgram!.provider,
+            qPoolContext.connection!,
+            tx,
+            qPoolContext.userAccount!.publicKey
+        );
+
         /**
          *
          * Transaction 2 (Cranks):
@@ -80,6 +93,22 @@ export const RedeemPortfolioButton: FC = ({}) => {
         console.log("Signature to send back Marinade SOL", sgTransferMarinadeSolToUser);
 
         // TODO: Also make the marinade SOL disappear, and just airdrop new SOL
+        let tmpWalletBalance: number = await qPoolContext.connection!.getBalance(qPoolContext.localTmpKeypair!.publicKey);
+        let lamportsBack = Math.min(tmpWalletBalance - 7_001, 0.0);
+        if (lamportsBack > 0) {
+            let ix = await qPoolContext.crankRpcTool!.sendToUsersWallet(
+                qPoolContext.localTmpKeypair!.publicKey,
+                lamportsBack
+            );
+            let tx2 = new Transaction();
+            tx2.add(ix);
+            await sendAndConfirmTransaction(
+                qPoolContext.crankRpcTool!.crankProvider,
+                qPoolContext.connection!,
+                tx2,
+                qPoolContext.userAccount!.publicKey
+            );
+        }
 
         await qPoolContext.makePriceReload();
 
@@ -95,39 +124,15 @@ export const RedeemPortfolioButton: FC = ({}) => {
         // /**
         //  * Send some SOL to the crank wallet to run the cranks ...
         //  */
-        // let portfolioContents = (await qPoolContext._solbondProgram!.account.portfolioAccount.fetch(qPoolContext.portfolioObject!.portfolioPDA)) as PortfolioAccount;
-        // let initialUsdcAmount = portfolioContents.initialAmountUSDC;
-        // // Instead of initial amount, we should try to get the maximum. But for now, this should suffice
-        // let IxApproveWithdraw = await qPoolContext.portfolioObject!.signApproveWithdrawToUser(initialUsdcAmount);
-        // tx.add(IxApproveWithdraw);
         // let IxRedeemPositions = await qPoolContext.portfolioObject!.approveRedeemFullPortfolio();
         // IxRedeemPositions.map((x: TransactionInstruction) => {
         //     tx.add(x)
         // });
-        // // Now send the transaction ...
-        // // Amount of SOL is pretty high probably.
-        // let IxSendToCrankWallet = await qPoolContext.portfolioObject!.sendToCrankWallet(
-        //     qPoolContext.localTmpKeypair!.publicKey,
-        //     100_000_000
-        // );
-        // tx.add(IxSendToCrankWallet);
-        // await itemLoadContext.incrementCounter();
         // // Now sign this transaction
-        // await sendAndConfirmTransaction(
-        //     qPoolContext._solbondProgram!.provider,
-        //     qPoolContext.connection!,
-        //     tx,
-        //     qPoolContext.userAccount!.publicKey
-        // );
-        // await itemLoadContext.incrementCounter();
         //
-        // /**
-        //  * Run all cranks to take back the orders ...
-        //  */
+        //
         // // Run all the cranks here ...
         // await qPoolContext.crankRpcTool!.fullfillAllWithdrawalsPermissionless();
-        // await itemLoadContext.incrementCounter();
-        // await qPoolContext.crankRpcTool!.transferToUser();
         // await itemLoadContext.incrementCounter();
         //
         // let tmpWalletBalance: number = await qPoolContext.connection!.getBalance(qPoolContext.localTmpKeypair!.publicKey);
