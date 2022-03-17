@@ -23,6 +23,8 @@ export const Main: FC = ({}) => {
             let isFulfilled = await qPoolContext.portfolioObject!.portfolioExists();
             if (isFulfilled) {
                 setDisplayForm(HeroFormState.Unstake);
+                // TODO: Replace this ...
+                // setDisplayForm(HeroFormState.Stake);
             } else {
                 setDisplayForm(HeroFormState.Stake);
             }

@@ -49,15 +49,12 @@ export default function PurchaseButton(props: any) {
 
         await itemLoadContext.addLoadItem({message: "Preparing Transaction"});
         await itemLoadContext.addLoadItem({message: "(Sign): Creating Associated Token Accounts"});
-        await itemLoadContext.addLoadItem({message: "Sign: Create Portfolio & Send USDC"});
-        await itemLoadContext.addLoadItem({message: "Sign: Register Portfolio & Pools"});
+        await itemLoadContext.addLoadItem({message: "Sign: Create Portfolio & Sending Asset"});
         await itemLoadContext.addLoadItem({message: "Running cranks to distribute assets across liquidity pools..."});
 
         // Initialize if not initialized yet
         await qPoolContext.initializeQPoolsUserTool(walletContext);
         await itemLoadContext.incrementCounter();
-
-
 
 
         // Define mSOL send amount
@@ -137,7 +134,7 @@ export default function PurchaseButton(props: any) {
         // Have a look at this; but this is still needed!
         console.log("Creating associated token accounts ...");
         let txCreateATA: Transaction = await qPoolContext.portfolioObject!.createAssociatedTokenAccounts([poolAddresses[0]], qPoolContext.provider!.wallet);
-        if (!(txCreateATA.instructions.length > 0)) {
+        if ((txCreateATA.instructions.length > 0)) {
             await sendAndConfirmTransaction(
                 qPoolContext._solbondProgram!.provider,
                 qPoolContext.connection!,
@@ -145,13 +142,12 @@ export default function PurchaseButton(props: any) {
                 qPoolContext.userAccount!.publicKey
             );
         }
-
         await itemLoadContext.incrementCounter();
 
         // TODO: change depending on user input
         let valueInUsdc: number = 2;
         let AmountUsdc: BN = new BN(valueInUsdc).mul(new BN(10**MOCK.DEV.SABER_USDC_DECIMALS));
-        let valueInSol: number = 0.3;
+        let valueInSol: number = 1;
         // I guess mSOL has 9 decimal points
         let AmountSol: BN = new BN(valueInSol).mul(new BN(10**9));
         console.log("Total amount in Usdc is: ", valueInUsdc);
@@ -182,10 +178,10 @@ export default function PurchaseButton(props: any) {
             AmountUsdc, USDC_mint
         );
         tx.add(IxRegisterCurrencyUsdcInput);
-        let IxRegisterCurrencyMSolInput = await qPoolContext.portfolioObject!.registerCurrencyInputInPortfolio(
-            AmountSol, wrappedSolMint
-        );
-        tx.add(IxRegisterCurrencyMSolInput);
+        // let IxRegisterCurrencyMSolInput = await qPoolContext.portfolioObject!.registerCurrencyInputInPortfolio(
+        //     AmountSol, wrappedSolMint
+        // );
+        // tx.add(IxRegisterCurrencyMSolInput);
 
         // Set of instructions here are hard-coded
 
@@ -213,11 +209,11 @@ export default function PurchaseButton(props: any) {
         );
         tx.add(IxApprovePositionWeightMarinade);
 
-        console.log("Sending the currencies");
-        // TODO: Fix this function ...
-        // let IxSendUsdcToPortfolio = await qPoolContext.portfolioObject!.transfer_to_portfolio(USDC_mint, wrappedSolAccount);
-        // tx.add(IxSendUsdcToPortfolio);
-        // let IxSendWrappedSolToPortfolio = await qPoolContext.portfolioObject!.transfer_to_portfolio(wrappedSolMint, wrappedSolAccount);
+        console.log("Sending USDC");
+        let IxSendUsdcToPortfolio = await qPoolContext.portfolioObject!.transfer_to_portfolio(USDC_mint);
+        tx.add(IxSendUsdcToPortfolio);
+        // console.log("Sending wrapped SOL");
+        // let IxSendWrappedSolToPortfolio = await qPoolContext.portfolioObject!.transfer_to_portfolio(wrappedSolMint);
         // tx.add(IxSendWrappedSolToPortfolio);
 
         console.log("Depositing some SOL to run the cranks ...");
@@ -234,6 +230,7 @@ export default function PurchaseButton(props: any) {
             tx,
             qPoolContext.userAccount!.publicKey
         );
+        await itemLoadContext.incrementCounter();
 
         /**
          *
@@ -247,6 +244,7 @@ export default function PurchaseButton(props: any) {
         console.log("Fulfilled sg Saber is: ", sgPermissionlessFullfillSaber);
         let sgPermissionlessFullfillMarinade = await qPoolContext.crankRpcTool!.createPositionMarinade(1);
         console.log("Fulfilled sg Marinade is: ", sgPermissionlessFullfillMarinade);
+        await itemLoadContext.incrementCounter();
 
         console.log("Updating price ...");
         // Add another Counter "running cranks"

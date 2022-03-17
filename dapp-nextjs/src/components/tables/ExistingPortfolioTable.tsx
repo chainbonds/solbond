@@ -54,9 +54,11 @@ export default function ExistingPortfolioTable() {
 
 
     const tableSingleRow = (position: PositionInfo) => {
-        if (!position.amountLp.uiAmount && (position.amountLp.uiAmount != 0)) {
+        if (position.amountLp && !position.amountLp.uiAmount && (position.amountLp.uiAmount != 0)) {
             return <></>
         }
+
+        // TODO: Should prob merge the stuff from Ahmet ...
 
         // Get the icon from the registry
         let iconMintA = registry.getIconFromToken(position.mintA);
@@ -85,7 +87,7 @@ export default function ExistingPortfolioTable() {
                         </a>
                     </td>
                     <td className="py-4 px-6 text-center text-sm font-medium text-gray-500 whitespace-nowrap dark:text-gray-400">
-                        {position.amountLp.uiAmount!.toFixed(2)}
+                        {position.amountLp && position.amountLp.uiAmount!.toFixed(2)}
                     </td>
                     <td className="py-4 px-6 text-center text-sm text-right whitespace-nowrap">
                         <a href={solscanLink(position.ataLp)} target={"_blank"} rel="noreferrer"
