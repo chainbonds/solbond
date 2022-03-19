@@ -1,10 +1,13 @@
 /* This example requires Tailwind CSS v2.0+ */
 import {useForm} from "react-hook-form";
 import {useWallet} from '@solana/wallet-adapter-react';
-import CallToActionButton from "../buttons/CallToActionButton";
+
 import React, {useEffect, useState} from "react";
 import {IQPool, useQPoolUserTool} from "../../contexts/QPoolsProvider";
 import {WalletMultiButton} from "@solana/wallet-adapter-react-ui";
+import InputFieldWithLogo from "../inputs/InputFieldWithLogo";
+import UserInfoBalance from "../displays/UserInfoBalance";
+
 import PurchaseButton from "../buttons/PurchaseButton";
 import OnramperModal from "../modals/OnramperModal"
 import {COLORS} from "../../const"
@@ -53,12 +56,14 @@ export default function StakeForm() {
 
     return (
         <>
+
             <OnramperModal
                 isOpen={displayOnramperModal}
                 onClose={() => {
                     setDisplayOnramperModal(false)
                 }}
             />
+
 
             <div className={"flex pb-2 w-full"}>
                 <div className={"flex flex-row space-x-6"}>
