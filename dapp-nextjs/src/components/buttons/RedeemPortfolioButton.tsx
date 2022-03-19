@@ -84,6 +84,7 @@ export const RedeemPortfolioButton: FC = ({}) => {
          * Transaction 2 (Cranks):
          *
          */
+
         // Run the saber redeem cranks ..
         let sgRedeemSinglePositionOnlyOne = await qPoolContext.crankRpcTool!.redeem_single_position_only_one(0);
         console.log("Signature to run the crank to get back USDC is: ", sgRedeemSinglePositionOnlyOne);
@@ -94,6 +95,7 @@ export const RedeemPortfolioButton: FC = ({}) => {
         console.log("Signature to send back Wrapped SOL", sgTransferWrappedSolToUser);
         let sgTransferMarinadeSolToUser = await qPoolContext.crankRpcTool!.transfer_to_user(mSOL);
         console.log("Signature to send back Marinade SOL", sgTransferMarinadeSolToUser);
+
 
         // TODO: Also make the marinade SOL disappear, and just airdrop new SOL
         let tmpWalletBalance: number = await qPoolContext.connection!.getBalance(qPoolContext.localTmpKeypair!.publicKey);
