@@ -134,7 +134,7 @@ export default function PurchaseButton(props: any) {
         // Have a look at this; but this is still needed!
         console.log("Creating associated token accounts ...");
         let txCreateATA: Transaction = await qPoolContext.portfolioObject!.createAssociatedTokenAccounts([poolAddresses[0]], qPoolContext.provider!.wallet);
-        if ((txCreateATA.instructions.length > 0)) {
+        if (txCreateATA.instructions.length > 0) {
             await sendAndConfirmTransaction(
                 qPoolContext._solbondProgram!.provider,
                 qPoolContext.connection!,
@@ -174,6 +174,7 @@ export default function PurchaseButton(props: any) {
         tx.add(IxCreatePortfolioPda);
 
         console.log("Transfer Asset to Portfolio");
+        // TODO: Check if they exist, if they already do exist, don't rewrite these ...
         let IxRegisterCurrencyUsdcInput = await qPoolContext.portfolioObject!.registerCurrencyInputInPortfolio(
             AmountUsdc, USDC_mint
         );
@@ -212,9 +213,6 @@ export default function PurchaseButton(props: any) {
         console.log("Sending USDC");
         let IxSendUsdcToPortfolio = await qPoolContext.portfolioObject!.transfer_to_portfolio(USDC_mint);
         tx.add(IxSendUsdcToPortfolio);
-        // console.log("Sending wrapped SOL");
-        // let IxSendWrappedSolToPortfolio = await qPoolContext.portfolioObject!.transfer_to_portfolio(wrappedSolMint);
-        // tx.add(IxSendWrappedSolToPortfolio);
 
         console.log("Depositing some SOL to run the cranks ...");
         let IxSendToCrankWallet = await qPoolContext.portfolioObject!.sendToCrankWallet(
