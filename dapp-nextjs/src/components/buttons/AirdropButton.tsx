@@ -1,5 +1,5 @@
 import React, {FC} from "react";
-import {FaFly} from "react-icons/fa";
+import {FaFaucet} from "react-icons/fa";
 import {useWallet} from "@solana/wallet-adapter-react";
 import {BN} from "@project-serum/anchor";
 import {IQPool, useQPoolUserTool} from "../../contexts/QPoolsProvider";
@@ -136,15 +136,14 @@ export const AirdropButton: FC = ({}) => {
     return (
         <>
             <button
-                // style={{ backgroundColor: "#1a202c" }}
                 className="border border-gray-500 text-white font-bold py-3 px-7 rounded "
                 onClick={() => airdropCurrency()}
             >
                 <div className={"flex flex-row"}>
                     <div className={"py-auto my-auto pr-3"}>
-                        <FaFly />
+                        <FaFaucet />
                     </div>
-                    AIRDROP
+                    FAUCET
                 </div>
             </button>
         </>
