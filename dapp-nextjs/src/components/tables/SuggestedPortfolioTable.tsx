@@ -18,6 +18,9 @@ export interface ChartableItemType {
 
 export default function SuggestedPortfolioTable() {
 
+    // Instead of the raw pubkeys, store the pyth ID, and then you can look up the price using the pyth sdk ..
+    // Much more sustainable also in terms of development
+
     let marinadePool : any = {
         "id": "marinade",
         "name": "marinade",
@@ -43,7 +46,10 @@ export default function SuggestedPortfolioTable() {
                 "name": "Marinade staked SOL (mSOL)",
                 "symbol": "mSOL",
                 "tags": ["saber-mkt-sol"],
-                "pyth": {},
+                "pyth": {
+                    "price": "E4v1BBgoso9s64TQvmyownAVJbhbEPGyzA3qn4n46qj9",
+                    "product": "BS2iAqT67j8hA9Jji4B8UpL3Nfw9kwPfU5s4qeaf1e7r"
+                }
             }
         ],
         "currency": "mSOL",
@@ -68,7 +74,10 @@ export default function SuggestedPortfolioTable() {
             "name": "Marinade staked SOL (mSOL)",
             "symbol": "mSOL",
             "tags": ["saber-mkt-sol"],
-            "pyth": {}
+            "pyth": {
+                "price": "E4v1BBgoso9s64TQvmyownAVJbhbEPGyzA3qn4n46qj9",
+                "product": "BS2iAqT67j8hA9Jji4B8UpL3Nfw9kwPfU5s4qeaf1e7r"
+            }
         },
         "fees": {
             "adminTrade": {

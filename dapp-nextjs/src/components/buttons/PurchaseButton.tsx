@@ -73,9 +73,9 @@ export default function PurchaseButton(props: any) {
         let weights: BN[] = [new BN(500), new BN(500)];
         // The pool addresses right now will probably just be hardcoded.
         // One is USDC, one is mSOL
-        let USDC_mint = new PublicKey("2tWC4JAdL4AxEFJySziYJfsAnW2MHKRo98vbAPiRDSk8");
-        let wrappedSolMint = new PublicKey("So11111111111111111111111111111111111111112");
 
+        // TODO: Remove this hardcoded values, and look these up from the backend JSON API
+        let USDC_mint = new PublicKey("2tWC4JAdL4AxEFJySziYJfsAnW2MHKRo98vbAPiRDSk8");
         let USDC_USDT_pubkey: PublicKey = new PublicKey("VeNkoB1HvSP6bSeGybQDnx9wTWFsQb2NBCemeCDSuKL");  // This is the pool address, not the LP token ...
         let mSOLLpToken: PublicKey = new PublicKey("mSoLzYCxHdYgdzU16g5QSh3i5K3z3KZK7ytfqcJm7So");  // Assume the LP token to be the denominator for what underlying asset we target ...
         let poolAddresses: PublicKey[] = [USDC_USDT_pubkey, mSOLLpToken];

@@ -61,12 +61,16 @@ export default function ExistingPortfolioTable() {
 
         // TODO: Should prob merge the stuff from Ahmet ...
 
+        console.log("mintLP is: ", position.mintLp);
+        console.log("mintA is: ", position.mintA);
+        console.log("mintB is: ", position.mintB);
+
         // Get the icon from the registry
         let iconMintA = "https://spl-token-icons.static-assets.ship.capital/icons/101/mSoLzYCxHdYgdzU16g5QSh3i5K3z3KZK7ytfqcJm7So.png";
-        let iconMintB = "https://spl-token-icons.static-assets.ship.capital/icons/101/mSoLzYCxHdYgdzU16g5QSh3i5K3z3KZK7ytfqcJm7So.png";
+        let iconMintB = "";
         if (position.mintA.equals(new PublicKey("mSoLzYCxHdYgdzU16g5QSh3i5K3z3KZK7ytfqcJm7So"))){
             iconMintA = "https://spl-token-icons.static-assets.ship.capital/icons/101/mSoLzYCxHdYgdzU16g5QSh3i5K3z3KZK7ytfqcJm7So.png";
-            iconMintB = "https://spl-token-icons.static-assets.ship.capital/icons/101/mSoLzYCxHdYgdzU16g5QSh3i5K3z3KZK7ytfqcJm7So.png";
+            // iconMintB = "https://spl-token-icons.static-assets.ship.capital/icons/101/mSoLzYCxHdYgdzU16g5QSh3i5K3z3KZK7ytfqcJm7So.png";
         } else {
             iconMintA = registry.getIconFromToken(position.mintA);
             iconMintB = registry.getIconFromToken(position.mintB);
@@ -80,29 +84,37 @@ export default function ExistingPortfolioTable() {
                 <tr className="dark:bg-gray-800">
                     {/* Show the icons next to this ... */}
                     <td className="py-4 px-6 text-center text-sm font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                        {position.mintLp &&
                         <a href={solscanLink(position.mintLp)} target={"_blank"} rel="noreferrer"
                            className="text-blue-600 dark:text-blue-500 hover:underline">
                             {/*{registry.getPool(position.poolAddress)?.name}*/}
                             {shortenedAddressString(position.mintLp)}
                             {/* TODO: Change to registry name perhaps    */}
                         </a>
+                        }
                     </td>
                     <td className="py-4 px-6 text-center text-sm font-medium text-gray-500 whitespace-nowrap dark:text-gray-400">
-                        <a href={solscanLink(position.mintA)} target={"_blank"} rel="noreferrer"
-                           className="text-blue-600 dark:text-blue-400 hover:underline">
-                            <Image src={iconMintA} width={30} height={30} />
-                        </a>
-                        <a href={solscanLink(position.mintB)} target={"_blank"} rel="noreferrer"
-                           className="text-blue-600 dark:text-blue-400 hover:underline">
-                            <Image src={iconMintB} width={30} height={30} />
-                        </a>
+                        {position.mintA &&
+                            <a href={solscanLink(position.mintA)} target={"_blank"} rel="noreferrer"
+                               className="text-blue-600 dark:text-blue-400 hover:underline">
+                                <Image src={iconMintA} width={30} height={30} />
+                            </a>
+                        }
+                        {position.mintB &&
+                            <a href={solscanLink(position.mintB)} target={"_blank"} rel="noreferrer"
+                               className="text-blue-600 dark:text-blue-400 hover:underline">
+                                <Image src={iconMintB} width={30} height={30}/>
+                            </a>
+                        }
                     </td>
                     <td className="py-4 px-6 text-center text-sm font-medium text-gray-500 whitespace-nowrap dark:text-gray-400">
                         {position.amountLp && position.amountLp.uiAmount!.toFixed(2)}
                     </td>
                     <td className="py-4 px-6 text-center text-sm text-right whitespace-nowrap">
-                        <a href={solscanLink(position.ataLp)} target={"_blank"} rel="noreferrer"
-                           className="text-blue-600 dark:text-blue-500 hover:underline">See on Solscan</a>
+                        {position.ataLp &&
+                            <a href={solscanLink(position.ataLp)} target={"_blank"} rel="noreferrer"
+                               className="text-blue-600 dark:text-blue-500 hover:underline">See on Solscan</a>
+                        }
                     </td>
                 </tr>
             </>

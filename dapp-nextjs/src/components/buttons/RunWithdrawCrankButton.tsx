@@ -15,25 +15,27 @@ export const RunWithdrawCrankButton: FC = ({}) => {
 
     // Onclick, alert that the user must connect his wallet first!
     const airdropCurrency = async () => {
-        console.log("Requesting airdrop...");
 
-        if (!qPoolContext.userAccount || !qPoolContext.userAccount!.publicKey || !qPoolContext.crankRpcTool || !qPoolContext.crankRpcTool.solbondProgram ) {
-            alert("Please connect your wallet first!");
-            return
-        }
-        // Also make sure that the portfolio was loaded ...
-        if (!qPoolContext.portfolioRatios) {
-            alert("Please try again in a couple of seconds (We should really fix this error message)");
-            return
-        }
-        if (!qPoolContext.portfolioRatios[0].pool) {
-            alert("Please try again in a couple of seconds (We should really fix this error message) 2");
-            return
-        }
+        // console.log("Requesting airdrop...");
+        //
+        // if (!qPoolContext.userAccount || !qPoolContext.userAccount!.publicKey || !qPoolContext.crankRpcTool || !qPoolContext.crankRpcTool.solbondProgram ) {
+        //     alert("Please connect your wallet first!");
+        //     return
+        // }
+        // // Also make sure that the portfolio was loaded ...
+        // if (!qPoolContext.portfolioRatios) {
+        //     alert("Please try again in a couple of seconds (We should really fix this error message)");
+        //     return
+        // }
+        // if (!qPoolContext.portfolioRatios[0].pool) {
+        //     alert("Please try again in a couple of seconds (We should really fix this error message) 2");
+        //     return
+        // }
+        //
+        // await loadContext.increaseCounter();
+        // await qPoolContext.crankRpcTool!.fullfillAllPermissionless();
+        // await loadContext.decreaseCounter();
 
-        await loadContext.increaseCounter();
-        await qPoolContext.crankRpcTool!.fullfillAllPermissionless();
-        await loadContext.decreaseCounter();
     };
 
     return (

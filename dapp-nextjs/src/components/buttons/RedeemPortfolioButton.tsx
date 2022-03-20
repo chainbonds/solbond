@@ -74,8 +74,7 @@ export const RedeemPortfolioButton: FC = ({}) => {
             await sendAndConfirmTransaction(
                 qPoolContext._solbondProgram!.provider,
                 qPoolContext.connection!,
-                tx,
-                qPoolContext.userAccount!.publicKey
+                tx
             );
         }
 
@@ -110,8 +109,7 @@ export const RedeemPortfolioButton: FC = ({}) => {
             await sendAndConfirmTransaction(
                 qPoolContext.crankRpcTool!.crankProvider,
                 qPoolContext.connection!,
-                tx2,
-                qPoolContext.userAccount!.publicKey
+                tx2
             );
         }
 
