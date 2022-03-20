@@ -4,6 +4,7 @@ import {shortenedAddressString, solscanLink} from "../../utils/utils";
 import Image from "next/image";
 import {PositionInfo, registry} from "@qpools/sdk";
 import {useWallet} from "@solana/wallet-adapter-react";
+import {PublicKey} from "@solana/web3.js";
 
 const tableColumns: (string | null)[] = ["Pool", "Assets", "USDC Value", null]
 
@@ -61,8 +62,18 @@ export default function ExistingPortfolioTable() {
         // TODO: Should prob merge the stuff from Ahmet ...
 
         // Get the icon from the registry
-        let iconMintA = registry.getIconFromToken(position.mintA);
-        let iconMintB = registry.getIconFromToken(position.mintB);
+        let iconMintA = "https://spl-token-icons.static-assets.ship.capital/icons/101/mSoLzYCxHdYgdzU16g5QSh3i5K3z3KZK7ytfqcJm7So.png";
+        let iconMintB = "https://spl-token-icons.static-assets.ship.capital/icons/101/mSoLzYCxHdYgdzU16g5QSh3i5K3z3KZK7ytfqcJm7So.png";
+        if (position.mintA.equals(new PublicKey("mSoLzYCxHdYgdzU16g5QSh3i5K3z3KZK7ytfqcJm7So"))){
+            iconMintA = "https://spl-token-icons.static-assets.ship.capital/icons/101/mSoLzYCxHdYgdzU16g5QSh3i5K3z3KZK7ytfqcJm7So.png";
+            iconMintB = "https://spl-token-icons.static-assets.ship.capital/icons/101/mSoLzYCxHdYgdzU16g5QSh3i5K3z3KZK7ytfqcJm7So.png";
+        } else {
+            iconMintA = registry.getIconFromToken(position.mintA);
+            iconMintB = registry.getIconFromToken(position.mintB);
+        }
+        // let iconMintA = registry.getIconFromToken(position.mintA);
+        // let iconMintB = registry.getIconFromToken(position.mintB);
+        console.log("Icon A Icon B ", iconMintA, iconMintB)
 
         return (
             <>

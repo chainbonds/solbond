@@ -4,11 +4,19 @@ import {AllocData, IQPool, useQPoolUserTool} from "../../contexts/QPoolsProvider
 import ExistingPortfolioTable from "../tables/ExistingPortfolioTable";
 import {COLORS, RADIAN} from "../../const";
 import SuggestedPortfolioTable from "../tables/SuggestedPortfolioTable";
-import {HeroFormState} from "../Main";
 
+
+import {HeroFormState} from "../Main";
 export default function PortfolioChartAndTable(props: any) {
 
     const qPoolContext: IQPool = useQPoolUserTool();
+    const showPercentage = false;
+
+    const [percentage, setPercentage] = useState<number>(0.);
+
+    const [ratios, setRatios] = useState<AllocData[] | null>(null);
+    const [totalAmountInUsdc, setTotalAmountInUsdc] = useState<number>(0.);
+
 
     const renderCustomizedLabel = ({cx, cy, midAngle, innerRadius, outerRadius, percent, index}: any) => {
         const radius = innerRadius + (outerRadius - innerRadius) * 0.4; // 1.05;
@@ -32,8 +40,8 @@ export default function PortfolioChartAndTable(props: any) {
         {name: "Group D", value: 200, apy_24h: 0.}
     ])
 
-    const [ratios, setRatios] = useState<AllocData[] | null>(null);
-    const [totalAmountInUsdc, setTotalAmountInUsdc] = useState<number>(0.);
+
+
     useEffect(() => {
         if (props.totalAmountInUsdc) {
             console.log("Defined!", props.totalAmountInUsdc);
@@ -42,6 +50,10 @@ export default function PortfolioChartAndTable(props: any) {
             console.log("Undefined!", props.totalAmountInUsdc);
         }
     }, [props.totalAmountInUsdc]);
+
+    {/* useEffect(() => {
+        window.location.reload();
+    }, [pieChartData]); */}
 
     // Maybe set loading until we are able to read the serpius API
     useEffect(() => {
@@ -116,33 +128,36 @@ export default function PortfolioChartAndTable(props: any) {
         )
     }
 
+
+
     // TODO: Maybe remove the labelled lines alltogether
     return (
         <>
             {/*-ml-14*/}
             <div className={"flex my-auto mx-auto p-8"}>
-                <PieChart width={200} height={200}>
+                <PieChart key={Math.random() + pieChartData[0].value} width={200} height={200}>
                     <Pie stroke="none"
                          data={pieChartData}
                          cx="50%"
                          cy="50%"
                          labelLine={false}
                          isAnimationActive={false} // this line is needed in order to see the labels. https://github.com/recharts/recharts/issues/929
-                         label={renderCustomizedLabel}
+                         label={showPercentage ? renderCustomizedLabel : false}
                          outerRadius={100}
+                         innerRadius={40}
                          // fill="#8884d8"
                          dataKey="value"
                     >
                         {pieChartData.map((entry, index) => (
                             <Cell
-                                key={`cell-${index}`}
+                                key={`cell-${Math.random() + pieChartData[index].value +index}`}
                                 fill={COLORS[index % COLORS.length]}/>
                         ))}
                     </Pie>
                 </PieChart>
             </div>
 
-            <div className="flex flex-col text-gray-300 my-auto">
+            <div className="flex flex-col text-gray-300 my-auto divide-y divide-white">
                 {/*
                     Only show this Portfolio if the wallet is connected ...
                 */}
