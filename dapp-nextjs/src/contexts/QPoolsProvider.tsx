@@ -203,10 +203,11 @@ export function QPoolsProvider(props: any) {
     const updateTheRatiosAfterConnecting = () => {
         setPortfolioRatios((_: AllocData[] | null) => {
             let oldRatios = portfolioRatios!
+            console.log("Old Ratios are: ", oldRatios);
+            console.log("PortfolioRatios are: ", portfolioRatios);
             oldRatios[0].weight = walletAmountUsdc
             oldRatios[1].weight = walletAmountSol
             console.log("wallet Amount USDC : ", walletAmountUsdc)
-
             console.log("wallet Amount SOL : ", walletAmountSol)
             console.log("THE CHART SHOULD UPDATE-----------------------------------------------");
             console.log(oldRatios);
@@ -343,6 +344,8 @@ export function QPoolsProvider(props: any) {
                         console.log("data item is", dataItem)
                         return dataItem;
                     });
+
+                    console.log("Updating new portfolio ratios ...");
 
                     // HARDCODED DATA BELOW !!!!! SHOULD BE DELETED EVENTAULLY
 

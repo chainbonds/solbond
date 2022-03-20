@@ -32,15 +32,15 @@ export default function PurchaseButton(props: any) {
         }
 
         // Also make sure that the portfolio was loaded ...
-        if (!qPoolContext.portfolioRatios) {
-            alert("Please try again in a couple of seconds (We should really fix this error message)");
-            return
-        }
-
-        if (!qPoolContext.portfolioRatios[0].pool) {
-            alert("Please try again in a couple of seconds (We should really fix this error message) 2");
-            return
-        }
+        // if (!qPoolContext.portfolioRatios) {
+        //     alert("Please try again in a couple of seconds (We should really fix this error message)");
+        //     return
+        // }
+        //
+        // if (!qPoolContext.portfolioRatios[0].pool) {
+        //     alert("Please try again in a couple of seconds (We should really fix this error message) 2");
+        //     return
+        // }
 
         // TODO: Add this
         // if ((typeof valueInUsdc) != number) {
@@ -70,7 +70,7 @@ export default function PurchaseButton(props: any) {
          * The weights will be defined (exactly), by the mSOL and USDC ratio, the total should sum to 1000
          * Until then, assume that we have a weight of 500 each (this weight thing is confusing when it's multi-asset)
          */
-        let weights: Array<BN> = [new BN(500), new BN(500)];
+        let weights: BN[] = [new BN(500), new BN(500)];
         // The pool addresses right now will probably just be hardcoded.
         // One is USDC, one is mSOL
         let USDC_mint = new PublicKey("2tWC4JAdL4AxEFJySziYJfsAnW2MHKRo98vbAPiRDSk8");
@@ -78,7 +78,7 @@ export default function PurchaseButton(props: any) {
 
         let USDC_USDT_pubkey: PublicKey = new PublicKey("VeNkoB1HvSP6bSeGybQDnx9wTWFsQb2NBCemeCDSuKL");  // This is the pool address, not the LP token ...
         let mSOLLpToken: PublicKey = new PublicKey("mSoLzYCxHdYgdzU16g5QSh3i5K3z3KZK7ytfqcJm7So");  // Assume the LP token to be the denominator for what underlying asset we target ...
-        let poolAddresses: Array<PublicKey> = [USDC_USDT_pubkey, mSOLLpToken];
+        let poolAddresses: PublicKey[] = [USDC_USDT_pubkey, mSOLLpToken];
 
         // Filter these, if any is 0
         // TODO: Not going for this right now. Just check that the user actually has enough balance in his wallet
@@ -138,8 +138,8 @@ export default function PurchaseButton(props: any) {
             await sendAndConfirmTransaction(
                 qPoolContext._solbondProgram!.provider,
                 qPoolContext.connection!,
-                txCreateATA,
-                qPoolContext.userAccount!.publicKey
+                txCreateATA
+                // qPoolContext.userAccount!.publicKey
             );
         }
         await itemLoadContext.incrementCounter();
@@ -224,11 +224,13 @@ export default function PurchaseButton(props: any) {
         tx.add(IxSendToCrankWallet);
 
         console.log("Sending and signing the transaction");
+        console.log("Provider is: ");
+        console.log(qPoolContext._solbondProgram!.provider);
+        console.log(qPoolContext._solbondProgram!.provider.wallet.publicKey.toString());
         await sendAndConfirmTransaction(
             qPoolContext._solbondProgram!.provider,
             qPoolContext.connection!,
-            tx,
-            qPoolContext.userAccount!.publicKey
+            tx
         );
         await itemLoadContext.incrementCounter();
 

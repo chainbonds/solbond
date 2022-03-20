@@ -27,18 +27,19 @@ export const sendAndConfirmTransaction = async (
     programProvider: Provider,
     connection: Connection,
     tx: Transaction,
-    feePayer: PublicKey
+    // feePayer: PublicKey
 ) => {
     // Get blockhash
-    const blockhash = await connection.getRecentBlockhash();
-    tx.recentBlockhash = blockhash.blockhash!;
-    tx.feePayer = feePayer;
+    // const blockhash = await connection.getRecentBlockhash();
+    // tx.recentBlockhash = blockhash.blockhash!;
+    // tx.feePayer = feePayer;
     // Assign feePayer
 
     // Send and Confirm
     console.log("Signing transaction...");
     console.log("About to send the following transactions: ", tx);
     console.log("Program provider is: ", programProvider, typeof programProvider);
+    console.log("Sending wallet is: ", programProvider.wallet.publicKey, programProvider.wallet.publicKey.toString());
     let sg = await programProvider.send(tx);
     console.log("sg1 is: ", sg);
     await connection.confirmTransaction(sg, 'confirmed');

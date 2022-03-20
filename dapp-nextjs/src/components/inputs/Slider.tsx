@@ -4,11 +4,7 @@ import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
 import Typography from '@mui/material/Typography';
 import Slider from '@mui/material/Slider';
-import MuiInput from '@mui/material/Input';
-
-const Input = styled(MuiInput)`
-  width: 42px;
-`;
+import {Input} from "@mui/material";
 
 export default function InputSlider(props : any) {
     const [value, setValue] = React.useState<number | string | Array<number | string>>(
@@ -35,7 +31,7 @@ export default function InputSlider(props : any) {
 
     return (
         <Box sx={{ width: 350 }}>
-            <Typography id="input-slider" gutterBottom>
+            <Typography gutterBottom>
                 Percentage
             </Typography>
             <Grid container spacing={2} alignItems="center">
