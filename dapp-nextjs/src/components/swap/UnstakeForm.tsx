@@ -37,7 +37,7 @@ export default function UnstakeForm() {
         console.log("Printing the total portfolios ..");
         console.log(qPoolContext!.totalPortfolioValueInUsd);
         console.log(qPoolContext!.positionInfos);
-        console.log(qPoolContext!.positionValuesInUsd);
+        // console.log(qPoolContext!.positionValuesInUsd);
 
         // if (totalPortfolioValueInUsd === 0.00) {
         //     return (
