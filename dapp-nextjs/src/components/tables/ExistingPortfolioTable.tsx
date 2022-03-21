@@ -4,7 +4,7 @@ import {shortenedAddressString, solscanLink} from "../../utils/utils";
 import Image from "next/image";
 import {PositionInfo, registry} from "@qpools/sdk";
 import {useWallet} from "@solana/wallet-adapter-react";
-import {ProtocolType} from "../../../../../qPools-contract/qpools-sdk/lib/types/positionInfo";
+import {ProtocolType} from "@qpools/sdk";
 
 const tableColumns: (string | null)[] = ["Pool", "Assets", "USDC Value", null]
 
