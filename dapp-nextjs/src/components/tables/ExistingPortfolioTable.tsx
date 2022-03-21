@@ -101,16 +101,16 @@ export default function ExistingPortfolioTable() {
                     </td>
                     <td className="py-4 px-6 text-center text-sm font-medium text-gray-500 whitespace-nowrap dark:text-gray-400">
                         {position.mintA &&
-                            <a href={solscanLink(position.mintA)} target={"_blank"} rel="noreferrer"
-                               className="text-blue-600 dark:text-blue-400 hover:underline">
-                                <Image src={iconMintA} width={30} height={30} />
-                            </a>
+                        <a href={solscanLink(position.mintA)} target={"_blank"} rel="noreferrer"
+                           className="text-blue-600 dark:text-blue-400 hover:underline">
+                            <Image src={iconMintA} width={30} height={30}/>
+                        </a>
                         }
                         {position.mintB &&
-                            <a href={solscanLink(position.mintB)} target={"_blank"} rel="noreferrer"
-                               className="text-blue-600 dark:text-blue-400 hover:underline">
-                                <Image src={iconMintB} width={30} height={30}/>
-                            </a>
+                        <a href={solscanLink(position.mintB)} target={"_blank"} rel="noreferrer"
+                           className="text-blue-600 dark:text-blue-400 hover:underline">
+                            <Image src={iconMintB} width={30} height={30}/>
+                        </a>
                         }
                     </td>
                     <td className="py-4 px-6 text-center text-sm font-medium text-gray-500 whitespace-nowrap dark:text-gray-400">
@@ -119,15 +119,14 @@ export default function ExistingPortfolioTable() {
                     </td>
                     <td className="py-4 px-6 text-center text-sm text-right whitespace-nowrap">
                         {position.ataLp &&
-                            <a href={solscanLink(position.ataLp)} target={"_blank"} rel="noreferrer"
-                               className="text-blue-600 dark:text-blue-500 hover:underline">See on Solscan</a>
+                        <a href={solscanLink(position.ataLp)} target={"_blank"} rel="noreferrer"
+                           className="text-blue-600 dark:text-blue-500 hover:underline">See on Solscan</a>
                         }
                     </td>
                 </tr>
             </>
         )
     }
-
 
     return (
         <>
@@ -138,7 +137,7 @@ export default function ExistingPortfolioTable() {
                             <table className="min-w-full">
                                 {tableHeader(tableColumns)}
                                 <tbody>
-                                    {qPoolContext.positionInfos.map((position: PositionInfo) => tableSingleRow(position))}
+                                {qPoolContext.positionInfos.map((position: PositionInfo) => tableSingleRow(position))}
                                 </tbody>
                             </table>
                         </div>
