@@ -12,7 +12,6 @@ import {
 } from "@qpools/sdk";
 import delay from "delay";
 import axios from "axios";
-import {UsdValuePosition} from "../types/UsdValuePosition";
 import {registry, accountExists} from "@qpools/sdk";
 import {PositionInfo, CrankRpcCalls} from "@qpools/sdk";
 import {getAssociatedTokenAddressOffCurve} from "@qpools/sdk/lib/utils";
@@ -30,7 +29,6 @@ export interface AllocData {
 export interface IQPool {
     portfolioObject: PortfolioFrontendFriendlyChainedInstructions | undefined,
     positionInfos: PositionInfo[],
-    positionValuesInUsd: UsdValuePosition[],
     totalPortfolioValueInUsd: number,
     initializeQPoolsUserTool: any,
     initializeQPoolsStatsTool: any,
@@ -79,7 +77,6 @@ const defaultValue: IQPool = {
     initializeQPoolsUserTool: () => console.log("Error not loaded yet!"),
     initializeQPoolsStatsTool: () => console.log("Error not loaded yet!"),
     positionInfos: [],
-    positionValuesInUsd: [],
     totalPortfolioValueInUsd: 0,
     portfolioRatios: hardcodedApiResponse,
     connection: undefined,
@@ -147,7 +144,7 @@ export function QPoolsProvider(props: any) {
     const [currencyMint, setCurrencyMint] = useState<Token | undefined>(undefined);
     const [QPTokenMint, setQPTokenMint] = useState<Token | undefined>(undefined);
     const [displayPortfolio, setDisplayPortfolio] = useState<DisplayPortfolios | undefined>(undefined);
-    const [positionValuesInUsd, setPositionValuesInUsd] = useState<UsdValuePosition[]>([]);
+    // const [positionValuesInUsd, setPositionValuesInUsd] = useState<UsdValuePosition[]>([]);
     const [totalPortfolioValueInUsd, setTotalPortfolioValueUsd] = useState<number>(0.);
     const [reloadPriceSentinel, setReloadPriceSentinel] = useState<boolean>(false);
 
@@ -387,7 +384,7 @@ export function QPoolsProvider(props: any) {
         if (userAccount && portfolioObject && (await accountExists(connection!, portfolioObject.portfolioPDA))) {
             console.log("Going in here ..");
             let { storedPositions, usdAmount, storedPositionUsdcAmounts } = await portfolioObject.getPortfolioUsdcValue();
-            setPositionValuesInUsd(storedPositionUsdcAmounts);
+            // setPositionValuesInUsd(storedPositionUsdcAmounts);
             setTotalPortfolioValueUsd(usdAmount);
             setPositionInfos(storedPositions);
         } else {
@@ -459,7 +456,7 @@ export function QPoolsProvider(props: any) {
         portfolioObject,
         portfolioRatios,
         positionInfos,
-        positionValuesInUsd,
+        // positionValuesInUsd,
         initializeQPoolsUserTool,
         initializeQPoolsStatsTool,
         totalPortfolioValueInUsd,

@@ -1,10 +1,11 @@
-import React, {useEffect, useState} from "react";
+import React, {useEffect} from "react";
 import {IQPool, useQPoolUserTool} from "../../contexts/QPoolsProvider";
 import {shortenedAddressString, solscanLink} from "../../utils/utils";
 import Image from "next/image";
 import {PositionInfo, registry} from "@qpools/sdk";
 import {useWallet} from "@solana/wallet-adapter-react";
-import {PublicKey} from "@solana/web3.js";
+import {ProtocolType} from "../../../../../qPools-contract/qpools-sdk/lib/types/positionInfo";
+import {UsdValuePosition} from "../../types/UsdValuePosition";
 
 const tableColumns: (string | null)[] = ["Pool", "Assets", "USDC Value", null]
 
@@ -66,18 +67,23 @@ export default function ExistingPortfolioTable() {
         console.log("mintB is: ", position.mintB);
 
         // Get the icon from the registry
-        let iconMintA = "https://spl-token-icons.static-assets.ship.capital/icons/101/mSoLzYCxHdYgdzU16g5QSh3i5K3z3KZK7ytfqcJm7So.png";
+        let iconMintA = "";  //  = "https://spl-token-icons.static-assets.ship.capital/icons/101/mSoLzYCxHdYgdzU16g5QSh3i5K3z3KZK7ytfqcJm7So.png";
         let iconMintB = "";
-        if (position.mintA.equals(new PublicKey("mSoLzYCxHdYgdzU16g5QSh3i5K3z3KZK7ytfqcJm7So"))){
+
+        // if (position.mintA.equals(new PublicKey("mSoLzYCxHdYgdzU16g5QSh3i5K3z3KZK7ytfqcJm7So"))){
+        if (position.protocolType === ProtocolType.Staking || position.protocolType === ProtocolType.Lending) {
+            // TODO: Remove this hard-coded logic ...
             iconMintA = "https://spl-token-icons.static-assets.ship.capital/icons/101/mSoLzYCxHdYgdzU16g5QSh3i5K3z3KZK7ytfqcJm7So.png";
-            // iconMintB = "https://spl-token-icons.static-assets.ship.capital/icons/101/mSoLzYCxHdYgdzU16g5QSh3i5K3z3KZK7ytfqcJm7So.png";
-        } else {
+        } else if (position.protocolType === ProtocolType.DEXLP) {
             iconMintA = registry.getIconFromToken(position.mintA);
             iconMintB = registry.getIconFromToken(position.mintB);
+        } else {
+            throw Error("Protocol Type is not within Enum!" + JSON.stringify(position));
         }
-        // let iconMintA = registry.getIconFromToken(position.mintA);
-        // let iconMintB = registry.getIconFromToken(position.mintB);
-        console.log("Icon A Icon B ", iconMintA, iconMintB)
+
+        console.log("Icon A Icon B ", iconMintA, iconMintB);
+
+        console.log("Printing the position to be printed now: ", position);
 
         return (
             <>
@@ -108,7 +114,8 @@ export default function ExistingPortfolioTable() {
                         }
                     </td>
                     <td className="py-4 px-6 text-center text-sm font-medium text-gray-500 whitespace-nowrap dark:text-gray-400">
-                        {position.amountLp && position.amountLp.uiAmount!.toFixed(2)}
+                        {/*{position.amountLp && position.amountLp.uiAmount!.toFixed(2)}*/}
+                        {position.totalPositionValue && position.totalPositionValue.toFixed(2)}
                     </td>
                     <td className="py-4 px-6 text-center text-sm text-right whitespace-nowrap">
                         {position.ataLp &&
