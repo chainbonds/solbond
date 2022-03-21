@@ -65,23 +65,27 @@ export default function PurchaseButton(props: any) {
 
         // Define the same for wrapped SOL, lol
 
-        /**
-         * First, define the weights, and positions
-         * The weights will be defined (exactly), by the mSOL and USDC ratio, the total should sum to 1000
-         * Until then, assume that we have a weight of 500 each (this weight thing is confusing when it's multi-asset)
-         */
-        let weights: BN[] = [new BN(500), new BN(500)];
-        // The pool addresses right now will probably just be hardcoded.
-        // One is USDC, one is mSOL
+        // For all LP tokens
 
+        // Define all LP tokens here, and also their respective assets
+        // Which should also allow for more assets
         // TODO: Remove this hardcoded values, and look these up from the backend JSON API
         let USDC_mint = new PublicKey("2tWC4JAdL4AxEFJySziYJfsAnW2MHKRo98vbAPiRDSk8");
         let USDC_USDT_pubkey: PublicKey = new PublicKey("VeNkoB1HvSP6bSeGybQDnx9wTWFsQb2NBCemeCDSuKL");  // This is the pool address, not the LP token ...
-        let mSOLLpToken: PublicKey = new PublicKey("mSoLzYCxHdYgdzU16g5QSh3i5K3z3KZK7ytfqcJm7So");  // Assume the LP token to be the denominator for what underlying asset we target ...
-        let poolAddresses: PublicKey[] = [USDC_USDT_pubkey, mSOLLpToken];
+        let mSolLpToken: PublicKey = new PublicKey("mSoLzYCxHdYgdzU16g5QSh3i5K3z3KZK7ytfqcJm7So");  // Assume the LP token to be the denominator for what underlying asset we target ...
 
-        // Filter these, if any is 0
-        // TODO: Not going for this right now. Just check that the user actually has enough balance in his wallet
+        let assetLpMints = [USDC_USDT_pubkey, mSolLpToken];
+        let weights: BN[] = [new BN(1000), new BN(1000)];
+
+        /**
+         * First, define the weights, and positions
+         * The weights will be defined (exactly), by the mSOL and USDC ratio, the total should sum to 1000
+         * Until then, assume that we have a weight of 1000 each (this weight thing is confusing when it's multi-asset)
+         */
+        // Make sure each one does not have null values
+        assetLpMints = assetLpMints.filter((mint: PublicKey, index: number) => {return weights[index].gt(new BN(0))});
+        weights = weights.filter((weight: BN) => {return weight.gt(new BN(0))});
+        // Once we hook it up to the other system, we can probably use something like this
         // let weights: BN[] = qPoolContext.portfolioRatios
         //     .filter((item: AllocData) => {return item.weight > 0})
         //     .map((item: AllocData) => {return new BN(item.weight)});
@@ -89,11 +93,16 @@ export default function PurchaseButton(props: any) {
         //     .filter((item: AllocData) => {return item.weight > 0})
         //     .map((item: AllocData) => {return new PublicKey(item.pool!.swap.config.swapAccount)});
 
+        // let poolAddresses: PublicKey[] = [USDC_USDT_pubkey, mSOLLpToken];
+
+        // Filter these, if any is 0
+        // TODO: Not going for this right now. Just check that the user actually has enough balance in his wallet
+
         // If poolAddresses or weights are empty, don't proceed!
-        if (weights.length === 0 || poolAddresses.length === 0) {
+        if (weights.length === 0 || assetLpMints.length === 0) {
             throw Error("Weights or PoolAddresses are empty!");
         }
-        if (weights.length != poolAddresses.length) {
+        if (weights.length != assetLpMints.length) {
             throw Error("Weights and PoolAddresses do not conform!");
         }
         if (!(weights.length > 0)) {
@@ -133,7 +142,7 @@ export default function PurchaseButton(props: any) {
         // TODO:
         // Have a look at this; but this is still needed!
         console.log("Creating associated token accounts ...");
-        let txCreateATA: Transaction = await qPoolContext.portfolioObject!.createAssociatedTokenAccounts([poolAddresses[0]], qPoolContext.provider!.wallet);
+        let txCreateATA: Transaction = await qPoolContext.portfolioObject!.createAssociatedTokenAccounts([assetLpMints[0]], qPoolContext.provider!.wallet);
         if (txCreateATA.instructions.length > 0) {
             await sendAndConfirmTransaction(
                 qPoolContext._solbondProgram!.provider,
