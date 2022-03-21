@@ -21,7 +21,6 @@ export default function ExistingPortfolioTable() {
         }
     }, [walletContext.publicKey]);
 
-
     /**
      * Header for the Table
      * Should also split up into different
