@@ -25,6 +25,8 @@ export default function SuggestedPortfolioTable() {
     // Perhaps create a "Loaded Portfolio Component"
     const qPoolContext: IQPool = useQPoolUserTool();
     const walletContext: any = useWallet();
+    // TODO: Whenever the portfolio-ratios are downloaded, update this asset as well
+    const [selectedAsset, setSelectedAsset] = useState<ChartableItemType | null>(null);
 
     useEffect(() => {
         if (walletContext.publicKey) {
@@ -66,6 +68,7 @@ export default function SuggestedPortfolioTable() {
     }
 
     // I see what was hardcoded here, haha
+    // TODO: Make these chartableItemTypes also all uniform, perhaps use AllocData, and map it in the final iteration ....
     const [ratios, setRatios] = useState<AllocData[] | null>(null);
     const [pieChartData, setPieChartData] = useState<ChartableItemType[]>([
         {name: "USDC-USDT", value: 500, apy_24h: 0.},
@@ -155,12 +158,30 @@ export default function SuggestedPortfolioTable() {
         let mintLP = new PublicKey(item.pool!.lpToken.address);
 
         console.log("item :", item.value);
-        let theKey = Math.random() + pieChartData[index].value + index;
+        let theKey = Math.random() + item.value + index;
         console.log("new Key", theKey, "for index", index)
+
+        // Should prob make the types equivalent. Should clean up all types in the front-end repo
+        let tailwindOnSelected = "dark:bg-gray-800 hover:bg-gray-900";
+        // TODO: Perhaps it's easier to just hardcode it ...
+        if (item.name === selectedAsset?.name) {
+            console.log("Matching indeed ...");
+            tailwindOnSelected = "dark:bg-gray-900 hover:bg-gray-900";
+        }
+        console.log("Item and selected asset are: ", item.name, selectedAsset?.name);
+        console.log("tailwindOnSelected is: ", tailwindOnSelected);
+
         return (
             <>
                 {/* border-base-100 border-b */}
-                <tr key={theKey} className={"dark:bg-gray-800"}>
+                <tr
+                    key={theKey}
+                    className={tailwindOnSelected}
+                    onClick={() => {
+                        setSelectedAsset(item);
+                        console.log("Tach Tach");
+                    }}
+                >
                     {/* Show the icons next to this ... */}
                     <td className="py-4 px-6 text-sm text--center font-normal text-gray-900 whitespace-nowrap dark:text-white">
                         <div className="flex items-center">
