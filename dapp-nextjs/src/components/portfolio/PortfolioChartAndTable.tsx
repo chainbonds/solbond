@@ -79,7 +79,8 @@ export default function PortfolioChartAndTable(props: any) {
         <>
             {/*-ml-14*/}
             <div className={"flex my-auto mx-auto p-8"}>
-                <PieChart key={Math.random() + pieChartData[0].value} width={200} height={200}>
+                {/* key={Math.random() + pieChartData[0].value} */}
+                <PieChart width={200} height={200}>
                     <Pie stroke="none"
                          data={pieChartData}
                          cx="50%"

@@ -16,6 +16,9 @@ import {registry, accountExists} from "@qpools/sdk";
 import {PositionInfo, CrankRpcCalls} from "@qpools/sdk";
 import {getAssociatedTokenAddressOffCurve} from "@qpools/sdk/lib/utils";
 import {tokenAccountExists, MOCK, ProtocolType} from "@qpools/sdk";
+import {purple} from "@mui/material/colors";
+import {Property} from "csstype";
+import All = Property.All;
 
 export interface AllocData {
     lp: string,
@@ -128,15 +131,6 @@ export function QPoolsProvider(props: any) {
     const [reloadPriceSentinel, setReloadPriceSentinel] = useState<boolean>(false);
     const [portfolioRatios, setPortfolioRatios] = useState<AllocData[]>(hardcodedApiResponse);
 
-    interface UserTokenBalance {
-        mint: PublicKey,
-        associatedTokenAccount: PublicKey,
-        amount: TokenAmount
-    }
-    // Maps the mints to the above object
-    const [userTokenBalances, setUserTokenBalances] = useState<Map<PublicKey, UserTokenBalance>>();
-
-
     /**
      * At the beginning of running the app, generate a temporary keypair
      * This keypair will never hold any SOL above 0.02
@@ -184,101 +178,197 @@ export function QPoolsProvider(props: any) {
     // TODO: Calculate the total amount balances ...
     // Probably first get all the user's account balances from the wallet
     // And then look for where to possible deposit these
-    const mapFromWalletAssetIntoPhantomWallet = async (position: AllocData) => {
+    // const mapFromWalletAssetIntoPhantomWallet = async (position: AllocData) => {
+    //
+    //     // Check if user has one of these tokens
+    //     if (userAccount) {
+    //         await connection!.getTokenAccountsByOwner(userAccount!.publicKey, );
+    //     }
+    //     // position.pool.tokens
+    //     return connection!.getTokenAccountBalance().then((x) => {x.value.uiAmount!});
+    // }
 
-        // Check if user has one of these tokens
-        if (userAccount) {
-            await connection!.getTokenAccountsByOwner(userAccount!.publicKey, );
+    const updateTheRatiosAfterConnecting = async () => {
+
+        // get all the serpius assets
+        // for all the serpius assets, get the pools in the registry
+        // for all the pools in the registry, get the tokens that you can input it as
+        // EDGE-CASE: wrapped SOLANA (we need to find a way to define marinade SOL input)
+
+        // get user associated token accounts
+        // connection!.getTokenAccountsByOwner(userAccount);
+
+        // get the mints of these associated token accounts
+
+        // for all of the mints
+
+        // getPoolByToken to get a list of all pools we could be investing in
+
+        // AND
+        // filter by whatever our portfolio recommender has recommended
+
+        // THEN
+        // set the weight (for display) equal to the USDC value of the user in his wallet
+
+        interface UserTokenBalance {
+            mint: PublicKey,
+            ata: PublicKey,
+            amount: TokenAmount
         }
-        // position.pool.tokens
-        return connection!.getTokenAccountBalance().then((x) => {x.value.uiAmount!});
+        interface EnrichedAllocData extends AllocData {
+            userInputAmount: UserTokenBalance
+        }
+        let newAllocData: EnrichedAllocData[] = [];
 
-    }
+        // (1) Get all token accounts owned that we get from the serpius API ...
+        await Promise.all(portfolioRatios.map(async (fetchedPool: AllocData) => {
+            console.log("Iterating through pool: ", fetchedPool)
 
-    const updateTheRatiosAfterConnecting = () => {
-        setPortfolioRatios((oldPortfolioRatios: AllocData[] | null) => {
-
-            // for each of the oldRatios, get the
-            // For now, set the weight to the user's balance ...
-            // TODO: Gotta create a mapping from user's assets to the tokens
-            // I guess for now an if-else case distinction is enough
-            if (oldPortfolioRatios) {
-                // And I guess for now these are all the tokens that we are looking into
-                let newPortfolioRatios = oldPortfolioRatios.map((_: AllocData) => {
-
-
-
-                    // getPoolByToken
-
-                    // get user associated token accounts
-                    // get the mints of these associated token accounts
-                    // for all of the mints
-                        // getPoolByToken to get a list of all pools we could be investing in
-                        // AND
-                        // filter by whatever our portfolio recommender has recommended
-                        // THEN
-                        // set the weight (for display) equal to the USDC value of the user in his wallet
-
-                    //
-                    //
-                    // if (!oldRatios.pool) {
-                    //     return;
-                    // }
-                    //
-                    // let newRatios: AllocData = {...oldRatios};
-                    //
-                    // // whatever the old-ratio's mint corresponds to, pick it from the
-                    //
-                    // // This case-distinction is really not by pool type, but rather purely by the underlying tokens ...
-                    // // The underlying tokens are defined by whatever tokens are included in the "tokens" array
-                    // return connection!.getTokenAccountBalance().then((x) => {x.value.uiAmount!});
-                    //
-                    // // // TODO: Also gotta make a case distinction here as well,
-                    // // //  as to whether the pool we're looking at is a DEX, or a token
-                    // // //  We also should add a whitelist for "allowed tokens", tokens that we will consider in the user's wallet
-                    // // if (oldRatios.pool!.poolType === ProtocolType.DEXLP) {
-                    // //
-                    // //     // TODO: Also make a case distinction by the type of token we can pay in
-                    // //     // TODO: I guess for now I will also hard-code this
-                    // //
-                    // //     // TODO: Do a map-filter, and select anything that has the same type of mint ...
-                    // //     // newRatios.weight =
-                    // //
-                    // //
-                    // // } else if (oldRatios.pool!.poolType === ProtocolType.Staking) {
-                    // //
-                    // // } else if (oldRatios.pool!.poolType === ProtocolType.Lending) {
-                    // //
-                    // // } else {
-                    // //     throw Error("PoolType is not valid! " + JSON.stringify(oldRatios));
-                    // // }
-                    //
-                    // // if (oldRatios.pool!.lpToken.address === MOCK.DEV.SABER_USDC) {
-                    // // } else if (oldRatios.pool!.lpToken.address === MOCK.DEV.) {
-                    // // }
-
-                });
+            // Now we have the pool
+            // When are the tokens not defined ...
+            let tokens: registry.ExplicitToken[] | undefined = fetchedPool.pool?.tokens;
+            if (!tokens) {
+                return;
             }
+            await Promise.all(tokens.map(async (token: registry.ExplicitToken) => {
 
-            // let oldRatios = portfolioRatios!;
-            // console.log("Old Ratios are: ", oldRatios);
-            // console.log("PortfolioRatios are: ", portfolioRatios);
-            // oldRatios[0].weight = walletAmountUsdc;
-            // oldRatios[1].weight = walletAmountSol;
-            // console.log("wallet Amount USDC : ", walletAmountUsdc);
-            // console.log("wallet Amount SOL : ", walletAmountSol);
-            // console.log("THE CHART SHOULD UPDATE-----------------------------------------------");
-            // console.log(oldRatios);
+                // Do a whitelist here which assets we accept ...
+                if (registry.getWhitelistTokens().filter((x: string) => x === token.address).length === 0) {
+                    return
+                }
 
-            return oldPortfolioRatios;
+                console.log("Iterating through token: ", token);
+                let mint: PublicKey = new PublicKey(token.address);
+                let ata = await getAssociatedTokenAddressOffCurve(mint, userAccount!.publicKey);
+                // Finally get the users' balance
+                // Let's assume that if the token is wrapped solana, that we can also include the pure solana into this .
+                let userBalance: TokenAmount = (await connection!.getTokenAccountBalance(ata)).value;
+                if (mint.equals(new PublicKey("So11111111111111111111111111111111111111112"))) {
+                    // TODO: refactor this into a util function or so ...
+                    // This is quite hacky. How do we treat the wrapping / unrapping for this?
+                    // Probably something like a transformer function would be nice for different protocols,
+                    // i.e. for marinade it could turn the unwrapped SOL into wrapped SOL or so .. and then unwrap it again.
+                    // the user would have to sign for this so it's not entirely feasible
+                    let solBalance: number = (await connection!.getBalance(userAccount!.publicKey));
+                    userBalance = {
+                        amount: userBalance.amount + (await connection!.getBalance(userAccount!.publicKey)),
+                        decimals: 9,
+                        uiAmount: (userBalance.uiAmount! + (solBalance / 9))
+                    };
+                }
+                let newPool: EnrichedAllocData = {
+                    ...fetchedPool,
+                    userInputAmount: {
+                        mint: mint,
+                        ata: ata,
+                        amount: userBalance
+                    }
+                }
+                // also overwrite the weight to be the user's estimated USDC balance for this token ...
+                // convert by pyth price, maybe
+                // Convert by pyth price,
+                // for now, hardcoding is enough, because we haven't started converting by the pyth price yet ...
+                if (newPool.userInputAmount.mint.equals(new PublicKey("So11111111111111111111111111111111111111112"))) {
+                    newPool.weight = newPool.userInputAmount.amount.uiAmount! * 93.;
+                } else {
+                    console.log("Assuming USDC...");
+                    newPool.weight = newPool.userInputAmount.amount.uiAmount!;
+                }
+                newAllocData.push(newPool);
+            }));
+        }));
+
+        setPortfolioRatios((_: AllocData[]) => {
+            return newAllocData;
         });
+
+        // TODO: Also, add the native (not wrapped) SOL as a special case
+        // Add native SOL here ...
+        // Should add mint as null maybe, for native sol? or add an empty pubkey (?)
+        // EnrichedAllocData = {
+        //     ...fetchedPool,
+        //     userInputAmount: {
+        //         mint: mint,
+        //         ata: ata,
+        //         amount: userBalance
+        //     }
+        // }
+
+
+
+
+
+
+
+        // // Now we can push this to be the new ratios ...
+        //
+        // setPortfolioRatios((oldPortfolioRatios: AllocData[] | null) => {
+        //
+        //     // for each of the oldRatios, get the
+        //     // For now, set the weight to the user's balance ...
+        //     // TODO: Gotta create a mapping from user's assets to the tokens
+        //     // I guess for now an if-else case distinction is enough
+        //     if (oldPortfolioRatios) {
+        //         // And I guess for now these are all the tokens that we are looking into
+        //         let newPortfolioRatios = oldPortfolioRatios.map((_: AllocData) => {
+        //
+        //
+        //             // if (!oldRatios.pool) {
+        //             //     return;
+        //             // }
+        //             //
+        //             // let newRatios: AllocData = {...oldRatios};
+        //             // // whatever the old-ratio's mint corresponds to, pick it from the
+        //             //
+        //             // // This case-distinction is really not by pool type, but rather purely by the underlying tokens ...
+        //             // // The underlying tokens are defined by whatever tokens are included in the "tokens" array
+        //             // return connection!.getTokenAccountBalance().then((x) => {x.value.uiAmount!});
+        //             //
+        //             // // // TODO: Also gotta make a case distinction here as well,
+        //             // // //  as to whether the pool we're looking at is a DEX, or a token
+        //             // // //  We also should add a whitelist for "allowed tokens", tokens that we will consider in the user's wallet
+        //             // // if (oldRatios.pool!.poolType === ProtocolType.DEXLP) {
+        //             // //
+        //             // //     // TODO: Also make a case distinction by the type of token we can pay in
+        //             // //     // TODO: I guess for now I will also hard-code this
+        //             // //
+        //             // //     // TODO: Do a map-filter, and select anything that has the same type of mint ...
+        //             // //     // newRatios.weight =
+        //             // //
+        //             // //
+        //             // // } else if (oldRatios.pool!.poolType === ProtocolType.Staking) {
+        //             // //
+        //             // // } else if (oldRatios.pool!.poolType === ProtocolType.Lending) {
+        //             // //
+        //             // // } else {
+        //             // //     throw Error("PoolType is not valid! " + JSON.stringify(oldRatios));
+        //             // // }
+        //             //
+        //             // // if (oldRatios.pool!.lpToken.address === MOCK.DEV.SABER_USDC) {
+        //             // // } else if (oldRatios.pool!.lpToken.address === MOCK.DEV.) {
+        //             // // }
+        //
+        //         });
+        //     }
+        //
+        //     // let oldRatios = portfolioRatios!;
+        //     // console.log("Old Ratios are: ", oldRatios);
+        //     // console.log("PortfolioRatios are: ", portfolioRatios);
+        //     // oldRatios[0].weight = walletAmountUsdc;
+        //     // oldRatios[1].weight = walletAmountSol;
+        //     // console.log("wallet Amount USDC : ", walletAmountUsdc);
+        //     // console.log("wallet Amount SOL : ", walletAmountSol);
+        //     // console.log("THE CHART SHOULD UPDATE-----------------------------------------------");
+        //     // console.log(oldRatios);
+        //
+        //     return oldPortfolioRatios;
+        // });
     }
 
     useEffect(() => {
         updateAccountBalance(MOCK.DEV.SABER_USDC, setWalletAmountUsdc);
         updateSolBalance();
         updateTheRatiosAfterConnecting();
-
     }, [reloadPriceSentinel, userAccount, connection]);
 
 
