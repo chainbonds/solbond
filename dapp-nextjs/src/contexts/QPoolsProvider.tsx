@@ -284,143 +284,19 @@ export function QPoolsProvider(props: any) {
         setPortfolioRatios((_: AllocData[]) => {
             return newAllocData;
         });
-
-        // TODO: Also, add the native (not wrapped) SOL as a special case
-        // Add native SOL here ...
-        // Should add mint as null maybe, for native sol? or add an empty pubkey (?)
-        // EnrichedAllocData = {
-        //     ...fetchedPool,
-        //     userInputAmount: {
-        //         mint: mint,
-        //         ata: ata,
-        //         amount: userBalance
-        //     }
-        // }
-
-
-
-
-
-
-
-        // // Now we can push this to be the new ratios ...
-        //
-        // setPortfolioRatios((oldPortfolioRatios: AllocData[] | null) => {
-        //
-        //     // for each of the oldRatios, get the
-        //     // For now, set the weight to the user's balance ...
-        //     // TODO: Gotta create a mapping from user's assets to the tokens
-        //     // I guess for now an if-else case distinction is enough
-        //     if (oldPortfolioRatios) {
-        //         // And I guess for now these are all the tokens that we are looking into
-        //         let newPortfolioRatios = oldPortfolioRatios.map((_: AllocData) => {
-        //
-        //
-        //             // if (!oldRatios.pool) {
-        //             //     return;
-        //             // }
-        //             //
-        //             // let newRatios: AllocData = {...oldRatios};
-        //             // // whatever the old-ratio's mint corresponds to, pick it from the
-        //             //
-        //             // // This case-distinction is really not by pool type, but rather purely by the underlying tokens ...
-        //             // // The underlying tokens are defined by whatever tokens are included in the "tokens" array
-        //             // return connection!.getTokenAccountBalance().then((x) => {x.value.uiAmount!});
-        //             //
-        //             // // // TODO: Also gotta make a case distinction here as well,
-        //             // // //  as to whether the pool we're looking at is a DEX, or a token
-        //             // // //  We also should add a whitelist for "allowed tokens", tokens that we will consider in the user's wallet
-        //             // // if (oldRatios.pool!.poolType === ProtocolType.DEXLP) {
-        //             // //
-        //             // //     // TODO: Also make a case distinction by the type of token we can pay in
-        //             // //     // TODO: I guess for now I will also hard-code this
-        //             // //
-        //             // //     // TODO: Do a map-filter, and select anything that has the same type of mint ...
-        //             // //     // newRatios.weight =
-        //             // //
-        //             // //
-        //             // // } else if (oldRatios.pool!.poolType === ProtocolType.Staking) {
-        //             // //
-        //             // // } else if (oldRatios.pool!.poolType === ProtocolType.Lending) {
-        //             // //
-        //             // // } else {
-        //             // //     throw Error("PoolType is not valid! " + JSON.stringify(oldRatios));
-        //             // // }
-        //             //
-        //             // // if (oldRatios.pool!.lpToken.address === MOCK.DEV.SABER_USDC) {
-        //             // // } else if (oldRatios.pool!.lpToken.address === MOCK.DEV.) {
-        //             // // }
-        //
-        //         });
-        //     }
-        //
-        //     // let oldRatios = portfolioRatios!;
-        //     // console.log("Old Ratios are: ", oldRatios);
-        //     // console.log("PortfolioRatios are: ", portfolioRatios);
-        //     // oldRatios[0].weight = walletAmountUsdc;
-        //     // oldRatios[1].weight = walletAmountSol;
-        //     // console.log("wallet Amount USDC : ", walletAmountUsdc);
-        //     // console.log("wallet Amount SOL : ", walletAmountSol);
-        //     // console.log("THE CHART SHOULD UPDATE-----------------------------------------------");
-        //     // console.log(oldRatios);
-        //
-        //     return oldPortfolioRatios;
-        // });
     }
 
     useEffect(() => {
-        updateAccountBalance(MOCK.DEV.SABER_USDC, setWalletAmountUsdc);
-        updateSolBalance();
         updateTheRatiosAfterConnecting();
     }, [reloadPriceSentinel, userAccount, connection]);
 
 
-    useEffect(() => {
-        updateTheRatiosAfterConnecting()
+    // useEffect(() => {
+    //     updateTheRatiosAfterConnecting()
+    // }, [walletAmountUsdc, walletAmountSol])
+    // useEffect(() => {
+    // }, [userAccount, connection]);
 
-    }, [walletAmountUsdc, walletAmountSol])
-
-    const updateAccountBalance = async (mintAddress: PublicKey, setAmountFunction: any) => {
-        console.log("#useEffect UserInfoBalance");
-        if (connection && userAccount) {
-            // Get the associated token account
-            console.log("Getting associated token account")
-            let userCurrencyAta: PublicKey = await getAssociatedTokenAddressOffCurve(
-                mintAddress, userAccount.publicKey
-            )
-            let existsBool = await tokenAccountExists(connection!, userCurrencyAta);
-            console.log("User ATA: ", userCurrencyAta.toString(), existsBool);
-            if (existsBool) {
-                console.log("Exists!");
-                // Check if this account exists, first of all
-                let x = await connection!.getTokenAccountBalance(userCurrencyAta);
-                if (x.value && x.value.uiAmount) {
-                    console.log("Balance is: ", x.value);
-                    setAmountFunction(x.value.uiAmount!);
-                } else {
-                    console.log("ERROR: Something went wrong unpacking the balance!");
-                }
-                console.log("Done fetching");
-            } else {
-                console.log("Account doesn't exist yet");
-            }
-        }
-        console.log("##useEffect UserInfoBalance");
-    }
-
-
-    const updateSolBalance = async () => {
-        if (connection) {
-            let x = await connection!.getBalance(userAccount!.publicKey);
-            setWalletAmountSol(x * solanaPrice / 1000000000);
-        } else {
-            "LOLVELEEEEEEEEL"
-        }
-    }
-
-    useEffect(() => {
-    }, [userAccount, connection]);
-    //--------------------------------------------------------------------------------
     /**
      * Everytime there is a change in the Keypair, create a
      */

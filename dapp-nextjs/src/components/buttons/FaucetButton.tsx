@@ -10,7 +10,7 @@ import {useLoad} from "../../contexts/LoadingContext";
 import {createAssociatedTokenAccountSendUnsigned, MOCK} from "@qpools/sdk";
 import {delay} from "@qpools/sdk/lib/utils";
 
-export const AirdropButton: FC = ({}) => {
+export const FaucetButton: FC = ({}) => {
 
     // TODO Implement logic to airdrop some currency ...
     const walletContext: any = useWallet();
@@ -33,7 +33,7 @@ export const AirdropButton: FC = ({}) => {
 
         // Airdrop some solana first, to make sure we can run this transaction ...
         if ((await qPoolContext.connection!.getBalance(qPoolContext.userAccount!.publicKey)) <= 5e9) {
-            let tx0 = await qPoolContext.connection!.requestAirdrop(qPoolContext.userAccount!.publicKey, 1e9);
+            let tx0 = await qPoolContext.connection!.requestAirdrop(qPoolContext.userAccount!.publicKey, 1e9 + 2e8);
             await qPoolContext.connection!.confirmTransaction(tx0, 'finalized');
             console.log("Airdropped 1 SOL!");
         }

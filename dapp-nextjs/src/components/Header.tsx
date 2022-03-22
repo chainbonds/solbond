@@ -1,6 +1,6 @@
 import React, {FC} from "react";
 import {LogoWithTitle} from "./assets/LogoWithTitle";
-import {AirdropButton} from "./buttons/AirdropButton";
+import {FaucetButton} from "./buttons/FaucetButton";
 import {RunFulfillCrankButton} from "./buttons/RunFulfillCrankButton";
 import {RunWithdrawCrankButton} from "./buttons/RunWithdrawCrankButton";
 import ConnectWalletButton from "./buttons/ConnectWalletButton";
@@ -23,7 +23,7 @@ export const Header: FC = ({}) => {
                     <div className={"flex my-auto py-auto mx-auto md:mx-0"}>
                         <div className={"flex flex-col md:flex-row"}>
                             <div className={"px-2 py-2 mx-auto md:py-0 md:py-auto md:my-auto"}>
-                                <AirdropButton/>
+                                <FaucetButton/>
                             </div>
 
                            {/* <div className={"px-2 py-2 mx-auto md:py-0 md:py-auto md:my-auto"}>
