@@ -221,6 +221,8 @@ export function QPoolsProvider(props: any) {
         let newAllocData: EnrichedAllocData[] = [];
 
         // (1) Get all token accounts owned that we get from the serpius API ...
+        // .filter((item, index) => {return portfolioRatios.indexOf(item) === index})
+        // TODO: Remove duplicates with this filter ...
         await Promise.all(portfolioRatios.map(async (fetchedPool: AllocData) => {
             console.log("Iterating through pool: ", fetchedPool)
 
@@ -253,7 +255,7 @@ export function QPoolsProvider(props: any) {
                     userBalance = {
                         amount: userBalance.amount + (await connection!.getBalance(userAccount!.publicKey)),
                         decimals: 9,
-                        uiAmount: (userBalance.uiAmount! + (solBalance / 9))
+                        uiAmount: (userBalance.uiAmount! + (solBalance / (10**9)))
                     };
                 }
                 let newPool: EnrichedAllocData = {
@@ -274,6 +276,7 @@ export function QPoolsProvider(props: any) {
                     console.log("Assuming USDC...");
                     newPool.weight = newPool.userInputAmount.amount.uiAmount!;
                 }
+                console.log("Pushing object: ", newPool);
                 newAllocData.push(newPool);
             }));
         }));
