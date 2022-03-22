@@ -178,7 +178,7 @@ export default function PurchaseButton(props: any) {
         let tx: Transaction = new Transaction();
         let IxCreatePortfolioPda = await qPoolContext.portfolioObject!.createPortfolioSigned(
             weights,
-            poolAddresses
+            assetLpMints
         );
         tx.add(IxCreatePortfolioPda);
 
@@ -202,7 +202,7 @@ export default function PurchaseButton(props: any) {
         // TODO: Copy the case-distinction from below. Then you can continue
         // TODO: figure out tokenA and tokenB ==> Currently hard-coded...
         let IxApproveiPositionWeightSaber = await qPoolContext.portfolioObject!.approvePositionWeightSaber(
-            poolAddresses[0],
+            assetLpMints[0],
             AmountUsdc,
             new BN(0),  // Will be flipped in the backend ..
             new BN(0),
@@ -392,15 +392,6 @@ export default function PurchaseButton(props: any) {
             >
                 Deposit
             </button>
-            {/*<div className="flex w-full bg-slate-800 justify-center md:justify-end">*/}
-            {/*    <button*/}
-            {/*        type={props.type}*/}
-            {/*        onClick={props.onClick}*/}
-            {/*        className={"rounded-lg text-xl font-semibold bg-pink-700 hover:bg-pink-900 h-12 w-full text-center align-middle"}*/}
-            {/*    >*/}
-            {/*        {props.text}*/}
-            {/*    </button>*/}
-            {/*</div>*/}
         </>
     )
 

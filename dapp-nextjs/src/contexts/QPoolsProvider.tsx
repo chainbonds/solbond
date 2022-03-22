@@ -1,6 +1,6 @@
 import React, {useState, useContext, useEffect} from 'react';
 import {Provider} from "@project-serum/anchor";
-import {clusterApiUrl, Connection, Keypair, PublicKey} from "@solana/web3.js";
+import {clusterApiUrl, Connection, Keypair, PublicKey, TokenAmount} from "@solana/web3.js";
 import {Token, TOKEN_PROGRAM_ID} from "@solana/spl-token";
 import * as anchor from "@project-serum/anchor";
 import {solbondProgram} from "../programs/solbond";
@@ -15,15 +15,14 @@ import axios from "axios";
 import {registry, accountExists} from "@qpools/sdk";
 import {PositionInfo, CrankRpcCalls} from "@qpools/sdk";
 import {getAssociatedTokenAddressOffCurve} from "@qpools/sdk/lib/utils";
-
-import {tokenAccountExists, MOCK} from "@qpools/sdk";
+import {tokenAccountExists, MOCK, ProtocolType} from "@qpools/sdk";
 
 export interface AllocData {
     lp: string,
     weight: number,
     protocol: string,
     apy_24h: number,
-    pool?: registry.ExplicitSaberPool
+    pool?: registry.ExplicitPool
 };
 
 export interface IQPool {
@@ -41,28 +40,15 @@ export interface IQPool {
     makePriceReload: any,
     userAccount: WalletI | undefined,
     currencyMint: Token | undefined,
-    QPTokenMint: Token | undefined,
     localTmpKeypair: Keypair | undefined,
     crankRpcTool: CrankRpcCalls | undefined,
-    walletAmountUsdc : number,
-    walletAmountSol : number
+    walletAmountUsdc: number,
+    walletAmountSol: number
 }
 
 const hardcodedApiResponse = [
     {
-        "lp": "JSOL-SOL",
-        "weight": 1000,
-        "protocol": "Saber",
-        "apy_24h": 0.
-    },
-    {
-        "lp": "HBTC-renBTC",
-        "weight": 1000,
-        "protocol": "Saber",
-        "apy_24h": 0.
-    },
-    {
-        "lp": "eSOL-SOL",
+        "lp": "USDC-USDT",
         "weight": 1000,
         "protocol": "Saber",
         "apy_24h": 0.
@@ -84,7 +70,6 @@ const defaultValue: IQPool = {
     _solbondProgram: () => console.error("attempting to use AuthContext outside of a valid provider"),
     userAccount: undefined,
     currencyMint: undefined,
-    QPTokenMint: undefined,
     localTmpKeypair: undefined,
     crankRpcTool: undefined,
     walletAmountUsdc: 0,
@@ -97,25 +82,10 @@ export function useQPoolUserTool() {
     return useContext(QPoolContext);
 }
 
-const hardcodedProgramIds = {
-    "stableSwapProgramId": new PublicKey("SSwpkEEcbUqx4vtoEByFjSkhKdCT862DNVb52nZg1UZ"),
-};
-
-const hardcodedPools = {
-    USDC_USDT: {
-        pubkey: new PublicKey("VeNkoB1HvSP6bSeGybQDnx9wTWFsQb2NBCemeCDSuKL"),
-    },
-    USDC_CASH: {
-        pubkey: new PublicKey("B94iYzzWe7Q3ksvRnt5yJm6G5YquerRFKpsUVUvasdmA"),
-    },
-    USDC_TEST: {
-        pubkey: new PublicKey("AqBGfWy3D9NpW8LuknrSSuv93tJUBiPWYxkBrettkG7x"),
-    },
-};
-
 function getConnectionString(): Connection {
     let _connection;
-    let clusterName = String(process.env.NEXT_PUBLIC_CLUSTER_NAME);console.log("Cluster name is: ", clusterName);
+    let clusterName = String(process.env.NEXT_PUBLIC_CLUSTER_NAME);
+    console.log("Cluster name is: ", clusterName);
     if (clusterName === "localnet") {
         let localClusterUrl = String(process.env.NEXT_PUBLIC_CLUSTER_URL);
         _connection = new Connection(localClusterUrl, 'confirmed');
@@ -133,25 +103,39 @@ function getConnectionString(): Connection {
 
 export function QPoolsProvider(props: any) {
 
-    const [portfolioObject, setPortfolioObject] = useState<PortfolioFrontendFriendlyChainedInstructions | undefined>(undefined);
-
+    /**
+     * Generic state for RPC Calls
+     */
     const [connection, setConnection] = useState<Connection | undefined>(undefined);
     const [provider, setProvider] = useState<Provider | undefined>(undefined);
     const [_solbondProgram, setSolbondProgram] = useState<any>(null);
     const [userAccount, setUserAccount] = useState<WalletI | undefined>(undefined);
-    const [positionInfos, setPositionInfos] = useState<PositionInfo[]>([]);
 
+    /**
+     * Helper objects for RPC Calls
+     */
+    const [portfolioObject, setPortfolioObject] = useState<PortfolioFrontendFriendlyChainedInstructions | undefined>(undefined);
+    const [crankRpcTool, setCrankRpcTool] = useState<CrankRpcCalls | undefined>();
+    const [localTmpKeypair, setLocalTmpKeypair] = useState<Keypair | undefined>();
+
+    /**
+     * App-dependent variables
+     */
+    const [positionInfos, setPositionInfos] = useState<PositionInfo[]>([]);
     const [currencyMint, setCurrencyMint] = useState<Token | undefined>(undefined);
-    const [QPTokenMint, setQPTokenMint] = useState<Token | undefined>(undefined);
     const [displayPortfolio, setDisplayPortfolio] = useState<DisplayPortfolios | undefined>(undefined);
-    // const [positionValuesInUsd, setPositionValuesInUsd] = useState<UsdValuePosition[]>([]);
     const [totalPortfolioValueInUsd, setTotalPortfolioValueUsd] = useState<number>(0.);
     const [reloadPriceSentinel, setReloadPriceSentinel] = useState<boolean>(false);
-
     const [portfolioRatios, setPortfolioRatios] = useState<AllocData[]>(hardcodedApiResponse);
 
-    const [localTmpKeypair, setLocalTmpKeypair] = useState<Keypair | undefined>();
-    const [crankRpcTool, setCrankRpcTool] = useState<CrankRpcCalls | undefined>();
+    interface UserTokenBalance {
+        mint: PublicKey,
+        associatedTokenAccount: PublicKey,
+        amount: TokenAmount
+    }
+    // Maps the mints to the above object
+    const [userTokenBalances, setUserTokenBalances] = useState<Map<PublicKey, UserTokenBalance>>();
+
 
     /**
      * At the beginning of running the app, generate a temporary keypair
@@ -197,18 +181,96 @@ export function QPoolsProvider(props: any) {
 
     const solanaPrice = 90;
 
+    // TODO: Calculate the total amount balances ...
+    // Probably first get all the user's account balances from the wallet
+    // And then look for where to possible deposit these
+    const mapFromWalletAssetIntoPhantomWallet = async (position: AllocData) => {
+
+        // Check if user has one of these tokens
+        if (userAccount) {
+            await connection!.getTokenAccountsByOwner(userAccount!.publicKey, );
+        }
+        // position.pool.tokens
+        return connection!.getTokenAccountBalance().then((x) => {x.value.uiAmount!});
+
+    }
+
     const updateTheRatiosAfterConnecting = () => {
-        setPortfolioRatios((_: AllocData[] | null) => {
-            let oldRatios = portfolioRatios!
-            console.log("Old Ratios are: ", oldRatios);
-            console.log("PortfolioRatios are: ", portfolioRatios);
-            oldRatios[0].weight = walletAmountUsdc
-            oldRatios[1].weight = walletAmountSol
-            console.log("wallet Amount USDC : ", walletAmountUsdc)
-            console.log("wallet Amount SOL : ", walletAmountSol)
-            console.log("THE CHART SHOULD UPDATE-----------------------------------------------");
-            console.log(oldRatios);
-            return oldRatios;
+        setPortfolioRatios((oldPortfolioRatios: AllocData[] | null) => {
+
+            // for each of the oldRatios, get the
+            // For now, set the weight to the user's balance ...
+            // TODO: Gotta create a mapping from user's assets to the tokens
+            // I guess for now an if-else case distinction is enough
+            if (oldPortfolioRatios) {
+                // And I guess for now these are all the tokens that we are looking into
+                let newPortfolioRatios = oldPortfolioRatios.map((_: AllocData) => {
+
+
+
+                    // getPoolByToken
+
+                    // get user associated token accounts
+                    // get the mints of these associated token accounts
+                    // for all of the mints
+                        // getPoolByToken to get a list of all pools we could be investing in
+                        // AND
+                        // filter by whatever our portfolio recommender has recommended
+                        // THEN
+                        // set the weight (for display) equal to the USDC value of the user in his wallet
+
+                    //
+                    //
+                    // if (!oldRatios.pool) {
+                    //     return;
+                    // }
+                    //
+                    // let newRatios: AllocData = {...oldRatios};
+                    //
+                    // // whatever the old-ratio's mint corresponds to, pick it from the
+                    //
+                    // // This case-distinction is really not by pool type, but rather purely by the underlying tokens ...
+                    // // The underlying tokens are defined by whatever tokens are included in the "tokens" array
+                    // return connection!.getTokenAccountBalance().then((x) => {x.value.uiAmount!});
+                    //
+                    // // // TODO: Also gotta make a case distinction here as well,
+                    // // //  as to whether the pool we're looking at is a DEX, or a token
+                    // // //  We also should add a whitelist for "allowed tokens", tokens that we will consider in the user's wallet
+                    // // if (oldRatios.pool!.poolType === ProtocolType.DEXLP) {
+                    // //
+                    // //     // TODO: Also make a case distinction by the type of token we can pay in
+                    // //     // TODO: I guess for now I will also hard-code this
+                    // //
+                    // //     // TODO: Do a map-filter, and select anything that has the same type of mint ...
+                    // //     // newRatios.weight =
+                    // //
+                    // //
+                    // // } else if (oldRatios.pool!.poolType === ProtocolType.Staking) {
+                    // //
+                    // // } else if (oldRatios.pool!.poolType === ProtocolType.Lending) {
+                    // //
+                    // // } else {
+                    // //     throw Error("PoolType is not valid! " + JSON.stringify(oldRatios));
+                    // // }
+                    //
+                    // // if (oldRatios.pool!.lpToken.address === MOCK.DEV.SABER_USDC) {
+                    // // } else if (oldRatios.pool!.lpToken.address === MOCK.DEV.) {
+                    // // }
+
+                });
+            }
+
+            // let oldRatios = portfolioRatios!;
+            // console.log("Old Ratios are: ", oldRatios);
+            // console.log("PortfolioRatios are: ", portfolioRatios);
+            // oldRatios[0].weight = walletAmountUsdc;
+            // oldRatios[1].weight = walletAmountSol;
+            // console.log("wallet Amount USDC : ", walletAmountUsdc);
+            // console.log("wallet Amount SOL : ", walletAmountSol);
+            // console.log("THE CHART SHOULD UPDATE-----------------------------------------------");
+            // console.log(oldRatios);
+
+            return oldPortfolioRatios;
         });
     }
 
@@ -218,14 +280,14 @@ export function QPoolsProvider(props: any) {
         updateTheRatiosAfterConnecting();
 
     }, [reloadPriceSentinel, userAccount, connection]);
-    
+
 
     useEffect(() => {
         updateTheRatiosAfterConnecting()
 
-    } , [walletAmountUsdc, walletAmountSol])
+    }, [walletAmountUsdc, walletAmountSol])
 
-    const updateAccountBalance = async (mintAddress : PublicKey, setAmountFunction :any ) => {
+    const updateAccountBalance = async (mintAddress: PublicKey, setAmountFunction: any) => {
         console.log("#useEffect UserInfoBalance");
         if (connection && userAccount) {
             // Get the associated token account
@@ -255,23 +317,19 @@ export function QPoolsProvider(props: any) {
 
 
     const updateSolBalance = async () => {
-        if(connection){
-            let x= await connection!.getBalance(userAccount!.publicKey);
+        if (connection) {
+            let x = await connection!.getBalance(userAccount!.publicKey);
             setWalletAmountSol(x * solanaPrice / 1000000000);
-        }
-        else{
+        } else {
             "LOLVELEEEEEEEEL"
         }
     }
-    
+
     useEffect(() => {
-
-        
-
     }, [userAccount, connection]);
     //--------------------------------------------------------------------------------
     /**
-     * Everytime ther is a change in the Keypair, create a
+     * Everytime there is a change in the Keypair, create a
      */
     useEffect(() => {
         if (localTmpKeypair && connection && provider) {
@@ -303,7 +361,6 @@ export function QPoolsProvider(props: any) {
     //     }
     // },[crankRpcTool]);
 
-
     /**
      * Somewhat legacy, will fix and clear these items at a later stage ...
      */
@@ -314,13 +371,13 @@ export function QPoolsProvider(props: any) {
             console.log("#useEffect getSerpiusEndpoint");
             console.log("Loading the weights");
             //registry.getSerpiusEndpoint()
-        //"https://qpools.serpius.com/weight_status_v2.json"
-            let response = await axios.get<any>("https://qpools.serpius.com/weight_status_v2.json");
-            //let response = await axios.get<any>(registry.getSerpiusEndpoint());
-            // console.log("Here is the data :");
-            // console.log(typeof response.data);
-            // console.log(JSON.stringify(response.data));
-            // console.log("Next!?");
+            //"https://qpools.serpius.com/weight_status_v2.json"
+            // let response = await axios.get<any>(getSerpiusEndpoint());
+            let response = await axios.get<any>(registry.getSerpiusEndpoint());
+            console.log("Here is the data :");
+            console.log(typeof response.data);
+            console.log(JSON.stringify(response.data));
+            console.log("Next!?");
 
             if ("opt_port" in response.data) {
                 console.log("Trying to get the data ...");
@@ -337,6 +394,16 @@ export function QPoolsProvider(props: any) {
 
                     // Now add the information about the ExplicitSaberPool into it as well
                     let newData = data.map((dataItem: AllocData) => {
+                        console.log("data lp is: ", dataItem.lp);
+
+                        // For a quick fix, rename the UST-USDC to USDC-USDT
+                        // TODO: Remove for devnet ...
+                        if (dataItem.lp === "UST-USDC") {
+                            dataItem.lp = "USDC-USDT"
+                        } else if (dataItem.lp === "mSOL") {
+                            dataItem.lp = "marinade"
+                        }
+
                         dataItem.pool = registry.getPoolFromSplStringId(dataItem.lp);
                         console.log("data item is", dataItem)
                         return dataItem;
@@ -344,25 +411,27 @@ export function QPoolsProvider(props: any) {
 
                     console.log("Updating new portfolio ratios ...");
 
-                    // HARDCODED DATA BELOW !!!!! SHOULD BE DELETED EVENTAULLY
 
-                    newData[0].lp = "USDC-USDT"
-                    newData[1].lp = "USDC-CASH"
-                    console.log("Returning new data to be: ", newData);
-                    console.log("Active pools", registry.getActivePools());
-                    newData[0].pool = registry.getPoolFromSplStringId("rUSDC-USDT")
-                    newData[1].pool = registry.getPoolFromSplStringId("USDC-CASH")
-                    let temp = newData[1]
-                    newData[1] = newData[2]
-                    newData[2] = temp
-                    console.log("Returning new data to be: ", newData);
+
+                    // HARDCODED DATA BELOW !!!!! SHOULD BE DELETED EVENTAULLY
+                    // newData[0].lp = "USDC-USDT"
+                    // newData[1].lp = "USDC-CASH"
+                    // console.log("Returning new data to be: ", newData);
+                    // console.log("Active pools", registry.getActivePools());
+                    // newData[0].pool = registry.getPoolFromSplStringId("rUSDC-USDT")
+                    // newData[1].pool = registry.getPoolFromSplStringId("USDC-CASH")
+                    // let temp = newData[1]
+                    // newData[1] = newData[2]
+                    // newData[2] = temp
+                    // console.log("Returning new data to be: ", newData);
+
                     return newData
                 });
             } else {
                 console.log("opt port not found in data!");
             }
             console.log("##useEffect getSerpiusEndpoint");
-    }
+        }
 
     useEffect(() => {
         fetchAndParseSerpiusEndpoint();
@@ -383,12 +452,12 @@ export function QPoolsProvider(props: any) {
         console.log("#useEffect calculateAllUsdcValues");
         if (userAccount && portfolioObject && (await accountExists(connection!, portfolioObject.portfolioPDA))) {
             console.log("Going in here ..");
-            let { storedPositions, usdAmount, storedPositionUsdcAmounts } = await portfolioObject.getPortfolioUsdcValue();
+            let {storedPositions, usdAmount, storedPositionUsdcAmounts} = await portfolioObject.getPortfolioUsdcValue();
             // setPositionValuesInUsd(storedPositionUsdcAmounts);
             setTotalPortfolioValueUsd(usdAmount);
             setPositionInfos(storedPositions);
         } else {
-            console.log("Not going in here bcs: ",userAccount, portfolioObject, portfolioObject && (await accountExists(connection!, portfolioObject.portfolioPDA)) );
+            console.log("Not going in here bcs: ", userAccount, portfolioObject, portfolioObject && (await accountExists(connection!, portfolioObject.portfolioPDA)));
         }
         console.log("##useEffect calculateAllUsdcValues");
     }
@@ -466,7 +535,6 @@ export function QPoolsProvider(props: any) {
         _solbondProgram,
         userAccount,
         currencyMint,
-        QPTokenMint,
         makePriceReload,
         reloadPriceSentinel,
         localTmpKeypair,

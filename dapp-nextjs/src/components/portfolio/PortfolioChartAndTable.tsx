@@ -7,29 +7,24 @@ import SuggestedPortfolioTable from "../tables/SuggestedPortfolioTable";
 
 
 import {HeroFormState} from "../Main";
+
 export default function PortfolioChartAndTable(props: any) {
 
     const qPoolContext: IQPool = useQPoolUserTool();
-    const showPercentage = false;
-
-    const [percentage, setPercentage] = useState<number>(0.);
-
+    const [showPercentage, setShowPercentage] = useState<boolean>(false);
     const [ratios, setRatios] = useState<AllocData[] | null>(null);
     const [totalAmountInUsdc, setTotalAmountInUsdc] = useState<number>(0.);
-
 
     const renderCustomizedLabel = ({cx, cy, midAngle, innerRadius, outerRadius, percent, index}: any) => {
         const radius = innerRadius + (outerRadius - innerRadius) * 0.4; // 1.05;
         const x = cx + radius * Math.cos(-midAngle * RADIAN);
         const y = cy + radius * Math.sin(-midAngle * RADIAN);
         return (
-
             <text x={x} y={y} fill="white" textAnchor={x > cx ? 'start' : 'end'} dominantBaseline="central">
                 {
                     percent ? `${(percent * 100).toFixed(0)}%` : null
                 }
             </text>
-
         );
     };
 
@@ -39,8 +34,6 @@ export default function PortfolioChartAndTable(props: any) {
         {name: "Group C", value: 300, apy_24h: 0.},
         {name: "Group D", value: 200, apy_24h: 0.}
     ])
-
-
 
     useEffect(() => {
         if (props.totalAmountInUsdc) {
@@ -53,7 +46,8 @@ export default function PortfolioChartAndTable(props: any) {
 
     {/* useEffect(() => {
         window.location.reload();
-    }, [pieChartData]); */}
+    }, [pieChartData]); */
+    }
 
     // Maybe set loading until we are able to read the serpius API
     useEffect(() => {
@@ -80,56 +74,6 @@ export default function PortfolioChartAndTable(props: any) {
 
     }, [ratios]);
 
-    const singleRow = (row: any, index: number) => {
-
-        let color = COLORS[index % COLORS.length];
-
-        console.log("Value and total amount in usdc are: ");
-        console.log(row.value);
-        console.log(totalAmountInUsdc);
-        console.log("APY is: ", row);
-        console.log("row.apy_24h is: ", row.apy_24h);
-
-        let style = {backgroundColor: color};
-
-        return (
-            <tr>
-                <td className="px-2 py-3 whitespace-nowrap">
-                    <div className="flex items-center">
-                        <div className="ml-4">
-                            <div
-                                className={"w-4 h-4 rounded-xl"}
-                                style={style}
-                            >{}</div>
-                        </div>
-                    </div>
-                </td>
-                <td className="px-3 py-3 whitespace-nowrap">
-                    <div className="text-sm">
-                        {row.name}
-                    </div>
-                </td>
-                <td className="px-3 py-3 whitespace-nowrap">
-                    <div className="text-sm">
-                        {row.value}%
-                    </div>
-                </td>
-                <td className="px-3 py-3 whitespace-nowrap">
-                    <div className="text-sm">
-                        ${(0.01 * row.value * totalAmountInUsdc).toFixed(2)}
-                    </div>
-                </td>
-                <td className="px-3 py-3 whitespace-nowrap">
-                    <div className="text-sm">
-                        {(row.apy_24h).toFixed(1)}%
-                    </div>
-                </td>
-            </tr>
-        )
-    }
-
-
-
     // TODO: Maybe remove the labelled lines alltogether
     return (
         <>
@@ -145,24 +89,23 @@ export default function PortfolioChartAndTable(props: any) {
                          label={showPercentage ? renderCustomizedLabel : false}
                          outerRadius={100}
                          innerRadius={40}
-                         // fill="#8884d8"
+                        // fill="#8884d8"
                          dataKey="value"
                     >
                         {pieChartData.map((entry, index) => (
                             <Cell
-                                key={`cell-${Math.random() + pieChartData[index].value +index}`}
+                                key={`cell-${Math.random() + pieChartData[index].value + index}`}
                                 fill={COLORS[index % COLORS.length]}/>
                         ))}
                     </Pie>
                 </PieChart>
             </div>
-
             <div className="flex flex-col text-gray-300 my-auto divide-y divide-white">
                 {/*
                     Only show this Portfolio if the wallet is connected ...
                 */}
-                {(props.displayMode === HeroFormState.Unstake) && <ExistingPortfolioTable />}
-                {(props.displayMode === HeroFormState.Stake) && <SuggestedPortfolioTable />}
+                {(props.displayMode === HeroFormState.Unstake) && <ExistingPortfolioTable/>}
+                {(props.displayMode === HeroFormState.Stake) && <SuggestedPortfolioTable/>}
             </div>
         </>
     );

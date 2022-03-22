@@ -4,10 +4,6 @@ import {FaCheckCircle, FaTimesCircle} from "react-icons/fa";
 import {Oval} from "react-loader-spinner";
 import {LoadingItem, useItemsLoad} from "../../contexts/ItemsLoadingContext";
 
-// Should replace with an enum, and failed can also be an option
-
-// This should probably much more be a provider, rather than a component like this ...
-// Probably I can load these variables into the loader modal ...
 export default function LoadingItemsModal() {
 
     const itemLoadContext = useItemsLoad();
@@ -20,7 +16,6 @@ export default function LoadingItemsModal() {
             setDisableButton(false);
         }
     }, [itemLoadContext.loadItems, itemLoadContext.progressCounter]);
-
 
     return (
         <>
@@ -50,32 +45,23 @@ export default function LoadingItemsModal() {
                         <div className={"mt-52"}>
                             <div
                                 className="bg-gray-800 rounded-lg overflow-hidden shadow-xl transform transition-all shadow sm:my-2 sm:max-w-md sm:align-middle sm:w-full mx-auto px-auto justify-center">
-
                                 <div className={"flex flex-col w-full"}>
-
                                     <div className={"flex flex-col justify-start"}>
-
                                         <Dialog.Title
                                             as="h3"
                                             className="flex items-center justify-center w-full h-full text-gray-300 text-2xl font-medium my-6"
                                         >
                                             Waiting for Transactions
                                         </Dialog.Title>
-
-                                        <div className="flex items-center justify-center w-full h-full border-t border-gray-700">
-
+                                        <div
+                                            className="flex items-center justify-center w-full h-full border-t border-gray-700">
                                             <div
                                                 className="flex flex-col rounded-lg max-w-2xl text-center content-center my-3">
-
                                                 <p className={"flex flex-col text-gray-400"}>
                                                     Please approve any transaction messages that appear
                                                 </p>
-
                                                 <div className={"mx-auto"}>
-
                                                     {itemLoadContext.loadItems.map((x: LoadingItem, index: number) => {
-
-
                                                         if (index === itemLoadContext.progressCounter) {
                                                             return (
                                                                 <>
@@ -118,13 +104,11 @@ export default function LoadingItemsModal() {
                                                             )
                                                         }
                                                     })}
-
                                                 </div>
-
                                             </div>
                                         </div>
-
-                                        <div className="flex flex-row w-full py-5 mx-auto justify-start border-t border-gray-700 px-20 mx-auto">
+                                        <div
+                                            className="flex flex-row w-full py-5 mx-auto justify-start border-t border-gray-700 px-20 mx-auto">
                                             {disableButton ?
                                                 <button
                                                     type="button"
@@ -150,10 +134,7 @@ export default function LoadingItemsModal() {
                                                 </>
                                             }
                                         </div>
-
-
                                     </div>
-
                                 </div>
                             </div>
                         </div>
@@ -162,5 +143,4 @@ export default function LoadingItemsModal() {
             </Transition.Root>
         </>
     );
-
 }

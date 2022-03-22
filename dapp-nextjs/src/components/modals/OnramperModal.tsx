@@ -1,14 +1,8 @@
-import {Button, Modal} from 'react-bootstrap';
-import {Fragment, useEffect, useState} from "react";
+import {Fragment} from "react";
 import {Transition} from '@headlessui/react';
 import {useWallet} from "@solana/wallet-adapter-react";
 import {IQPool, useQPoolUserTool} from "../../contexts/QPoolsProvider";
 import {useLoad} from "../../contexts/LoadingContext";
-import {BN} from "@project-serum/anchor";
-import {u64} from "@solana/spl-token";
-import {Transaction, TransactionInstruction} from "@solana/web3.js";
-import {sendAndConfirmTransaction} from "../../utils/utils";
-import {MOCK} from "@qpools/sdk";
 import {useItemsLoad} from "../../contexts/ItemsLoadingContext";
 import dynamic from 'next/dynamic'
 
@@ -38,10 +32,8 @@ export default function OnramperModal(props: any) {
                             leaveFrom="opacity-100"
                             leaveTo="opacity-0"
                         >
-                            {/*<Dialog.Overlay className="fixed inset-0" />*/}
                             <div className="fixed inset-0 bg-black opacity-70"/>
                         </Transition.Child>
-
                         <Transition.Child
                             as={Fragment}
                             enter="ease-out duration-300"
@@ -68,5 +60,4 @@ export default function OnramperModal(props: any) {
             </Transition.Root>
         </>
     )
-
 }

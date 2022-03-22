@@ -2,10 +2,11 @@ import React, {useEffect, useState} from "react";
 import {AllocData, IQPool, useQPoolUserTool} from "../../contexts/QPoolsProvider";
 import {shortenedAddressString, solscanLink} from "../../utils/utils";
 import Image from "next/image";
-import {PositionInfo, registry} from "@qpools/sdk";
+import {PositionInfo, ProtocolType, registry} from "@qpools/sdk";
 import {useWallet} from "@solana/wallet-adapter-react";
 import {COLORS} from "../../const";
 import {PublicKey} from "@solana/web3.js";
+import {DisplayToken} from "../../types/DisplayToken";
 
 const tableColumns: (string | null)[] = [null, "Asset", null, "Allocation", "24H APY"]
 
@@ -13,7 +14,7 @@ export interface ChartableItemType {
     name: string,
     value: number,
     apy_24h: number,
-    pool?: registry.ExplicitSaberPool
+    pool?: registry.ExplicitPool
 }
 
 export default function SuggestedPortfolioTable() {
@@ -21,91 +22,6 @@ export default function SuggestedPortfolioTable() {
     // Instead of the raw pubkeys, store the pyth ID, and then you can look up the price using the pyth sdk ..
     // Much more sustainable also in terms of development
 
-    let marinadePool : any = {
-        "id": "marinade",
-        "name": "marinade",
-        "tokens": [
-            {
-                "address": "mSoLzYCxHdYgdzU16g5QSh3i5K3z3KZK7ytfqcJm7So",
-                "chainId": 101,
-                "decimals": 9,
-                "extensions": {
-                    "coingeckoId": "msol",
-                    "currency": "SOL",
-                    "discord": "https://discord.gg/mGqZA5pjRN",
-                    "github": "https://github.com/marinade-finance",
-                    "medium": "https://medium.com/marinade-finance",
-                    "serumV3Usdc": "6oGsL2puUgySccKzn9XA9afqF217LfxP5ocq4B3LWsjy",
-                    "serumV3Usdt": "HxkQdUnrPdHwXP5T9kewEXs3ApgvbufuTfdw9v1nApFd",
-                    "source": "marinade",
-                    "sourceUrl": "https://marinade.finance/app/staking",
-                    "twitter": "https://twitter.com/MarinadeFinance",
-                    "website": "https://marinade.finance"
-                },
-                "logoURI": "https://spl-token-icons.static-assets.ship.capital/icons/101/mSoLzYCxHdYgdzU16g5QSh3i5K3z3KZK7ytfqcJm7So.png",
-                "name": "Marinade staked SOL (mSOL)",
-                "symbol": "mSOL",
-                "tags": ["saber-mkt-sol"],
-                "pyth": {
-                    "price": "E4v1BBgoso9s64TQvmyownAVJbhbEPGyzA3qn4n46qj9",
-                    "product": "BS2iAqT67j8hA9Jji4B8UpL3Nfw9kwPfU5s4qeaf1e7r"
-                }
-            }
-        ],
-        "currency": "mSOL",
-        "lpToken": {
-            "address": "mSoLzYCxHdYgdzU16g5QSh3i5K3z3KZK7ytfqcJm7So",
-            "chainId": 101,
-            "decimals": 9,
-            "extensions": {
-                "coingeckoId": "msol",
-                "currency": "SOL",
-                "discord": "https://discord.gg/mGqZA5pjRN",
-                "github": "https://github.com/marinade-finance",
-                "medium": "https://medium.com/marinade-finance",
-                "serumV3Usdc": "6oGsL2puUgySccKzn9XA9afqF217LfxP5ocq4B3LWsjy",
-                "serumV3Usdt": "HxkQdUnrPdHwXP5T9kewEXs3ApgvbufuTfdw9v1nApFd",
-                "source": "marinade",
-                "sourceUrl": "https://marinade.finance/app/staking",
-                "twitter": "https://twitter.com/MarinadeFinance",
-                "website": "https://marinade.finance"
-            },
-            "logoURI": "https://spl-token-icons.static-assets.ship.capital/icons/101/mSoLzYCxHdYgdzU16g5QSh3i5K3z3KZK7ytfqcJm7So.png",
-            "name": "Marinade staked SOL (mSOL)",
-            "symbol": "mSOL",
-            "tags": ["saber-mkt-sol"],
-            "pyth": {
-                "price": "E4v1BBgoso9s64TQvmyownAVJbhbEPGyzA3qn4n46qj9",
-                "product": "BS2iAqT67j8hA9Jji4B8UpL3Nfw9kwPfU5s4qeaf1e7r"
-            }
-        },
-        "fees": {
-            "adminTrade": {
-                "formatted": "0.0000000000",
-                "numerator": "0",
-                "denominator": "10000"
-            },
-            "adminWithdraw": {
-                "formatted": "0.0000000000",
-                "numerator": "0",
-                "denominator": "10000"
-            },
-            "trade": {
-                "formatted": "0.0000000000",
-                "numerator": "0",
-                "denominator": "10000"
-            },
-            "withdraw": {
-                "formatted": "0.03",
-                "numerator": "3",
-                "denominator": "10000"
-            }
-        },
-        "config": {
-            "cpiAddress": null  // Can get this using the marinade SDK ...
-        }
-    };
-    
     // Perhaps create a "Loaded Portfolio Component"
     const qPoolContext: IQPool = useQPoolUserTool();
     const walletContext: any = useWallet();
@@ -149,6 +65,7 @@ export default function SuggestedPortfolioTable() {
         )
     }
 
+    // I see what was hardcoded here, haha
     const [ratios, setRatios] = useState<AllocData[] | null>(null);
     const [pieChartData, setPieChartData] = useState<ChartableItemType[]>([
         {name: "USDC-USDT", value: 500, apy_24h: 0.},
@@ -158,37 +75,37 @@ export default function SuggestedPortfolioTable() {
     useEffect(() => {
         setRatios((_: AllocData[] | null) => {
             console.log(" CAMOOOOOOOOOOON THIS FUNCTION SHOULD WORK")
-            console.log(" CAMOOOOOOOOOOON " , qPoolContext.portfolioRatios)
+            console.log(" CAMOOOOOOOOOOON ", qPoolContext.portfolioRatios)
             return qPoolContext.portfolioRatios!;
         });
-    }, [qPoolContext.connection, qPoolContext.userAccount  , qPoolContext.portfolioRatios]);
+    }, [qPoolContext.connection, qPoolContext.userAccount, qPoolContext.portfolioRatios]);
 
     useEffect(() => {
-        console.log("DUDE 1" , ratios)
+        console.log("DUDE 1", ratios)
         console.log(ratios)
         if (!ratios) return;
-        console.log("DUDE 2" , ratios)
+        console.log("DUDE 2", ratios)
         console.log(ratios)
         // Sum is a
         let sum = ratios.reduce((sum: number, current: AllocData) => sum + current.weight, 0);
-        console.log("xyz" , sum)
+        console.log("xyz", sum)
         setPieChartData((_: any) => {
                 return ratios.map((current: AllocData) => {
-                    console.log("asdaf",    {
+                    console.log("asdaf", {
                         name: current.protocol.charAt(0).toUpperCase() + current.protocol.slice(1) + " " + current.lp,
                         value: ((100 * current.weight) / sum),
                         apy_24h: current.apy_24h,
-                        pool: (current.protocol == 'marinade') ? marinadePool : registry.getPoolFromSplStringId(current.lp)
+                        pool: registry.getPoolFromSplStringId(current.lp)
                     })
-                    console.log("protocol : ",current.protocol);
-                    console.log("pool : ",current.lp);
-                    console.log("BOOLEAN  : " ,(current.protocol  == 'marinade'));
-                    console.log("DUDE 3" , ratios)
+                    console.log("protocol : ", current.protocol);
+                    console.log("pool : ", current.lp);
+                    console.log("BOOLEAN  : ", (current.protocol == 'marinade'));
+                    console.log("DUDE 3", ratios)
                     return {
                         name: current.protocol.charAt(0).toUpperCase() + current.protocol.slice(1) + " " + current.lp,
                         value: ((100 * current.weight) / sum),
                         apy_24h: current.apy_24h,
-                        pool: (current.protocol == 'marinade') ? marinadePool : registry.getPoolFromSplStringId(current.lp)
+                        pool: registry.getPoolFromSplStringId(current.lp)
                     }
                 });
             }
@@ -210,51 +127,47 @@ export default function SuggestedPortfolioTable() {
             )
         }
 
-        console.log("HEREEEEEEEE")
+        let displayTokens: DisplayToken[] = [];
+        console.log("About to unpack item: ", item);
+        if (item.pool.poolType === ProtocolType.DEXLP) {
+            let displayTokenItemA: DisplayToken = {
+                tokenImageLink: registry.getIconFromToken(new PublicKey(item.pool.tokens[0].address)),
+                tokenSolscanLink: solscanLink(new PublicKey(item.pool.tokens[0].address))
+            };
+            displayTokens.push(displayTokenItemA);
+            let displayTokenItemB: DisplayToken = {
+                tokenImageLink: registry.getIconFromToken(new PublicKey(item.pool.tokens[1].address)),
+                tokenSolscanLink: solscanLink(new PublicKey(item.pool.tokens[1].address))
+            };
+            displayTokens.push(displayTokenItemB);
+        } else if (item.pool.poolType === ProtocolType.Staking) {
+            let displayTokenItem: DisplayToken = {
+                tokenImageLink: registry.getIconFromToken(new PublicKey(item.pool.lpToken.address)),
+                tokenSolscanLink: solscanLink(new PublicKey(item.pool.lpToken.address))
+            };
+            displayTokens.push(displayTokenItem);
+        } else if (item.pool.poolType === ProtocolType.Lending) {
+            throw Error("Where does lending come from? We haven't even implement anything in this direction!" + JSON.stringify(item));
+        } else {
+            throw Error("Type of borrow lending not found" + JSON.stringify(item.pool.poolType) + " helo " + JSON.stringify(item.pool));
+        }
 
-        // Gotta make sure it's fine
-        let mintA = new PublicKey(item.pool!.tokens[0].address);
-        let mintB = new PublicKey(item.pool!.tokens.length > 1 ? item.pool!.tokens[1].address : item.pool!.tokens[0].address);
         let mintLP = new PublicKey(item.pool!.lpToken.address);
 
-        // Get the icon from the registry
-        // let iconMintA = registry.getIconFromToken(mintA);
-        // let iconMintB = registry.getIconFromToken(mintB);
-        let iconMintA = "https://spl-token-icons.static-assets.ship.capital/icons/101/mSoLzYCxHdYgdzU16g5QSh3i5K3z3KZK7ytfqcJm7So.png";
-        let iconMintB = "https://spl-token-icons.static-assets.ship.capital/icons/101/mSoLzYCxHdYgdzU16g5QSh3i5K3z3KZK7ytfqcJm7So.png";
-        if (mintA.equals(new PublicKey("mSoLzYCxHdYgdzU16g5QSh3i5K3z3KZK7ytfqcJm7So"))){
-            iconMintA = "https://spl-token-icons.static-assets.ship.capital/icons/101/mSoLzYCxHdYgdzU16g5QSh3i5K3z3KZK7ytfqcJm7So.png";
-            iconMintB = "https://spl-token-icons.static-assets.ship.capital/icons/101/mSoLzYCxHdYgdzU16g5QSh3i5K3z3KZK7ytfqcJm7So.png";
-        } else {
-            console.log("mint a and b are: 3", mintA.toString(), mintB.toString());
-            iconMintA = registry.getIconFromToken(mintA);
-            iconMintB = registry.getIconFromToken(mintB);
-        }
-        console.log("Icon A Icon B 3 ", iconMintA, iconMintB)
-
-
-        console.log("iconmint A ", iconMintA)
-        console.log("iconmint B ", iconMintB)
-        console.log("mintA ", mintA)
-        console.log("mintB", mintB)
-        console.log("mintLP", mintLP)
-
-        let style = {backgroundColor: color};
-
         console.log("item :", item.value);
-
         let theKey = Math.random() + pieChartData[index].value + index;
         console.log("new Key", theKey, "for index", index)
         return (
             <>
-                <tr key={theKey} className="dark:bg-gray-800">
+                {/* border-base-100 border-b */}
+                <tr key={theKey} className={"dark:bg-gray-800"}>
                     {/* Show the icons next to this ... */}
                     <td className="py-4 px-6 text-sm text--center font-normal text-gray-900 whitespace-nowrap dark:text-white">
                         <div className="flex items-center">
                             <div className="ml-4">
                                 <div
                                     className={"w-4 h-4 rounded-xl"}
-                                    style={style}
+                                    style={{backgroundColor: color}}
                                 >{}</div>
                             </div>
                         </div>
@@ -267,14 +180,14 @@ export default function SuggestedPortfolioTable() {
                         </a>
                     </td>
                     <td className="py-4 px-6 text-sm text-center font-normal text-gray-500 whitespace-nowrap dark:text-gray-400">
-                        <a href={solscanLink(mintA)} target={"_blank"} rel="noreferrer"
-                           className="text-blue-600 dark:text-blue-400 hover:underline mr-1">
-                            <Image src={iconMintA} width={30} height={30} />
-                        </a>
-                        <a href={solscanLink(mintB)} target={"_blank"} rel="noreferrer"
-                           className="text-blue-600 dark:text-blue-400 hover:underline ml-1">
-                            <Image src={iconMintB} width={30} height={30} />
-                        </a>
+                        {displayTokens.map((displayToken: DisplayToken) => {
+                            return (
+                                <a href={displayToken.tokenSolscanLink} target={"_blank"} rel="noreferrer"
+                                   className="text-blue-600 dark:text-blue-400 hover:underline">
+                                    <Image src={displayToken.tokenImageLink} width={30} height={30}/>
+                                </a>
+                            )
+                        })}
                     </td>
                     <td className="py-4 px-6 text-sm text-center font-normal  whitespace-nowrap dark:text-gray-400">
                         {item.value.toFixed(0)}%
@@ -282,9 +195,6 @@ export default function SuggestedPortfolioTable() {
                     <td className="py-4 px-6 text-sm text-center text-right whitespace-nowrap">
                         {(item.apy_24h).toFixed(1)}%
                     </td>
-                    {/*<td className="py-4 px-6 text-sm text-right whitespace-nowrap">*/}
-                    {/*    ${(0.01 * row.value * totalAmountInUsdc).toFixed(2)}*/}
-                    {/*</td>*/}
                 </tr>
             </>
         )
@@ -299,7 +209,7 @@ export default function SuggestedPortfolioTable() {
                         <div className="overflow-hidden shadow-md sm:rounded-lg">
                             <table className="min-w-full">
                                 {tableHeader(tableColumns)}
-                                <tbody key={Math.random() + pieChartData[0].value} className={"divide-y divide-white"}>
+                                <tbody key={Math.random() + pieChartData[0].value}>
                                     {pieChartData.map((position: ChartableItemType, index: number) => tableSingleRow(position, index))}
                                 </tbody>
                             </table>
@@ -309,5 +219,4 @@ export default function SuggestedPortfolioTable() {
             </div>
         </>
     );
-    
 }

@@ -4,8 +4,6 @@ import {RedeemPortfolioButton} from "../buttons/RedeemPortfolioButton";
 
 export default function SinglePortfolioRow(props: any) {
 
-    const [showPortfolio, setShowPortfolio] = useState<boolean>(false);
-
     useEffect(() => {
         console.log("Found address is: ", props.address);
     }, [])

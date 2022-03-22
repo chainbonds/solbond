@@ -2,9 +2,9 @@ import React, {useEffect} from "react";
 import {IQPool, useQPoolUserTool} from "../../contexts/QPoolsProvider";
 import {shortenedAddressString, solscanLink} from "../../utils/utils";
 import Image from "next/image";
-import {PositionInfo, registry} from "@qpools/sdk";
+import {PositionInfo, ProtocolType, registry} from "@qpools/sdk";
 import {useWallet} from "@solana/wallet-adapter-react";
-import {ProtocolType} from "@qpools/sdk";
+import {DisplayToken} from "../../types/DisplayToken";
 
 const tableColumns: (string | null)[] = ["Pool", "Assets", "USDC Value", null]
 
@@ -64,23 +64,42 @@ export default function ExistingPortfolioTable() {
         console.log("mintA is: ", position.mintA);
         console.log("mintB is: ", position.mintB);
 
-        // Get the icon from the registry
-        let iconMintA = "";  //  = "https://spl-token-icons.static-assets.ship.capital/icons/101/mSoLzYCxHdYgdzU16g5QSh3i5K3z3KZK7ytfqcJm7So.png";
-        let iconMintB = "";
-
-        // if (position.mintA.equals(new PublicKey("mSoLzYCxHdYgdzU16g5QSh3i5K3z3KZK7ytfqcJm7So"))){
-        if (position.protocolType === ProtocolType.Staking || position.protocolType === ProtocolType.Lending) {
-            // TODO: Remove this hard-coded logic ...
-            iconMintA = "https://spl-token-icons.static-assets.ship.capital/icons/101/mSoLzYCxHdYgdzU16g5QSh3i5K3z3KZK7ytfqcJm7So.png";
-        } else if (position.protocolType === ProtocolType.DEXLP) {
-            iconMintA = registry.getIconFromToken(position.mintA);
-            iconMintB = registry.getIconFromToken(position.mintB);
+        // TODO: I guess depending on staking, and borrow & lending, gotta display the mint-token or the underlying tokens
+        let displayTokens: DisplayToken[] = [];
+        if (position.protocolType === ProtocolType.DEXLP) {
+            let displayTokenItemA: DisplayToken = {
+                tokenImageLink: registry.getIconFromToken(position.mintA),
+                tokenSolscanLink: solscanLink(position.mintA)
+            };
+            displayTokens.push(displayTokenItemA);
+            let displayTokenItemB: DisplayToken = {
+                tokenImageLink: registry.getIconFromToken(position.mintB),
+                tokenSolscanLink: solscanLink(position.mintB)
+            };
+            displayTokens.push(displayTokenItemB);
+        } else if (position.protocolType === ProtocolType.Staking) {
+            let displayTokenItem: DisplayToken = {
+                tokenImageLink: registry.getIconFromToken(position.mintLp),
+                tokenSolscanLink: solscanLink(position.mintLp)
+            };
+            displayTokens.push(displayTokenItem);
+        } else if (position.protocolType === ProtocolType.Lending) {
+            throw Error("Where does lending come from? We haven't even implement anything in this direction!" + JSON.stringify(position));
         } else {
-            throw Error("Protocol Type is not within Enum!" + JSON.stringify(position));
+            throw Error("Type of borrow lending not found" + JSON.stringify(position));
         }
 
-        console.log("Icon A Icon B ", iconMintA, iconMintB);
-
+        // if (position.mintA.equals(new PublicKey("mSoLzYCxHdYgdzU16g5QSh3i5K3z3KZK7ytfqcJm7So"))){
+        // if (position.protocolType === ProtocolType.Staking || position.protocolType === ProtocolType.Lending) {
+        //     // TODO: Remove this hard-coded logic ...
+        //     iconMintA = "https://spl-token-icons.static-assets.ship.capital/icons/101/mSoLzYCxHdYgdzU16g5QSh3i5K3z3KZK7ytfqcJm7So.png";
+        // } else if (position.protocolType === ProtocolType.DEXLP) {
+        //     iconMintA = registry.getIconFromToken(position.mintA);
+        //     iconMintB = registry.getIconFromToken(position.mintB);
+        // } else {
+        //     throw Error("Protocol Type is not within Enum!" + JSON.stringify(position));
+        // }
+        console.log("Icon A Icon B ", displayTokens);
         console.log("Printing the position to be printed now: ", position);
 
         return (
@@ -93,23 +112,27 @@ export default function ExistingPortfolioTable() {
                            className="text-blue-600 dark:text-blue-500 hover:underline">
                             {/*{registry.getPool(position.poolAddress)?.name}*/}
                             {shortenedAddressString(position.mintLp)}
-                            {/* TODO: Change to registry name perhaps    */}
+                            {/* TODO: Change to registry name perhaps */}
                         </a>
                         }
                     </td>
                     <td className="py-4 px-6 text-center text-sm font-medium text-gray-500 whitespace-nowrap dark:text-gray-400">
-                        {position.mintA &&
-                        <a href={solscanLink(position.mintA)} target={"_blank"} rel="noreferrer"
-                           className="text-blue-600 dark:text-blue-400 hover:underline">
-                            <Image src={iconMintA} width={30} height={30}/>
-                        </a>
-                        }
-                        {position.mintB &&
-                        <a href={solscanLink(position.mintB)} target={"_blank"} rel="noreferrer"
-                           className="text-blue-600 dark:text-blue-400 hover:underline">
-                            <Image src={iconMintB} width={30} height={30}/>
-                        </a>
-                        }
+                        {displayTokens.map((displayToken: DisplayToken) => {
+                            return (
+                                <a href={displayToken.tokenSolscanLink} target={"_blank"} rel="noreferrer"
+                                   className="text-blue-600 dark:text-blue-400 hover:underline">
+                                    <Image src={displayToken.tokenImageLink} width={30} height={30}/>
+                                </a>
+                            )
+                        })}
+                        {/*{position.mintA &&*/}
+                        {/*}*/}
+                        {/*{position.mintB &&*/}
+                        {/*<a href={solscanLink(position.mintB)} target={"_blank"} rel="noreferrer"*/}
+                        {/*   className="text-blue-600 dark:text-blue-400 hover:underline">*/}
+                        {/*    <Image src={iconMintB} width={30} height={30}/>*/}
+                        {/*</a>*/}
+                        {/*}*/}
                     </td>
                     <td className="py-4 px-6 text-center text-sm font-medium text-gray-500 whitespace-nowrap dark:text-gray-400">
                         {/*{position.amountLp && position.amountLp.uiAmount!.toFixed(2)}*/}
@@ -144,5 +167,4 @@ export default function ExistingPortfolioTable() {
             </div>
         </>
     );
-
 }

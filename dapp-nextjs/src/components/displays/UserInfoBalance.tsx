@@ -14,6 +14,7 @@ export default function UserInfoBalance() {
         if (qPoolContext.connection && qPoolContext.userAccount) {
             // Get the associated token account
             console.log("Getting associated token account")
+            // TODO: Replace USDC by some currency, or whatever the user has currency chosen as their Input ...
             let userCurrencyAta: PublicKey = await getAssociatedTokenAddressOffCurve(
                 MOCK.DEV.SABER_USDC, qPoolContext.userAccount.publicKey
             )

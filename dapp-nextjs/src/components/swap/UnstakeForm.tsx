@@ -1,4 +1,3 @@
-/* This example requires Tailwind CSS v2.0+ */
 import {useWallet} from '@solana/wallet-adapter-react';
 import React, {useEffect, useState} from "react";
 import {WalletMultiButton} from "@solana/wallet-adapter-react-ui";
@@ -37,8 +36,6 @@ export default function UnstakeForm() {
         console.log("Printing the total portfolios ..");
         console.log(qPoolContext!.totalPortfolioValueInUsd);
         console.log(qPoolContext!.positionInfos);
-        // console.log(qPoolContext!.positionValuesInUsd);
-
         // if (totalPortfolioValueInUsd === 0.00) {
         //     return (
         //         <ConnectWalletPortfolioRow
@@ -74,22 +71,19 @@ export default function UnstakeForm() {
 
     return (
         <>
-            <div  className={"flex flex-col w-full font-medium"}>
-                {/*<h2 className={"text-2xl font-light"}>*/}
-                {/*    Your Portfolio*/}
-                {/*</h2>*/}
+            <div className={"flex flex-col w-full font-medium"}>
                 <div className={"text-xl font-light mt-3"}>
                     The Portfolio you see is worth an estimated USDC {qPoolContext.totalPortfolioValueInUsd.toFixed(2)}
                 </div>
                 <div className={"flex py-5 w-full"}>
                     <div className={"flex flex-col w-full"}>
                         {/*
-                                        TODO: Have perhaps one line "Portfolio, with this allocaiton
-                                        We can also just display how much profit or loss it accumulated so far
+                            TODO: Have perhaps one line "Portfolio, with this allocaiton
+                            We can also just display how much profit or loss it accumulated so far
 
-                                        For each portfolio that is loaded, display one of these...
-                                        And you can also include a button to redeem, for each single one...
-                                    */}
+                            For each portfolio that is loaded, display one of these...
+                            And you can also include a button to redeem, for each single one...
+                        */}
                         {displayListOfPortfolios()}
                     </div>
                 </div>

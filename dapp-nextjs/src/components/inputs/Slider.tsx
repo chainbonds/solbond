@@ -7,9 +7,7 @@ import Slider from '@mui/material/Slider';
 import {Input} from "@mui/material";
 
 export default function InputSlider(props : any) {
-    const [value, setValue] = React.useState<number | string | Array<number | string>>(
-        30,
-    );
+    const [value, setValue] = React.useState<number | string | Array<number | string>>(30);
 
     const handleSliderChange = (event: Event, newValue: number | number[]) => {
         setValue(newValue);

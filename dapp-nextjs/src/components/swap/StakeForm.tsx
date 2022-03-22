@@ -8,17 +8,11 @@ import InputSlider from "../inputs/Slider"
 
 export default function StakeForm() {
 
-    const walletContext: any = useWallet();
     const qPoolContext: IQPool = useQPoolUserTool();
 
     const [depositAmountUsdc, setDepositAmountUsdc] = useState<number>(0.);
     const [depositAmountSol, setDepositAmountSol] = useState<number>(0.);
-
-    const [allowSwap, setAllowSwap] = useState<boolean>(true);
-
-    const [displayBuyModal, setDisplayBuyModal] = useState<boolean>(false);
     const [displayOnramperModal, setDisplayOnramperModal] = useState<boolean>(false);
-
     const [percentage, setPercentage] = useState<number>(0.);
 
     useEffect(()=>{
@@ -27,9 +21,6 @@ export default function StakeForm() {
             setDepositAmountUsdc(qPoolContext.walletAmountUsdc * percentage)
         }
     },[percentage])
-
-    //TODO : fetch solana price
-    const solanaPrice = 100;
 
     const getActionButton = () => {
         if (qPoolContext.userAccount) {
