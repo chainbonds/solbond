@@ -16,6 +16,9 @@ import {useWallet, WalletContextState} from "@solana/wallet-adapter-react";
 import SelectWalletForm from "./swap/SelectWalletForm";
 import {BN} from "@project-serum/anchor";
 import {UserTokenBalance} from "../types/UserTokenBalance";
+import {Simulate} from "react-dom/test-utils";
+import select = Simulate.select;
+import {addLocale} from "next/dist/shared/lib/router/router";
 
 export enum HeroFormState {
     ShowSuggestedPortfolio,
@@ -60,7 +63,7 @@ export const Main: FC = ({}) => {
         if (!allocationData.has(currentlySelectedKey)) {
             throw Error("The key you're trying to modify does not exist for some reason! " + currentlySelectedKey);
         }
-        let currentlySelectedAsset: AllocData = allocationData.get(currentlySelectedKey)!;
+        let currentlySelectedAsset: AllocData = {...allocationData.get(currentlySelectedKey)!};
 
         // TODO: Gotta find a way to deal with the absolute balance ...
         let numberInclDecimals = (new BN(absoluteBalance * (10 ** currentlySelectedAsset.userInputAmount!.amount.decimals)));
@@ -75,7 +78,7 @@ export const Main: FC = ({}) => {
                 uiAmount: uiAmount,
                 uiAmountString: String(uiAmount)
             }
-        }
+        };
         let newAsset: AllocData = {
             apy_24h: currentlySelectedAsset.apy_24h,
             lp: currentlySelectedAsset.lp,
@@ -86,9 +89,13 @@ export const Main: FC = ({}) => {
         };
 
         // Now set the stuff ...
-        setAllocationData((allocationData: Map<string, AllocData>) => {
+        setAllocationData((oldAllocationData: Map<string, AllocData>) => {
             // Return the full array, replace the one element that was replaced ...
-            return {...allocationData, selectedAsset: newAsset}
+            // Modify the key as well (?)
+            // Also add another key prop (one id for us, one key for react maybe?) to force re-rendering ...
+            let updatedMap = new Map<string, AllocData>(oldAllocationData);
+            updatedMap.set(selectedAsset, newAsset)
+            return updatedMap;
         });
 
     }
@@ -140,9 +147,11 @@ export const Main: FC = ({}) => {
     }, [rpcProvider.portfolioObject, rpcProvider.makePriceReload]);
 
     // TODO: currencyName and Mint should be the intersection of token-whitelist + pool.tokens
-    const formComponent = (asset: AllocData | null) => {
+    const formComponent = (selectKey: string) => {
         if (displayForm === HeroFormState.ShowSuggestedPortfolio) {
-            if (walletContext.publicKey && asset && asset.pool) {
+            if (walletContext.publicKey && allocationData.has(selectKey) && allocationData.get(selectKey)!.pool) {
+
+                let asset = allocationData.get(selectKey)!;
 
                 console.log("Asset is: ", asset);
                 console.log("Pool is: ", asset.pool);
@@ -186,17 +195,18 @@ export const Main: FC = ({}) => {
                         <StakeForm
                             currencyMint={inputToken.mint}
                             currencyName={inputToken.name}
-                            allocationItem={asset}
+                            allocationItems={allocationData}
+                            selectedItemKey={selectedAsset}
                             modifyIndividualAllocationItem={modifyIndividualAllocationItem}
                         />
                     </>
                 );
-            } else if (walletContext.publicKey && asset) {
+            } else if (walletContext.publicKey && allocationData.has(selectKey)) {
                 console.log("Pool is empty!!");
-                console.log(asset);
+                console.log(selectKey, allocationData);
             } else {
                 console.log("No asset selected...!!");
-                console.log(asset);
+                console.log(selectKey, allocationData);
                 return (
                     <>
                         <SelectWalletForm />
@@ -248,6 +258,8 @@ export const Main: FC = ({}) => {
         }
     }
 
+    console.log("Allocation Data is: ", allocationData, selectedAsset);
+
     return (
         <div
             id="content"
@@ -279,7 +291,7 @@ export const Main: FC = ({}) => {
                         </div>
                     </div>
                     <div className={"flex flex-row my-auto mt-7"}>
-                        {formComponent(allocationData.get(selectedAsset) || null)}
+                        {formComponent(selectedAsset)}
                     </div>
                 </div>
             </div>

@@ -3,10 +3,11 @@ import {PublicKey} from "@solana/web3.js";
 
 interface Props {
     currencyMint: PublicKey,
+    currencyName: string,
     balance: number | null,
     solBalance: number | null
 }
-export default function UserInfoBalance({currencyMint, balance, solBalance}: Props) {
+export default function UserInfoBalance({currencyMint, currencyName, balance, solBalance}: Props) {
 
     const [currencyBalance, setCurrencyBalance] = useState<number>(0.);
 
@@ -33,7 +34,7 @@ export default function UserInfoBalance({currencyMint, balance, solBalance}: Pro
             <div
                 className={"flex flex-col md:flex-row items-center lg:items-begin text-gray-500 text-sm font-semibold "}>
                 {/*Wallet Balance: {currencyBalance.toFixed(2)} USDC*/}
-                Wallet Balance: {currencyBalance.toFixed(2)} USDC
+                Wallet Balance: {currencyBalance.toFixed(2)} {currencyName}
             </div>
         </>
     )

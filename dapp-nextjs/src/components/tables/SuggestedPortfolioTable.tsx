@@ -9,7 +9,7 @@ import {ChartableItemType} from "../../types/ChartableItemType";
 import {AllocData} from "../../types/AllocData";
 import TableHeader from "./TableHeader";
 
-const tableColumns: (string | null)[] = [null, "Asset", null, "Allocation", "24H APY"]
+const tableColumns: (string | null)[] = [null, "Asset", null, "Allocation", "24H APY", "Absolute Amount"]
 
 interface Props {
     selectedAssets: Map<string, AllocData>,
@@ -36,14 +36,6 @@ export default function SuggestedPortfolioTable({selectedAssets, selectedAsset, 
         setPieChartData((old: ChartableItemType[]) => {
                 let out: ChartableItemType[] = [];
                 selectedAssets.forEach((current: AllocData, key: string) => {
-                    console.log("asdaf", {
-                        key: key,
-                        name: current.protocol.charAt(0).toUpperCase() + current.protocol.slice(1) + " " + current.lp,
-                        value: ((100 * current.weight) / sum),
-                        apy_24h: current.apy_24h,
-                        pool: registry.getPoolFromSplStringId(current.lp),
-                        allocationItem: current
-                    })
                     let tmp = {
                         key: key,
                         name: current.protocol.charAt(0).toUpperCase() + current.protocol.slice(1) + " " + current.lp,
@@ -141,8 +133,11 @@ export default function SuggestedPortfolioTable({selectedAssets, selectedAsset, 
                     <td className="py-4 px-6 text-sm text-center font-normal  whitespace-nowrap dark:text-gray-400">
                         {item.value.toFixed(0)}%
                     </td>
-                    <td className="py-4 px-6 text-sm text-center text-right whitespace-nowrap">
+                    <td className="py-4 px-6 text-sm text-center whitespace-nowrap">
                         {(item.apy_24h).toFixed(1)}%
+                    </td>
+                    <td className="py-4 px-6 text-sm text-center whitespace-nowrap">
+                        {item.allocationItem?.userInputAmount?.amount.uiAmount && (item.allocationItem?.userInputAmount?.amount.uiAmount).toFixed(2)}
                     </td>
                 </tr>
             </>

@@ -5,14 +5,14 @@ import {registry} from "@qpools/sdk";
 import {AllocData} from "../../types/AllocData";
 
 interface Props {
-    allocationItem: AllocData,
+    allocationItems: Map<string, AllocData>,
     selectedItemKey: string,
     currencyName: string,
     modifyIndividualAllocationItem: (arg0: string, arg1: number) => void,
     min: number,
     max: number
 }
-export default function InputFieldWithSliderInputAndLogo({allocationItem, selectedItemKey, currencyName, modifyIndividualAllocationItem, min, max}: Props) {
+export default function InputFieldWithSliderInputAndLogo({allocationItems, selectedItemKey, currencyName, modifyIndividualAllocationItem, min, max}: Props) {
 
     // TODO: Find a provider that does this for you
     // Probably the UserWalletAssets provider!
@@ -26,6 +26,11 @@ export default function InputFieldWithSliderInputAndLogo({allocationItem, select
     const [inputValue, setInputValue] = useState<number>(0.);
 
     useEffect(() => {
+        if (allocationItems.get(selectedItemKey)?.userInputAmount && allocationItems.get(selectedItemKey)!.userInputAmount!.amount.uiAmount) {
+            setValue(allocationItems.get(selectedItemKey)!.userInputAmount!.amount!.uiAmount!);
+        }
+    }, [allocationItems, selectedItemKey]);
+    useEffect(() => {
         setValue(sliderValue);
     }, [sliderValue]);
     useEffect(() => {
@@ -34,6 +39,10 @@ export default function InputFieldWithSliderInputAndLogo({allocationItem, select
     useEffect(() => {
         setSliderValue(value);
         setInputValue(value);
+
+        // Now also modify this quantity ...
+        modifyIndividualAllocationItem(selectedItemKey, value);
+
     }, [value]);
 
     // Max and Min Fields need to be included
@@ -81,11 +90,11 @@ export default function InputFieldWithSliderInputAndLogo({allocationItem, select
     // Maybe this should be a special component ....
 
     // Gotta pick the token that is whitelisted, and inside the
-    if (!allocationItem) {
+    if (!allocationItems.get(selectedItemKey)) {
         return (<></>);
     }
 
-    const logoPath = allocationItem.pool?.tokens.filter((x: registry.ExplicitToken) => {return registry.getWhitelistTokens()})[0].logoURI!;
+    const logoPath = allocationItems.get(selectedItemKey)!.pool?.tokens.filter((x: registry.ExplicitToken) => {return registry.getWhitelistTokens()})[0].logoURI!;
     return (
         <>
             <div className="flex flex-col form-control w-full">

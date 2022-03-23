@@ -9,15 +9,21 @@ import {AllocData} from "../../types/AllocData";
 interface Props {
     currencyMint: PublicKey,
     currencyName: string,
-    allocationItem: AllocData,
+    allocationItems: Map<string, AllocData>,
     selectedItemKey: string,
     modifyIndividualAllocationItem: (arg0: string, arg1: number) => void
 }
-export default function StakeForm({currencyMint, currencyName, allocationItem, selectedItemKey, modifyIndividualAllocationItem}: Props) {
+export default function StakeForm({currencyMint, currencyName, allocationItems, selectedItemKey, modifyIndividualAllocationItem}: Props) {
 
     const [displayOnramperModal, setDisplayOnramperModal] = useState<boolean>(false);
 
     // TODO: Probably gotta make the Marinade case-distinction here already ...
+
+    console.log("Allocation items are: ", allocationItems);
+
+    if (!allocationItems) {
+        return <></>
+    }
 
     return (
         <>
@@ -34,10 +40,11 @@ export default function StakeForm({currencyMint, currencyName, allocationItem, s
                             <InputFieldWithSliderInputAndLogo
                                 selectedItemKey={selectedItemKey}
                                 modifyIndividualAllocationItem={modifyIndividualAllocationItem}
-                                allocationItem={allocationItem}
+                                allocationItems={allocationItems}
                                 currencyName={currencyName}
                                 min={0}
-                                max={allocationItem.userInputAmount?.amount.uiAmount ? allocationItem.userInputAmount?.amount.uiAmount : 100}
+                                // TODO: Gotta have a separate one just for the amount that the user has in his wallet (?)
+                                max={allocationItems.get(selectedItemKey)!.userInputAmount!.amount.uiAmount ? allocationItems.get(selectedItemKey)!.userInputAmount!.amount.uiAmount : 100}
                             />
                         </div>
                         <div className={"flex flex-row ml-auto my-auto"}>
@@ -47,8 +54,9 @@ export default function StakeForm({currencyMint, currencyName, allocationItem, s
                     <div className={"flex flex-row mx-1 mt-1"}>
                         <UserInfoBalance
                             currencyMint={currencyMint}
-                            balance={allocationItem.userInputAmount?.amount.uiAmount || null}
-                            solBalance={allocationItem.userInputAmount?.amount.uiAmount || null}  // TODO: Did we pass in the SOL balance anyways ... (?)
+                            currencyName={currencyName}
+                            balance={allocationItems.get(selectedItemKey)?.userInputAmount?.amount.uiAmount || null}
+                            solBalance={allocationItems.get(selectedItemKey)?.userInputAmount?.amount.uiAmount || null}  // TODO: Did we pass in the SOL balance anyways ... (?)
                         />
                     </div>
                 </div>
