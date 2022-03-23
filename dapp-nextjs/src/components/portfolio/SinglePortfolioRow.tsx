@@ -1,12 +1,8 @@
-import React, {useEffect, useState} from "react";
+import React, {useEffect} from "react";
 import {shortenedAddressString, solscanLink} from "../../utils/utils";
 import {RedeemPortfolioButton} from "../buttons/RedeemPortfolioButton";
 
 export default function SinglePortfolioRow(props: any) {
-
-    useEffect(() => {
-        console.log("Found address is: ", props.address);
-    }, [])
 
     return (
         <>
@@ -14,9 +10,6 @@ export default function SinglePortfolioRow(props: any) {
 
                 <div className="relative text-gray-200 focus-within:text-gray-200 w-full h-full">
                     <div className="flex rounded-lg w-full bg-gray-900 items-center text-right h-14 border-2 border-gray-700 px-6">
-                        {/*<div className={"flex w-full mx-auto px-auto justify-start font-medium"}>*/}
-                        {/*    Portfolio*/}
-                        {/*</div>*/}
                         <div className={"flex w-full mx-auto px-auto justify-start"}>
                             {props.address &&
                                 <a href={solscanLink(props.address)} target={"_blank"} rel="noreferrer"
@@ -37,4 +30,5 @@ export default function SinglePortfolioRow(props: any) {
             </div>
         </>
     );
+
 }

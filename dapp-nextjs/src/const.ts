@@ -1,7 +1,26 @@
-import {PublicKey} from "@solana/web3.js";
+import {clusterApiUrl, Connection, PublicKey} from "@solana/web3.js";
 import {Token} from "@solana/spl-token";
 
 // TODO: Need to have a switch between devnet and mainnet
+
+export function getConnectionString(): Connection {
+    let _connection;
+    let clusterName = String(process.env.NEXT_PUBLIC_CLUSTER_NAME);
+    console.log("Cluster name is: ", clusterName);
+    if (clusterName === "localnet") {
+        let localClusterUrl = String(process.env.NEXT_PUBLIC_CLUSTER_URL);
+        _connection = new Connection(localClusterUrl, 'confirmed');
+    } else if (clusterName === "devnet") {
+        _connection = new Connection(clusterApiUrl('devnet'), 'confirmed');
+    } else if (clusterName === "testnet") {
+        _connection = new Connection(clusterApiUrl('testnet'), 'confirmed');
+    } else if (clusterName === "mainnet") {
+        _connection = new Connection(clusterApiUrl('mainnet-beta'), 'confirmed');
+    } else {
+        throw Error("Cluster is not defined properly! {$clusterName}");
+    }
+    return _connection;
+}
 
 export const BRAND_COLORS = {
     slate900: "#0f172a",

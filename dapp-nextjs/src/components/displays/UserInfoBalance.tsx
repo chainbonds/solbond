@@ -9,6 +9,9 @@ export default function UserInfoBalance() {
     const qPoolContext: IQPool = useQPoolUserTool();
     const [currencyBalance, setCurrencyBalance] = useState<number>(0.);
 
+    // TODO: Replace the USDC with the currency that is currently selected ...
+    //   Should probably also include this in the context
+
     const updateAccountBalance = async () => {
         console.log("#useEffect UserInfoBalance");
         if (qPoolContext.connection && qPoolContext.userAccount) {

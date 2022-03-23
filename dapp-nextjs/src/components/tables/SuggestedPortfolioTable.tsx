@@ -1,21 +1,17 @@
 import React, {useEffect, useState} from "react";
-import {AllocData, IQPool, useQPoolUserTool} from "../../contexts/QPoolsProvider";
+import {IQPool, useQPoolUserTool} from "../../contexts/QPoolsProvider";
 import {shortenedAddressString, solscanLink} from "../../utils/utils";
 import Image from "next/image";
-import {PositionInfo, ProtocolType, registry} from "@qpools/sdk";
+import {ProtocolType, registry} from "@qpools/sdk";
 import {useWallet} from "@solana/wallet-adapter-react";
 import {COLORS} from "../../const";
 import {PublicKey} from "@solana/web3.js";
 import {DisplayToken} from "../../types/DisplayToken";
+import {ChartableItemType} from "../../types/ChartableItemType";
+import {AllocData} from "../../types/AllocData";
 
 const tableColumns: (string | null)[] = [null, "Asset", null, "Allocation", "24H APY"]
 
-export interface ChartableItemType {
-    name: string,
-    value: number,
-    apy_24h: number,
-    pool?: registry.ExplicitPool
-}
 
 export default function SuggestedPortfolioTable() {
 
@@ -232,7 +228,7 @@ export default function SuggestedPortfolioTable() {
                                 {tableHeader(tableColumns)}
                                 {/* key={Math.random() + pieChartData[0].value} */}
                                 <tbody>
-                                    {pieChartData.map((position: ChartableItemType, index: number) => tableSingleRow(position, index))}
+                                {pieChartData.map((position: ChartableItemType, index: number) => tableSingleRow(position, index))}
                                 </tbody>
                             </table>
                         </div>

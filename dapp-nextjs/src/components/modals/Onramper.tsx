@@ -1,22 +1,6 @@
 import OnramperWidget from "@onramper/widget";
-import {useWallet} from '@solana/wallet-adapter-react';
-
 
 export default function Onramper() {
-
-    const walletContext: any = useWallet();
-
-    const getWalletAddress = () => {
-        if (walletContext.publicKey) {
-            return ({
-                USDC_SOL: {address: walletContext.publicKey.toString()}
-            })
-        } else {
-            return ({
-                USDC_SOL: {address: ""}
-            })
-        }
-    }
 
     return (
         <>

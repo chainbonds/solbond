@@ -15,18 +15,20 @@ export default function ConnectWalletButton() {
         }
     }, [walletContext.publicKey]);
 
-    return (<WalletMultiButton
-        style={{
-            background: BRAND_COLORS.slate900,
-            color: "white",
-            width: 150 + connected,
-            borderStyle : "solid",
-            borderWidth : 0.3,
-            borderColor : "#6b7280"
-        }}
-        onClick={() => {
-            console.log("click");
-        }}
-    />)
+    return (
+        <WalletMultiButton
+            style={{
+                background: BRAND_COLORS.slate900,
+                color: "white",
+                width: 150 + connected,
+                borderStyle: "solid",
+                borderWidth: 0.3,
+                borderColor: "#6b7280"
+            }}
+            onClick={() => {
+                console.log("click");
+            }}
+        />
+    )
 
 }

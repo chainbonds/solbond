@@ -13,16 +13,7 @@ export default function PurchaseButton(props: any) {
     const qPoolContext: IQPool = useQPoolUserTool();
     const itemLoadContext = useItemsLoad();
 
-    // const [totalAmountInUsdc, setTotalAmountInUsdc] = useState<number>(0.);
-    // useEffect(() => {
-    //     if (props.valueInUsdc) {
-    //         console.log("Defined!: ", props.valueInUsdc);
-    //         setTotalAmountInUsdc(props.valueInUsdc);
-    //     } else {
-    //         console.log("WARNING: Prop is empty!", props.valueInUsdc);
-    //     }
-    // }, [props.valueInUsdc]);
-
+    // TODO: Get all assets and protocols through the context. Also, perhaps instead of if protocolType, just directly also record the protocol itself ...
     const buyItem = async () => {
 
         // let valueInUsdc = props.valueInUsdc;

@@ -11,6 +11,7 @@ export const RedeemPortfolioButton: FC = ({}) => {
     const qPoolContext: IQPool = useQPoolUserTool();
     const itemLoadContext = useItemsLoad();
 
+    // TODO: Get all assets and protocols through the context. Also, perhaps instead of if protocolType, just directly also record the protocol itself ...
     const redeemPortfolio = async () => {
 
         console.log("About to be redeeming!");

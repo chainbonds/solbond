@@ -1,13 +1,13 @@
 import React, {useState} from "react";
 import Image from "next/image";
 import {BRAND_COLORS} from "../../const";
-import {ChartableItemType} from "../tables/SuggestedPortfolioTable";
 import {registry} from "@qpools/sdk";
 import {IQPool, useQPoolUserTool} from "../../contexts/QPoolsProvider";
+import {AllocData} from "../../types/AllocData";
 
 interface Props {
-    allAssets: ChartableItemType[],
-    selectedAsset: ChartableItemType,
+    allAssets: AllocData[],
+    selectedAsset: AllocData,
     displayText: string
     setNewValue: any  // Setter function from useState
 }
