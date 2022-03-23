@@ -1,46 +1,16 @@
 import React from "react";
-import {shortenedAddressString, solscanLink} from "../../utils/utils";
+import {displayTokensFromPositionInfo, shortenedAddressString, solscanLink} from "../../utils/utils";
 import Image from "next/image";
 import {PositionInfo, ProtocolType, registry} from "@qpools/sdk";
 import {DisplayToken} from "../../types/DisplayToken";
 import {IExistingPortfolio, useExistingPortfolio} from "../../contexts/ExistingPortfolioProvider";
+import TableHeader from "./TableHeader";
 
 const tableColumns: (string | null)[] = ["Pool", "Assets", "USDC Value", null]
 
 export default function ExistingPortfolioTable() {
 
     const existingPortfolioProvider: IExistingPortfolio = useExistingPortfolio();
-
-    /**
-     * Header for the Table
-     * Should also split up into different
-     */
-    const tableHeader = (columns: (string | null)[]) => {
-        return (
-            <thead className="bg-gray-50 dark:bg-gray-700">
-            <tr>
-                {
-                    columns.map((x: (string | null)) => {
-                        if (x) {
-                            return (
-                                <th scope="col"
-                                    className="py-3 px-6 text-center text-xs font-medium tracking-wider text-left text-gray-700 uppercase dark:text-gray-400">
-                                    {x}
-                                </th>
-                            )
-                        } else {
-                            return (
-                                <th scope="col" className="relative py-3 px-6">
-                                    <span className="sr-only">Edit</span>
-                                </th>
-                            )
-                        }
-                    })
-                }
-            </tr>
-            </thead>
-        )
-    }
 
 
     const tableSingleRow = (position: PositionInfo) => {
@@ -55,29 +25,7 @@ export default function ExistingPortfolioTable() {
         console.log("mintB is: ", position.mintB);
 
         // TODO: I guess depending on staking, and borrow & lending, gotta display the mint-token or the underlying tokens
-        let displayTokens: DisplayToken[] = [];
-        if (position.protocolType === ProtocolType.DEXLP) {
-            let displayTokenItemA: DisplayToken = {
-                tokenImageLink: registry.getIconFromToken(position.mintA),
-                tokenSolscanLink: solscanLink(position.mintA)
-            };
-            displayTokens.push(displayTokenItemA);
-            let displayTokenItemB: DisplayToken = {
-                tokenImageLink: registry.getIconFromToken(position.mintB),
-                tokenSolscanLink: solscanLink(position.mintB)
-            };
-            displayTokens.push(displayTokenItemB);
-        } else if (position.protocolType === ProtocolType.Staking) {
-            let displayTokenItem: DisplayToken = {
-                tokenImageLink: registry.getIconFromToken(position.mintLp),
-                tokenSolscanLink: solscanLink(position.mintLp)
-            };
-            displayTokens.push(displayTokenItem);
-        } else if (position.protocolType === ProtocolType.Lending) {
-            throw Error("Where does lending come from? We haven't even implement anything in this direction!" + JSON.stringify(position));
-        } else {
-            throw Error("Type of borrow lending not found" + JSON.stringify(position));
-        }
+        let displayTokens: DisplayToken[] = displayTokensFromPositionInfo(position);
 
         console.log("Icon A Icon B ", displayTokens);
         console.log("Printing the position to be printed now: ", position);
@@ -125,7 +73,7 @@ export default function ExistingPortfolioTable() {
                     <div className="inline-block pb-2 min-w-full">
                         <div className="overflow-hidden sm:rounded-lg">
                             <table className="min-w-full">
-                                {tableHeader(tableColumns)}
+                                <TableHeader columns={tableColumns} />
                                 <tbody>
                                 {existingPortfolioProvider.positionInfos.map((position: PositionInfo) => tableSingleRow(position))}
                                 </tbody>

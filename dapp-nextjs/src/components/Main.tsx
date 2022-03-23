@@ -151,6 +151,9 @@ export const Main: FC = ({}) => {
             return (
                 <>
                     <SuggestedPortfolioTable
+                        selectedAssets={allocationData}
+                        selectedAsset={selectedAsset}
+                        setSelectedAsset={setSelectedAsset}
                     />
                 </>
             )
