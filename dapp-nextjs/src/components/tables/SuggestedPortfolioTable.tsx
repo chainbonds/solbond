@@ -7,7 +7,6 @@ import {PublicKey} from "@solana/web3.js";
 import {DisplayToken} from "../../types/DisplayToken";
 import {ChartableItemType} from "../../types/ChartableItemType";
 import {AllocData} from "../../types/AllocData";
-import {IRpcProvider, useRpc} from "../../contexts/RpcProvider";
 // import {ISerpius, useSerpiusEndpoint} from "../../contexts/SerpiusProvider";
 import TableHeader from "./TableHeader";
 
@@ -16,6 +15,7 @@ const tableColumns: (string | null)[] = [null, "Asset", null, "Allocation", "24H
 interface Props {
     selectedAssets: AllocData[],
     selectedAsset: AllocData | null,
+    modifyIndividualAllocationItem: any,
     setSelectedAsset:  React.Dispatch<React.SetStateAction<AllocData | null>>  // How to convert this to a setter function signature
 }
 export default function SuggestedPortfolioTable({selectedAssets, selectedAsset, setSelectedAsset}: Props) {

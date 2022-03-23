@@ -14,6 +14,10 @@ import {registry} from "@qpools/sdk";
 import {PublicKey} from "@solana/web3.js";
 import {useWallet, WalletContextState} from "@solana/wallet-adapter-react";
 import SelectWalletForm from "./swap/SelectWalletForm";
+import {BN} from "@project-serum/anchor";
+import {addLocale} from "next/dist/shared/lib/router/router";
+import {setFiatCurrency} from "@onramper/moonpay-adapter/build/KYC/api";
+import {UserTokenBalance} from "../types/UserTokenBalance";
 
 export enum HeroFormState {
     ShowSuggestedPortfolio,
@@ -42,6 +46,57 @@ export const Main: FC = ({}) => {
             setSelectedAsset(allocationData[0])
         }
     }, [allocationData]);
+
+    /**
+     * This function is pretty huge, for doing this so dynamically ....
+     * Perhaps I should find a way to do this more efficiently ... not entirely sure how though
+     * Also I think from a react-perspective this is the right approach, because the key of the object needs to change
+     *
+     * @param currentlySelectedAsset
+     * @param absoluteBalance
+     */
+    const modifyIndividualAllocationItem = (currentlySelectedAsset: AllocData, absoluteBalance: number) => {
+
+        // TODO: This shit will break for sure ..
+
+        // TODO: Gotta find a way to deal with the absolute balance ...
+        let numberInclDecimals = (new BN(absoluteBalance * (10 ** currentlySelectedAsset.userInputAmount!.amount.decimals)));
+        let uiAmount = (numberInclDecimals.toNumber() / (10 ** currentlySelectedAsset.userInputAmount!.amount.decimals));
+
+        let userInputAmount: UserTokenBalance = {
+            mint:  currentlySelectedAsset.userInputAmount!.mint,
+            ata: currentlySelectedAsset.userInputAmount!.ata,
+            amount: {
+                amount: numberInclDecimals.toString(),
+                decimals: currentlySelectedAsset.userInputAmount!.amount.decimals,
+                uiAmount: uiAmount,
+                uiAmountString: String(uiAmount)
+            }
+        }
+        let newAsset: AllocData = {
+            apy_24h: currentlySelectedAsset.apy_24h,
+            lp: currentlySelectedAsset.lp,
+            pool: currentlySelectedAsset.pool,
+            protocol: currentlySelectedAsset.protocol,
+            userInputAmount: userInputAmount,
+            weight: currentlySelectedAsset.weight
+        };
+
+        // Now set the stuff ...
+        let index = allocationData.indexOf(currentlySelectedAsset);
+        setAllocationData((allocationData: AllocData[]) => {
+            // Return the full array, replace the one element that was replaced ...
+            let p1 = allocationData.slice(0, index);
+            let p2 = allocationData.slice(index + 1, allocationData.length);
+            return [...p1, newAsset, ...p2];
+        });
+
+        // Finally, also update the selected asset to reflect this ...
+        setSelectedAsset((_: AllocData | null) => {
+            return newAsset;
+        })
+
+    }
 
     // Maybe set loading until we are able to read the serpius API
     useEffect(() => {
@@ -179,6 +234,7 @@ export const Main: FC = ({}) => {
                         selectedAssets={allocationData}
                         selectedAsset={selectedAsset}
                         setSelectedAsset={setSelectedAsset}
+                        modifyAllocationData={modifyIndividualAllocationItem}
                     />
                 </>
             )
