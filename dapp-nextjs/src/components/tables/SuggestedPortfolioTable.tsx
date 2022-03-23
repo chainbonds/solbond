@@ -16,7 +16,7 @@ const tableColumns: (string | null)[] = [null, "Asset", null, "Allocation", "24H
 interface Props {
     selectedAssets: AllocData[],
     selectedAsset: AllocData | null,
-    setSelectedAsset: (x: AllocData | null) => void  // How to convert this to a setter function signature
+    setSelectedAsset:  React.Dispatch<React.SetStateAction<AllocData | null>>  // How to convert this to a setter function signature
 }
 export default function SuggestedPortfolioTable({selectedAssets, selectedAsset, setSelectedAsset}: Props) {
 

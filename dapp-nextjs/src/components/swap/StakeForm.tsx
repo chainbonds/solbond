@@ -15,23 +15,7 @@ interface Props {
 }
 export default function StakeForm({currencyMint, currencyName, allocationItem}: Props) {
 
-    const rpcProvider: IRpcProvider = useRpc();
-
     const [displayOnramperModal, setDisplayOnramperModal] = useState<boolean>(false);
-    const [valueInUsdc, setValueInUsdc] = useState<number>(0.);
-
-    // TODO: Pass on the assets to be purchased (and their ratio's) as a child to the actionButton
-    const getActionButton = () => {
-        if (rpcProvider.userAccount) {
-            return (
-                <PurchaseButton/>
-            )
-        } else {
-            return (
-                <ConnectWalletButton/>
-            );
-        }
-    }
 
     return (
         <>
@@ -48,14 +32,14 @@ export default function StakeForm({currencyMint, currencyName, allocationItem}: 
                             <InputFieldWithSliderInputAndLogo
                                 // className={""}
                                 // logoPath={"/usdc-logo.png"}
-                                // allAssets={qPoolContext.portfolioRatios}
-                                displayText={currencyName}
-                                setNewValue={setValueInUsdc}  // TODO: Gotta write a new function for this specifically ...
+                                allocationItem={allocationItem}
+                                currencyName={currencyName}
+                                // setNewValue={setValueInUsdc}  // TODO: Gotta write a new function for this specifically ...
                                 // modifiable={true}
                             />
                         </div>
                         <div className={"flex flex-row ml-auto my-auto"}>
-                            {getActionButton()}
+                            <PurchaseButton />
                         </div>
                     </div>
                     <div className={"flex flex-row mx-1 mt-1"}>

@@ -2,8 +2,14 @@ import React, {useState} from "react";
 import Image from "next/image";
 import {BRAND_COLORS} from "../../const";
 import {registry} from "@qpools/sdk";
+import {AllocData} from "../../types/AllocData";
 
-export default function InputFieldWithSliderInputAndLogo(props: any) {
+interface Props {
+    allocationItem: AllocData,
+    currencyName: string,
+    // setValueInUsdc: React.Dispatch<React.SetStateAction<AllocData | null>>
+}
+export default function InputFieldWithSliderInputAndLogo({allocationItem, currencyName}: Props) {
 
     // TODO: Find a provider that does this for you
     // Probably the UserWalletAssets provider!
@@ -28,8 +34,8 @@ export default function InputFieldWithSliderInputAndLogo(props: any) {
                 min="0"
                 onChange={(event) => {
                     let newValue = Number(event.target.value);
-                    console.log("New " + String(props.displayText) + " is: " + String(newValue));
-                    props.setNewValue(newValue);
+                    console.log("New " + String(currencyName) + " is: " + String(newValue));
+                    // props.setNewValue(newValue);  // TODO: Implement
                 }}
             />
         </>)
@@ -43,8 +49,8 @@ export default function InputFieldWithSliderInputAndLogo(props: any) {
                     max="100"
                     onChange={(event) => {
                         let newValue = Number(event.target.value);
-                        console.log("New " + String(props.displayText) + " is: " + String(newValue));
-                        setValue(newValue);
+                        console.log("New " + String(currencyName) + " is: " + String(newValue));
+                        // setValue(newValue);  // TODO: Implement
                     }}
                     value={value}
                     className="range range-xs"
@@ -56,20 +62,20 @@ export default function InputFieldWithSliderInputAndLogo(props: any) {
     // Maybe this should be a special component ....
 
     // Gotta pick the token that is whitelisted, and inside the
-    if (!props.selectedAsset) {
+    if (!allocationItem) {
         return (<></>);
     }
 
-    const logoPath = props.selectedAsset.pool?.tokens.filter((x: registry.ExplicitToken) => {return registry.getWhitelistTokens()})[0].address!;
+    const logoPath = allocationItem.pool?.tokens.filter((x: registry.ExplicitToken) => {return registry.getWhitelistTokens()})[0].logoURI!;
     return (
         <>
             <div className="flex flex-col form-control w-full">
                 <div className="mx-auto my-auto p-1 relative text-gray-300 focus-within:text-gray-300 w-full h-full">
                   <span className="absolute inset-y-0 left-0 flex items-center pl-2 h-full">
                     <div className={"flex w-full my-auto text-center content-center"}>
-                        <Image alt={props.displayText} src={logoPath} height={34} width={34}/>
+                        <Image alt={currencyName} src={logoPath} height={34} width={34} className={"rounded-3xl"}/>
                         <text className={"my-auto text-center content-center mx-2"}>
-                            {props.displayText}
+                            {currencyName}
                         </text>
                     </div>
                     </span>

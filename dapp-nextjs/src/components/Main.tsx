@@ -116,9 +116,11 @@ export const Main: FC = ({}) => {
                     console.log("Whitelist tokens are: ", registry.getWhitelistTokens());
                     console.log("SelectedAssetToken: ", selectedAssetTokens);
                     throw Error("Somehow this pool has no whitelisted input tokens!");
-                };
+                }
                 let inputToken = inputTokens[0];
                 console.log("Input token in: ", inputToken);
+
+                console.log("Asset that we're looking at is: ", asset);
 
                 return (<>
                         <StakeForm
