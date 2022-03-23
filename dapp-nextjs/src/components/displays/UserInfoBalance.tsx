@@ -1,58 +1,38 @@
 import {useEffect, useState} from "react";
-import {IRpcProvider, useRpc} from "../../contexts/RpcProvider";
-import {getAssociatedTokenAddressOffCurve} from "@qpools/sdk/lib/utils";
 import {PublicKey} from "@solana/web3.js";
-import {tokenAccountExists} from "@qpools/sdk";
-import {IExistingPortfolio, useExistingPortfolio} from "../../contexts/ExistingPortfolioProvider";
 
 interface Props {
     currencyMint: PublicKey,
+    balance: number | null,
+    solBalance: number | null
 }
-export default function UserInfoBalance({currencyMint}: Props) {
+export default function UserInfoBalance({currencyMint, balance, solBalance}: Props) {
 
-    const rpcProvider: IRpcProvider = useRpc();
     const [currencyBalance, setCurrencyBalance] = useState<number>(0.);
 
-    // TODO: Replace the USDC with the currency that is currently selected ...
-    //   Should probably also include this in the context
-
-    const updateAccountBalance = async () => {
-        console.log("#useEffect UserInfoBalance");
-        if (rpcProvider.connection && rpcProvider.userAccount) {
-            // Get the associated token account
-            console.log("Getting associated token account")
-            // TODO: Replace USDC by some currency, or whatever the user has currency chosen as their Input ...
-            let userCurrencyAta: PublicKey = await getAssociatedTokenAddressOffCurve(
-                currencyMint, rpcProvider.userAccount.publicKey
-            )
-            let existsBool = await tokenAccountExists(rpcProvider.connection!, userCurrencyAta);
-            console.log("User ATA: ", userCurrencyAta.toString(), existsBool);
-            if (existsBool) {
-                console.log("Exists!");
-                // Check if this account exists, first of all
-                let x = await rpcProvider.connection!.getTokenAccountBalance(userCurrencyAta);
-                if (x.value && x.value.uiAmount) {
-                    console.log("Balance is: ", x.value);
-                    setCurrencyBalance(x.value.uiAmount!);
-                } else {
-                    console.log("ERROR: Something went wrong unpacking the balance!");
-                }
-                console.log("Done fetching");
+    // If the currency mint is wrapped SOL, also add the SOL amount to this ... 8
+    // or actually, just take the SOL amount directly ...
+    useEffect(() => {
+        if (balance && currencyMint) {
+            if (
+                currencyMint.equals(new PublicKey("So11111111111111111111111111111111111111112")) && solBalance
+            ) {
+                setCurrencyBalance(solBalance);
             } else {
-                console.log("Account doesn't exist yet");
+                setCurrencyBalance(balance)
             }
         }
-        console.log("##useEffect UserInfoBalance");
-    }
+    }, [currencyMint, balance]);
 
-    useEffect(() => {
-        updateAccountBalance();
-    }, [rpcProvider.provider, rpcProvider.reloadPriceSentinel]);
+    if (!currencyBalance) {
+        return <></>
+    }
 
     return (
         <>
             <div
                 className={"flex flex-col md:flex-row items-center lg:items-begin text-gray-500 text-sm font-semibold "}>
+                {/*Wallet Balance: {currencyBalance.toFixed(2)} USDC*/}
                 Wallet Balance: {currencyBalance.toFixed(2)} USDC
             </div>
         </>

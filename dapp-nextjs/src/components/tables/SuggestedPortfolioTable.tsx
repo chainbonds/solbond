@@ -7,7 +7,6 @@ import {PublicKey} from "@solana/web3.js";
 import {DisplayToken} from "../../types/DisplayToken";
 import {ChartableItemType} from "../../types/ChartableItemType";
 import {AllocData} from "../../types/AllocData";
-// import {ISerpius, useSerpiusEndpoint} from "../../contexts/SerpiusProvider";
 import TableHeader from "./TableHeader";
 
 const tableColumns: (string | null)[] = [null, "Asset", null, "Allocation", "24H APY"]
@@ -16,7 +15,7 @@ interface Props {
     selectedAssets: Map<string, AllocData>,
     selectedAsset: string,
     setSelectedAsset:  React.Dispatch<React.SetStateAction<string>>,
-    modifyIndividualAllocationItem: (currentlySelectedKey: string, absoluteBalance: number) => void,  // How to convert this to a setter function signature,
+    // modifyIndividualAllocationItem: (currentlySelectedKey: string, absoluteBalance: number) => void,  // How to convert this to a setter function signature,
 }
 export default function SuggestedPortfolioTable({selectedAssets, selectedAsset, setSelectedAsset}: Props) {
 

@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import Image from "next/image";
 import {BRAND_COLORS} from "../../const";
 import {registry} from "@qpools/sdk";
@@ -6,10 +6,13 @@ import {AllocData} from "../../types/AllocData";
 
 interface Props {
     allocationItem: AllocData,
+    selectedItemKey: string,
     currencyName: string,
-    // setValueInUsdc: React.Dispatch<React.SetStateAction<AllocData | null>>
+    modifyIndividualAllocationItem: (arg0: string, arg1: number) => void,
+    min: number,
+    max: number
 }
-export default function InputFieldWithSliderInputAndLogo({allocationItem, currencyName}: Props) {
+export default function InputFieldWithSliderInputAndLogo({allocationItem, selectedItemKey, currencyName, modifyIndividualAllocationItem, min, max}: Props) {
 
     // TODO: Find a provider that does this for you
     // Probably the UserWalletAssets provider!
@@ -19,6 +22,26 @@ export default function InputFieldWithSliderInputAndLogo({allocationItem, curren
     // Or get this from props ...
     // Probably props is better
     const [value, setValue] = useState<number>(0.);
+    const [sliderValue, setSliderValue] = useState<number>(0.);
+    const [inputValue, setInputValue] = useState<number>(0.);
+
+    // Or just create the setter outside of this ...
+    // useEffect(() => {
+    //     // setValue()
+    // }, [allocationItem, selectedItemKey]);
+
+    // modifyIndividualAllocationItem(selectedItemKey, newValue);
+
+    useEffect(() => {
+        setValue(sliderValue);
+    }, [sliderValue]);
+    useEffect(() => {
+        setValue(inputValue);
+    }, [inputValue]);
+    useEffect(() => {
+        setSliderValue(value);
+        setInputValue(value);
+    }, [value]);
 
     // Max and Min Fields need to be included
     const inputTextField = () => {
@@ -32,10 +55,11 @@ export default function InputFieldWithSliderInputAndLogo({allocationItem, curren
                 placeholder="0.0"
                 step={"0.0001"}
                 min="0"
+                value={value}
                 onChange={(event) => {
                     let newValue = Number(event.target.value);
                     console.log("New " + String(currencyName) + " is: " + String(newValue));
-                    // props.setNewValue(newValue);  // TODO: Implement
+                    setInputValue(newValue)
                 }}
             />
         </>)
@@ -50,7 +74,7 @@ export default function InputFieldWithSliderInputAndLogo({allocationItem, curren
                     onChange={(event) => {
                         let newValue = Number(event.target.value);
                         console.log("New " + String(currencyName) + " is: " + String(newValue));
-                        // setValue(newValue);  // TODO: Implement
+                        setSliderValue(newValue);
                     }}
                     value={value}
                     className="range range-xs"
@@ -85,7 +109,7 @@ export default function InputFieldWithSliderInputAndLogo({allocationItem, curren
                     {inputRangeField()}
                 </div>
             </div>
-        {/*    TODO: Add the connect wallet button here, perhaps (?)*/}
+            {/*    TODO: Add the connect wallet button here, perhaps (?)*/}
         </>
     );
 }

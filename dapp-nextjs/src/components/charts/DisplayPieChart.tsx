@@ -5,7 +5,8 @@ import {AllocData} from "../../types/AllocData";
 
 interface Props {
     allocationInformation: Map<string, AllocData>,
-    showPercentage: boolean
+    showPercentage: boolean,
+
 }
 export default function DisplayPieChart({allocationInformation, showPercentage}: Props) {
 

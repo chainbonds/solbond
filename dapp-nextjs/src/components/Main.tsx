@@ -187,6 +187,7 @@ export const Main: FC = ({}) => {
                             currencyMint={inputToken.mint}
                             currencyName={inputToken.name}
                             allocationItem={asset}
+                            modifyIndividualAllocationItem={modifyIndividualAllocationItem}
                         />
                     </>
                 );
@@ -240,7 +241,7 @@ export const Main: FC = ({}) => {
                         selectedAssets={allocationData}
                         selectedAsset={selectedAsset}
                         setSelectedAsset={setSelectedAsset}
-                        modifyAllocationData={modifyIndividualAllocationItem}
+                        // modifyAllocationData={modifyIndividualAllocationItem}
                     />
                 </>
             )
