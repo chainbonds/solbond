@@ -58,6 +58,9 @@ export const Main: FC = ({}) => {
     const modifyIndividualAllocationItem = (currentlySelectedKey: string, absoluteBalance: number) => {
 
         // TODO: This shit will break for sure ..
+        if (currentlySelectedKey === "") {
+            return;
+        }
         if (!allocationData.has(currentlySelectedKey)) {
             throw Error("The key you're trying to modify does not exist for some reason! " + currentlySelectedKey);
         }
@@ -148,24 +151,22 @@ export const Main: FC = ({}) => {
     // TODO: currencyName and Mint should be the intersection of token-whitelist + pool.tokens
     const formComponent = (selectKey: string) => {
         if (displayForm === HeroFormState.ShowSuggestedPortfolio) {
-            if (walletContext.publicKey && allocationData.has(selectKey) && allocationData.get(selectKey)!.pool) {
+            if (walletContext.publicKey) {
 
-                let asset = allocationData.get(selectKey)!;
+                // let asset = allocationData.get(selectKey)!;
+                // console.log("Asset is: ", asset);
+                // console.log("Pool is: ", asset.pool);
+                // let selectedAssetTokens = asset.pool!.tokens;
+                // let inputToken: SelectedToken = getInputToken(selectedAssetTokens);
+                // console.log("Input token in: ", inputToken);
+                // console.log("Asset that we're looking at is: ", asset);
 
-                console.log("Asset is: ", asset);
-                console.log("Pool is: ", asset.pool);
-
-                let selectedAssetTokens = asset.pool!.tokens;
-                let inputToken: SelectedToken = getInputToken(selectedAssetTokens);
-
-                console.log("Input token in: ", inputToken);
-
-                console.log("Asset that we're looking at is: ", asset);
+                // TODO: I guess the deposit button should be separate from the input forms ...
 
                 return (<>
                         <StakeForm
-                            currencyMint={inputToken.mint}
-                            currencyName={inputToken.name}
+                            // currencyMint={inputToken.mint}
+                            // currencyName={inputToken.name}
                             allocationItems={allocationData}
                             selectedItemKey={selectedAsset}
                             modifyIndividualAllocationItem={modifyIndividualAllocationItem}
