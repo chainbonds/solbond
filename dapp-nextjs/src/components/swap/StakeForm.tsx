@@ -17,6 +17,8 @@ export default function StakeForm({currencyMint, currencyName, allocationItem, s
 
     const [displayOnramperModal, setDisplayOnramperModal] = useState<boolean>(false);
 
+    // TODO: Probably gotta make the Marinade case-distinction here already ...
+
     return (
         <>
             <OnramperModal
@@ -34,6 +36,8 @@ export default function StakeForm({currencyMint, currencyName, allocationItem, s
                                 modifyIndividualAllocationItem={modifyIndividualAllocationItem}
                                 allocationItem={allocationItem}
                                 currencyName={currencyName}
+                                min={0}
+                                max={allocationItem.userInputAmount?.amount.uiAmount ? allocationItem.userInputAmount?.amount.uiAmount : 100}
                             />
                         </div>
                         <div className={"flex flex-row ml-auto my-auto"}>

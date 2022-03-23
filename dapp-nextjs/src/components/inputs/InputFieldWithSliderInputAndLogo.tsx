@@ -25,13 +25,6 @@ export default function InputFieldWithSliderInputAndLogo({allocationItem, select
     const [sliderValue, setSliderValue] = useState<number>(0.);
     const [inputValue, setInputValue] = useState<number>(0.);
 
-    // Or just create the setter outside of this ...
-    // useEffect(() => {
-    //     // setValue()
-    // }, [allocationItem, selectedItemKey]);
-
-    // modifyIndividualAllocationItem(selectedItemKey, newValue);
-
     useEffect(() => {
         setValue(sliderValue);
     }, [sliderValue]);
@@ -54,7 +47,8 @@ export default function InputFieldWithSliderInputAndLogo({allocationItem, select
                 autoComplete="stake_amount"
                 placeholder="0.0"
                 step={"0.0001"}
-                min="0"
+                min={min}
+                max={max}
                 value={value}
                 onChange={(event) => {
                     let newValue = Number(event.target.value);
@@ -69,8 +63,9 @@ export default function InputFieldWithSliderInputAndLogo({allocationItem, select
         return (<>
                 <input
                     type="range"
-                    min="0"
-                    max="100"
+                    step={"0.0001"}
+                    min={min}
+                    max={max}
                     onChange={(event) => {
                         let newValue = Number(event.target.value);
                         console.log("New " + String(currencyName) + " is: " + String(newValue));
