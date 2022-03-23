@@ -1,8 +1,7 @@
 import React, {useState, useContext, useEffect} from 'react';
 import {CrankRpcCalls} from "@qpools/sdk";
 import {useLocalKeypair} from "./LocalKeypairProvider";
-import {useQPoolUserTool} from "./QPoolsProvider";
-
+import {useRpc} from "./RpcProvider";
 
 export interface ICrank {
     crankRpcTool: CrankRpcCalls | undefined,
@@ -21,7 +20,7 @@ export function useCrank() {
 export function CrankProvider(props: any) {
 
     const localKeypair = useLocalKeypair();
-    const qPoolContext = useQPoolUserTool();
+    const rpcProvider = useRpc();
     const [crankRpcTool, setCrankRpcTool] = useState<CrankRpcCalls | undefined>();
 
     /**
@@ -30,21 +29,21 @@ export function CrankProvider(props: any) {
     useEffect(() => {
         if (
             localKeypair.localTmpKeypair
-            && qPoolContext.connection
-            && qPoolContext.provider
-            && qPoolContext._solbondProgram
+            && rpcProvider.connection
+            && rpcProvider.provider
+            && rpcProvider._solbondProgram
         ) {
             setCrankRpcTool((_: any) => {
                 let crankRpcCalls = new CrankRpcCalls(
-                    qPoolContext.connection!,
+                    rpcProvider.connection!,
                     localKeypair.localTmpKeypair!,
-                    qPoolContext.provider!,
-                    qPoolContext._solbondProgram!
+                    rpcProvider.provider!,
+                    rpcProvider._solbondProgram!
                 );
                 return crankRpcCalls;
             });
         }
-    }, [localKeypair.localTmpKeypair, qPoolContext.connection, qPoolContext.provider]);
+    }, [localKeypair.localTmpKeypair, rpcProvider.connection, rpcProvider.provider]);
 
     // TODO: Implement a function to run the crank (perhaps, in the background ...)
 

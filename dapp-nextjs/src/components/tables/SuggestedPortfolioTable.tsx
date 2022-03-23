@@ -1,5 +1,4 @@
 import React, {useEffect, useState} from "react";
-import {IQPool, useQPoolUserTool} from "../../contexts/QPoolsProvider";
 import {shortenedAddressString, solscanLink} from "../../utils/utils";
 import Image from "next/image";
 import {ProtocolType, registry} from "@qpools/sdk";
@@ -9,6 +8,8 @@ import {PublicKey} from "@solana/web3.js";
 import {DisplayToken} from "../../types/DisplayToken";
 import {ChartableItemType} from "../../types/ChartableItemType";
 import {AllocData} from "../../types/AllocData";
+import {IRpcProvider, useRpc} from "../../contexts/RpcProvider";
+import {ISerpius, useSerpiusEndpoint} from "../../contexts/SerpiusProvider";
 
 const tableColumns: (string | null)[] = [null, "Asset", null, "Allocation", "24H APY"]
 
@@ -19,15 +20,16 @@ export default function SuggestedPortfolioTable() {
     // Much more sustainable also in terms of development
 
     // Perhaps create a "Loaded Portfolio Component"
-    const qPoolContext: IQPool = useQPoolUserTool();
+    const rpcProvider: IRpcProvider = useRpc();
     const walletContext: any = useWallet();
+    const serpiusProvider: ISerpius = useSerpiusEndpoint();
     // TODO: Whenever the portfolio-ratios are downloaded, update this asset as well
     const [selectedAsset, setSelectedAsset] = useState<ChartableItemType | null>(null);
 
     useEffect(() => {
         if (walletContext.publicKey) {
             console.log("Wallet pubkey wallet is:", walletContext.publicKey.toString());
-            qPoolContext.initializeQPoolsUserTool(walletContext);
+            rpcProvider.initializeQPoolsUserTool(walletContext);
         }
     }, [walletContext.publicKey]);
 
@@ -74,10 +76,10 @@ export default function SuggestedPortfolioTable() {
     useEffect(() => {
         setRatios((_: AllocData[] | null) => {
             console.log(" CAMOOOOOOOOOOON THIS FUNCTION SHOULD WORK")
-            console.log(" CAMOOOOOOOOOOON ", qPoolContext.portfolioRatios)
-            return qPoolContext.portfolioRatios!;
+            console.log(" CAMOOOOOOOOOOON ", serpiusProvider.portfolioRatios)
+            return serpiusProvider.portfolioRatios!;
         });
-    }, [qPoolContext.connection, qPoolContext.userAccount, qPoolContext.portfolioRatios]);
+    }, [rpcProvider.connection, rpcProvider.userAccount, serpiusProvider.portfolioRatios]);
 
     useEffect(() => {
         console.log("DUDE 1", ratios)

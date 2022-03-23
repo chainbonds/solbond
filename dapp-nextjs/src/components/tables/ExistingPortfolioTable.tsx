@@ -1,23 +1,26 @@
 import React, {useEffect} from "react";
-import {IQPool, useQPoolUserTool} from "../../contexts/QPoolsProvider";
 import {shortenedAddressString, solscanLink} from "../../utils/utils";
 import Image from "next/image";
 import {PositionInfo, ProtocolType, registry} from "@qpools/sdk";
 import {useWallet} from "@solana/wallet-adapter-react";
 import {DisplayToken} from "../../types/DisplayToken";
+import {IRpcProvider, useRpc} from "../../contexts/RpcProvider";
+import {IExistingPortfolio, useExistingPortfolio} from "../../contexts/ExistingPortfolioProvider";
 
 const tableColumns: (string | null)[] = ["Pool", "Assets", "USDC Value", null]
 
 export default function ExistingPortfolioTable() {
 
     // Perhaps create a "Loaded Portfolio Component"
-    const qPoolContext: IQPool = useQPoolUserTool();
+    const rpcProvider: IRpcProvider = useRpc();
     const walletContext: any = useWallet();
+    const existingPortfolioProvider: IExistingPortfolio = useExistingPortfolio();
 
     useEffect(() => {
         if (walletContext.publicKey) {
             console.log("Wallet pubkey wallet is:", walletContext.publicKey.toString());
-            qPoolContext.initializeQPoolsUserTool(walletContext);
+            // TODO: Just gotta load the wallet, and re-initialize anytime the wallet-context is changing ...
+            rpcProvider.initializeQPoolsUserTool(walletContext);
         }
     }, [walletContext.publicKey]);
 
@@ -89,16 +92,6 @@ export default function ExistingPortfolioTable() {
             throw Error("Type of borrow lending not found" + JSON.stringify(position));
         }
 
-        // if (position.mintA.equals(new PublicKey("mSoLzYCxHdYgdzU16g5QSh3i5K3z3KZK7ytfqcJm7So"))){
-        // if (position.protocolType === ProtocolType.Staking || position.protocolType === ProtocolType.Lending) {
-        //     // TODO: Remove this hard-coded logic ...
-        //     iconMintA = "https://spl-token-icons.static-assets.ship.capital/icons/101/mSoLzYCxHdYgdzU16g5QSh3i5K3z3KZK7ytfqcJm7So.png";
-        // } else if (position.protocolType === ProtocolType.DEXLP) {
-        //     iconMintA = registry.getIconFromToken(position.mintA);
-        //     iconMintB = registry.getIconFromToken(position.mintB);
-        // } else {
-        //     throw Error("Protocol Type is not within Enum!" + JSON.stringify(position));
-        // }
         console.log("Icon A Icon B ", displayTokens);
         console.log("Printing the position to be printed now: ", position);
 
@@ -110,9 +103,7 @@ export default function ExistingPortfolioTable() {
                         {position.mintLp &&
                         <a href={solscanLink(position.mintLp)} target={"_blank"} rel="noreferrer"
                            className="text-blue-600 dark:text-blue-500 hover:underline">
-                            {/*{registry.getPool(position.poolAddress)?.name}*/}
                             {shortenedAddressString(position.mintLp)}
-                            {/* TODO: Change to registry name perhaps */}
                         </a>
                         }
                     </td>
@@ -125,17 +116,8 @@ export default function ExistingPortfolioTable() {
                                 </a>
                             )
                         })}
-                        {/*{position.mintA &&*/}
-                        {/*}*/}
-                        {/*{position.mintB &&*/}
-                        {/*<a href={solscanLink(position.mintB)} target={"_blank"} rel="noreferrer"*/}
-                        {/*   className="text-blue-600 dark:text-blue-400 hover:underline">*/}
-                        {/*    <Image src={iconMintB} width={30} height={30}/>*/}
-                        {/*</a>*/}
-                        {/*}*/}
                     </td>
                     <td className="py-4 px-6 text-center text-sm font-medium text-gray-500 whitespace-nowrap dark:text-gray-400">
-                        {/*{position.amountLp && position.amountLp.uiAmount!.toFixed(2)}*/}
                         {position.totalPositionValue && position.totalPositionValue.toFixed(2)}
                     </td>
                     <td className="py-4 px-6 text-center text-sm text-right whitespace-nowrap">
@@ -158,7 +140,7 @@ export default function ExistingPortfolioTable() {
                             <table className="min-w-full">
                                 {tableHeader(tableColumns)}
                                 <tbody>
-                                {qPoolContext.positionInfos.map((position: PositionInfo) => tableSingleRow(position))}
+                                {existingPortfolioProvider.positionInfos.map((position: PositionInfo) => tableSingleRow(position))}
                                 </tbody>
                             </table>
                         </div>

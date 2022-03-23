@@ -1,5 +1,5 @@
 import React, {FC} from "react";
-import {LogoWithTitle} from "./assets/LogoWithTitle";
+import {LogoWithTitle} from "./static/LogoWithTitle";
 import {FaucetButton} from "./buttons/FaucetButton";
 import ConnectWalletButton from "./buttons/ConnectWalletButton";
 

@@ -1,4 +1,4 @@
-import React, {useState, useContext, useEffect} from 'react';
+import React, {useState, useContext} from 'react';
 import {Provider} from "@project-serum/anchor";
 import {Connection, Keypair} from "@solana/web3.js";
 import {Token, TOKEN_PROGRAM_ID} from "@solana/spl-token";
@@ -10,14 +10,11 @@ import {
     PortfolioFrontendFriendlyChainedInstructions
 } from "@qpools/sdk";
 import delay from "delay";
-import {accountExists} from "@qpools/sdk";
-import {PositionInfo} from "@qpools/sdk";
 import {MOCK} from "@qpools/sdk";
 import {getConnectionString} from "../const";
-import {AllocData} from "../types/AllocData";
 
 
-export interface IQPool {
+export interface IRpcProvider {
     portfolioObject: PortfolioFrontendFriendlyChainedInstructions | undefined,
     initializeQPoolsUserTool: any,
     reloadPriceSentinel: boolean,
@@ -29,16 +26,7 @@ export interface IQPool {
     currencyMint: Token | undefined,
 }
 
-const hardcodedApiResponse = [
-    {
-        "lp": "USDC-USDT",
-        "weight": 1000,
-        "protocol": "Saber",
-        "apy_24h": 0.
-    }
-]
-
-const defaultValue: IQPool = {
+const defaultValue: IRpcProvider = {
     portfolioObject: undefined,
     reloadPriceSentinel: false,
     makePriceReload: () => console.log("Error not loaded yet!"),
@@ -50,13 +38,13 @@ const defaultValue: IQPool = {
     currencyMint: undefined,
 }
 
-const QPoolContext = React.createContext<IQPool>(defaultValue);
+const RpcContext = React.createContext<IRpcProvider>(defaultValue);
 
-export function useQPoolUserTool() {
-    return useContext(QPoolContext);
+export function useRpc() {
+    return useContext(RpcContext);
 }
 
-export function QPoolsProvider(props: any) {
+export function RpcProvider(props: any) {
 
     /**
      * Generic state for RPC Calls
@@ -84,6 +72,7 @@ export function QPoolsProvider(props: any) {
     }
 
     // Make a creator that loads the qPoolObject if it not created yet
+    // TODO: Should prob import the wallet context directly ...
     const initializeQPoolsUserTool = async (walletContext: any) => {
         console.log("#initializeQPoolsUserTool");
         console.log("Cluster URL is: ", String(process.env.NEXT_PUBLIC_CLUSTER_URL));
@@ -120,7 +109,7 @@ export function QPoolsProvider(props: any) {
         console.log("##initializeQPoolsUserTool");
     };
 
-    const value: IQPool = {
+    const value: IRpcProvider = {
         portfolioObject,
         initializeQPoolsUserTool,
         connection,
@@ -134,9 +123,9 @@ export function QPoolsProvider(props: any) {
 
     return (
         <>
-            <QPoolContext.Provider value={value}>
+            <RpcContext.Provider value={value}>
                 {props.children}
-            </QPoolContext.Provider>
+            </RpcContext.Provider>
         </>
     );
 }

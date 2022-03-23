@@ -1,23 +1,27 @@
 import React from "react";
 import {BN} from "@project-serum/anchor";
-import {IQPool, useQPoolUserTool} from "../../contexts/QPoolsProvider";
+import {IRpcProvider, useRpc} from "../../contexts/RpcProvider";
 import {PublicKey, Transaction} from "@solana/web3.js";
 import {sendAndConfirmTransaction} from "../../utils/utils";
 import {useWallet} from "@solana/wallet-adapter-react";
 import {useItemsLoad} from "../../contexts/ItemsLoadingContext";
 import {MOCK} from "@qpools/sdk";
+import {ICrank, useCrank} from "../../contexts/CrankProvider";
+import {ILocalKeypair, useLocalKeypair} from "../../contexts/LocalKeypairProvider";
 
-export default function PurchaseButton(props: any) {
+export default function PurchaseButton() {
 
-    const walletContext: any = useWallet();
-    const qPoolContext: IQPool = useQPoolUserTool();
+    const walletProvider: any = useWallet();
+    const rpcProvider: IRpcProvider = useRpc();
+    const crankProvider: ICrank = useCrank();
+    const localKeypairProvider: ILocalKeypair = useLocalKeypair();
     const itemLoadContext = useItemsLoad();
 
     // TODO: Get all assets and protocols through the context. Also, perhaps instead of if protocolType, just directly also record the protocol itself ...
     const buyItem = async () => {
 
         // let valueInUsdc = props.valueInUsdc;
-        if (!qPoolContext.userAccount!.publicKey) {
+        if (!rpcProvider.userAccount!.publicKey) {
             alert("Please connect your wallet first!");
             return
         }
@@ -44,7 +48,7 @@ export default function PurchaseButton(props: any) {
         await itemLoadContext.addLoadItem({message: "Running cranks to distribute assets across liquidity pools..."});
 
         // Initialize if not initialized yet
-        await qPoolContext.initializeQPoolsUserTool(walletContext);
+        await rpcProvider.initializeQPoolsUserTool(walletProvider);
         await itemLoadContext.incrementCounter();
 
 
@@ -133,11 +137,11 @@ export default function PurchaseButton(props: any) {
         // TODO:
         // Have a look at this; but this is still needed!
         console.log("Creating associated token accounts ...");
-        let txCreateATA: Transaction = await qPoolContext.portfolioObject!.createAssociatedTokenAccounts([assetLpMints[0]], qPoolContext.provider!.wallet);
+        let txCreateATA: Transaction = await rpcProvider.portfolioObject!.createAssociatedTokenAccounts([assetLpMints[0]], rpcProvider.provider!.wallet);
         if (txCreateATA.instructions.length > 0) {
             await sendAndConfirmTransaction(
-                qPoolContext._solbondProgram!.provider,
-                qPoolContext.connection!,
+                rpcProvider._solbondProgram!.provider,
+                rpcProvider.connection!,
                 txCreateATA
                 // qPoolContext.userAccount!.publicKey
             );
@@ -167,7 +171,7 @@ export default function PurchaseButton(props: any) {
         // TODO: Should not be a try catch around
         console.log("Creating Portfolio");
         let tx: Transaction = new Transaction();
-        let IxCreatePortfolioPda = await qPoolContext.portfolioObject!.createPortfolioSigned(
+        let IxCreatePortfolioPda = await rpcProvider.portfolioObject!.createPortfolioSigned(
             weights,
             assetLpMints
         );
@@ -175,7 +179,7 @@ export default function PurchaseButton(props: any) {
 
         console.log("Transfer Asset to Portfolio");
         // TODO: Check if they exist, if they already do exist, don't rewrite these ...
-        let IxRegisterCurrencyUsdcInput = await qPoolContext.portfolioObject!.registerCurrencyInputInPortfolio(
+        let IxRegisterCurrencyUsdcInput = await rpcProvider.portfolioObject!.registerCurrencyInputInPortfolio(
             AmountUsdc, USDC_mint
         );
         tx.add(IxRegisterCurrencyUsdcInput);
@@ -192,7 +196,7 @@ export default function PurchaseButton(props: any) {
         // I guess we gotta make the case distinction here lol
         // TODO: Copy the case-distinction from below. Then you can continue
         // TODO: figure out tokenA and tokenB ==> Currently hard-coded...
-        let IxApproveiPositionWeightSaber = await qPoolContext.portfolioObject!.approvePositionWeightSaber(
+        let IxApproveiPositionWeightSaber = await rpcProvider.portfolioObject!.approvePositionWeightSaber(
             assetLpMints[0],
             AmountUsdc,
             new BN(0),  // Will be flipped in the backend ..
@@ -203,7 +207,7 @@ export default function PurchaseButton(props: any) {
         tx.add(IxApproveiPositionWeightSaber);
 
         console.log("Approve Position Marinade");
-        let IxApprovePositionWeightMarinade = await qPoolContext.portfolioObject!.approvePositionWeightMarinade(
+        let IxApprovePositionWeightMarinade = await rpcProvider.portfolioObject!.approvePositionWeightMarinade(
             AmountSol,
             1, // Hardcoded
             weights[1]
@@ -211,23 +215,23 @@ export default function PurchaseButton(props: any) {
         tx.add(IxApprovePositionWeightMarinade);
 
         console.log("Sending USDC");
-        let IxSendUsdcToPortfolio = await qPoolContext.portfolioObject!.transfer_to_portfolio(USDC_mint);
+        let IxSendUsdcToPortfolio = await rpcProvider.portfolioObject!.transfer_to_portfolio(USDC_mint);
         tx.add(IxSendUsdcToPortfolio);
 
         console.log("Depositing some SOL to run the cranks ...");
-        let IxSendToCrankWallet = await qPoolContext.portfolioObject!.sendToCrankWallet(
-            qPoolContext.localTmpKeypair!.publicKey,
+        let IxSendToCrankWallet = await rpcProvider.portfolioObject!.sendToCrankWallet(
+            localKeypairProvider.localTmpKeypair!.publicKey,
             100_000_000
         );
         tx.add(IxSendToCrankWallet);
 
         console.log("Sending and signing the transaction");
         console.log("Provider is: ");
-        console.log(qPoolContext._solbondProgram!.provider);
-        console.log(qPoolContext._solbondProgram!.provider.wallet.publicKey.toString());
+        console.log(rpcProvider._solbondProgram!.provider);
+        console.log(rpcProvider._solbondProgram!.provider.wallet.publicKey.toString());
         await sendAndConfirmTransaction(
-            qPoolContext._solbondProgram!.provider,
-            qPoolContext.connection!,
+            rpcProvider._solbondProgram!.provider,
+            rpcProvider.connection!,
             tx
         );
         await itemLoadContext.incrementCounter();
@@ -240,15 +244,15 @@ export default function PurchaseButton(props: any) {
         console.log("Permissoinlessly fulfilling the transactions");
         // await qPoolContext.crankRpcTool!.fullfillAllPermissionless();
         // For now, don't do a forloop, just fulfill the two positions
-        let sgPermissionlessFullfillSaber = await qPoolContext.crankRpcTool!.permissionlessFulfillSaber(0);
+        let sgPermissionlessFullfillSaber = await crankProvider.crankRpcTool!.permissionlessFulfillSaber(0);
         console.log("Fulfilled sg Saber is: ", sgPermissionlessFullfillSaber);
-        let sgPermissionlessFullfillMarinade = await qPoolContext.crankRpcTool!.createPositionMarinade(1);
+        let sgPermissionlessFullfillMarinade = await crankProvider.crankRpcTool!.createPositionMarinade(1);
         console.log("Fulfilled sg Marinade is: ", sgPermissionlessFullfillMarinade);
         await itemLoadContext.incrementCounter();
 
         console.log("Updating price ...");
         // Add another Counter "running cranks"
-        await qPoolContext.makePriceReload();
+        await rpcProvider.makePriceReload();
 
         console.log("Done!");
 

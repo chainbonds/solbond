@@ -1,12 +1,14 @@
 import {useEffect, useState} from "react";
-import {IQPool, useQPoolUserTool} from "../../contexts/QPoolsProvider";
+import {IRpcProvider, useRpc} from "../../contexts/RpcProvider";
 import {getAssociatedTokenAddressOffCurve} from "@qpools/sdk/lib/utils";
 import {PublicKey} from "@solana/web3.js";
 import {tokenAccountExists, MOCK} from "@qpools/sdk";
+import {IExistingPortfolio, useExistingPortfolio} from "../../contexts/ExistingPortfolioProvider";
 
 export default function UserInfoBalance() {
 
-    const qPoolContext: IQPool = useQPoolUserTool();
+    const rpcProvider: IRpcProvider = useRpc();
+    const existingPortfolioProvider: IExistingPortfolio = useExistingPortfolio();
     const [currencyBalance, setCurrencyBalance] = useState<number>(0.);
 
     // TODO: Replace the USDC with the currency that is currently selected ...
@@ -14,19 +16,19 @@ export default function UserInfoBalance() {
 
     const updateAccountBalance = async () => {
         console.log("#useEffect UserInfoBalance");
-        if (qPoolContext.connection && qPoolContext.userAccount) {
+        if (rpcProvider.connection && rpcProvider.userAccount) {
             // Get the associated token account
             console.log("Getting associated token account")
             // TODO: Replace USDC by some currency, or whatever the user has currency chosen as their Input ...
             let userCurrencyAta: PublicKey = await getAssociatedTokenAddressOffCurve(
-                MOCK.DEV.SABER_USDC, qPoolContext.userAccount.publicKey
+                MOCK.DEV.SABER_USDC, rpcProvider.userAccount.publicKey
             )
-            let existsBool = await tokenAccountExists(qPoolContext.connection!, userCurrencyAta);
+            let existsBool = await tokenAccountExists(rpcProvider.connection!, userCurrencyAta);
             console.log("User ATA: ", userCurrencyAta.toString(), existsBool);
             if (existsBool) {
                 console.log("Exists!");
                 // Check if this account exists, first of all
-                let x = await qPoolContext.connection!.getTokenAccountBalance(userCurrencyAta);
+                let x = await rpcProvider.connection!.getTokenAccountBalance(userCurrencyAta);
                 if (x.value && x.value.uiAmount) {
                     console.log("Balance is: ", x.value);
                     setCurrencyBalance(x.value.uiAmount!);
@@ -43,7 +45,12 @@ export default function UserInfoBalance() {
 
     useEffect(() => {
         updateAccountBalance();
-    }, [qPoolContext.totalPortfolioValueInUsd, qPoolContext.provider, qPoolContext.positionInfos, qPoolContext.reloadPriceSentinel]);
+    }, [
+        existingPortfolioProvider.totalPortfolioValueInUsd,
+        rpcProvider.provider,
+        existingPortfolioProvider.positionInfos,
+        rpcProvider.reloadPriceSentinel
+    ]);
 
     return (
         <>

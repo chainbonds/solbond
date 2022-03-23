@@ -5,8 +5,8 @@ import React, {useEffect, useState} from "react";
 
 export default function ConnectWalletButton() {
 
-
     const walletContext: any = useWallet();
+    // TODO: This is incredibly weird logic. Should improve this
     const [connected, setConnected] = useState<number>(0);
 
     useEffect(() => {
@@ -24,9 +24,6 @@ export default function ConnectWalletButton() {
                 borderStyle: "solid",
                 borderWidth: 0.3,
                 borderColor: "#6b7280"
-            }}
-            onClick={() => {
-                console.log("click");
             }}
         />
     )

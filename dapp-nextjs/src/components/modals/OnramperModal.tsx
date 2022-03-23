@@ -1,7 +1,6 @@
 import {Fragment} from "react";
 import {Transition} from '@headlessui/react';
 import {useWallet} from "@solana/wallet-adapter-react";
-import {IQPool, useQPoolUserTool} from "../../contexts/QPoolsProvider";
 import {useLoad} from "../../contexts/LoadingContext";
 import {useItemsLoad} from "../../contexts/ItemsLoadingContext";
 import dynamic from 'next/dynamic'
@@ -11,12 +10,6 @@ const Onramper = dynamic(() => import('./Onramper'), {
 })
 
 export default function OnramperModal(props: any) {
-
-    // Add all the logic to buy the product here?
-    const walletContext: any = useWallet();
-    const qPoolContext: IQPool = useQPoolUserTool();
-    const loadContext = useLoad();
-    const itemLoadContext = useItemsLoad();
 
     return (
         <>

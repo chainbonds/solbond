@@ -8,7 +8,7 @@ import {WalletAdapterNetwork} from "@solana/wallet-adapter-base";
 import "tailwindcss/tailwind.css";
 import "../styles/globals.css";
 import "../styles/App.css";
-import {QPoolsProvider} from "../contexts/QPoolsProvider";
+import {RpcProvider} from "../contexts/RpcProvider";
 import {LoadProvider} from "../contexts/LoadingContext";
 import {ItemsLoadProvider} from "../contexts/ItemsLoadingContext";
 import {LocalKeypairProvider} from "../contexts/LocalKeypairProvider";
@@ -37,7 +37,7 @@ function MyApp({Component, pageProps}: AppProps) {
                     <SerpiusEndpointProvider>
                         <ConnectionProvider endpoint={endpoint}>
                             <WalletProvider>
-                                <QPoolsProvider>
+                                <RpcProvider>
                                     <UserWalletAssetsProvider>
                                         <ExistingPortfolioProvider>
                                             <CrankProvider>
@@ -45,7 +45,7 @@ function MyApp({Component, pageProps}: AppProps) {
                                             </CrankProvider>
                                         </ExistingPortfolioProvider>
                                     </UserWalletAssetsProvider>
-                                </QPoolsProvider>
+                                </RpcProvider>
                             </WalletProvider>
                         </ConnectionProvider>
                     </SerpiusEndpointProvider>

@@ -1,31 +1,34 @@
 import {useWallet} from '@solana/wallet-adapter-react';
 import React, {useEffect, useState} from "react";
 import {WalletMultiButton} from "@solana/wallet-adapter-react-ui";
-import {IQPool, useQPoolUserTool} from "../../contexts/QPoolsProvider";
+import {IRpcProvider, useRpc} from "../../contexts/RpcProvider";
 import ConnectWalletPortfolioRow from "../portfolio/ConnectWalletPortfolioRow";
 import SinglePortfolioRow from "../portfolio/SinglePortfolioRow";
+import {IExistingPortfolio, useExistingPortfolio} from "../../contexts/ExistingPortfolioProvider";
 
+// The existing Portfolio Context could technically be just outside of this
 export default function UnstakeForm() {
 
     const walletContext: any = useWallet();
-    const qPoolContext: IQPool = useQPoolUserTool();
+    const rpcProvider: IRpcProvider = useRpc();
+    const existingPortfolioProvider: IExistingPortfolio = useExistingPortfolio();
 
     const [totalPortfolioValueInUsd, setTotalPortfolioValueInUsd] = useState<number>();
 
     useEffect(() => {
-        setTotalPortfolioValueInUsd(qPoolContext.totalPortfolioValueInUsd);
-    }, [qPoolContext.totalPortfolioValueInUsd]);
+        setTotalPortfolioValueInUsd(existingPortfolioProvider.totalPortfolioValueInUsd);
+    }, [existingPortfolioProvider.totalPortfolioValueInUsd]);
 
     useEffect(() => {
         if (walletContext.publicKey) {
             console.log("Wallet pubkey wallet is:", walletContext.publicKey.toString());
-            qPoolContext.initializeQPoolsUserTool(walletContext);
+            rpcProvider.initializeQPoolsUserTool(walletContext);
         }
     }, [walletContext.publicKey]);
 
     const displayListOfPortfolios = () => {
 
-        if (!qPoolContext.portfolioObject) {
+        if (!rpcProvider.portfolioObject) {
             return (
                 <ConnectWalletPortfolioRow
                     text={"Connect wallet to see your portfolios!"}
@@ -34,8 +37,8 @@ export default function UnstakeForm() {
         }
 
         console.log("Printing the total portfolios ..");
-        console.log(qPoolContext!.totalPortfolioValueInUsd);
-        console.log(qPoolContext!.positionInfos);
+        console.log(existingPortfolioProvider!.totalPortfolioValueInUsd);
+        console.log(existingPortfolioProvider!.positionInfos);
         // if (totalPortfolioValueInUsd === 0.00) {
         //     return (
         //         <ConnectWalletPortfolioRow
@@ -43,7 +46,7 @@ export default function UnstakeForm() {
         //         />
         //     );
         // }
-        if (qPoolContext.positionInfos.length === 0) {
+        if (existingPortfolioProvider.positionInfos.length === 0) {
             // TODO: Here, the user should for some reason run the cranks (?)
             return (
                 <ConnectWalletPortfolioRow
@@ -51,18 +54,18 @@ export default function UnstakeForm() {
                 />
             );
         }
-        if (!qPoolContext.portfolioObject.portfolioPDA) {
+        if (!rpcProvider.portfolioObject.portfolioPDA) {
             return (
                 <ConnectWalletPortfolioRow
                     text={"Loading ..."}
                 />
             );
         }
-        console.log("Portfolio PDA (1) is: ", qPoolContext.portfolioObject.portfolioPDA);
+        console.log("Portfolio PDA (1) is: ", rpcProvider.portfolioObject.portfolioPDA);
         return (
             <>
                 <SinglePortfolioRow
-                    address={qPoolContext.portfolioObject.portfolioPDA}
+                    address={rpcProvider.portfolioObject.portfolioPDA}
                     value={totalPortfolioValueInUsd}
                 />
             </>
@@ -73,7 +76,7 @@ export default function UnstakeForm() {
         <>
             <div className={"flex flex-col w-full font-medium"}>
                 <div className={"text-xl font-light mt-3"}>
-                    The Portfolio you see is worth an estimated USDC {qPoolContext.totalPortfolioValueInUsd.toFixed(2)}
+                    The Portfolio you see is worth an estimated USDC {existingPortfolioProvider.totalPortfolioValueInUsd.toFixed(2)}
                 </div>
                 <div className={"flex py-5 w-full"}>
                     <div className={"flex flex-col w-full"}>
@@ -87,7 +90,7 @@ export default function UnstakeForm() {
                         {displayListOfPortfolios()}
                     </div>
                 </div>
-                {!qPoolContext.userAccount &&
+                {!rpcProvider.userAccount &&
                 <div className={"flex w-full justify-center"}>
                     <WalletMultiButton
                         className={"btn btn-ghost"}

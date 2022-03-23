@@ -2,19 +2,21 @@ import React, {useState} from "react";
 import Image from "next/image";
 import {BRAND_COLORS} from "../../const";
 import {registry} from "@qpools/sdk";
-import {IQPool, useQPoolUserTool} from "../../contexts/QPoolsProvider";
+import {IRpcProvider, useRpc} from "../../contexts/RpcProvider";
 import {AllocData} from "../../types/AllocData";
 
-interface Props {
-    allAssets: AllocData[],
-    selectedAsset: AllocData,
-    displayText: string
-    setNewValue: any  // Setter function from useState
-}
+// interface Props {
+//     allAssets: AllocData[],
+//     selectedAsset: AllocData,
+//     displayText: string
+//     setNewValue: any  // Setter function from useState
+// }
 
-export default function InputFieldWithSliderInputAndLogo({allAssets, selectedAsset, displayText, setNewValue}: Props) {
+export default function InputFieldWithSliderInputAndLogo(props: any) {
 
-    const qPoolContext: IQPool = useQPoolUserTool();
+    // TODO: Find a provider that does this for you
+    // Probably the UserWalletAssets provider!
+    // const qPoolContext: IRpcProvider = useRpc();
 
     // Have a setter for the value ..
     // Or get this from props ...
@@ -35,8 +37,8 @@ export default function InputFieldWithSliderInputAndLogo({allAssets, selectedAss
                 min="0"
                 onChange={(event) => {
                     let newValue = Number(event.target.value);
-                    console.log("New " + String(displayText) + " is: " + String(newValue));
-                    setNewValue(newValue);
+                    console.log("New " + String(props.displayText) + " is: " + String(newValue));
+                    props.setNewValue(newValue);
                 }}
             />
         </>)
@@ -50,7 +52,7 @@ export default function InputFieldWithSliderInputAndLogo({allAssets, selectedAss
                     max="100"
                     onChange={(event) => {
                         let newValue = Number(event.target.value);
-                        console.log("New " + String(displayText) + " is: " + String(newValue));
+                        console.log("New " + String(props.displayText) + " is: " + String(newValue));
                         setValue(newValue);
                     }}
                     value={value}
@@ -63,11 +65,11 @@ export default function InputFieldWithSliderInputAndLogo({allAssets, selectedAss
     // Maybe this should be a special component ....
 
     // Gotta pick the token that is whitelisted, and inside the
-    if (!selectedAsset) {
+    if (!props.selectedAsset) {
         return (<></>);
     }
 
-    const logoPath = selectedAsset.pool?.tokens.filter((x: registry.ExplicitToken) => {return registry.getWhitelistTokens()})[0].address!;
+    const logoPath = props.selectedAsset.pool?.tokens.filter((x: registry.ExplicitToken) => {return registry.getWhitelistTokens()})[0].address!;
     return (
         <>
             <div className="flex flex-col form-control w-full">
@@ -78,9 +80,9 @@ export default function InputFieldWithSliderInputAndLogo({allAssets, selectedAss
                 <div className="mx-auto my-auto p-1 relative text-gray-300 focus-within:text-gray-300 w-full h-full">
                   <span className="absolute inset-y-0 left-0 flex items-center pl-2 h-full">
                     <div className={"flex w-full my-auto text-center content-center"}>
-                        <Image alt={displayText} src={logoPath} height={34} width={34}/>
+                        <Image alt={props.displayText} src={logoPath} height={34} width={34}/>
                         <text className={"my-auto text-center content-center mx-2"}>
-                            {displayText}
+                            {props.displayText}
                         </text>
                     </div>
                     </span>

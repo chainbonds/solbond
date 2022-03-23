@@ -1,10 +1,10 @@
 import React, {FC, useEffect, useState} from "react";
 import LoadingItemsModal from "./modals/LoadingItemsModal";
-import PortfolioChartAndTable from "./portfolio/PortfolioChartAndTable";
-import {IQPool, useQPoolUserTool} from "../contexts/QPoolsProvider";
+import PortfolioChart from "./portfolio/PortfolioChart";
 import StakeForm from "./swap/StakeForm";
 import UnstakeForm from "./swap/UnstakeForm";
 import {BRAND_COLORS} from "../const";
+import {IRpcProvider, useRpc} from "../contexts/RpcProvider";
 
 export enum HeroFormState {
     Stake,
@@ -16,11 +16,11 @@ export const Main: FC = ({}) => {
     // const [totalAmountInUsdc, setTotalAmountInUsdc] = useState<number>(0.);
     // Let this state be determined if the user has a portfolio
     const [displayForm, setDisplayForm] = useState<HeroFormState>(HeroFormState.Stake);
-    const qPoolContext: IQPool = useQPoolUserTool();
+    const rpcProvider: IRpcProvider = useRpc();
 
     const fetchAndDisplay = async () => {
-        if (qPoolContext.portfolioObject) {
-            let isFulfilled = await qPoolContext.portfolioObject!.portfolioExists();
+        if (rpcProvider.portfolioObject) {
+            let isFulfilled = await rpcProvider.portfolioObject!.portfolioExists();
             if (isFulfilled) {
                 setDisplayForm(HeroFormState.Unstake);
                 // TODO: Replace this ...
@@ -34,7 +34,7 @@ export const Main: FC = ({}) => {
     useEffect(() => {
         // Check if the account exists, and if it was fulfilled
         fetchAndDisplay();
-    }, [qPoolContext.portfolioObject, qPoolContext.makePriceReload]);
+    }, [rpcProvider.portfolioObject, rpcProvider.makePriceReload]);
 
     const formComponent = () => {
         if (displayForm === HeroFormState.Stake) {
@@ -91,7 +91,7 @@ export const Main: FC = ({}) => {
                     </div>
                     {/*<div className={"flex flex-row mx-auto w-full"}>*/}
                     <div className={"flex flex-row mt-8"}>
-                        <PortfolioChartAndTable
+                        <PortfolioChart
                                 displayMode={displayForm}
                                 totalAmountInUsdc={100}
                             />

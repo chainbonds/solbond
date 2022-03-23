@@ -3,8 +3,8 @@ import {PublicKey, TokenAmount} from "@solana/web3.js";
 import {registry} from "@qpools/sdk";
 import {getAssociatedTokenAddressOffCurve} from "@qpools/sdk/lib/utils";
 import {AllocData} from "../types/AllocData";
-import {useQPoolUserTool} from "./QPoolsProvider";
-import {useSerpiusEndpoint} from "./SerpiusProvider";
+import {IRpcProvider, useRpc} from "./RpcProvider";
+import {ISerpius, useSerpiusEndpoint} from "./SerpiusProvider";
 
 
 export interface IUserWalletAssets {
@@ -23,8 +23,8 @@ export function useUserWalletAssets() {
 
 export function UserWalletAssetsProvider(props: any) {
 
-    const qpoolsTool = useQPoolUserTool();
-    const serpiusProvider = useSerpiusEndpoint();
+    const rpcProvider: IRpcProvider = useRpc();
+    const serpiusProvider: ISerpius = useSerpiusEndpoint();
 
     /**
      * Generic state for RPC Calls
@@ -48,7 +48,7 @@ export function UserWalletAssetsProvider(props: any) {
 
         let newAllocData: AllocData[] = [];
 
-        if (!qpoolsTool.userAccount || !qpoolsTool.connection) {
+        if (!rpcProvider.userAccount || !rpcProvider.connection) {
             return
         }
 
@@ -73,21 +73,21 @@ export function UserWalletAssetsProvider(props: any) {
 
                 console.log("Iterating through token: ", token);
                 let mint: PublicKey = new PublicKey(token.address);
-                let ata = await getAssociatedTokenAddressOffCurve(mint, qpoolsTool.userAccount!.publicKey);
+                let ata = await getAssociatedTokenAddressOffCurve(mint, rpcProvider.userAccount!.publicKey);
                 // Finally get the users' balance
                 // Let's assume that if the token is wrapped solana, that we can also include the pure solana into this .
-                let userBalance: TokenAmount = (await qpoolsTool.connection!.getTokenAccountBalance(ata)).value;
+                let userBalance: TokenAmount = (await rpcProvider.connection!.getTokenAccountBalance(ata)).value;
                 if (mint.equals(new PublicKey("So11111111111111111111111111111111111111112"))) {
                     // TODO: refactor this into a util function or so ...
                     // This is quite hacky. How do we treat the wrapping / unrapping for this?
                     // Probably something like a transformer function would be nice for different protocols,
                     // i.e. for marinade it could turn the unwrapped SOL into wrapped SOL or so .. and then unwrap it again.
                     // the user would have to sign for this so it's not entirely feasible
-                    let solBalance: number = (await qpoolsTool.connection!.getBalance(qpoolsTool.userAccount!.publicKey));
+                    let solBalance: number = (await rpcProvider.connection!.getBalance(rpcProvider.userAccount!.publicKey));
                     userBalance = {
-                        amount: userBalance.amount + (await qpoolsTool.connection!.getBalance(qpoolsTool.userAccount!.publicKey)),
+                        amount: userBalance.amount + (await rpcProvider.connection!.getBalance(rpcProvider.userAccount!.publicKey)),
                         decimals: 9,
-                        uiAmount: (userBalance.uiAmount! + (solBalance / (10**9)))
+                        uiAmount: (userBalance.uiAmount! + (solBalance / (10 ** 9)))
                     };
                 }
                 let newPool: AllocData = {
@@ -121,7 +121,7 @@ export function UserWalletAssetsProvider(props: any) {
 
     useEffect(() => {
         updateUserAssetsAndRatiosAfterConnecting();
-    }, [qpoolsTool.reloadPriceSentinel, qpoolsTool.userAccount, qpoolsTool.connection]);
+    }, [rpcProvider.reloadPriceSentinel, rpcProvider.userAccount, rpcProvider.connection]);
 
     const value: IUserWalletAssets = {
         walletAssets

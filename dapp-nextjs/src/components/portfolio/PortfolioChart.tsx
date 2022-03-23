@@ -1,16 +1,20 @@
 import React, {useEffect, useState} from "react";
 import {PieChart, Pie, Cell} from "recharts";
-import {AllocData, IQPool, useQPoolUserTool} from "../../contexts/QPoolsProvider";
 import ExistingPortfolioTable from "../tables/ExistingPortfolioTable";
 import {COLORS, RADIAN} from "../../const";
 import SuggestedPortfolioTable from "../tables/SuggestedPortfolioTable";
 
 
 import {HeroFormState} from "../Main";
+import {IRpcProvider, useRpc} from "../../contexts/RpcProvider";
+import {AllocData} from "../../types/AllocData";
+import {ISerpius, useSerpiusEndpoint} from "../../contexts/SerpiusProvider";
 
-export default function PortfolioChartAndTable(props: any) {
+export default function PortfolioChart(props: any) {
 
-    const qPoolContext: IQPool = useQPoolUserTool();
+    const rpcProvider: IRpcProvider = useRpc();
+    const serpiusProvider: ISerpius = useSerpiusEndpoint();
+
     const [showPercentage, setShowPercentage] = useState<boolean>(false);
     const [ratios, setRatios] = useState<AllocData[] | null>(null);
     const [totalAmountInUsdc, setTotalAmountInUsdc] = useState<number>(0.);
@@ -49,12 +53,15 @@ export default function PortfolioChartAndTable(props: any) {
     }, [pieChartData]); */
     }
 
+    // TODO: Based on whether Stake or Unstake state, should display the user's wallet, (if connected), or the existing portfolio
+    // TODO: Gotta implement this logic as well ...
+
     // Maybe set loading until we are able to read the serpius API
     useEffect(() => {
         setRatios((_: AllocData[] | null) => {
-            return qPoolContext.portfolioRatios!;
+            return serpiusProvider.portfolioRatios!;
         });
-    }, [qPoolContext.portfolioRatios]);
+    }, [serpiusProvider.portfolioRatios]);
 
     useEffect(() => {
         if (!ratios) return;

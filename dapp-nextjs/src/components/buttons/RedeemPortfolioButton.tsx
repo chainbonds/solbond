@@ -1,14 +1,18 @@
 import React, {FC} from "react";
-import {IQPool, useQPoolUserTool} from "../../contexts/QPoolsProvider";
-import {PublicKey, Transaction, TransactionInstruction} from "@solana/web3.js";
+import {IRpcProvider, useRpc} from "../../contexts/RpcProvider";
+import {PublicKey, Transaction} from "@solana/web3.js";
 import {sendAndConfirmTransaction} from "../../utils/utils";
 import {useItemsLoad} from "../../contexts/ItemsLoadingContext";
 import {BN} from "@project-serum/anchor";
+import {ILocalKeypair, useLocalKeypair} from "../../contexts/LocalKeypairProvider";
+import {ICrank, useCrank} from "../../contexts/CrankProvider";
 
 export const RedeemPortfolioButton: FC = ({}) => {
 
     // TODO Implement logic to airdrop some currency ...
-    const qPoolContext: IQPool = useQPoolUserTool();
+    const rpcProvider: IRpcProvider = useRpc();
+    const localKeypairProvider: ILocalKeypair = useLocalKeypair();
+    const crankProvider: ICrank = useCrank();
     const itemLoadContext = useItemsLoad();
 
     // TODO: Get all assets and protocols through the context. Also, perhaps instead of if protocolType, just directly also record the protocol itself ...
@@ -37,11 +41,10 @@ export const RedeemPortfolioButton: FC = ({}) => {
          */
 
         let USDC_mint = new PublicKey("2tWC4JAdL4AxEFJySziYJfsAnW2MHKRo98vbAPiRDSk8");
-        let wrappedSolMint = new PublicKey("So11111111111111111111111111111111111111112");
         // We need the mSOL, because in the end, this is what we will be sendin back to the user ...
         // We will probably need to apply a hack, where we replace the mSOL with SOL, bcs devnet.
         // Probably easiest to do so is by swapping on the frontend, once we are mainnet ready
-        let mSOL = qPoolContext.portfolioObject!.marinadeState.mSolMintAddress;
+        let mSOL = rpcProvider.portfolioObject!.marinadeState.mSolMintAddress;
         console.log("mSOL address is: ", mSOL.toString());
 
         /**
@@ -52,22 +55,22 @@ export const RedeemPortfolioButton: FC = ({}) => {
          */
         let tx: Transaction = new Transaction();
         console.log("Approving Withdraw Portfolio");
-        let IxApproveWithdrawPortfolio = await qPoolContext.portfolioObject!.approveWithdrawPortfolio();
+        let IxApproveWithdrawPortfolio = await rpcProvider.portfolioObject!.approveWithdrawPortfolio();
         tx.add(IxApproveWithdrawPortfolio);
 
         console.log("Approving Saber Withdraw");
         // TODO: Check which of the tokens is tokenA, and withdraw accordingly ...
         let minRedeemAmount = new BN(0);  // This is the minimum amount of tokens that should be put out ...
-        let IxApproveWithdrawSaber = await qPoolContext.portfolioObject!.signApproveWithdrawAmountSaber(0, minRedeemAmount);
+        let IxApproveWithdrawSaber = await rpcProvider.portfolioObject!.signApproveWithdrawAmountSaber(0, minRedeemAmount);
         tx.add(IxApproveWithdrawSaber);
 
         console.log("Approving Marinade Withdraw");
-        let IxApproveWithdrawMarinade = await qPoolContext.portfolioObject!.approveWithdrawToMarinade(1);
+        let IxApproveWithdrawMarinade = await rpcProvider.portfolioObject!.approveWithdrawToMarinade(1);
         tx.add(IxApproveWithdrawMarinade);
 
         console.log("Send some to Crank Wallet");
-        let IxSendToCrankWallet = await qPoolContext.portfolioObject!.sendToCrankWallet(
-            qPoolContext.localTmpKeypair!.publicKey,
+        let IxSendToCrankWallet = await rpcProvider.portfolioObject!.sendToCrankWallet(
+            localKeypairProvider.localTmpKeypair!.publicKey,
             100_000_000
         );
         tx.add(IxSendToCrankWallet);
@@ -75,8 +78,8 @@ export const RedeemPortfolioButton: FC = ({}) => {
         await itemLoadContext.incrementCounter();
         if (tx.instructions.length > 0) {
             await sendAndConfirmTransaction(
-                qPoolContext._solbondProgram!.provider,
-                qPoolContext.connection!,
+                rpcProvider._solbondProgram!.provider,
+                rpcProvider.connection!,
                 tx
             );
         }
@@ -88,60 +91,32 @@ export const RedeemPortfolioButton: FC = ({}) => {
          *
          */
 
-        // Run the saber redeem cranks ..
-        let sgRedeemSinglePositionOnlyOne = await qPoolContext.crankRpcTool!.redeem_single_position_only_one(0);
+            // Run the saber redeem cranks ..
+        let sgRedeemSinglePositionOnlyOne = await crankProvider.crankRpcTool!.redeem_single_position_only_one(0);
         console.log("Signature to run the crank to get back USDC is: ", sgRedeemSinglePositionOnlyOne);
         await itemLoadContext.incrementCounter();
         // For each initial asset, send it back to the user
-        let sgTransferUsdcToUser = await qPoolContext.crankRpcTool!.transfer_to_user(USDC_mint);
+        let sgTransferUsdcToUser = await crankProvider.crankRpcTool!.transfer_to_user(USDC_mint);
         console.log("Signature to send back USDC", sgTransferUsdcToUser);
-        // let sgTransferWrappedSolToUser = await qPoolContext.crankRpcTool!.transfer_to_user(wrappedSolMint);
-        // console.log("Signature to send back Wrapped SOL", sgTransferWrappedSolToUser);
-        // let sgTransferMarinadeSolToUser = await qPoolContext.crankRpcTool!.transfer_to_user(mSOL);
-        // console.log("Signature to send back Marinade SOL", sgTransferMarinadeSolToUser);
 
         // TODO: Also make the marinade SOL disappear, and just airdrop new SOL
-        let tmpWalletBalance: number = await qPoolContext.connection!.getBalance(qPoolContext.localTmpKeypair!.publicKey);
+        let tmpWalletBalance: number = await rpcProvider.connection!.getBalance(localKeypairProvider.localTmpKeypair!.publicKey);
         let lamportsBack = Math.min(tmpWalletBalance - 7_001, 0.0);
         if (lamportsBack > 0) {
-            let ix = await qPoolContext.crankRpcTool!.sendToUsersWallet(
-                qPoolContext.localTmpKeypair!.publicKey,
+            let ix = await crankProvider.crankRpcTool!.sendToUsersWallet(
+                localKeypairProvider.localTmpKeypair!.publicKey,
                 lamportsBack
             );
             let tx2 = new Transaction();
             tx2.add(ix);
             await sendAndConfirmTransaction(
-                qPoolContext.crankRpcTool!.crankProvider,
-                qPoolContext.connection!,
+                crankProvider.crankRpcTool!.crankProvider,
+                rpcProvider.connection!,
                 tx2
             );
         }
         await itemLoadContext.incrementCounter();
-
-        await qPoolContext.makePriceReload();
-
-        /**
-         * Old Transaction ...
-         */
-
-        // let tx: Transaction = new Transaction();
-        // // TODO: Call Crank API to withdraw for this user lol
-        // // Get the total amount from the initialUsdcAmount
-        // /**
-        //  * Send some SOL to the crank wallet to run the cranks ...
-        //  */
-        // let IxRedeemPositions = await qPoolContext.portfolioObject!.approveRedeemFullPortfolio();
-        // IxRedeemPositions.map((x: TransactionInstruction) => {
-        //     tx.add(x)
-        // });
-        // // Now sign this transaction
-        //
-        // // Run all the cranks here ...
-        // await qPoolContext.crankRpcTool!.fullfillAllWithdrawalsPermissionless();
-        // await itemLoadContext.incrementCounter();
-        //
-        // // Make reload
-        // await qPoolContext.makePriceReload();
+        await rpcProvider.makePriceReload();
     }
 
     return (
