@@ -19,13 +19,6 @@ export default function UnstakeForm() {
         setTotalPortfolioValueInUsd(existingPortfolioProvider.totalPortfolioValueInUsd);
     }, [existingPortfolioProvider.totalPortfolioValueInUsd]);
 
-    useEffect(() => {
-        if (walletContext.publicKey) {
-            console.log("Wallet pubkey wallet is:", walletContext.publicKey.toString());
-            rpcProvider.initializeQPoolsUserTool(walletContext);
-        }
-    }, [walletContext.publicKey]);
-
     const displayListOfPortfolios = () => {
 
         if (!rpcProvider.portfolioObject) {

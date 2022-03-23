@@ -3,19 +3,19 @@ import {BN} from "@project-serum/anchor";
 import {IRpcProvider, useRpc} from "../../contexts/RpcProvider";
 import {PublicKey, Transaction} from "@solana/web3.js";
 import {sendAndConfirmTransaction} from "../../utils/utils";
-import {useWallet} from "@solana/wallet-adapter-react";
-import {useItemsLoad} from "../../contexts/ItemsLoadingContext";
+import {useWallet, WalletContextState} from "@solana/wallet-adapter-react";
+import {IItemsLoad, useItemsLoad} from "../../contexts/ItemsLoadingContext";
 import {MOCK} from "@qpools/sdk";
 import {ICrank, useCrank} from "../../contexts/CrankProvider";
 import {ILocalKeypair, useLocalKeypair} from "../../contexts/LocalKeypairProvider";
 
 export default function PurchaseButton() {
 
-    const walletProvider: any = useWallet();
+    const walletProvider: WalletContextState = useWallet();
     const rpcProvider: IRpcProvider = useRpc();
     const crankProvider: ICrank = useCrank();
     const localKeypairProvider: ILocalKeypair = useLocalKeypair();
-    const itemLoadContext = useItemsLoad();
+    const itemLoadContext: IItemsLoad = useItemsLoad();
 
     // TODO: Get all assets and protocols through the context. Also, perhaps instead of if protocolType, just directly also record the protocol itself ...
     const buyItem = async () => {

@@ -2,15 +2,6 @@ import React, {useState} from "react";
 import Image from "next/image";
 import {BRAND_COLORS} from "../../const";
 import {registry} from "@qpools/sdk";
-import {IRpcProvider, useRpc} from "../../contexts/RpcProvider";
-import {AllocData} from "../../types/AllocData";
-
-// interface Props {
-//     allAssets: AllocData[],
-//     selectedAsset: AllocData,
-//     displayText: string
-//     setNewValue: any  // Setter function from useState
-// }
 
 export default function InputFieldWithSliderInputAndLogo(props: any) {
 
@@ -73,10 +64,6 @@ export default function InputFieldWithSliderInputAndLogo(props: any) {
     return (
         <>
             <div className="flex flex-col form-control w-full">
-                {/*<label className="label">*/}
-                {/*    <span className="label-text">What is your name?</span>*/}
-                {/*    <span className="label-text-alt">Alt label</span>*/}
-                {/*</label>*/}
                 <div className="mx-auto my-auto p-1 relative text-gray-300 focus-within:text-gray-300 w-full h-full">
                   <span className="absolute inset-y-0 left-0 flex items-center pl-2 h-full">
                     <div className={"flex w-full my-auto text-center content-center"}>
@@ -88,30 +75,10 @@ export default function InputFieldWithSliderInputAndLogo(props: any) {
                     </span>
                     {inputTextField()}
                 </div>
-                {/*<div className={"mx-auto my-auto p-1 max-w-xs"}>*/}
-                {/*    <input type="number" placeholder="Type here" className="input input-bordered w-full max-w-xs" />*/}
-                {/*</div>*/}
                 <div className={"mx-auto my-auto p-1 w-full"}>
                     {inputRangeField()}
                 </div>
-                    {/*<label className="label">*/}
-                    {/*    <span className="label-text-alt">Alt label</span>*/}
-                    {/*    <span className="label-text-alt">Alt label</span>*/}
-                    {/*</label>*/}
             </div>
-            {/*<div className="flex flex-row w-full h-full mx-0">*/}
-            {/*    <div className="relative text-gray-300 focus-within:text-gray-300 w-full h-full">*/}
-            {/*      <span className="absolute inset-y-0 left-0 flex items-center pl-2 h-full">*/}
-            {/*        <div className={"flex w-full my-auto text-center content-center"}>*/}
-            {/*            <Image alt={props.displayText} src={props.logoPath} height={34} width={34}/>*/}
-            {/*            <text className={"my-auto text-center content-center mx-2"}>*/}
-            {/*                {props.displayText}*/}
-            {/*            </text>*/}
-            {/*        </div>*/}
-            {/*        </span>*/}
-            {/*        {props.modifiable ? inputField() : displayField()}*/}
-            {/*    </div>*/}
-            {/*</div>*/}
         {/*    TODO: Add the connect wallet button here, perhaps (?)*/}
         </>
     );

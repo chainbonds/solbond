@@ -2,7 +2,7 @@ import React, {FC} from "react";
 import {IRpcProvider, useRpc} from "../../contexts/RpcProvider";
 import {PublicKey, Transaction} from "@solana/web3.js";
 import {sendAndConfirmTransaction} from "../../utils/utils";
-import {useItemsLoad} from "../../contexts/ItemsLoadingContext";
+import {IItemsLoad, useItemsLoad} from "../../contexts/ItemsLoadingContext";
 import {BN} from "@project-serum/anchor";
 import {ILocalKeypair, useLocalKeypair} from "../../contexts/LocalKeypairProvider";
 import {ICrank, useCrank} from "../../contexts/CrankProvider";
@@ -13,7 +13,7 @@ export const RedeemPortfolioButton: FC = ({}) => {
     const rpcProvider: IRpcProvider = useRpc();
     const localKeypairProvider: ILocalKeypair = useLocalKeypair();
     const crankProvider: ICrank = useCrank();
-    const itemLoadContext = useItemsLoad();
+    const itemLoadContext: IItemsLoad = useItemsLoad();
 
     // TODO: Get all assets and protocols through the context. Also, perhaps instead of if protocolType, just directly also record the protocol itself ...
     const redeemPortfolio = async () => {

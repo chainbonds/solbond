@@ -1,4 +1,4 @@
-import React, {useState, useContext} from 'react';
+import React, {useState, useContext, useEffect} from 'react';
 import {Provider} from "@project-serum/anchor";
 import {Connection, Keypair} from "@solana/web3.js";
 import {Token, TOKEN_PROGRAM_ID} from "@solana/spl-token";
@@ -6,17 +6,16 @@ import * as anchor from "@project-serum/anchor";
 import {solbondProgram} from "../programs/solbond";
 import {WalletI} from "easy-spl";
 import {
-    DisplayPortfolios,
     PortfolioFrontendFriendlyChainedInstructions
 } from "@qpools/sdk";
-import delay from "delay";
 import {MOCK} from "@qpools/sdk";
 import {getConnectionString} from "../const";
+import {useWallet, WalletContextState} from "@solana/wallet-adapter-react";
 
 
 export interface IRpcProvider {
     portfolioObject: PortfolioFrontendFriendlyChainedInstructions | undefined,
-    initializeQPoolsUserTool: any,
+    initialize: any,
     reloadPriceSentinel: boolean,
     connection: Connection | undefined,
     provider: Provider | undefined,
@@ -30,7 +29,7 @@ const defaultValue: IRpcProvider = {
     portfolioObject: undefined,
     reloadPriceSentinel: false,
     makePriceReload: () => console.log("Error not loaded yet!"),
-    initializeQPoolsUserTool: () => console.log("Error not loaded yet!"),
+    initialize: () => console.log("Error not loaded yet!"),
     connection: undefined,
     provider: undefined,
     _solbondProgram: () => console.error("attempting to use AuthContext outside of a valid provider"),
@@ -49,6 +48,7 @@ export function RpcProvider(props: any) {
     /**
      * Generic state for RPC Calls
      */
+    const walletContext: WalletContextState = useWallet();
     const [connection, setConnection] = useState<Connection | undefined>(undefined);
     const [provider, setProvider] = useState<Provider | undefined>(undefined);
     const [_solbondProgram, setSolbondProgram] = useState<any>(null);
@@ -57,7 +57,7 @@ export function RpcProvider(props: any) {
     /**
      * Helper objects for RPC Calls
      */
-    const [portfolioObject, setPortfolioObject] = useState<PortfolioFrontendFriendlyChainedInstructions | undefined>(undefined);
+    const [backendApi, setBackendApi] = useState<PortfolioFrontendFriendlyChainedInstructions | undefined>(undefined);
 
     /**
      * App-dependent variables
@@ -65,6 +65,7 @@ export function RpcProvider(props: any) {
     const [currencyMint, setCurrencyMint] = useState<Token | undefined>(undefined);
     const [reloadPriceSentinel, setReloadPriceSentinel] = useState<boolean>(false);
 
+    // TODO: Move into a separate context ...?
     const makePriceReload = async () => {
         console.log("#useEffect makePriceReload");
         setReloadPriceSentinel(!reloadPriceSentinel);
@@ -72,11 +73,16 @@ export function RpcProvider(props: any) {
     }
 
     // Make a creator that loads the qPoolObject if it not created yet
-    // TODO: Should prob import the wallet context directly ...
-    const initializeQPoolsUserTool = async (walletContext: any) => {
-        console.log("#initializeQPoolsUserTool");
+    useEffect(() => {
+        console.log("Wallet Pubkey Re-Loaded wallet is:", walletContext.publicKey?.toString());
+        initialize();
+    }, [walletContext.publicKey]);
+
+    const initialize = () => {
+        console.log("#initialize");
         console.log("Cluster URL is: ", String(process.env.NEXT_PUBLIC_CLUSTER_URL));
         let _connection: Connection = getConnectionString();
+        // @ts-ignore  // For some reason this typing is ok ...
         const _provider = new anchor.Provider(_connection, walletContext, anchor.Provider.defaultOptions());
         anchor.setProvider(_provider);
         const _solbondProgram: any = solbondProgram(_connection, _provider);
@@ -93,8 +99,7 @@ export function RpcProvider(props: any) {
         );
 
         // @ts-ignore
-        let _portfolio = new PortfolioFrontendFriendlyChainedInstructions(_connection, _provider, _solbondProgram, payer);
-        let newQpoolsDisplay = new DisplayPortfolios(_connection, _provider, _solbondProgram);
+        let backendApi = new PortfolioFrontendFriendlyChainedInstructions(_connection, _provider, _solbondProgram, payer);
 
         // Do a bunch of setstate, and wait ...
         setConnection(() => _connection);
@@ -102,16 +107,14 @@ export function RpcProvider(props: any) {
         setSolbondProgram(() => _solbondProgram);
         setUserAccount(() => _userAccount);
         setCurrencyMint(() => _currencyMint);
-        setPortfolioObject(() => _portfolio);
-
+        setBackendApi(() => backendApi);
         // Wait for the setState to take effect. I know this is hacky, but for now should suffice
-        await delay(1000);
-        console.log("##initializeQPoolsUserTool");
+        console.log("##initialize");
     };
 
     const value: IRpcProvider = {
-        portfolioObject,
-        initializeQPoolsUserTool,
+        portfolioObject: backendApi,
+        initialize,
         connection,
         provider,
         _solbondProgram,

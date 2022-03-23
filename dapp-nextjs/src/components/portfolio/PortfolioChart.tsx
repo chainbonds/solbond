@@ -9,36 +9,18 @@ import {HeroFormState} from "../Main";
 import {IRpcProvider, useRpc} from "../../contexts/RpcProvider";
 import {AllocData} from "../../types/AllocData";
 import {ISerpius, useSerpiusEndpoint} from "../../contexts/SerpiusProvider";
+import {IUserWalletAssets, useUserWalletAssets} from "../../contexts/UserWalletAssets";
+import DisplayPieChart from "../charts/DisplayPieChart";
 
 export default function PortfolioChart(props: any) {
 
     const rpcProvider: IRpcProvider = useRpc();
     const serpiusProvider: ISerpius = useSerpiusEndpoint();
+    const userWalletAssetsProvider: IUserWalletAssets = useUserWalletAssets();
 
     const [showPercentage, setShowPercentage] = useState<boolean>(false);
-    const [ratios, setRatios] = useState<AllocData[] | null>(null);
+    const [ratios, setRatios] = useState<AllocData[] | undefined>(undefined);
     const [totalAmountInUsdc, setTotalAmountInUsdc] = useState<number>(0.);
-
-    const renderCustomizedLabel = ({cx, cy, midAngle, innerRadius, outerRadius, percent, index}: any) => {
-        const radius = innerRadius + (outerRadius - innerRadius) * 0.4; // 1.05;
-        const x = cx + radius * Math.cos(-midAngle * RADIAN);
-        const y = cy + radius * Math.sin(-midAngle * RADIAN);
-        return (
-            <text x={x} y={y} fill="white" textAnchor={x > cx ? 'start' : 'end'} dominantBaseline="central">
-                {
-                    percent ? `${(percent * 100).toFixed(0)}%` : null
-                }
-            </text>
-        );
-    };
-
-    const [pieChartData, setPieChartData] = useState([
-        {name: "Group A", value: 400, apy_24h: 0.},
-        {name: "Group B", value: 300, apy_24h: 0.},
-        {name: "Group C", value: 300, apy_24h: 0.},
-        {name: "Group D", value: 200, apy_24h: 0.}
-    ])
-
     useEffect(() => {
         if (props.totalAmountInUsdc) {
             console.log("Defined!", props.totalAmountInUsdc);
@@ -48,72 +30,36 @@ export default function PortfolioChart(props: any) {
         }
     }, [props.totalAmountInUsdc]);
 
-    {/* useEffect(() => {
-        window.location.reload();
-    }, [pieChartData]); */
-    }
-
     // TODO: Based on whether Stake or Unstake state, should display the user's wallet, (if connected), or the existing portfolio
     // TODO: Gotta implement this logic as well ...
 
     // Maybe set loading until we are able to read the serpius API
     useEffect(() => {
-        setRatios((_: AllocData[] | null) => {
-            return serpiusProvider.portfolioRatios!;
-        });
-    }, [serpiusProvider.portfolioRatios]);
+        // Yet another option would be to load the assets from the portfolio position ...
+        if (userWalletAssetsProvider.walletAssets) {
+            setRatios((_: AllocData[] | undefined) => {
+                return userWalletAssetsProvider.walletAssets;
+            });
+        } else if (serpiusProvider.portfolioRatios) {
+            setRatios((_: AllocData[] | undefined) => {
+                return serpiusProvider.portfolioRatios;
+            });
+        }
+    }, [serpiusProvider.portfolioRatios, userWalletAssetsProvider.walletAssets]);
 
-    useEffect(() => {
-        if (!ratios) return;
-
-        // Sum is a
-        let sum = ratios.reduce((sum: number, current: AllocData) => sum + current.weight, 0);
-        setPieChartData((_: any) => {
-                return ratios.map((current: AllocData) => {
-                    return {
-                        name: current.protocol + " " + current.lp,
-                        value: ((100 * current.weight) / sum),
-                        apy_24h: current.apy_24h
-                    }
-                });
-            }
-        )
-
-    }, [ratios]);
-
-    // TODO: Maybe remove the labelled lines alltogether
     return (
         <>
             {/*-ml-14*/}
             <div className={"flex my-auto mx-auto p-8"}>
                 {/* key={Math.random() + pieChartData[0].value} */}
-                <PieChart width={200} height={200}>
-                    <Pie stroke="none"
-                         data={pieChartData}
-                         cx="50%"
-                         cy="50%"
-                         labelLine={false}
-                         isAnimationActive={false} // this line is needed in order to see the labels. https://github.com/recharts/recharts/issues/929
-                         label={showPercentage ? renderCustomizedLabel : false}
-                         outerRadius={100}
-                         innerRadius={40}
-                        // fill="#8884d8"
-                         dataKey="value"
-                    >
-                        {pieChartData.map((entry, index) => (
-                            <Cell
-                                key={`cell-${Math.random() + pieChartData[index].value + index}`}
-                                fill={COLORS[index % COLORS.length]}/>
-                        ))}
-                    </Pie>
-                </PieChart>
+                {ratios && <DisplayPieChart showPercentage={false} allocationInformation={ratios} />}
             </div>
             <div className="flex flex-col text-gray-300 my-auto divide-y divide-white">
                 {/*
                     Only show this Portfolio if the wallet is connected ...
                 */}
-                {(props.displayMode === HeroFormState.Unstake) && <ExistingPortfolioTable/>}
-                {(props.displayMode === HeroFormState.Stake) && <SuggestedPortfolioTable/>}
+                {(props.displayMode === HeroFormState.PortfolioExists) && <ExistingPortfolioTable/>}
+                {(props.displayMode === HeroFormState.PortfolioDoesNotExist) && <SuggestedPortfolioTable/>}
             </div>
         </>
     );

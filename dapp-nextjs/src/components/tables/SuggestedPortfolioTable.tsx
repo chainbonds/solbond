@@ -29,7 +29,7 @@ export default function SuggestedPortfolioTable() {
     useEffect(() => {
         if (walletContext.publicKey) {
             console.log("Wallet pubkey wallet is:", walletContext.publicKey.toString());
-            rpcProvider.initializeQPoolsUserTool(walletContext);
+            rpcProvider.initialize(walletContext);
         }
     }, [walletContext.publicKey]);
 

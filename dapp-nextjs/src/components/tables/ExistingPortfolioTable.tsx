@@ -16,14 +16,6 @@ export default function ExistingPortfolioTable() {
     const walletContext: any = useWallet();
     const existingPortfolioProvider: IExistingPortfolio = useExistingPortfolio();
 
-    useEffect(() => {
-        if (walletContext.publicKey) {
-            console.log("Wallet pubkey wallet is:", walletContext.publicKey.toString());
-            // TODO: Just gotta load the wallet, and re-initialize anytime the wallet-context is changing ...
-            rpcProvider.initializeQPoolsUserTool(walletContext);
-        }
-    }, [walletContext.publicKey]);
-
     /**
      * Header for the Table
      * Should also split up into different

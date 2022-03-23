@@ -7,41 +7,37 @@ import {BRAND_COLORS} from "../const";
 import {IRpcProvider, useRpc} from "../contexts/RpcProvider";
 
 export enum HeroFormState {
-    Stake,
-    Unstake
+    PortfolioDoesNotExist,
+    PortfolioExists
 }
 
 export const Main: FC = ({}) => {
 
-    // const [totalAmountInUsdc, setTotalAmountInUsdc] = useState<number>(0.);
-    // Let this state be determined if the user has a portfolio
-    const [displayForm, setDisplayForm] = useState<HeroFormState>(HeroFormState.Stake);
+    const [displayForm, setDisplayForm] = useState<HeroFormState>(HeroFormState.PortfolioDoesNotExist);
     const rpcProvider: IRpcProvider = useRpc();
 
     const fetchAndDisplay = async () => {
         if (rpcProvider.portfolioObject) {
-            let isFulfilled = await rpcProvider.portfolioObject!.portfolioExists();
+            let isFulfilled = await rpcProvider.portfolioObject.portfolioExists();
             if (isFulfilled) {
-                setDisplayForm(HeroFormState.Unstake);
-                // TODO: Replace this ...
-                // setDisplayForm(HeroFormState.Stake);
+                setDisplayForm(HeroFormState.PortfolioExists);
             } else {
-                setDisplayForm(HeroFormState.Stake);
+                setDisplayForm(HeroFormState.PortfolioDoesNotExist);
             }
         }
     };
-    //
+
     useEffect(() => {
         // Check if the account exists, and if it was fulfilled
         fetchAndDisplay();
     }, [rpcProvider.portfolioObject, rpcProvider.makePriceReload]);
 
     const formComponent = () => {
-        if (displayForm === HeroFormState.Stake) {
+        if (displayForm === HeroFormState.PortfolioDoesNotExist) {
             return (
                 <StakeForm/>
             );
-        } else if (displayForm === HeroFormState.Unstake) {
+        } else if (displayForm === HeroFormState.PortfolioExists) {
             return (
                 <UnstakeForm/>
             );
@@ -49,17 +45,17 @@ export const Main: FC = ({}) => {
     }
 
     const titleString = () => {
-        if (displayForm === HeroFormState.Stake) {
+        if (displayForm === HeroFormState.PortfolioDoesNotExist) {
             return "Please Select Your Portfolio";
-        } else if (displayForm === HeroFormState.Unstake) {
+        } else if (displayForm === HeroFormState.PortfolioExists) {
             return "Your Portfolio";
         }
     }
 
     const descriptionString = () => {
-        if (displayForm === HeroFormState.Stake) {
+        if (displayForm === HeroFormState.PortfolioDoesNotExist) {
             return "This will be the allocation in which your assets generate yields";
-        } else if (displayForm === HeroFormState.Unstake) {
+        } else if (displayForm === HeroFormState.PortfolioExists) {
             return "See the assets for your current portfolio";
         }
     }
@@ -77,19 +73,12 @@ export const Main: FC = ({}) => {
                         <h1 className={"text-3xl font-light"}>
                             {titleString()}
                         </h1>
-                        {/*
-                            Implement buttons, depending on
-                                (1) Sharpe Optimized
-                                (2) Best Yield
-                                (3) Take Wallet
-                        */}
                     </div>
                     <div className={"flex flex-row mt-2"}>
                         <h2 className={"text-2xl font-light"}>
                             {descriptionString()}
                         </h2>
                     </div>
-                    {/*<div className={"flex flex-row mx-auto w-full"}>*/}
                     <div className={"flex flex-row mt-8"}>
                         <PortfolioChart
                                 displayMode={displayForm}

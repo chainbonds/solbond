@@ -8,12 +8,9 @@ import {Connection, Transaction} from "@solana/web3.js";
 import {Token, TOKEN_PROGRAM_ID} from "@solana/spl-token";
 import {useLoad} from "../../contexts/LoadingContext";
 import {createAssociatedTokenAccountSendUnsigned, MOCK} from "@qpools/sdk";
-import {delay} from "@qpools/sdk/lib/utils";
 
 export const FaucetButton: FC = ({}) => {
 
-    // TODO Implement logic to airdrop some currency ...
-    const walletProvider: any = useWallet();
     const rpcProvider: IRpcProvider = useRpc();
     const loadContext = useLoad();
 
@@ -37,10 +34,6 @@ export const FaucetButton: FC = ({}) => {
             await rpcProvider.connection!.confirmTransaction(tx0, 'finalized');
             console.log("Airdropped 1 SOL!");
         }
-
-        console.log("Initializing QPoolsUserTool");
-        await rpcProvider.initializeQPoolsUserTool(walletProvider);
-        await delay(500);
 
         // TODO: Generate a USDC account
         console.log("Registering Account");
