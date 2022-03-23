@@ -7,5 +7,6 @@ export interface AllocData {
     protocol: string,
     apy_24h: number,
     pool?: registry.ExplicitPool,
-    userInputAmount?: UserTokenBalance
+    userInputAmount?: UserTokenBalance,
+    userWalletAmount?: UserTokenBalance
 }

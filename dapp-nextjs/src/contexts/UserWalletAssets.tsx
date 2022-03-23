@@ -88,7 +88,8 @@ export function UserWalletAssetsProvider(props: any) {
                     userBalance = {
                         amount: userBalance.amount + (await rpcProvider.connection!.getBalance(rpcProvider.userAccount!.publicKey)),
                         decimals: 9,
-                        uiAmount: (userBalance.uiAmount! + (solBalance / (10 ** 9)))
+                        uiAmount: (userBalance.uiAmount! + (solBalance / (10 ** 9))),
+                        uiAmountString: ((userBalance.uiAmount! + (solBalance / (10 ** 9)))).toString()
                     };
                 }
                 let newPool: AllocData = {
@@ -97,6 +98,11 @@ export function UserWalletAssetsProvider(props: any) {
                         mint: mint,
                         ata: ata,
                         amount: userBalance
+                    },
+                    userWalletAmount: {
+                        mint: mint,
+                        ata: ata,
+                        amount: {...userBalance}
                     }
                 }
 

@@ -25,6 +25,16 @@ export default function StakeForm({currencyMint, currencyName, allocationItems, 
         return <></>
     }
 
+    if (!allocationItems.has(selectedItemKey)) {
+        return <></>
+    }
+
+    if (!allocationItems.get(selectedItemKey)!.userWalletAmount) {
+        return <></>
+    }
+
+    let selectedItem = allocationItems.get(selectedItemKey)!;
+
     return (
         <>
             <OnramperModal
@@ -43,8 +53,7 @@ export default function StakeForm({currencyMint, currencyName, allocationItems, 
                                 allocationItems={allocationItems}
                                 currencyName={currencyName}
                                 min={0}
-                                // TODO: Gotta have a separate one just for the amount that the user has in his wallet (?)
-                                max={allocationItems.get(selectedItemKey)!.userInputAmount!.amount.uiAmount ? allocationItems.get(selectedItemKey)!.userInputAmount!.amount.uiAmount : 100}
+                                max={selectedItem.userWalletAmount!.amount.uiAmount! ? selectedItem.userWalletAmount!.amount.uiAmount! : 100}
                             />
                         </div>
                         <div className={"flex flex-row ml-auto my-auto"}>
@@ -55,8 +64,8 @@ export default function StakeForm({currencyMint, currencyName, allocationItems, 
                         <UserInfoBalance
                             currencyMint={currencyMint}
                             currencyName={currencyName}
-                            balance={allocationItems.get(selectedItemKey)?.userInputAmount?.amount.uiAmount || null}
-                            solBalance={allocationItems.get(selectedItemKey)?.userInputAmount?.amount.uiAmount || null}  // TODO: Did we pass in the SOL balance anyways ... (?)
+                            balance={allocationItems.get(selectedItemKey)?.userWalletAmount?.amount.uiAmount || null}
+                            solBalance={allocationItems.get(selectedItemKey)?.userWalletAmount?.amount.uiAmount || null}  // TODO: Did we pass in the SOL balance anyways ... (?)
                         />
                     </div>
                 </div>

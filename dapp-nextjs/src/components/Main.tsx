@@ -82,6 +82,7 @@ export const Main: FC = ({}) => {
             pool: currentlySelectedAsset.pool,
             protocol: currentlySelectedAsset.protocol,
             userInputAmount: userInputAmount,
+            userWalletAmount: currentlySelectedAsset.userWalletAmount,
             weight: currentlySelectedAsset.weight
         };
 
