@@ -4,7 +4,7 @@ import {COLORS, RADIAN} from "../../const";
 import {AllocData} from "../../types/AllocData";
 
 interface Props {
-    allocationInformation: AllocData[],
+    allocationInformation: Map<string, AllocData>,
     showPercentage: boolean
 }
 export default function DisplayPieChart({allocationInformation, showPercentage}: Props) {
@@ -46,14 +46,18 @@ export default function DisplayPieChart({allocationInformation, showPercentage}:
         }
 
         // Sum is a
-        let sum = allocationInformation.reduce((sum: number, current: AllocData) => sum + current.weight, 0);
+        let sum = Array.from(allocationInformation.values()).reduce((sum: number, current: AllocData) => sum + current.weight, 0);
         setPieChartData((_: any) => {
-                return allocationInformation.map((current: AllocData) => {
-                    return {
-                        name: current.protocol + " " + current.lp,
-                        value: ((100 * current.weight) / sum)
+                // TODO: Should probably create a sort by protocol ...
+                return Array.from(allocationInformation.values())
+                    .sort((a, b) => a.lp > b.lp ? 1 : -1)
+                    .map((current: AllocData) => {
+                        return {
+                            name: current.protocol + " " + current.lp,
+                            value: ((100 * current.weight) / sum)
+                        }
                     }
-                });
+                );
             }
         )
 

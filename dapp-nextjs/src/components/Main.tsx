@@ -15,8 +15,6 @@ import {PublicKey} from "@solana/web3.js";
 import {useWallet, WalletContextState} from "@solana/wallet-adapter-react";
 import SelectWalletForm from "./swap/SelectWalletForm";
 import {BN} from "@project-serum/anchor";
-import {addLocale} from "next/dist/shared/lib/router/router";
-import {setFiatCurrency} from "@onramper/moonpay-adapter/build/KYC/api";
 import {UserTokenBalance} from "../types/UserTokenBalance";
 
 export enum HeroFormState {
@@ -36,14 +34,15 @@ export const Main: FC = ({}) => {
     const serpiusProvider: ISerpius = useSerpiusEndpoint();
     const userWalletAssetsProvider: IUserWalletAssets = useUserWalletAssets();
 
-    const [allocationData, setAllocationData] = useState<AllocData[]>([]);
+    const [allocationData, setAllocationData] = useState<Map<string, AllocData>>(new Map());
     // Set a state for a selected item ..
-    const [selectedAsset, setSelectedAsset] = useState<AllocData | null>(null);
+    const [selectedAsset, setSelectedAsset] = useState<string>("");
 
     // Whenever the allocationData changes, set the selecte item back
     useEffect(() => {
-        if (allocationData && allocationData.length > 0 && (selectedAsset === null)) {
-            setSelectedAsset(allocationData[0])
+        if (allocationData && allocationData.size > 0 && (selectedAsset === null)) {
+            let firstItem = Array.from(allocationData.keys());
+            setSelectedAsset(firstItem[0]);
         }
     }, [allocationData]);
 
@@ -55,9 +54,13 @@ export const Main: FC = ({}) => {
      * @param currentlySelectedAsset
      * @param absoluteBalance
      */
-    const modifyIndividualAllocationItem = (currentlySelectedAsset: AllocData, absoluteBalance: number) => {
+    const modifyIndividualAllocationItem = (currentlySelectedKey: string, absoluteBalance: number) => {
 
         // TODO: This shit will break for sure ..
+        if (!allocationData.has(currentlySelectedKey)) {
+            throw Error("The key you're trying to modify does not exist for some reason! " + currentlySelectedKey);
+        }
+        let currentlySelectedAsset: AllocData = allocationData.get(currentlySelectedKey)!;
 
         // TODO: Gotta find a way to deal with the absolute balance ...
         let numberInclDecimals = (new BN(absoluteBalance * (10 ** currentlySelectedAsset.userInputAmount!.amount.decimals)));
@@ -83,18 +86,10 @@ export const Main: FC = ({}) => {
         };
 
         // Now set the stuff ...
-        let index = allocationData.indexOf(currentlySelectedAsset);
-        setAllocationData((allocationData: AllocData[]) => {
+        setAllocationData((allocationData: Map<string, AllocData>) => {
             // Return the full array, replace the one element that was replaced ...
-            let p1 = allocationData.slice(0, index);
-            let p2 = allocationData.slice(index + 1, allocationData.length);
-            return [...p1, newAsset, ...p2];
+            return {...allocationData, selectedAsset: newAsset}
         });
-
-        // Finally, also update the selected asset to reflect this ...
-        setSelectedAsset((_: AllocData | null) => {
-            return newAsset;
-        })
 
     }
 
@@ -105,14 +100,25 @@ export const Main: FC = ({}) => {
             userWalletAssetsProvider.walletAssets &&
             userWalletAssetsProvider.walletAssets.length > 0
         ) {
-            setAllocationData((_: AllocData[]) => {
+            setAllocationData((_: Map<string, AllocData>) => {
                 console.log("The new allocation (wallet) data is: ", userWalletAssetsProvider.walletAssets);
-                return userWalletAssetsProvider.walletAssets!;
+                let out: Map<string, AllocData> = new Map<string, AllocData>();
+                userWalletAssetsProvider.walletAssets!.map((x: AllocData) => {
+                    let key: string = x.protocol + " " + x.lp;
+                    out.set(key, x);
+                });
+                return out;
             });
         } else if (serpiusProvider.portfolioRatios) {
-            setAllocationData((_: AllocData[]) => {
+            setAllocationData((_: Map<string, AllocData>) => {
                 console.log("The new allocation (serpius) data is: ", serpiusProvider.portfolioRatios);
-                return serpiusProvider.portfolioRatios;
+                // TODO: Replace the assets here (form a map from an Array)
+                let out: Map<string, AllocData> = new Map<string, AllocData>();
+                serpiusProvider.portfolioRatios.map((x: AllocData) => {
+                    let key: string = x.protocol + " " + x.lp;
+                    out.set(key, x);
+                });
+                return out;
             });
         }
     }, [serpiusProvider.portfolioRatios, userWalletAssetsProvider.walletAssets]);
@@ -272,7 +278,7 @@ export const Main: FC = ({}) => {
                         </div>
                     </div>
                     <div className={"flex flex-row my-auto mt-7"}>
-                        {formComponent(selectedAsset)}
+                        {formComponent(allocationData.get(selectedAsset) || null)}
                     </div>
                 </div>
             </div>

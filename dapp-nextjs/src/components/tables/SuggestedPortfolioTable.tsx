@@ -13,10 +13,10 @@ import TableHeader from "./TableHeader";
 const tableColumns: (string | null)[] = [null, "Asset", null, "Allocation", "24H APY"]
 
 interface Props {
-    selectedAssets: AllocData[],
-    selectedAsset: AllocData | null,
-    modifyIndividualAllocationItem: any,
-    setSelectedAsset:  React.Dispatch<React.SetStateAction<AllocData | null>>  // How to convert this to a setter function signature
+    selectedAssets: Map<string, AllocData>,
+    selectedAsset: string,
+    setSelectedAsset:  React.Dispatch<React.SetStateAction<string>>,
+    modifyIndividualAllocationItem: (currentlySelectedKey: string, absoluteBalance: number) => void,  // How to convert this to a setter function signature,
 }
 export default function SuggestedPortfolioTable({selectedAssets, selectedAsset, setSelectedAsset}: Props) {
 
@@ -26,34 +26,38 @@ export default function SuggestedPortfolioTable({selectedAssets, selectedAsset, 
     // I see what was hardcoded here, haha
     // TODO: Make these chartableItemTypes also all uniform, perhaps use AllocData, and map it in the final iteration ....
     const [pieChartData, setPieChartData] = useState<ChartableItemType[]>([
-        {name: "USDC-USDT", value: 500, apy_24h: 0.},
-        {name: "USDC-PAI", value: 500, apy_24h: 0.},
+        {key: "USDC-USDT", name: "USDC-USDT", value: 500, apy_24h: 0.},
+        {key: "USDC-PAI", name: "USDC-PAI", value: 500, apy_24h: 0.},
     ])
     // Make sure types conform ...
 
     useEffect(() => {
         if (!selectedAssets) return;
-        let sum = selectedAssets.reduce((sum: number, current: AllocData) => sum + current.weight, 0);
-        setPieChartData((_: any) => {
-                return selectedAssets.map((current: AllocData) => {
+        let sum = Array.from(selectedAssets.values()).reduce((sum: number, current: AllocData) => sum + current.weight, 0);
+        setPieChartData((old: ChartableItemType[]) => {
+                let out: ChartableItemType[] = [];
+                selectedAssets.forEach((current: AllocData, key: string) => {
                     console.log("asdaf", {
+                        key: key,
                         name: current.protocol.charAt(0).toUpperCase() + current.protocol.slice(1) + " " + current.lp,
                         value: ((100 * current.weight) / sum),
                         apy_24h: current.apy_24h,
                         pool: registry.getPoolFromSplStringId(current.lp),
                         allocationItem: current
                     })
-                    return {
+                    let tmp = {
+                        key: key,
                         name: current.protocol.charAt(0).toUpperCase() + current.protocol.slice(1) + " " + current.lp,
                         value: ((100 * current.weight) / sum),
                         apy_24h: current.apy_24h,
                         pool: registry.getPoolFromSplStringId(current.lp),
                         allocationItem: current
                     }
+                    out.push(tmp)
                 });
+                return out
             }
         )
-
     }, [selectedAssets]);
 
     const tableSingleRow = (item: ChartableItemType, index: number) => {
@@ -82,13 +86,13 @@ export default function SuggestedPortfolioTable({selectedAssets, selectedAsset, 
         let tailwindOnSelected = "dark:bg-gray-800 hover:bg-gray-900";
         // TODO: Perhaps it's easier to just hardcode it ...
         // TODO: This shouldn't make any sense ... obviously the LP is not equivalent to the item name
-        if (item.allocationItem === selectedAsset) {
+        if (item.key === selectedAsset) {
             console.log("Matching indeed ...");
             tailwindOnSelected = "dark:bg-gray-900 hover:bg-gray-900";
         } else {
             console.log("Bullshit... not matching lol")
         }
-        console.log("Item and selected asset are: ", item.name, selectedAsset?.lp);
+        console.log("Item and selected asset are: ", item.name, selectedAsset);
         console.log("tailwindOnSelected is: ", tailwindOnSelected);
 
         return (
@@ -98,11 +102,11 @@ export default function SuggestedPortfolioTable({selectedAssets, selectedAsset, 
                     key={theKey}
                     className={tailwindOnSelected}
                     onClick={() => {
-                        setSelectedAsset((_: AllocData | null) => {
+                        setSelectedAsset((_: string) => {
                             console.log("Item is:", item.allocationItem);
                             console.log("About to set the selectedAsset to", item);
                             console.log("About to set the selectedAsset to", item.allocationItem);
-                            return item.allocationItem!;
+                            return item.key;
                         });
                         console.log("Tach Tach");
                     }}
