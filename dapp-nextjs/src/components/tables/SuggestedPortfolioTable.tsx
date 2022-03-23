@@ -2,7 +2,6 @@ import React, {useEffect, useState} from "react";
 import {shortenedAddressString, solscanLink} from "../../utils/utils";
 import Image from "next/image";
 import {ProtocolType, registry} from "@qpools/sdk";
-import {useWallet} from "@solana/wallet-adapter-react";
 import {COLORS} from "../../const";
 import {PublicKey} from "@solana/web3.js";
 import {DisplayToken} from "../../types/DisplayToken";

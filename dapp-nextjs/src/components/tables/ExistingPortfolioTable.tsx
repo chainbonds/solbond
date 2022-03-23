@@ -1,4 +1,4 @@
-import React, {useEffect} from "react";
+import React from "react";
 import {shortenedAddressString, solscanLink} from "../../utils/utils";
 import Image from "next/image";
 import {PositionInfo, ProtocolType, registry} from "@qpools/sdk";

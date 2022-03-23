@@ -143,13 +143,15 @@ export const Main: FC = ({}) => {
         if (displayForm === HeroFormState.ShowExistingPortfolio) {
             return (
                 <>
-                    <ExistingPortfolioTable/>
+                    <ExistingPortfolioTable
+                    />
                 </>
             )
         } else if (displayForm === HeroFormState.ShowSuggestedPortfolio) {
             return (
                 <>
-                    <SuggestedPortfolioTable/>
+                    <SuggestedPortfolioTable
+                    />
                 </>
             )
         }
