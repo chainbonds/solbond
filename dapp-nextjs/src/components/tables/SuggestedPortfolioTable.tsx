@@ -16,15 +16,12 @@ const tableColumns: (string | null)[] = [null, "Asset", null, "Allocation", "24H
 interface Props {
     selectedAssets: AllocData[],
     selectedAsset: AllocData | null,
-    setSelectedAsset: any  // How to convert this to a setter function signature
+    setSelectedAsset: (x: AllocData) => void  // How to convert this to a setter function signature
 }
 export default function SuggestedPortfolioTable({selectedAssets, selectedAsset, setSelectedAsset}: Props) {
 
     // Instead of the raw pubkeys, store the pyth ID, and then you can look up the price using the pyth sdk ..
     // Much more sustainable also in terms of development
-
-    // Perhaps create a "Loaded Portfolio Component"
-    const rpcProvider: IRpcProvider = useRpc();
 
     // I see what was hardcoded here, haha
     // TODO: Make these chartableItemTypes also all uniform, perhaps use AllocData, and map it in the final iteration ....
@@ -36,8 +33,6 @@ export default function SuggestedPortfolioTable({selectedAssets, selectedAsset, 
 
     useEffect(() => {
         if (!selectedAssets) return;
-        // Sum is a
-        // TODO: Is the sum needed (?) Probably, because it's a hyper-flexible frontend-library
         let sum = selectedAssets.reduce((sum: number, current: AllocData) => sum + current.weight, 0);
         setPieChartData((_: any) => {
                 return selectedAssets.map((current: AllocData) => {
@@ -45,13 +40,15 @@ export default function SuggestedPortfolioTable({selectedAssets, selectedAsset, 
                         name: current.protocol.charAt(0).toUpperCase() + current.protocol.slice(1) + " " + current.lp,
                         value: ((100 * current.weight) / sum),
                         apy_24h: current.apy_24h,
-                        pool: registry.getPoolFromSplStringId(current.lp)
+                        pool: registry.getPoolFromSplStringId(current.lp),
+                        allocationItem: current
                     })
                     return {
                         name: current.protocol.charAt(0).toUpperCase() + current.protocol.slice(1) + " " + current.lp,
                         value: ((100 * current.weight) / sum),
                         apy_24h: current.apy_24h,
-                        pool: registry.getPoolFromSplStringId(current.lp)
+                        pool: registry.getPoolFromSplStringId(current.lp),
+                        allocationItem: current
                     }
                 });
             }
@@ -84,6 +81,7 @@ export default function SuggestedPortfolioTable({selectedAssets, selectedAsset, 
         // Should prob make the types equivalent. Should clean up all types in the front-end repo
         let tailwindOnSelected = "dark:bg-gray-800 hover:bg-gray-900";
         // TODO: Perhaps it's easier to just hardcode it ...
+        // TODO: This shouldn't make any sense ... obviously the LP is not equivalent to the item name
         if (item.name === selectedAsset?.lp) {
             console.log("Matching indeed ...");
             tailwindOnSelected = "dark:bg-gray-900 hover:bg-gray-900";
@@ -98,7 +96,12 @@ export default function SuggestedPortfolioTable({selectedAssets, selectedAsset, 
                     key={theKey}
                     className={tailwindOnSelected}
                     onClick={() => {
-                        setSelectedAsset(item);
+                        setSelectedAsset((_: AllocData | undefined) => {
+                            console.log("Item is:", item.allocationItem);
+                            console.log("About to set the selectedAsset to", item);
+                            console.log("About to set the selectedAsset to", item.allocationItem);
+                            return item.allocationItem!;
+                        });
                         console.log("Tach Tach");
                     }}
                 >

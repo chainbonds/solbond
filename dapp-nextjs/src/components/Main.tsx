@@ -14,6 +14,7 @@ import {registry} from "@qpools/sdk";
 import {PublicKey} from "@solana/web3.js";
 import {useWallet, WalletContextState} from "@solana/wallet-adapter-react";
 import SelectWalletForm from "./swap/SelectWalletForm";
+import {white} from "colorette";
 
 export enum HeroFormState {
     ShowSuggestedPortfolio,
@@ -34,6 +35,13 @@ export const Main: FC = ({}) => {
     const [allocationData, setAllocationData] = useState<AllocData[]>([]);
     // Set a state for a selected item ..
     const [selectedAsset, setSelectedAsset] = useState<AllocData | null>(null);
+
+    // Whenever the allocationData changes, set the selecte item back
+    useEffect(() => {
+        if (allocationData && allocationData.length > 0 && (selectedAsset === null)) {
+            setSelectedAsset(allocationData[0])
+        }
+    }, [allocationData]);
 
     // Maybe set loading until we are able to read the serpius API
     useEffect(() => {
@@ -73,26 +81,41 @@ export const Main: FC = ({}) => {
     // TODO: currencyName and Mint should be the intersection of token-whitelist + pool.tokens
     const formComponent = (asset: AllocData | null) => {
         if (displayForm === HeroFormState.ShowSuggestedPortfolio) {
-            if (asset && asset.pool) {
+            if (walletContext.publicKey && asset && asset.pool) {
+
+                console.log("Asset is: ", asset);
+                console.log("Pool is: ", asset.pool);
 
                 let selectedAssetTokens = asset.pool!.tokens;
-                let whitelistedTokens = new Set<PublicKey>(registry.getWhitelistTokens().map((x: string) => new PublicKey(x)));
+                let whitelistedTokenStrings = new Set<string>(registry.getWhitelistTokens());
 
                 interface SelectedToken {
                     name: string,
                     mint: PublicKey
                 }
-                let inputTokens: SelectedToken[] = selectedAssetTokens.filter((x: registry.ExplicitToken) => {
-                    return whitelistedTokens.has(new PublicKey(x.address))
-                }).map((x: registry.ExplicitToken) => {
+                console.log("Whitelist tokens are: ", registry.getWhitelistTokens());
+                let filteredTokens: registry.ExplicitToken[] = selectedAssetTokens.filter((x: registry.ExplicitToken) => {
+                    // console.log("Looking at the token: ", x);
+                    console.log("Looking at the token: ", x.address);
+                    // return whitelistedTokens.has(new PublicKey(x.address))
+                    console.log("Does it have it: ", whitelistedTokenStrings.has(x.address));
+                    return whitelistedTokenStrings.has(x.address)
+                })
+                console.log("Initial set of input tokens is: ", filteredTokens);
+                let inputTokens = filteredTokens.map((x: registry.ExplicitToken) => {
                     return {
                         name: x.name,
                         mint: new PublicKey(x.address)
                     }
                 })
+                console.log("Input tokens are: ", inputTokens);
 
                 // Gotta assert that at least one of the tokens is an input token:
-                console.assert(inputTokens);
+                if (inputTokens.length < 1) {
+                    console.log("Whitelist tokens are: ", registry.getWhitelistTokens());
+                    console.log("SelectedAssetToken: ", selectedAssetTokens);
+                    throw Error("Somehow this pool has no whitelisted input tokens!");
+                };
                 let inputToken = inputTokens[0];
                 console.log("Input token in: ", inputToken);
 
@@ -104,7 +127,7 @@ export const Main: FC = ({}) => {
                         />
                     </>
                 );
-            } else if (asset) {
+            } else if (walletContext.publicKey && asset) {
                 console.log("Pool is empty!!");
                 console.log(asset);
             } else {
