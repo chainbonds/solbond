@@ -2,13 +2,15 @@ import {useEffect, useState} from "react";
 import {IRpcProvider, useRpc} from "../../contexts/RpcProvider";
 import {getAssociatedTokenAddressOffCurve} from "@qpools/sdk/lib/utils";
 import {PublicKey} from "@solana/web3.js";
-import {tokenAccountExists, MOCK} from "@qpools/sdk";
+import {tokenAccountExists} from "@qpools/sdk";
 import {IExistingPortfolio, useExistingPortfolio} from "../../contexts/ExistingPortfolioProvider";
 
-export default function UserInfoBalance() {
+interface Props {
+    currencyMint: PublicKey,
+}
+export default function UserInfoBalance({currencyMint}: Props) {
 
     const rpcProvider: IRpcProvider = useRpc();
-    const existingPortfolioProvider: IExistingPortfolio = useExistingPortfolio();
     const [currencyBalance, setCurrencyBalance] = useState<number>(0.);
 
     // TODO: Replace the USDC with the currency that is currently selected ...
@@ -21,7 +23,7 @@ export default function UserInfoBalance() {
             console.log("Getting associated token account")
             // TODO: Replace USDC by some currency, or whatever the user has currency chosen as their Input ...
             let userCurrencyAta: PublicKey = await getAssociatedTokenAddressOffCurve(
-                MOCK.DEV.SABER_USDC, rpcProvider.userAccount.publicKey
+                currencyMint, rpcProvider.userAccount.publicKey
             )
             let existsBool = await tokenAccountExists(rpcProvider.connection!, userCurrencyAta);
             console.log("User ATA: ", userCurrencyAta.toString(), existsBool);
@@ -45,12 +47,7 @@ export default function UserInfoBalance() {
 
     useEffect(() => {
         updateAccountBalance();
-    }, [
-        existingPortfolioProvider.totalPortfolioValueInUsd,
-        rpcProvider.provider,
-        existingPortfolioProvider.positionInfos,
-        rpcProvider.reloadPriceSentinel
-    ]);
+    }, [rpcProvider.provider, rpcProvider.reloadPriceSentinel]);
 
     return (
         <>

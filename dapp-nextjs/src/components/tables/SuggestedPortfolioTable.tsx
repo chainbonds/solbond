@@ -21,17 +21,9 @@ export default function SuggestedPortfolioTable() {
 
     // Perhaps create a "Loaded Portfolio Component"
     const rpcProvider: IRpcProvider = useRpc();
-    const walletContext: any = useWallet();
     const serpiusProvider: ISerpius = useSerpiusEndpoint();
     // TODO: Whenever the portfolio-ratios are downloaded, update this asset as well
     const [selectedAsset, setSelectedAsset] = useState<ChartableItemType | null>(null);
-
-    useEffect(() => {
-        if (walletContext.publicKey) {
-            console.log("Wallet pubkey wallet is:", walletContext.publicKey.toString());
-            rpcProvider.initialize(walletContext);
-        }
-    }, [walletContext.publicKey]);
 
 
     /**
@@ -230,7 +222,7 @@ export default function SuggestedPortfolioTable() {
                                 {tableHeader(tableColumns)}
                                 {/* key={Math.random() + pieChartData[0].value} */}
                                 <tbody>
-                                {pieChartData.map((position: ChartableItemType, index: number) => tableSingleRow(position, index))}
+                                    {pieChartData.map((position: ChartableItemType, index: number) => tableSingleRow(position, index))}
                                 </tbody>
                             </table>
                         </div>

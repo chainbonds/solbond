@@ -2,18 +2,13 @@ import React, {useEffect} from "react";
 import {shortenedAddressString, solscanLink} from "../../utils/utils";
 import Image from "next/image";
 import {PositionInfo, ProtocolType, registry} from "@qpools/sdk";
-import {useWallet} from "@solana/wallet-adapter-react";
 import {DisplayToken} from "../../types/DisplayToken";
-import {IRpcProvider, useRpc} from "../../contexts/RpcProvider";
 import {IExistingPortfolio, useExistingPortfolio} from "../../contexts/ExistingPortfolioProvider";
 
 const tableColumns: (string | null)[] = ["Pool", "Assets", "USDC Value", null]
 
 export default function ExistingPortfolioTable() {
 
-    // Perhaps create a "Loaded Portfolio Component"
-    const rpcProvider: IRpcProvider = useRpc();
-    const walletContext: any = useWallet();
     const existingPortfolioProvider: IExistingPortfolio = useExistingPortfolio();
 
     /**

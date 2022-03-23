@@ -1,8 +1,6 @@
 import React, {useEffect, useState} from "react";
 import {PieChart, Pie, Cell} from "recharts";
-import ExistingPortfolioTable from "../tables/ExistingPortfolioTable";
 import {COLORS, RADIAN} from "../../const";
-import SuggestedPortfolioTable from "../tables/SuggestedPortfolioTable";
 import {AllocData} from "../../types/AllocData";
 
 interface Props {
@@ -35,6 +33,12 @@ export default function DisplayPieChart({allocationInformation, showPercentage}:
         {name: "Group D", value: 200}
     ])
 
+    useEffect(() => {
+        console.log("Creating the PieChart based on this stuff");
+        console.log(allocationInformation);
+        console.log(showPercentage);
+    }, [allocationInformation, showPercentage]);
+
 
     useEffect(() => {
         if (!allocationInformation) {
@@ -47,8 +51,7 @@ export default function DisplayPieChart({allocationInformation, showPercentage}:
                 return allocationInformation.map((current: AllocData) => {
                     return {
                         name: current.protocol + " " + current.lp,
-                        value: ((100 * current.weight) / sum),
-                        apy_24h: current.apy_24h
+                        value: ((100 * current.weight) / sum)
                     }
                 });
             }

@@ -4,4 +4,4 @@ export interface UserTokenBalance {
     mint: PublicKey,
     ata: PublicKey,
     amount: TokenAmount
-};
+}

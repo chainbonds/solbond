@@ -51,6 +51,7 @@ export function UserWalletAssetsProvider(props: any) {
         if (!rpcProvider.userAccount || !rpcProvider.connection) {
             return
         }
+        // Also return empty if the
 
         // (1) Get all token accounts owned that we get from the serpius API ...
         // .filter((item, index) => {return portfolioRatios.indexOf(item) === index})

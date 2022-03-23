@@ -5,9 +5,7 @@ import {Token, TOKEN_PROGRAM_ID} from "@solana/spl-token";
 import * as anchor from "@project-serum/anchor";
 import {solbondProgram} from "../programs/solbond";
 import {WalletI} from "easy-spl";
-import {
-    PortfolioFrontendFriendlyChainedInstructions
-} from "@qpools/sdk";
+import {PortfolioFrontendFriendlyChainedInstructions} from "@qpools/sdk";
 import {MOCK} from "@qpools/sdk";
 import {getConnectionString} from "../const";
 import {useWallet, WalletContextState} from "@solana/wallet-adapter-react";
@@ -75,14 +73,19 @@ export function RpcProvider(props: any) {
     // Make a creator that loads the qPoolObject if it not created yet
     useEffect(() => {
         console.log("Wallet Pubkey Re-Loaded wallet is:", walletContext.publicKey?.toString());
-        initialize();
+        // Gotta have wallet context for sure ...
+        if (walletContext.wallet) {
+            initialize();
+        }
     }, [walletContext.publicKey]);
 
     const initialize = () => {
         console.log("#initialize");
         console.log("Cluster URL is: ", String(process.env.NEXT_PUBLIC_CLUSTER_URL));
         let _connection: Connection = getConnectionString();
-        // @ts-ignore  // For some reason this typing is ok ...
+        // // @ts-ignore  // For some reason this typing is ok ...
+        // let wallet: Wallet = walletContext.wallet;
+        // @ts-ignore
         const _provider = new anchor.Provider(_connection, walletContext, anchor.Provider.defaultOptions());
         anchor.setProvider(_provider);
         const _solbondProgram: any = solbondProgram(_connection, _provider);
@@ -98,8 +101,17 @@ export function RpcProvider(props: any) {
             payer
         );
 
-        // @ts-ignore
-        let backendApi = new PortfolioFrontendFriendlyChainedInstructions(_connection, _provider, _solbondProgram, payer);
+        // console.log("All items are: ")
+        // console.log(payer);
+        // console.assert(payer);
+        console.log(_solbondProgram);
+        console.assert(_solbondProgram);
+        console.log(_provider);
+        console.assert(_provider);
+        console.log(_connection);
+        console.assert(_connection);
+
+        let backendApi = new PortfolioFrontendFriendlyChainedInstructions(_connection, _provider, _solbondProgram);
 
         // Do a bunch of setstate, and wait ...
         setConnection(() => _connection);
