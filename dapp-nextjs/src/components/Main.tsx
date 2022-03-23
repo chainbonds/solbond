@@ -20,6 +20,7 @@ export enum HeroFormState {
     ShowSuggestedPortfolio,
     ShowExistingPortfolio
 }
+// To be specific, right now this is the only mode that is active
 export enum PortfolioSuggestion {
     ShowWalletAsPortfolio
 }
@@ -102,7 +103,7 @@ export const Main: FC = ({}) => {
                     return whitelistedTokenStrings.has(x.address)
                 })
                 console.log("Initial set of input tokens is: ", filteredTokens);
-                let inputTokens = filteredTokens.map((x: registry.ExplicitToken) => {
+                let inputTokens: SelectedToken[] = filteredTokens.map((x: registry.ExplicitToken) => {
                     return {
                         name: x.name,
                         mint: new PublicKey(x.address)

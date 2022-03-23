@@ -16,7 +16,7 @@ const tableColumns: (string | null)[] = [null, "Asset", null, "Allocation", "24H
 interface Props {
     selectedAssets: AllocData[],
     selectedAsset: AllocData | null,
-    setSelectedAsset: (x: AllocData) => void  // How to convert this to a setter function signature
+    setSelectedAsset: (x: AllocData | null) => void  // How to convert this to a setter function signature
 }
 export default function SuggestedPortfolioTable({selectedAssets, selectedAsset, setSelectedAsset}: Props) {
 
@@ -82,9 +82,11 @@ export default function SuggestedPortfolioTable({selectedAssets, selectedAsset, 
         let tailwindOnSelected = "dark:bg-gray-800 hover:bg-gray-900";
         // TODO: Perhaps it's easier to just hardcode it ...
         // TODO: This shouldn't make any sense ... obviously the LP is not equivalent to the item name
-        if (item.name === selectedAsset?.lp) {
+        if (item.allocationItem === selectedAsset) {
             console.log("Matching indeed ...");
             tailwindOnSelected = "dark:bg-gray-900 hover:bg-gray-900";
+        } else {
+            console.log("Bullshit... not matching lol")
         }
         console.log("Item and selected asset are: ", item.name, selectedAsset?.lp);
         console.log("tailwindOnSelected is: ", tailwindOnSelected);
@@ -96,7 +98,7 @@ export default function SuggestedPortfolioTable({selectedAssets, selectedAsset, 
                     key={theKey}
                     className={tailwindOnSelected}
                     onClick={() => {
-                        setSelectedAsset((_: AllocData | undefined) => {
+                        setSelectedAsset((_: AllocData | null) => {
                             console.log("Item is:", item.allocationItem);
                             console.log("About to set the selectedAsset to", item);
                             console.log("About to set the selectedAsset to", item.allocationItem);
