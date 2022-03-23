@@ -14,7 +14,6 @@ import {registry} from "@qpools/sdk";
 import {PublicKey} from "@solana/web3.js";
 import {useWallet, WalletContextState} from "@solana/wallet-adapter-react";
 import SelectWalletForm from "./swap/SelectWalletForm";
-import {white} from "colorette";
 
 export enum HeroFormState {
     ShowSuggestedPortfolio,

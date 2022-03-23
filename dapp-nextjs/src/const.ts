@@ -31,13 +31,13 @@ export const BRAND_COLORS = {
 }
 
 export const COLORS = [
+    "#0369a1",
+    "#fafafa",
     "#0c4a6e",
     "#831843",
     "#fbcfe8",
     "#bae6fd",
     "#94a3b8",
-    "#fafafa",
-    "#0369a1",
 ];
 export const RADIAN = Math.PI / 180;
 
