@@ -16,6 +16,7 @@ import {useWallet, WalletContextState} from "@solana/wallet-adapter-react";
 import SelectWalletForm from "./swap/SelectWalletForm";
 import {BN} from "@project-serum/anchor";
 import {UserTokenBalance} from "../types/UserTokenBalance";
+import {getInputToken, SelectedToken} from "../utils/utils";
 
 export enum HeroFormState {
     ShowSuggestedPortfolio,
@@ -155,36 +156,8 @@ export const Main: FC = ({}) => {
                 console.log("Pool is: ", asset.pool);
 
                 let selectedAssetTokens = asset.pool!.tokens;
-                let whitelistedTokenStrings = new Set<string>(registry.getWhitelistTokens());
+                let inputToken: SelectedToken = getInputToken(selectedAssetTokens);
 
-                interface SelectedToken {
-                    name: string,
-                    mint: PublicKey
-                }
-                console.log("Whitelist tokens are: ", registry.getWhitelistTokens());
-                let filteredTokens: registry.ExplicitToken[] = selectedAssetTokens.filter((x: registry.ExplicitToken) => {
-                    // console.log("Looking at the token: ", x);
-                    console.log("Looking at the token: ", x.address);
-                    // return whitelistedTokens.has(new PublicKey(x.address))
-                    console.log("Does it have it: ", whitelistedTokenStrings.has(x.address));
-                    return whitelistedTokenStrings.has(x.address)
-                })
-                console.log("Initial set of input tokens is: ", filteredTokens);
-                let inputTokens: SelectedToken[] = filteredTokens.map((x: registry.ExplicitToken) => {
-                    return {
-                        name: x.name,
-                        mint: new PublicKey(x.address)
-                    }
-                })
-                console.log("Input tokens are: ", inputTokens);
-
-                // Gotta assert that at least one of the tokens is an input token:
-                if (inputTokens.length < 1) {
-                    console.log("Whitelist tokens are: ", registry.getWhitelistTokens());
-                    console.log("SelectedAssetToken: ", selectedAssetTokens);
-                    throw Error("Somehow this pool has no whitelisted input tokens!");
-                }
-                let inputToken = inputTokens[0];
                 console.log("Input token in: ", inputToken);
 
                 console.log("Asset that we're looking at is: ", asset);

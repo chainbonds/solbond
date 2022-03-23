@@ -3,7 +3,38 @@ import {Provider} from "@project-serum/anchor";
 import {ChartableItemType} from "../types/ChartableItemType";
 import {DisplayToken} from "../types/DisplayToken";
 import {ProtocolType, PositionInfo, registry} from "@qpools/sdk";
-import {AllocData} from "../types/AllocData";
+
+export interface SelectedToken {
+    name: string,
+    mint: PublicKey
+}
+export const getInputToken = (selectedAssetTokens: registry.ExplicitToken[]): SelectedToken => {
+    let whitelistedTokenStrings = new Set<string>(registry.getWhitelistTokens());
+    console.log("Whitelist tokens are: ", registry.getWhitelistTokens());
+    let filteredTokens: registry.ExplicitToken[] = selectedAssetTokens.filter((x: registry.ExplicitToken) => {
+        // console.log("Looking at the token: ", x);
+        console.log("Looking at the token: ", x.address);
+        // return whitelistedTokens.has(new PublicKey(x.address))
+        console.log("Does it have it: ", whitelistedTokenStrings.has(x.address));
+        return whitelistedTokenStrings.has(x.address)
+    })
+    console.log("Initial set of input tokens is: ", filteredTokens);
+    let inputTokens: SelectedToken[] = filteredTokens.map((x: registry.ExplicitToken) => {
+        return {
+            name: x.name,
+            mint: new PublicKey(x.address)
+        }
+    })
+    console.log("Input tokens are: ", inputTokens);
+    // Gotta assert that at least one of the tokens is an input token:
+    if (inputTokens.length < 1) {
+        console.log("Whitelist tokens are: ", registry.getWhitelistTokens());
+        console.log("SelectedAssetToken: ", selectedAssetTokens);
+        throw Error("Somehow this pool has no whitelisted input tokens!");
+    }
+    let inputToken = inputTokens[0];
+    return inputToken;
+}
 
 export const displayTokensFromPositionInfo = (position: PositionInfo): DisplayToken[] => {
     if (!position) {

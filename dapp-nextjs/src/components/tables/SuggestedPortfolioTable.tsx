@@ -1,5 +1,11 @@
 import React, {useEffect, useState} from "react";
-import {displayTokensFromChartableAsset, shortenedAddressString, solscanLink} from "../../utils/utils";
+import {
+    displayTokensFromChartableAsset,
+    getInputToken,
+    SelectedToken,
+    shortenedAddressString,
+    solscanLink
+} from "../../utils/utils";
 import Image from "next/image";
 import {registry} from "@qpools/sdk";
 import {COLORS} from "../../const";
@@ -9,7 +15,8 @@ import {ChartableItemType} from "../../types/ChartableItemType";
 import {AllocData} from "../../types/AllocData";
 import TableHeader from "./TableHeader";
 
-const tableColumns: (string | null)[] = [null, "Asset", null, "Allocation", "24H APY", "Absolute Amount"]
+// I guess this columns is also conditional, actually ...
+const tableColumns: (string | null)[] = [null, "Pay-In Asset", "Product", "Underlying Asset", "Allocation", "24H APY", "Absolute Amount"]
 
 interface Props {
     selectedAssets: Map<string, AllocData>,
@@ -86,6 +93,10 @@ export default function SuggestedPortfolioTable({selectedAssets, selectedAsset, 
         console.log("Item and selected asset are: ", item.name, selectedAsset);
         console.log("tailwindOnSelected is: ", tailwindOnSelected);
 
+        // Get (the name for) the asset to be inputted ...
+        let inputToken: SelectedToken = getInputToken(item.pool.tokens);
+        let inputTokenLink: string = registry.getIconFromToken(inputToken.mint);
+
         return (
             <>
                 {/* border-base-100 border-b */}
@@ -113,6 +124,12 @@ export default function SuggestedPortfolioTable({selectedAssets, selectedAsset, 
                             </div>
                         </div>
                     </td>
+                    <td className="py-4 px-6 text-sm text-center font-normal text-gray-500 whitespace-nowrap dark:text-gray-400">
+                        <a href={solscanLink(inputToken.mint)} target={"_blank"} rel="noreferrer"
+                           className="text-blue-600 dark:text-blue-400 hover:underline">
+                            <Image className={"rounded-3xl"} src={inputTokenLink} width={30} height={30}/>
+                        </a>
+                    </td>
                     <td className="py-4 px-6 text-sm text-center font-normal text-gray-900 whitespace-nowrap dark:text-white">
                         <a href={solscanLink(mintLP)} target={"_blank"} rel="noreferrer"
                            className="text-blue-600 dark:text-blue-500 hover:underline">
@@ -136,9 +153,12 @@ export default function SuggestedPortfolioTable({selectedAssets, selectedAsset, 
                     <td className="py-4 px-6 text-sm text-center whitespace-nowrap">
                         {(item.apy_24h).toFixed(1)}%
                     </td>
-                    <td className="py-4 px-6 text-sm text-center whitespace-nowrap">
-                        {item.allocationItem?.userInputAmount?.amount.uiAmount && (item.allocationItem?.userInputAmount?.amount.uiAmount).toFixed(2)}
-                    </td>
+                    {item.allocationItem &&
+                        <td className="py-4 px-6 text-sm text-center whitespace-nowrap">
+                            {/* inputToken.name */}
+                            {item.allocationItem?.userInputAmount?.amount.uiAmount && (item.allocationItem?.userInputAmount?.amount.uiAmount).toFixed(2)}
+                        </td>
+                    }
                 </tr>
             </>
         )
@@ -152,7 +172,7 @@ export default function SuggestedPortfolioTable({selectedAssets, selectedAsset, 
                     <div className="inline-block pb-2 min-w-full">
                         <div className="overflow-hidden shadow-md sm:rounded-lg">
                             <table className="min-w-full">
-                                <TableHeader columns={tableColumns} />
+                                <TableHeader columns={pieChartData ? tableColumns: tableColumns.slice(0, tableColumns.length - 1)} />
                                 {/* key={Math.random() + pieChartData[0].value} */}
                                 <tbody>
                                     {pieChartData.map((position: ChartableItemType, index: number) => tableSingleRow(position, index))}

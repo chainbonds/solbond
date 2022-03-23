@@ -47,11 +47,6 @@ export default function PurchaseButton() {
         await itemLoadContext.addLoadItem({message: "Sign: Create Portfolio & Sending Asset"});
         await itemLoadContext.addLoadItem({message: "Running cranks to distribute assets across liquidity pools..."});
 
-        // Initialize if not initialized yet
-        await rpcProvider.initializeQPoolsUserTool(walletProvider);
-        await itemLoadContext.incrementCounter();
-
-
         // Define mSOL send amount
         // Define USDC send amount
 
@@ -136,6 +131,7 @@ export default function PurchaseButton() {
         // TODO: Gotta normalize weights up to 1000
         // TODO:
         // Have a look at this; but this is still needed!
+        await itemLoadContext.incrementCounter();
         console.log("Creating associated token accounts ...");
         let txCreateATA: Transaction = await rpcProvider.portfolioObject!.createAssociatedTokenAccounts([assetLpMints[0]], rpcProvider.provider!.wallet);
         if (txCreateATA.instructions.length > 0) {
