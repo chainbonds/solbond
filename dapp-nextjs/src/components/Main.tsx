@@ -16,9 +16,6 @@ import {useWallet, WalletContextState} from "@solana/wallet-adapter-react";
 import SelectWalletForm from "./swap/SelectWalletForm";
 import {BN} from "@project-serum/anchor";
 import {UserTokenBalance} from "../types/UserTokenBalance";
-import {Simulate} from "react-dom/test-utils";
-import select = Simulate.select;
-import {addLocale} from "next/dist/shared/lib/router/router";
 
 export enum HeroFormState {
     ShowSuggestedPortfolio,

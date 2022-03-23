@@ -37,12 +37,11 @@ export default function InputFieldWithSliderInputAndLogo({allocationItems, selec
         setValue(inputValue);
     }, [inputValue]);
     useEffect(() => {
-        setSliderValue(value);
-        setInputValue(value);
-
+        // setSliderValue(value);
+        // setInputValue(value);
         // Now also modify this quantity ...
+        // TODO: Check if you can put these in again, after you implement the max logic
         modifyIndividualAllocationItem(selectedItemKey, value);
-
     }, [value]);
 
     // Max and Min Fields need to be included
