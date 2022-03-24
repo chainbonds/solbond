@@ -3,7 +3,6 @@ import {BN} from "@project-serum/anchor";
 import {IRpcProvider, useRpc} from "../../contexts/RpcProvider";
 import {PublicKey, Transaction} from "@solana/web3.js";
 import {sendAndConfirmTransaction} from "../../utils/utils";
-import {useWallet, WalletContextState} from "@solana/wallet-adapter-react";
 import {IItemsLoad, useItemsLoad} from "../../contexts/ItemsLoadingContext";
 import {MOCK} from "@qpools/sdk";
 import {ICrank, useCrank} from "../../contexts/CrankProvider";
@@ -11,7 +10,6 @@ import {ILocalKeypair, useLocalKeypair} from "../../contexts/LocalKeypairProvide
 
 export default function PurchaseButton() {
 
-    const walletProvider: WalletContextState = useWallet();
     const rpcProvider: IRpcProvider = useRpc();
     const crankProvider: ICrank = useCrank();
     const localKeypairProvider: ILocalKeypair = useLocalKeypair();
@@ -156,6 +154,8 @@ export default function PurchaseButton() {
             throw Error("Amount to be paid in must be bigger than 0");
         }
 
+        // Gotta iterate over alloc-data, and create a position for each !!!
+
         /**
          *
          * Transaction 1:
@@ -189,6 +189,11 @@ export default function PurchaseButton() {
         // Create position approve for marinade, and the saber pool (again, hardcode this part lol).
         // Later these should be fetched from the frontend.
         console.log("Approve Position Saber");
+
+
+        // TODO: For all saber positions, define
+
+
         // I guess we gotta make the case distinction here lol
         // TODO: Copy the case-distinction from below. Then you can continue
         // TODO: figure out tokenA and tokenB ==> Currently hard-coded...

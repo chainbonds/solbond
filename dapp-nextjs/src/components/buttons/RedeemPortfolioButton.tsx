@@ -1,6 +1,6 @@
 import React, {FC} from "react";
 import {IRpcProvider, useRpc} from "../../contexts/RpcProvider";
-import {PublicKey, Transaction} from "@solana/web3.js";
+import {PublicKey, Transaction, TransactionInstruction} from "@solana/web3.js";
 import {sendAndConfirmTransaction} from "../../utils/utils";
 import {IItemsLoad, useItemsLoad} from "../../contexts/ItemsLoadingContext";
 import {BN} from "@project-serum/anchor";
@@ -53,29 +53,45 @@ export const RedeemPortfolioButton: FC = ({}) => {
          * - First, approve to the portfolio that it may be withdrawn
          *
          */
+
+        // Test the redeem functionality first ..
+
         let tx: Transaction = new Transaction();
         console.log("Approving Withdraw Portfolio");
         let IxApproveWithdrawPortfolio = await rpcProvider.portfolioObject!.approveWithdrawPortfolio();
         tx.add(IxApproveWithdrawPortfolio);
 
-        console.log("Approving Saber Withdraw");
-        // TODO: Check which of the tokens is tokenA, and withdraw accordingly ...
-        let minRedeemAmount = new BN(0);  // This is the minimum amount of tokens that should be put out ...
-        let IxApproveWithdrawSaber = await rpcProvider.portfolioObject!.signApproveWithdrawAmountSaber(0, minRedeemAmount);
-        tx.add(IxApproveWithdrawSaber);
+        // Get all saber positions ... and approve them
+        // Fetch all positions for Saber
+        // Redeem all positions for Saber
 
-        console.log("Approving Marinade Withdraw");
-        let IxApproveWithdrawMarinade = await rpcProvider.portfolioObject!.approveWithdrawToMarinade(1);
-        tx.add(IxApproveWithdrawMarinade);
+        // Fetch all positions for Marinade
+        // Redeem all positions for Marinade
+
+        console.log("Getting instructions to approve the transaction...");
+        let {portfolio, positionsSaber, positionsMarinade} = await rpcProvider.portfolioObject!.getPortfolioAndPositions();
+
+        let allIxs = await rpcProvider.portfolioObject!.approveRedeemAllPositions(portfolio, positionsSaber, positionsMarinade);
+        allIxs.map((x: TransactionInstruction) => tx.add(x));
+        // console.log("Approving Saber Withdraw");
+        // // TODO: Check which of the tokens is tokenA, and withdraw accordingly ...
+        // let minRedeemAmount = new BN(0);  // This is the minimum amount of tokens that should be put out ...
+        // let IxApproveWithdrawSaber = await rpcProvider.portfolioObject!.signApproveWithdrawAmountSaber(0, minRedeemAmount);
+        // tx.add(IxApproveWithdrawSaber);
+        //
+        // console.log("Approving Marinade Withdraw");
+        // let IxApproveWithdrawMarinade = await rpcProvider.portfolioObject!.approveWithdrawToMarinade(1);
+        // tx.add(IxApproveWithdrawMarinade);
 
         console.log("Send some to Crank Wallet");
         let IxSendToCrankWallet = await rpcProvider.portfolioObject!.sendToCrankWallet(
             localKeypairProvider.localTmpKeypair!.publicKey,
-            100_000_000
+            10_000_000
         );
         tx.add(IxSendToCrankWallet);
 
         await itemLoadContext.incrementCounter();
+        // TODO: Skip for now, because the cranks did run ..
         if (tx.instructions.length > 0) {
             await sendAndConfirmTransaction(
                 rpcProvider._solbondProgram!.provider,
@@ -91,9 +107,15 @@ export const RedeemPortfolioButton: FC = ({}) => {
          *
          */
 
-            // Run the saber redeem cranks ..
-        let sgRedeemSinglePositionOnlyOne = await crankProvider.crankRpcTool!.redeem_single_position_only_one(0);
-        console.log("Signature to run the crank to get back USDC is: ", sgRedeemSinglePositionOnlyOne);
+            // Run all cranks ...
+        // let allIxs = await rpcProvider.portfolioObject!.approveRedeemAllPositions(portfolio, positionsSaber, positionsMarinade);
+
+
+        // Run the saber redeem cranks ..
+        await crankProvider.crankRpcTool!.redeemAllPositions(portfolio, positionsSaber, positionsMarinade);
+        // let sgRedeemSinglePositionOnlyOne = await crankProvider.crankRpcTool!.redeem_single_position_only_one(0);
+        // console.log("Signature to run the crank to get back USDC is: ", sgRedeemSinglePositionOnlyOne);
+        // TODO: Swap mSOL ot marinade SOL optionally ...
         await itemLoadContext.incrementCounter();
         // For each initial asset, send it back to the user
         let sgTransferUsdcToUser = await crankProvider.crankRpcTool!.transfer_to_user(USDC_mint);
@@ -111,7 +133,7 @@ export const RedeemPortfolioButton: FC = ({}) => {
             tx2.add(ix);
             await sendAndConfirmTransaction(
                 crankProvider.crankRpcTool!.crankProvider,
-                rpcProvider.connection!,
+                crankProvider.crankRpcTool!.connection!,
                 tx2
             );
         }
