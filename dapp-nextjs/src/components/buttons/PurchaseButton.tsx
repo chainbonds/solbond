@@ -9,7 +9,10 @@ import {ICrank, useCrank} from "../../contexts/CrankProvider";
 import {ILocalKeypair, useLocalKeypair} from "../../contexts/LocalKeypairProvider";
 import {IUserWalletAssets, useUserWalletAssets} from "../../contexts/UserWalletAssets";
 import {AllocData} from "../../types/AllocData";
+import {registry, Protocol} from "@qpools/sdk";
 
+// TODO: Refactor the code here ... looks a bit too redundant.
+//  Maybe try to push the logic into the sdk?
 interface Props {
     allocationData: Map<string, AllocData>
 }
@@ -20,7 +23,6 @@ export default function PurchaseButton({allocationData}: Props) {
     const crankProvider: ICrank = useCrank();
     const localKeypairProvider: ILocalKeypair = useLocalKeypair();
     const itemLoadContext: IItemsLoad = useItemsLoad();
-    const userWalletProvider: IUserWalletAssets = useUserWalletAssets();
 
     // TODO: Get all assets and protocols through the context. Also, perhaps instead of if protocolType, just directly also record the protocol itself ...
     const buyItem = async () => {
@@ -189,10 +191,6 @@ export default function PurchaseButton({allocationData}: Props) {
             AmountUsdc, USDC_mint
         );
         tx.add(IxRegisterCurrencyUsdcInput);
-        // let IxRegisterCurrencyMSolInput = await qPoolContext.portfolioObject!.registerCurrencyInputInPortfolio(
-        //     AmountSol, wrappedSolMint
-        // );
-        // tx.add(IxRegisterCurrencyMSolInput);
 
         // Set of instructions here are hard-coded
 
@@ -200,39 +198,94 @@ export default function PurchaseButton({allocationData}: Props) {
         // Later these should be fetched from the frontend.
         console.log("Approve Position Saber");
 
+        // Iterate through all items in AllocData
+        /**
+         * Now do Saber
+         */
+        await Promise.all(Array.from(allocationData.entries()).map(async (entry: [string, AllocData], index: number) => {
 
-        // TODO: For all saber positions, define
+            let key: string = entry[0]
+            let value: AllocData = entry[1];
 
+            // Do a weird dictionary reading ... (?)
+            if (value.protocol != Protocol.saber) {
+                return;
+            }
 
-        // I guess we gotta make the case distinction here lol
-        // TODO: Copy the case-distinction from below. Then you can continue
-        // TODO: figure out tokenA and tokenB ==> Currently hard-coded...
-        let IxApproveiPositionWeightSaber = await rpcProvider.portfolioObject!.approvePositionWeightSaber(
-            assetLpMints[0],
-            AmountUsdc,
-            new BN(0),  // Will be flipped in the backend ..
-            new BN(0),
-            0,  // Hardcoded
-            weights[0]
-        )
-        tx.add(IxApproveiPositionWeightSaber);
+            if (!value.userInputAmount) {
+                console.log("User input amount was not specified!");
+                console.log(value);
+                throw Error("User input amount was not specified! " + JSON.stringify(value));
+            }
 
-        console.log("Approve Position Marinade");
-        let IxApprovePositionWeightMarinade = await rpcProvider.portfolioObject!.approvePositionWeightMarinade(
-            AmountSol,
-            1, // Hardcoded
-            weights[1]
-        );
-        tx.add(IxApprovePositionWeightMarinade);
+            // From the LP Mint, retrieve the saber pool address
+            let poolAddressFromLp = registry.saberPoolLpToken2poolAddress(new PublicKey(value.lp));
+            // Also get the value from the allocKey item
+            let amount = new BN(value.userInputAmount!.amount.amount);
+            let weight = new BN(value.weight);
+
+            let IxApprovePositionWeightSaber = await rpcProvider.portfolioObject!.approvePositionWeightSaber(
+                poolAddressFromLp,
+                amount,
+                new BN(0),  // Will be flipped in the backend ..
+                new BN(0),
+                index,  // Hardcoded
+                weight
+            )
+            tx.add(IxApprovePositionWeightSaber);
+        }));
+
+        /**
+         * Now do Marinade
+         */
+        // TODO: Let's hope that async map keeps order : if there is a bug with the orders, this is probably the first thing to check ...
+        await Promise.all(Array.from(allocationData.entries()).map(async (entry: [string, AllocData], index: number) => {
+
+            let key: string = entry[0]
+            let value: AllocData = entry[1];
+            // Do a weird dictionary reading ... (?)
+            if (value.protocol != Protocol.marinade) {
+                return;
+            }
+            if (!value.userInputAmount) {
+                console.log("User input amount was not specified!");
+                console.log(value);
+                throw Error("User input amount was not specified! " + JSON.stringify(value));
+            }
+            // Also get the value from the allocKey item
+            let amount = new BN(value.userInputAmount!.amount.amount);
+            // Assert that the amount here is greater than 1!
+            let weight = new BN(value.weight);
+            let IxApprovePositionWeightMarinade = await rpcProvider.portfolioObject!.approvePositionWeightMarinade(
+                amount,
+                index,
+                weight
+            );
+            tx.add(IxApprovePositionWeightMarinade);
+        }));
 
         console.log("Sending USDC");
-        let IxSendUsdcToPortfolio = await rpcProvider.portfolioObject!.transfer_to_portfolio(USDC_mint);
-        tx.add(IxSendUsdcToPortfolio);
+        // Also make a map statement here ...
+        await Promise.all(Array.from(allocationData.entries()).map(async (entry: [string, AllocData], index: number) => {
+
+            let key: string = entry[0]
+            let value: AllocData = entry[1];
+
+            // Do a weird dictionary reading ... (?)
+            if (value.protocol === Protocol.marinade) {
+                return;
+            }
+            let currencyMint = value.userInputAmount!.mint;
+            // TODO: Is this set ... (?) Double-check where and how
+            let IxSendUsdcToPortfolio = await rpcProvider.portfolioObject!.transfer_to_portfolio(currencyMint);
+            tx.add(IxSendUsdcToPortfolio);
+        }));
 
         console.log("Depositing some SOL to run the cranks ...");
+        // This much SOL should suffice for now probably ...
         let IxSendToCrankWallet = await rpcProvider.portfolioObject!.sendToCrankWallet(
             localKeypairProvider.localTmpKeypair!.publicKey,
-            100_000_000
+            10_000_000
         );
         tx.add(IxSendToCrankWallet);
 
@@ -255,10 +308,24 @@ export default function PurchaseButton({allocationData}: Props) {
         console.log("Permissoinlessly fulfilling the transactions");
         // await qPoolContext.crankRpcTool!.fullfillAllPermissionless();
         // For now, don't do a forloop, just fulfill the two positions
-        let sgPermissionlessFullfillSaber = await crankProvider.crankRpcTool!.permissionlessFulfillSaber(0);
-        console.log("Fulfilled sg Saber is: ", sgPermissionlessFullfillSaber);
-        let sgPermissionlessFullfillMarinade = await crankProvider.crankRpcTool!.createPositionMarinade(1);
-        console.log("Fulfilled sg Marinade is: ", sgPermissionlessFullfillMarinade);
+        // Again, run the loops here ...
+        await Promise.all(Array.from(allocationData.entries()).map(async (entry: [string, AllocData], index: number) => {
+
+            let key: string = entry[0]
+            let value: AllocData = entry[1];
+
+            // Do a weird dictionary reading ... (?)
+            if (value.protocol === Protocol.saber) {
+                let sgPermissionlessFullfillSaber = await crankProvider.crankRpcTool!.permissionlessFulfillSaber(index);
+                console.log("Fulfilled sg Saber is: ", sgPermissionlessFullfillSaber);
+            } else if (value.protocol === Protocol.saber) {
+                let sgPermissionlessFullfillMarinade = await crankProvider.crankRpcTool!.createPositionMarinade(1);
+                console.log("Fulfilled sg Marinade is: ", sgPermissionlessFullfillMarinade);
+            } else {
+                console.log("Not all cranks could be fulfilled!!");
+                value
+            }
+        }));
         await itemLoadContext.incrementCounter();
 
         console.log("Updating price ...");

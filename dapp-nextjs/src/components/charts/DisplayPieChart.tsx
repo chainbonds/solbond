@@ -2,6 +2,7 @@ import React, {useEffect, useState} from "react";
 import {PieChart, Pie, Cell} from "recharts";
 import {COLORS, RADIAN} from "../../const";
 import {AllocData} from "../../types/AllocData";
+import {Protocol} from "@qpools/sdk";
 
 interface Props {
     allocationInformation: Map<string, AllocData>,
@@ -54,7 +55,7 @@ export default function DisplayPieChart({allocationInformation, showPercentage}:
                     .sort((a, b) => a.lp > b.lp ? 1 : -1)
                     .map((current: AllocData) => {
                         return {
-                            name: current.protocol + " " + current.lp,
+                            name: Protocol[current.protocol] + " " + current.lp,
                             value: ((100 * current.weight) / sum)
                         }
                     }

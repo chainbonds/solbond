@@ -14,6 +14,7 @@ import {DisplayToken} from "../../types/DisplayToken";
 import {ChartableItemType} from "../../types/ChartableItemType";
 import {AllocData} from "../../types/AllocData";
 import TableHeader from "./TableHeader";
+import {Protocol} from "@qpools/sdk";
 
 // I guess this columns is also conditional, actually ...
 const tableColumns: (string | null)[] = [null, "Pay-In Asset", "Product", "Underlying Asset", "Allocation", "24H APY", "Absolute Amount"]
@@ -45,7 +46,7 @@ export default function SuggestedPortfolioTable({selectedAssets, selectedAsset, 
                 selectedAssets.forEach((current: AllocData, key: string) => {
                     let tmp = {
                         key: key,
-                        name: current.protocol.charAt(0).toUpperCase() + current.protocol.slice(1) + " " + current.lp,
+                        name: Protocol[current.protocol].charAt(0).toUpperCase() + Protocol[current.protocol].slice(1) + " " + current.lp,
                         value: ((100 * current.weight) / sum),
                         apy_24h: current.apy_24h,
                         pool: registry.getPoolFromSplStringId(current.lp),

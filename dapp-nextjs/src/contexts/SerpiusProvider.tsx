@@ -1,9 +1,8 @@
 import React, {useState, useContext, useEffect} from 'react';
 import {DisplayPortfolios} from "@qpools/sdk";
 import axios from "axios";
-import {registry} from "@qpools/sdk";
+import {registry, Protocol} from "@qpools/sdk";
 import {AllocData} from "../types/AllocData";
-
 
 export interface ISerpius {
     displayPortfolio: DisplayPortfolios | undefined,
@@ -59,12 +58,15 @@ export function SerpiusEndpointProvider(props: any) {
                 console.log("response.data.opt_port", response.data["opt_port"]);
                 console.log("Now loading again ...")
                 let data: AllocData[] = response.data["opt_port"];
+                data = data.map((x) => {return {...x, protocol: Protocol[x.protocol]}})
                 console.log("After..");
                 // setPortfolioRatios(data);
                 console.log("(2) Data and type is: ", typeof data, data);
 
                 // Fetch the additional token account for each data item in AllocData
                 setPortfolioRatios((_: AllocData[]) => {
+
+                    // Replace the allocData through
 
                     // Now add the information about the ExplicitSaberPool into it as well
                     let newData = data.map((dataItem: AllocData) => {

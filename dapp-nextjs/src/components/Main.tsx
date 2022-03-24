@@ -16,7 +16,7 @@ import {useWallet, WalletContextState} from "@solana/wallet-adapter-react";
 import SelectWalletForm from "./swap/SelectWalletForm";
 import {BN} from "@project-serum/anchor";
 import {UserTokenBalance} from "../types/UserTokenBalance";
-import {getInputToken, SelectedToken} from "../utils/utils";
+import {Protocol} from "@qpools/sdk";
 
 export enum HeroFormState {
     ShowSuggestedPortfolio,
@@ -113,7 +113,7 @@ export const Main: FC = ({}) => {
                 console.log("The new allocation (wallet) data is: ", userWalletAssetsProvider.walletAssets);
                 let out: Map<string, AllocData> = new Map<string, AllocData>();
                 userWalletAssetsProvider.walletAssets!.map((x: AllocData) => {
-                    let key: string = x.protocol + " " + x.lp;
+                    let key: string = Protocol[x.protocol] + " " + x.lp;
                     out.set(key, x);
                 });
                 return out;
@@ -124,7 +124,7 @@ export const Main: FC = ({}) => {
                 // TODO: Replace the assets here (form a map from an Array)
                 let out: Map<string, AllocData> = new Map<string, AllocData>();
                 serpiusProvider.portfolioRatios.map((x: AllocData) => {
-                    let key: string = x.protocol + " " + x.lp;
+                    let key: string = Protocol[x.protocol] + " " + x.lp;
                     out.set(key, x);
                 });
                 return out;

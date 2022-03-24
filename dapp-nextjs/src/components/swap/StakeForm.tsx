@@ -3,13 +3,10 @@ import PurchaseButton from "../buttons/PurchaseButton";
 import OnramperModal from "../modals/OnramperModal"
 import UserInfoBalance from "../displays/UserInfoBalance";
 import InputFieldWithSliderInputAndLogo from "../inputs/InputFieldWithSliderInputAndLogo";
-import {PublicKey} from "@solana/web3.js";
 import {AllocData} from "../../types/AllocData";
 import {getInputToken, SelectedToken} from "../../utils/utils";
 
 interface Props {
-    // currencyMint: PublicKey,
-    // currencyName: string,
     allocationItems: Map<string, AllocData>,
     selectedItemKey: string,
     modifyIndividualAllocationItem: (arg0: string, arg1: number) => void
@@ -25,16 +22,6 @@ export default function StakeForm({allocationItems, selectedItemKey, modifyIndiv
     if (!allocationItems) {
         return <></>
     }
-
-    // if (!allocationItems.has(selectedItemKey)) {
-    //     return <></>
-    // }
-
-    // if (!allocationItems.get(selectedItemKey)!.userWalletAmount) {
-    //     return <></>
-    // }
-
-    // let selectedItem = allocationItems.get(selectedItemKey)!;
 
     // TODO: Add the balance into the local state here ..
     const inputField = () => {
@@ -95,12 +82,12 @@ export default function StakeForm({allocationItems, selectedItemKey, modifyIndiv
 
     return (
         <>
-            {/*<OnramperModal*/}
-            {/*    isOpen={displayOnramperModal}*/}
-            {/*    onClose={() => {*/}
-            {/*        setDisplayOnramperModal(false)*/}
-            {/*    }}*/}
-            {/*/>*/}
+            <OnramperModal
+                isOpen={displayOnramperModal}
+                onClose={() => {
+                    setDisplayOnramperModal(false)
+                }}
+            />
             <div className={"flex pb-2 w-full"}>
                 <div className={"flex flex-col w-full"}>
                     <div className={"flex flex-row"}>
@@ -108,7 +95,9 @@ export default function StakeForm({allocationItems, selectedItemKey, modifyIndiv
                             {inputField()}
                         </div>
                         <div className={"flex flex-row ml-auto my-auto mt-1"}>
-                            <PurchaseButton />
+                            <PurchaseButton
+                                allocationData={allocationItems}
+                            />
                         </div>
                     </div>
                     <div className={"flex flex-row mx-1 mt-1"}>
