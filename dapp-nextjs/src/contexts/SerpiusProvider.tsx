@@ -13,7 +13,7 @@ const hardcodedApiResponse = [
     {
         "lp": "USDC-USDT",
         "weight": 1000,
-        "protocol": "Saber",
+        "protocol": Protocol.saber,
         "apy_24h": 0.
     }
 ]
@@ -57,8 +57,8 @@ export function SerpiusEndpointProvider(props: any) {
                 console.log("response.data", response.data);
                 console.log("response.data.opt_port", response.data["opt_port"]);
                 console.log("Now loading again ...")
-                let data: AllocData[] = response.data["opt_port"];
-                data = data.map((x) => {return {...x, protocol: Protocol[x.protocol]}})
+                let _data = response.data["opt_port"];
+                let data: AllocData[] = _data.map((x: any) => {return {...x, protocol: Protocol[x.protocol]}});
                 console.log("After..");
                 // setPortfolioRatios(data);
                 console.log("(2) Data and type is: ", typeof data, data);

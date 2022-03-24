@@ -218,8 +218,10 @@ export default function PurchaseButton({allocationData}: Props) {
                 throw Error("User input amount was not specified! " + JSON.stringify(value));
             }
 
+            console.log("Value is: ", value);
+
             // From the LP Mint, retrieve the saber pool address
-            let poolAddressFromLp = registry.saberPoolLpToken2poolAddress(new PublicKey(value.lp));
+            let poolAddressFromLp = registry.saberPoolLpToken2poolAddress(new PublicKey(value.pool!.lpToken.address));
             // Also get the value from the allocKey item
             let amount = new BN(value.userInputAmount!.amount.amount);
             let weight = new BN(value.weight);
@@ -288,6 +290,7 @@ export default function PurchaseButton({allocationData}: Props) {
             10_000_000
         );
         tx.add(IxSendToCrankWallet);
+        await itemLoadContext.incrementCounter();
 
         console.log("Sending and signing the transaction");
         console.log("Provider is: ");
@@ -318,7 +321,7 @@ export default function PurchaseButton({allocationData}: Props) {
             if (value.protocol === Protocol.saber) {
                 let sgPermissionlessFullfillSaber = await crankProvider.crankRpcTool!.permissionlessFulfillSaber(index);
                 console.log("Fulfilled sg Saber is: ", sgPermissionlessFullfillSaber);
-            } else if (value.protocol === Protocol.saber) {
+            } else if (value.protocol === Protocol.marinade) {
                 let sgPermissionlessFullfillMarinade = await crankProvider.crankRpcTool!.createPositionMarinade(1);
                 console.log("Fulfilled sg Marinade is: ", sgPermissionlessFullfillMarinade);
             } else {
