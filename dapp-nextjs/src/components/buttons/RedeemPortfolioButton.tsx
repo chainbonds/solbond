@@ -107,10 +107,6 @@ export const RedeemPortfolioButton: FC = ({}) => {
          *
          */
 
-            // Run all cranks ...
-        // let allIxs = await rpcProvider.portfolioObject!.approveRedeemAllPositions(portfolio, positionsSaber, positionsMarinade);
-
-
         // Run the saber redeem cranks ..
         await crankProvider.crankRpcTool!.redeemAllPositions(portfolio, positionsSaber, positionsMarinade);
         // let sgRedeemSinglePositionOnlyOne = await crankProvider.crankRpcTool!.redeem_single_position_only_one(0);

@@ -7,13 +7,20 @@ import {IItemsLoad, useItemsLoad} from "../../contexts/ItemsLoadingContext";
 import {MOCK} from "@qpools/sdk";
 import {ICrank, useCrank} from "../../contexts/CrankProvider";
 import {ILocalKeypair, useLocalKeypair} from "../../contexts/LocalKeypairProvider";
+import {IUserWalletAssets, useUserWalletAssets} from "../../contexts/UserWalletAssets";
+import {AllocData} from "../../types/AllocData";
 
-export default function PurchaseButton() {
+interface Props {
+    allocationData: Map<string, AllocData>
+}
+// Gotta have as input the wallet assets
+export default function PurchaseButton({allocationData}: Props) {
 
     const rpcProvider: IRpcProvider = useRpc();
     const crankProvider: ICrank = useCrank();
     const localKeypairProvider: ILocalKeypair = useLocalKeypair();
     const itemLoadContext: IItemsLoad = useItemsLoad();
+    const userWalletProvider: IUserWalletAssets = useUserWalletAssets();
 
     // TODO: Get all assets and protocols through the context. Also, perhaps instead of if protocolType, just directly also record the protocol itself ...
     const buyItem = async () => {
@@ -25,12 +32,13 @@ export default function PurchaseButton() {
         }
 
         // Also make sure that the portfolio was loaded ...
-        // if (!qPoolContext.portfolioRatios) {
-        //     alert("Please try again in a couple of seconds (We should really fix this error message)");
-        //     return
-        // }
-        //
-        // if (!qPoolContext.portfolioRatios[0].pool) {
+        if (!allocationData) {
+            alert("Please try again in a couple of seconds (We should really fix this error message)");
+            return
+        }
+
+        // Gotta check if the amounts exist ...
+        // if (!userWalletProvider.walletAssets) {
         //     alert("Please try again in a couple of seconds (We should really fix this error message) 2");
         //     return
         // }
@@ -50,6 +58,8 @@ export default function PurchaseButton() {
 
         // ==> Let that be like part of the wallet
         // We can also airdrop some stuff for now
+
+
 
         // Define the same for wrapped SOL, lol
 
