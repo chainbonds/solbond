@@ -114,7 +114,7 @@ export default function SuggestedPortfolioTable({selectedAssets, selectedAsset, 
                     }}
                 >
                     {/* Show the icons next to this ... */}
-                    <td className="py-4 px-6 text-sm text--center font-normal text-gray-900 whitespace-nowrap dark:text-white">
+                    <td className="py-4 px-6 text-sm text--center font-normal text-gray-900 whitespace-nowrap dark:text-gray-100">
                         <div className="flex items-center">
                             <div className="ml-4">
                                 <div
@@ -124,20 +124,21 @@ export default function SuggestedPortfolioTable({selectedAssets, selectedAsset, 
                             </div>
                         </div>
                     </td>
-                    <td className="py-4 px-6 text-sm text-center font-normal text-gray-500 whitespace-nowrap dark:text-gray-400">
+                    <td className="py-4 px-6 text-sm text-center font-normal text-gray-500 whitespace-nowrap dark:text-gray-100">
                         <a href={solscanLink(inputToken.mint)} target={"_blank"} rel="noreferrer"
                            className="text-blue-600 dark:text-blue-400 hover:underline">
                             <Image className={"rounded-3xl"} src={inputTokenLink} width={30} height={30}/>
                         </a>
                     </td>
-                    <td className="py-4 px-6 text-sm text-center font-normal text-gray-900 whitespace-nowrap dark:text-white">
+                    <td className="py-4 px-6 text-sm text-center font-normal text-gray-500 whitespace-nowrap dark:text-gray-100">
                         <a href={solscanLink(mintLP)} target={"_blank"} rel="noreferrer"
-                           className="text-blue-600 dark:text-blue-500 hover:underline">
+                           // text-blue-600 dark:text-blue-500
+                           className="hover:underline">
                             {/*{shortenedAddressString(mintLP)}*/}
                             {item.name}
                         </a>
                     </td>
-                    <td className="py-4 px-6 text-sm text-center font-normal text-gray-500 whitespace-nowrap dark:text-gray-400">
+                    <td className="py-4 px-6 text-sm text-center font-normal text-gray-500 whitespace-nowrap dark:text-gray-100">
                         {displayTokens.map((displayToken: DisplayToken) => {
                             return (
                                 <a href={displayToken.tokenSolscanLink} target={"_blank"} rel="noreferrer"
@@ -147,7 +148,7 @@ export default function SuggestedPortfolioTable({selectedAssets, selectedAsset, 
                             )
                         })}
                     </td>
-                    <td className="py-4 px-6 text-sm text-center font-normal  whitespace-nowrap dark:text-gray-400">
+                    <td className="py-4 px-6 text-sm text-center font-normal whitespace-nowrap dark:text-gray-100">
                         {item.value.toFixed(0)}%
                     </td>
                     <td className="py-4 px-6 text-sm text-center whitespace-nowrap">
