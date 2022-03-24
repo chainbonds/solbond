@@ -322,11 +322,12 @@ export default function PurchaseButton({allocationData}: Props) {
                 let sgPermissionlessFullfillSaber = await crankProvider.crankRpcTool!.permissionlessFulfillSaber(index);
                 console.log("Fulfilled sg Saber is: ", sgPermissionlessFullfillSaber);
             } else if (value.protocol === Protocol.marinade) {
-                let sgPermissionlessFullfillMarinade = await crankProvider.crankRpcTool!.createPositionMarinade(1);
+                let sgPermissionlessFullfillMarinade = await crankProvider.crankRpcTool!.createPositionMarinade(index);
                 console.log("Fulfilled sg Marinade is: ", sgPermissionlessFullfillMarinade);
             } else {
                 console.log("Not all cranks could be fulfilled!!");
-                value
+                console.log(value);
+                throw Error("Not all cranks could be fulfilled!! " + JSON.stringify(value));
             }
         }));
         await itemLoadContext.incrementCounter();
