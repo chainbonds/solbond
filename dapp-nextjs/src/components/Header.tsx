@@ -18,6 +18,7 @@ export const Header: FC = ({}) => {
                     <div className={"flex-1 px-2 mx-2"}>
                     </div>
                     {/*TODO Implement Devnet show (and also faucet maybe)*/}
+                    {/*  On mainnet, instead of Faucet, perhaps include a button "buy crypto" ... */}
                     <div className={"flex my-auto py-auto mx-auto md:mx-0"}>
                         <div className={"flex flex-col md:flex-row"}>
                             <div className={"px-2 py-2 mx-auto md:py-0 md:py-auto md:my-auto"}>

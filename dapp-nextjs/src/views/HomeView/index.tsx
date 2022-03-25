@@ -10,19 +10,6 @@ import {BRAND_COLORS} from "../../const";
 export const HomeView: FC = ({}) => {
 
     const {loading} = useLoad();
-
-    const devnetBanner = () => {
-        return (
-            <>
-                <div className={"flex w-full bg-pink-400"}>
-                    <div className={"mx-auto py-2 text-gray-900"}>
-                        We are on devnet! TVL Values are made up! Send any inquiries to contact@qpools.finance
-                    </div>
-                </div>
-            </>
-        )
-    };
-
     return (
         <>
             <LoadingOverlay
@@ -40,7 +27,6 @@ export const HomeView: FC = ({}) => {
                     className="flex flex-col h-screen w-full w-screen text-white"
                     style={{ backgroundColor: BRAND_COLORS.slate900 }}
                 >
-                    {/*{devnetBanner()}*/}
                     <Header />
                     <Main/>
                     <Footer/>
