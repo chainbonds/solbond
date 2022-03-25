@@ -16,16 +16,15 @@ import {Protocol} from "@qpools/sdk";
 import TableHeader from "../common/TableHeader";
 
 // I guess this columns is also conditional, actually ...
-const tableColumns: (string | null)[] = [null, "Pay-In Asset", "Product", "Underlying Asset", "Allocation", "24H APY", "Absolute Amount"]
-
 // TODO: Normalize (rename) the name "selectedAssets"
 interface Props {
+    tableColumns: (string | null)[],
     selectedAssets: Map<string, AllocData>,
     selectedAsset: string | null,
     setSelectedAsset: React.Dispatch<React.SetStateAction<string>> | null
 }
 
-export default function SuggestedPortfolioTable({selectedAssets, selectedAsset, setSelectedAsset}: Props) {
+export default function SuggestedPortfolioTable({tableColumns, selectedAssets, selectedAsset, setSelectedAsset}: Props) {
 
     // Instead of the raw pubkeys, store the pyth ID, and then you can look up the price using the pyth sdk ..
     // Much more sustainable also in terms of development
@@ -80,7 +79,10 @@ export default function SuggestedPortfolioTable({selectedAssets, selectedAsset, 
         console.log("new Key", theKey, "for index", index)
 
         // Should prob make the types equivalent. Should clean up all types in the front-end repo
-        let tailwindOnSelected = "dark:bg-gray-800 hover:bg-gray-900";
+        let tailwindOnSelected = "dark:bg-gray-800";
+        if (setSelectedAsset) {
+            tailwindOnSelected += " hover:bg-gray-900"
+        }
         // TODO: Perhaps it's easier to just hardcode it ...
         // TODO: This shouldn't make any sense ... obviously the LP is not equivalent to the item name
         if (item.key === selectedAsset) {
@@ -103,12 +105,14 @@ export default function SuggestedPortfolioTable({selectedAssets, selectedAsset, 
                     key={theKey}
                     className={tailwindOnSelected}
                     onClick={() => {
-                        setSelectedAsset!((_: string) => {
-                            console.log("Item is:", item.allocationItem);
-                            console.log("About to set the selectedAsset to", item);
-                            console.log("About to set the selectedAsset to", item.allocationItem);
-                            return item.key;
-                        });
+                        if (setSelectedAsset) {
+                            setSelectedAsset((_: string) => {
+                                console.log("Item is:", item.allocationItem);
+                                console.log("About to set the selectedAsset to", item);
+                                console.log("About to set the selectedAsset to", item.allocationItem);
+                                return item.key;
+                            });
+                        }
                         console.log("Tach Tach");
                     }}
                 >
@@ -153,7 +157,7 @@ export default function SuggestedPortfolioTable({selectedAssets, selectedAsset, 
                     <td className="py-4 px-6 text-sm text-center whitespace-nowrap">
                         {(item.apy_24h).toFixed(1)}%
                     </td>
-                    {item.allocationItem &&
+                    {(item.allocationItem && item.allocationItem?.userInputAmount?.amount) &&
                     <td className="py-4 px-6 text-sm text-center whitespace-nowrap">
                         {/* inputToken.name */}
                         {item.allocationItem?.userInputAmount?.amount.uiAmount && (item.allocationItem?.userInputAmount?.amount.uiAmount).toFixed(2)}

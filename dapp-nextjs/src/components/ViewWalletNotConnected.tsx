@@ -54,6 +54,7 @@ export const ViewWalletNotConnected = ({}: Props) => {
                 </div>
                 <div className="flex flex-col text-gray-300 my-auto divide-y divide-white">
                     <SuggestedPortfolioTable
+                        tableColumns={[null, "Pay-In Asset", "Product", "Underlying Asset", "Allocation", "24H APY"]}
                         selectedAssets={allocationData}
                         selectedAsset={null}
                         setSelectedAsset={null}
