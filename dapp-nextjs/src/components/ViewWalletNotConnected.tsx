@@ -33,16 +33,18 @@ export const ViewWalletNotConnected = ({}: Props) => {
 
     console.log("Allocation Data is: ", allocationData, null);
 
+    // Cannot talk much about yields, risks etc. _yet_
     return (
         <>
             <div className={"flex flex-row w-full"}>
-                <h1 className={"text-3xl font-light"}>
-                    Please Select Your Portfolio
+                <h1 className={"text-4xl font-light"}>
+                    Would you like some passive income?
                 </h1>
             </div>
-            <div className={"flex flex-row mt-2"}>
+            <div className={"flex flex-row mt-5"}>
                 <h2 className={"text-2xl font-light"}>
-                    This will be the allocation in which your assets generate yields
+                    Please Connect your Wallet First!
+                    {/*This will be the allocation in which your assets generate yields*/}
                 </h2>
             </div>
             <div className={"flex flex-row mt-8"}>
