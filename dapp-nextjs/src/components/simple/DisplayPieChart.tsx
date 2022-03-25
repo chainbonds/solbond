@@ -6,12 +6,15 @@ import {Protocol} from "@qpools/sdk";
 
 interface Props {
     allocationInformation: Map<string, AllocData>,
-    showPercentage: boolean,
-
+    showPercentage: boolean
+}
+interface PieChartDataInterface {
+    name: string,
+    value: number
 }
 export default function DisplayPieChart({allocationInformation, showPercentage}: Props) {
 
-    const renderCustomizedLabel = ({cx, cy, midAngle, innerRadius, outerRadius, percent, index}: any) => {
+    const renderCustomizedLabel = ({cx, cy, midAngle, innerRadius, outerRadius, percent}: any) => {
         const radius = innerRadius + (outerRadius - innerRadius) * 0.4; // 1.05;
         const x = cx + radius * Math.cos(-midAngle * RADIAN);
         const y = cy + radius * Math.sin(-midAngle * RADIAN);
@@ -24,10 +27,6 @@ export default function DisplayPieChart({allocationInformation, showPercentage}:
         );
     };
 
-    interface PieChartDataInterface {
-        name: string,
-        value: number
-    }
     const [pieChartData, setPieChartData] = useState<PieChartDataInterface[]>([
         {name: "Group A", value: 400},
         {name: "Group B", value: 300},
@@ -36,21 +35,12 @@ export default function DisplayPieChart({allocationInformation, showPercentage}:
     ])
 
     useEffect(() => {
-        console.log("Creating the PieChart based on this stuff");
-        console.log(allocationInformation);
-        console.log(showPercentage);
-    }, [allocationInformation, showPercentage]);
-
-
-    useEffect(() => {
         if (!allocationInformation) {
             return;
         }
 
-        // Sum is a
         let sum = Array.from(allocationInformation.values()).reduce((sum: number, current: AllocData) => sum + current.weight, 0);
         setPieChartData((_: any) => {
-                // TODO: Should probably create a sort by protocol ...
                 return Array.from(allocationInformation.values())
                     .sort((a, b) => a.lp > b.lp ? 1 : -1)
                     .map((current: AllocData) => {
@@ -77,7 +67,6 @@ export default function DisplayPieChart({allocationInformation, showPercentage}:
                      label={showPercentage ? renderCustomizedLabel : false}
                      outerRadius={100}
                      innerRadius={40}
-                    // fill="#8884d8"
                      dataKey="value"
                 >
                     {pieChartData.map((entry, index) => (

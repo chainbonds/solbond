@@ -1,17 +1,16 @@
 import React from "react";
 import {displayTokensFromPositionInfo, shortenedAddressString, solscanLink} from "../../utils/utils";
 import Image from "next/image";
-import {PositionInfo, ProtocolType, registry} from "@qpools/sdk";
+import {PositionInfo} from "@qpools/sdk";
 import {DisplayToken} from "../../types/DisplayToken";
 import {IExistingPortfolio, useExistingPortfolio} from "../../contexts/ExistingPortfolioProvider";
-import TableHeader from "./TableHeader";
+import TableHeader from "../simple/TableHeader";
 
 const tableColumns: (string | null)[] = ["Pool", "Assets", "USDC Value", null]
 
 export default function ExistingPortfolioTable() {
 
     const existingPortfolioProvider: IExistingPortfolio = useExistingPortfolio();
-
 
     const tableSingleRow = (position: PositionInfo) => {
         if (position.amountLp && !position.amountLp.uiAmount && (position.amountLp.uiAmount != 0)) {

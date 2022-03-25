@@ -1,6 +1,5 @@
 import React, {FC} from "react";
 import {FaFaucet} from "react-icons/fa";
-import {useWallet} from "@solana/wallet-adapter-react";
 import {BN} from "@project-serum/anchor";
 import {IRpcProvider, useRpc} from "../../contexts/RpcProvider";
 import airdropAdmin from "@qpools/sdk/src/devnet/airdropAdmin";

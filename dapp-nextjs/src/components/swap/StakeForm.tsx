@@ -1,10 +1,10 @@
 import React, {useState} from "react";
-import PurchaseButton from "../buttons/PurchaseButton";
 import OnramperModal from "../modals/OnramperModal"
-import UserInfoBalance from "../displays/UserInfoBalance";
-import InputFieldWithSliderInputAndLogo from "../inputs/InputFieldWithSliderInputAndLogo";
+import UserInfoBalance from "../simple/UserInfoBalance";
 import {AllocData} from "../../types/AllocData";
 import {getInputToken, SelectedToken} from "../../utils/utils";
+import InputFieldWithSliderInputAndLogo from "../simple/InputFieldWithSliderInputAndLogo";
+import PurchaseButton from "../createPortfolio/PurchaseButton";
 
 interface Props {
     allocationItems: Map<string, AllocData>,
@@ -74,7 +74,7 @@ export default function StakeForm({allocationItems, selectedItemKey, modifyIndiv
             <UserInfoBalance
                 currencyMint={inputToken.mint}
                 currencyName={inputToken.name}
-                balance={allocationItems.get(selectedItemKey)?.userWalletAmount?.amount.uiAmount || null}
+                currencyBalance={allocationItems.get(selectedItemKey)?.userWalletAmount?.amount.uiAmount || null}
                 solBalance={allocationItems.get(selectedItemKey)?.userWalletAmount?.amount.uiAmount || null}  // TODO: Did we pass in the SOL balance anyways ... (?)
             />
         );

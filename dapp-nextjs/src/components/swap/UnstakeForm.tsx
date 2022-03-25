@@ -1,15 +1,13 @@
-import {useWallet} from '@solana/wallet-adapter-react';
 import React, {useEffect, useState} from "react";
 import {WalletMultiButton} from "@solana/wallet-adapter-react-ui";
 import {IRpcProvider, useRpc} from "../../contexts/RpcProvider";
-import ConnectWalletPortfolioRow from "../portfolio/ConnectWalletPortfolioRow";
-import SinglePortfolioRow from "../portfolio/SinglePortfolioRow";
 import {IExistingPortfolio, useExistingPortfolio} from "../../contexts/ExistingPortfolioProvider";
+import RowInList from "../simple/RowInList";
+import SinglePositionInPortfolioRow from "../redeemPortfolio/SinglePositionInPortfolioRow";
 
 // The existing Portfolio Context could technically be just outside of this
 export default function UnstakeForm() {
 
-    const walletContext: any = useWallet();
     const rpcProvider: IRpcProvider = useRpc();
     const existingPortfolioProvider: IExistingPortfolio = useExistingPortfolio();
 
@@ -23,7 +21,7 @@ export default function UnstakeForm() {
 
         if (!rpcProvider.portfolioObject) {
             return (
-                <ConnectWalletPortfolioRow
+                <RowInList
                     text={"Connect wallet to see your portfolios!"}
                 />
             )
@@ -42,24 +40,27 @@ export default function UnstakeForm() {
         if (existingPortfolioProvider.positionInfos.length === 0) {
             // TODO: Here, the user should for some reason run the cranks (?)
             return (
-                <ConnectWalletPortfolioRow
+                <RowInList
                     text={"You have not created any positions yet!"}
                 />
             );
         }
         if (!rpcProvider.portfolioObject.portfolioPDA) {
             return (
-                <ConnectWalletPortfolioRow
+                <RowInList
                     text={"Loading ..."}
                 />
             );
         }
         console.log("Portfolio PDA (1) is: ", rpcProvider.portfolioObject.portfolioPDA);
+        if (!totalPortfolioValueInUsd) {
+            console.log("Total portfolio value is not set ...");
+        }
         return (
             <>
-                <SinglePortfolioRow
+                <SinglePositionInPortfolioRow
                     address={rpcProvider.portfolioObject.portfolioPDA}
-                    value={totalPortfolioValueInUsd}
+                    value={totalPortfolioValueInUsd!}
                 />
             </>
         )

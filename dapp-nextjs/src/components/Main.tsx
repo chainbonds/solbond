@@ -7,18 +7,16 @@ import {IRpcProvider, useRpc} from "../contexts/RpcProvider";
 import {AllocData} from "../types/AllocData";
 import {ISerpius, useSerpiusEndpoint} from "../contexts/SerpiusProvider";
 import {IUserWalletAssets, useUserWalletAssets} from "../contexts/UserWalletAssets";
-import ExistingPortfolioTable from "./tables/ExistingPortfolioTable";
-import SuggestedPortfolioTable from "./tables/SuggestedPortfolioTable";
-import DisplayPieChart from "./charts/DisplayPieChart";
-import {registry} from "@qpools/sdk";
-import {PublicKey} from "@solana/web3.js";
+import DisplayPieChart from "./simple/DisplayPieChart";
 import {useWallet, WalletContextState} from "@solana/wallet-adapter-react";
-import SelectWalletForm from "./swap/SelectWalletForm";
+import SelectWallet from "./createPortfolio/SelectWallet";
 import {BN} from "@project-serum/anchor";
 import {UserTokenBalance} from "../types/UserTokenBalance";
 import {Protocol} from "@qpools/sdk";
 import {IExistingPortfolio, useExistingPortfolio} from "../contexts/ExistingPortfolioProvider";
 import {PositionInfo} from "@qpools/sdk";
+import SuggestedPortfolioTable from "./createPortfolio/SuggestedPortfolioTable";
+import ExistingPortfolioTable from "./redeemPortfolio/ExistingPortfolioTable";
 
 export enum HeroFormState {
     ShowSuggestedPortfolio,
@@ -217,7 +215,7 @@ export const Main: FC = ({}) => {
                 console.log(selectKey, allocationData);
                 return (
                     <>
-                        <SelectWalletForm/>
+                        <SelectWallet/>
                     </>
                 )
             }

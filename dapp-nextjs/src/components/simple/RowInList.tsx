@@ -1,6 +1,9 @@
 import React from "react";
 
-export default function ConnectWalletPortfolioRow(props: any) {
+interface Props {
+    text: string
+}
+export default function RowInList({text}: Props) {
 
     return (
         <>
@@ -8,7 +11,7 @@ export default function ConnectWalletPortfolioRow(props: any) {
                 <div className="relative text-gray-400 focus-within:text-gray-400 w-full h-full">
                     <div className="flex rounded-lg w-full bg-gray-900 items-end text-right h-14 p-4">
                         <div className={"flex w-full mx-auto px-auto justify-center"}>
-                            {props.text}
+                            {text}
                         </div>
                     </div>
                 </div>

@@ -1,6 +1,6 @@
 import OnramperWidget from "@onramper/widget";
 
-export default function Onramper() {
+export default function Onramper({}) {
 
     return (
         <>

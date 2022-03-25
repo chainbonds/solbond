@@ -3,7 +3,6 @@ import {
     displayTokensFromChartableAsset,
     getInputToken,
     SelectedToken,
-    shortenedAddressString,
     solscanLink
 } from "../../utils/utils";
 import Image from "next/image";
@@ -13,8 +12,8 @@ import {PublicKey} from "@solana/web3.js";
 import {DisplayToken} from "../../types/DisplayToken";
 import {ChartableItemType} from "../../types/ChartableItemType";
 import {AllocData} from "../../types/AllocData";
-import TableHeader from "./TableHeader";
 import {Protocol} from "@qpools/sdk";
+import TableHeader from "../simple/TableHeader";
 
 // I guess this columns is also conditional, actually ...
 const tableColumns: (string | null)[] = [null, "Pay-In Asset", "Product", "Underlying Asset", "Allocation", "24H APY", "Absolute Amount"]
@@ -22,21 +21,17 @@ const tableColumns: (string | null)[] = [null, "Pay-In Asset", "Product", "Under
 interface Props {
     selectedAssets: Map<string, AllocData>,
     selectedAsset: string,
-    setSelectedAsset:  React.Dispatch<React.SetStateAction<string>>,
-    // modifyIndividualAllocationItem: (currentlySelectedKey: string, absoluteBalance: number) => void,  // How to convert this to a setter function signature,
+    setSelectedAsset:  React.Dispatch<React.SetStateAction<string>>
 }
 export default function SuggestedPortfolioTable({selectedAssets, selectedAsset, setSelectedAsset}: Props) {
 
     // Instead of the raw pubkeys, store the pyth ID, and then you can look up the price using the pyth sdk ..
     // Much more sustainable also in terms of development
 
-    // I see what was hardcoded here, haha
-    // TODO: Make these chartableItemTypes also all uniform, perhaps use AllocData, and map it in the final iteration ....
     const [pieChartData, setPieChartData] = useState<ChartableItemType[]>([
         {key: "USDC-USDT", name: "USDC-USDT", value: 500, apy_24h: 0.},
         {key: "USDC-PAI", name: "USDC-PAI", value: 500, apy_24h: 0.},
     ])
-    // Make sure types conform ...
 
     useEffect(() => {
         if (!selectedAssets) return;

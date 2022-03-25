@@ -1,8 +1,5 @@
 import {Fragment} from "react";
 import {Transition} from '@headlessui/react';
-import {useWallet} from "@solana/wallet-adapter-react";
-import {useLoad} from "../../contexts/LoadingContext";
-import {useItemsLoad} from "../../contexts/ItemsLoadingContext";
 import dynamic from 'next/dynamic'
 
 const Onramper = dynamic(() => import('./Onramper'), {

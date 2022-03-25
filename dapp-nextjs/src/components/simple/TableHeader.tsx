@@ -4,6 +4,11 @@ interface Props {
     columns: (string | null)[]
 }
 
+/**
+ * If the to the column is null, it creates the column, without assigning a string to it
+ * @param columns
+ * @constructor
+ */
 export default function TableHeader({columns}: Props) {
 
     return (

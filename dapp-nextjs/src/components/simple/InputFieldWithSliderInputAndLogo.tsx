@@ -14,13 +14,6 @@ interface Props {
 }
 export default function InputFieldWithSliderInputAndLogo({allocationItems, selectedItemKey, currencyName, modifyIndividualAllocationItem, min, max}: Props) {
 
-    // TODO: Find a provider that does this for you
-    // Probably the UserWalletAssets provider!
-    // const qPoolContext: IRpcProvider = useRpc();
-
-    // Have a setter for the value ..
-    // Or get this from props ...
-    // Probably props is better
     const [value, setValue] = useState<number>(0.);
     const [sliderValue, setSliderValue] = useState<number>(0.);
     const [inputValue, setInputValue] = useState<number>(0.);
@@ -44,7 +37,6 @@ export default function InputFieldWithSliderInputAndLogo({allocationItems, selec
         modifyIndividualAllocationItem(selectedItemKey, value);
     }, [value]);
 
-    // Max and Min Fields need to be included
     const inputTextField = () => {
         return (<>
             <input
@@ -86,8 +78,6 @@ export default function InputFieldWithSliderInputAndLogo({allocationItems, selec
         )
     }
 
-    // Maybe this should be a special component ....
-
     // Gotta pick the token that is whitelisted, and inside the
     if (!allocationItems.has(selectedItemKey)) {
         return (<></>);
@@ -112,7 +102,6 @@ export default function InputFieldWithSliderInputAndLogo({allocationItems, selec
                     {inputRangeField()}
                 </div>
             </div>
-            {/*    TODO: Add the connect wallet button here, perhaps (?)*/}
         </>
     );
 }

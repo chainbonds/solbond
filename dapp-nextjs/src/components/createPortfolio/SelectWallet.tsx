@@ -1,9 +1,9 @@
 import React from "react";
-import ConnectWalletButton from "../buttons/ConnectWalletButton";
 import {useWallet, WalletContextState} from "@solana/wallet-adapter-react";
+import ConnectWalletButton from "../simple/ConnectWalletButton";
 
 
-export default function SelectWalletForm() {
+export default function SelectWallet({}) {
 
     const walletContext: WalletContextState = useWallet();
 
@@ -19,10 +19,10 @@ export default function SelectWalletForm() {
                             {!walletContext.publicKey && <ConnectWalletButton/>}
                         </div>
                     </div>
-                    <div className={"flex flex-row mx-1 mt-1"}>
-                        {/* TODO: Also can fill this with something as well ... */}
-                        {/*<UserInfoBalance currencyMint={currencyMint}/>*/}
-                    </div>
+                    {/*<div className={"flex flex-row mx-1 mt-1"}>*/}
+                    {/*    /!* TODO: Also can fill this with something as well ... *!/*/}
+                    {/*    /!*<UserInfoBalance currencyMint={currencyMint}/>*!/*/}
+                    {/*</div>*/}
                 </div>
             </div>
         </>
