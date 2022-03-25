@@ -50,20 +50,20 @@ export function CrankProvider(props: any) {
     /**
      * Implement logic to run cranks if not all positions have been fulfilled
      */
-        // TODO: Uncomment again!
-        // const runCrankInBackground = async () => {
-        //     // Check
-        //     if (await accountExists(connection!, crankRpcTool!.portfolioPDA)) {
-        //         await crankRpcTool!.fullfillAllPermissionless();
-        //         await makePriceReload();
-        //     }
+    // TODO: Uncomment again!
+    const runCrankInBackground = async () => {
+        // Check
+        // Maybe add this to the crankRpcTool
+        // if (await accountExists(connection!, crankRpcTool!.portfolioPDA)) {
+        //     await crankRpcTool!.fullfillAllPermissionless();
+        //     await makePriceReload();
         // }
-        // useEffect(() => {
-        //     if (crankRpcTool) {
-        //         runCrankInBackground();
-        //     }
-        // },[crankRpcTool]);
-
+    }
+    useEffect(() => {
+        if (crankRpcTool) {
+            runCrankInBackground();
+        }
+    },[crankRpcTool]);
 
     const value: ICrank = {
             crankRpcTool,

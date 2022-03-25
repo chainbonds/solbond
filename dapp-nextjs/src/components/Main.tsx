@@ -38,6 +38,20 @@ export const Main: FC = ({}) => {
         determineDisplayedView();
     }, [rpcProvider.portfolioObject, walletProvider.wallet, walletProvider.publicKey, rpcProvider.makePriceReload]);
 
+
+    useEffect(() => {
+        console.log("Flushing the portfolio of the user to the console");
+        if (rpcProvider.portfolioObject) {
+            rpcProvider.portfolioObject.portfolioExists().then((isFulfilled: boolean) => {
+                if (isFulfilled) {
+                    rpcProvider.portfolioObject!.flushAllAccountsToConsole();
+                } else {
+                    console.log("No position found!")
+                }
+            });
+        } else {console.log("PortfolioObject not created yet")}
+    }, [rpcProvider.portfolioObject]);
+
     return (
         <div
             id="content"

@@ -24,12 +24,12 @@ export default function SinglePositionInPortfolioRow({address, value, initialVal
                             </a>
                             }
                         </div>
-                        {initialValue &&
-                            <div className={"flex w-full mx-auto px-auto justify-center font-medium"}>
-                                {/* Maybe add logos to describe thee? */}
-                                initialValue.toFixed(2)
-                            </div>
-                        }
+                        {/*{initialValue &&*/}
+                        {/*    <div className={"flex w-full mx-auto px-auto justify-center font-medium"}>*/}
+                        {/*        /!* Maybe add logos to describe thee? *!/*/}
+                        {/*        initialValue.toFixed(2)*/}
+                        {/*    </div>*/}
+                        {/*}*/}
                         <div className={"flex w-full mx-auto px-auto justify-center font-medium"}>
                             ${value && value.toFixed(2)}
                         </div>
