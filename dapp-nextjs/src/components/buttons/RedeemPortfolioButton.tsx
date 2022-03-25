@@ -3,7 +3,6 @@ import {IRpcProvider, useRpc} from "../../contexts/RpcProvider";
 import {PublicKey, Transaction, TransactionInstruction} from "@solana/web3.js";
 import {sendAndConfirmTransaction} from "../../utils/utils";
 import {IItemsLoad, useItemsLoad} from "../../contexts/ItemsLoadingContext";
-import {BN} from "@project-serum/anchor";
 import {ILocalKeypair, useLocalKeypair} from "../../contexts/LocalKeypairProvider";
 import {ICrank, useCrank} from "../../contexts/CrankProvider";
 

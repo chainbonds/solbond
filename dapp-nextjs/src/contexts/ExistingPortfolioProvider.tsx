@@ -1,19 +1,14 @@
 import React, {useState, useContext, useEffect} from 'react';
-import {DisplayPortfolios} from "@qpools/sdk";
 import {accountExists} from "@qpools/sdk";
 import {PositionInfo} from "@qpools/sdk";
 import {IRpcProvider, useRpc} from "./RpcProvider";
-import {AllocData} from "../types/AllocData";
-
 
 export interface IExistingPortfolio {
     positionInfos: PositionInfo[],
     totalPortfolioValueInUsd: number,
-    displayPortfolio: DisplayPortfolios | undefined
 }
 
 const defaultValue: IExistingPortfolio = {
-    displayPortfolio: undefined,
     positionInfos: [],
     totalPortfolioValueInUsd: 0
 }
@@ -29,7 +24,6 @@ export function ExistingPortfolioProvider(props: any) {
     const rpcProvider: IRpcProvider = useRpc();
 
     const [positionInfos, setPositionInfos] = useState<PositionInfo[]>([]);
-    const [displayPortfolio, setDisplayPortfolio] = useState<DisplayPortfolios | undefined>(undefined);
     const [totalPortfolioValueInUsd, setTotalPortfolioValueUsd] = useState<number>(0.);
 
     // Load allocData and modify weights according to
@@ -56,8 +50,7 @@ export function ExistingPortfolioProvider(props: any) {
 
     const value: IExistingPortfolio = {
         positionInfos,
-        totalPortfolioValueInUsd,
-        displayPortfolio
+        totalPortfolioValueInUsd
     };
 
     return (

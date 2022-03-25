@@ -1,11 +1,9 @@
 import React, {useState, useContext, useEffect} from 'react';
-import {DisplayPortfolios} from "@qpools/sdk";
 import axios from "axios";
 import {registry, Protocol} from "@qpools/sdk";
 import {AllocData} from "../types/AllocData";
 
 export interface ISerpius {
-    displayPortfolio: DisplayPortfolios | undefined,
     portfolioRatios: AllocData[],
 }
 
@@ -19,7 +17,6 @@ const hardcodedApiResponse = [
 ]
 
 const defaultValue: ISerpius = {
-    displayPortfolio: undefined,
     portfolioRatios: hardcodedApiResponse
 }
 
@@ -34,7 +31,6 @@ export function SerpiusEndpointProvider(props: any) {
     /**
      * App-dependent variables
      */
-    const [displayPortfolio, setDisplayPortfolio] = useState<DisplayPortfolios | undefined>(undefined);
     const [portfolioRatios, setPortfolioRatios] = useState<AllocData[]>(hardcodedApiResponse);
 
     /**
@@ -104,7 +100,6 @@ export function SerpiusEndpointProvider(props: any) {
 
     const value: ISerpius = {
         portfolioRatios,
-        displayPortfolio,
     };
 
     return (
