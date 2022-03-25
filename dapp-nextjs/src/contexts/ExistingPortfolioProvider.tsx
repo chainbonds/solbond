@@ -3,6 +3,7 @@ import {DisplayPortfolios} from "@qpools/sdk";
 import {accountExists} from "@qpools/sdk";
 import {PositionInfo} from "@qpools/sdk";
 import {IRpcProvider, useRpc} from "./RpcProvider";
+import {AllocData} from "../types/AllocData";
 
 
 export interface IExistingPortfolio {
@@ -31,6 +32,10 @@ export function ExistingPortfolioProvider(props: any) {
     const [displayPortfolio, setDisplayPortfolio] = useState<DisplayPortfolios | undefined>(undefined);
     const [totalPortfolioValueInUsd, setTotalPortfolioValueUsd] = useState<number>(0.);
 
+    // Load allocData and modify weights according to
+
+
+    // Retrieve this from the existing portfolio ...
     useEffect(() => {
         calculateAllUsdcValues();
     }, [rpcProvider.userAccount, rpcProvider.provider, rpcProvider.reloadPriceSentinel]);

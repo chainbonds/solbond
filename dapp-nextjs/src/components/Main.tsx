@@ -17,15 +17,19 @@ import SelectWalletForm from "./swap/SelectWalletForm";
 import {BN} from "@project-serum/anchor";
 import {UserTokenBalance} from "../types/UserTokenBalance";
 import {Protocol} from "@qpools/sdk";
+import {IExistingPortfolio, useExistingPortfolio} from "../contexts/ExistingPortfolioProvider";
+import {PositionInfo} from "@qpools/sdk";
 
 export enum HeroFormState {
     ShowSuggestedPortfolio,
     ShowExistingPortfolio
 }
+
 // To be specific, right now this is the only mode that is active
 export enum PortfolioSuggestion {
     ShowWalletAsPortfolio
 }
+
 export const Main: FC = ({}) => {
 
     const walletContext: WalletContextState = useWallet();
@@ -34,10 +38,40 @@ export const Main: FC = ({}) => {
     const rpcProvider: IRpcProvider = useRpc();
     const serpiusProvider: ISerpius = useSerpiusEndpoint();
     const userWalletAssetsProvider: IUserWalletAssets = useUserWalletAssets();
+    const existingPortfolioProvider: IExistingPortfolio = useExistingPortfolio();
 
     const [allocationData, setAllocationData] = useState<Map<string, AllocData>>(new Map());
     // Set a state for a selected item ..
     const [selectedAsset, setSelectedAsset] = useState<string>("");
+
+    const setExistingPortfolioAsAllocationData = async () => {
+        // Go through all positionInfos, and create a new Map accordingy ...
+        let newAllocationData: Map<string, AllocData> = new Map<string, AllocData>();
+        await Promise.all(existingPortfolioProvider.positionInfos.map(async (position: PositionInfo ) => {
+            // Pool is prob not reqired, if we only want to display these ...
+            // Also, perhaps also reduce PositionInfo to AllocData, otherwise it's confusing in terms of types ...
+            let tmp: AllocData = {
+                apy_24h: 0.,
+                lp: position.mintLp.toString(),
+                protocol: position.protocol,
+                userInputAmount: undefined,
+                userWalletAmount: undefined,
+                weight: position.totalPositionValue
+            };
+            let key: string = Protocol[position.protocol] + " " + position.mintLp.toString();
+            newAllocationData.set(key, tmp);
+        }));
+        setAllocationData((oldAllocationData: Map<string, AllocData>) => {
+            return newAllocationData;
+        });
+    }
+
+    useEffect(() => {
+        if (existingPortfolioProvider.positionInfos.length > 0) {
+            // Overwrite the allocatoin according to position Infos ...
+            setExistingPortfolioAsAllocationData();
+        }
+    }, [existingPortfolioProvider.positionInfos]);
 
     // Whenever the allocationData changes, set the selecte item back
     useEffect(() => {
@@ -46,6 +80,9 @@ export const Main: FC = ({}) => {
             setSelectedAsset(firstItem[0]);
         }
     }, [allocationData]);
+
+    // If the fetched positions exist, overwrite allocation Data ...
+
 
     /**
      * This function is pretty huge, for doing this so dynamically ....
@@ -71,7 +108,7 @@ export const Main: FC = ({}) => {
         let uiAmount = (numberInclDecimals.toNumber() / (10 ** currentlySelectedAsset.userInputAmount!.amount.decimals));
 
         let userInputAmount: UserTokenBalance = {
-            mint:  currentlySelectedAsset.userInputAmount!.mint,
+            mint: currentlySelectedAsset.userInputAmount!.mint,
             ata: currentlySelectedAsset.userInputAmount!.ata,
             amount: {
                 amount: numberInclDecimals.toString(),
@@ -163,10 +200,9 @@ export const Main: FC = ({}) => {
 
                 // TODO: I guess the deposit button should be separate from the input forms ...
 
-                return (<>
+                return (
+                    <>
                         <StakeForm
-                            // currencyMint={inputToken.mint}
-                            // currencyName={inputToken.name}
                             allocationItems={allocationData}
                             selectedItemKey={selectedAsset}
                             modifyIndividualAllocationItem={modifyIndividualAllocationItem}
@@ -181,7 +217,7 @@ export const Main: FC = ({}) => {
                 console.log(selectKey, allocationData);
                 return (
                     <>
-                        <SelectWalletForm />
+                        <SelectWalletForm/>
                     </>
                 )
             }
@@ -208,12 +244,11 @@ export const Main: FC = ({}) => {
         }
     }
 
-    const portfolioChart = () => {
+    const portfolioTable = () => {
         if (displayForm === HeroFormState.ShowExistingPortfolio) {
             return (
                 <>
-                    <ExistingPortfolioTable
-                    />
+                    <ExistingPortfolioTable/>
                 </>
             )
         } else if (displayForm === HeroFormState.ShowSuggestedPortfolio) {
@@ -236,9 +271,9 @@ export const Main: FC = ({}) => {
         <div
             id="content"
             className={"flex flex-col grow my-auto"}
-            style={{ backgroundColor: BRAND_COLORS.slate900 }}
+            style={{backgroundColor: BRAND_COLORS.slate900}}
         >
-            <LoadingItemsModal />
+            <LoadingItemsModal/>
             <div className={"flex flex-col grow w-full my-auto"}>
                 <div className={"flex flex-col mx-auto "}>
                     <div className={"flex flex-row w-full"}>
@@ -259,7 +294,7 @@ export const Main: FC = ({}) => {
                             />
                         </div>
                         <div className="flex flex-col text-gray-300 my-auto divide-y divide-white">
-                            {portfolioChart()}
+                            {portfolioTable()}
                         </div>
                     </div>
                     <div className={"flex flex-row my-auto mt-7"}>
