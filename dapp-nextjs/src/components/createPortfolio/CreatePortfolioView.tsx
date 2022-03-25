@@ -1,17 +1,17 @@
 import React, {useState} from "react";
-import OnramperModal from "../modals/OnramperModal"
-import UserInfoBalance from "../simple/UserInfoBalance";
+import OnramperModal from "../onramper/OnramperModal"
+import UserInfoBalance from "../common/UserInfoBalance";
 import {AllocData} from "../../types/AllocData";
 import {getInputToken, SelectedToken} from "../../utils/utils";
-import InputFieldWithSliderInputAndLogo from "../simple/InputFieldWithSliderInputAndLogo";
-import PurchaseButton from "../createPortfolio/PurchaseButton";
+import InputFieldWithSliderInputAndLogo from "../common/InputFieldWithSliderInputAndLogo";
+import PurchaseButton from "../createPortfolio/buttons/PurchaseButton";
 
 interface Props {
     allocationItems: Map<string, AllocData>,
     selectedItemKey: string,
     modifyIndividualAllocationItem: (arg0: string, arg1: number) => void
 }
-export default function StakeForm({allocationItems, selectedItemKey, modifyIndividualAllocationItem}: Props) {
+export default function CreatePortfolioView({allocationItems, selectedItemKey, modifyIndividualAllocationItem}: Props) {
 
     const [displayOnramperModal, setDisplayOnramperModal] = useState<boolean>(false);
 

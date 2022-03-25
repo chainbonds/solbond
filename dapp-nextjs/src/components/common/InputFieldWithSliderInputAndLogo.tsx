@@ -78,7 +78,6 @@ export default function InputFieldWithSliderInputAndLogo({allocationItems, selec
         )
     }
 
-    // Gotta pick the token that is whitelisted, and inside the
     if (!allocationItems.has(selectedItemKey)) {
         return (<></>);
     }

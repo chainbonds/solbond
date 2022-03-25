@@ -1,7 +1,7 @@
 import React, {FC} from "react";
-import {LogoWithTitle} from "./simple/LogoWithTitle";
-import ConnectWalletButton from "./simple/ConnectWalletButton";
-import {FaucetButton} from "./createPortfolio/FaucetButton";
+import {LogoWithTitle} from "./common/LogoWithTitle";
+import ConnectWalletButton from "./common/ConnectWalletButton";
+import {FaucetButton} from "./createPortfolio/buttons/FaucetButton";
 
 export const Header: FC = ({}) => {
 

@@ -2,11 +2,11 @@ import React, {useEffect, useState} from "react";
 import {WalletMultiButton} from "@solana/wallet-adapter-react-ui";
 import {IRpcProvider, useRpc} from "../../contexts/RpcProvider";
 import {IExistingPortfolio, useExistingPortfolio} from "../../contexts/ExistingPortfolioProvider";
-import RowInList from "../simple/RowInList";
+import RowInList from "../common/RowInList";
 import SinglePositionInPortfolioRow from "../redeemPortfolio/SinglePositionInPortfolioRow";
 
 // The existing Portfolio Context could technically be just outside of this
-export default function UnstakeForm() {
+export default function RedeemPortfolioView({}) {
 
     const rpcProvider: IRpcProvider = useRpc();
     const existingPortfolioProvider: IExistingPortfolio = useExistingPortfolio();

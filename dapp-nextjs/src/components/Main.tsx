@@ -1,15 +1,15 @@
 import React, {FC, useEffect, useState} from "react";
-import LoadingItemsModal from "./modals/LoadingItemsModal";
-import StakeForm from "./swap/StakeForm";
-import UnstakeForm from "./swap/UnstakeForm";
+import LoadingItemsModal from "./common/LoadingItemsModal";
+import CreatePortfolioView from "./createPortfolio/CreatePortfolioView";
+import RedeemPortfolioView from "./redeemPortfolio/RedeemPortfolioView";
 import {BRAND_COLORS} from "../const";
 import {IRpcProvider, useRpc} from "../contexts/RpcProvider";
 import {AllocData} from "../types/AllocData";
 import {ISerpius, useSerpiusEndpoint} from "../contexts/SerpiusProvider";
 import {IUserWalletAssets, useUserWalletAssets} from "../contexts/UserWalletAssets";
-import DisplayPieChart from "./simple/DisplayPieChart";
+import DisplayPieChart from "./common/DisplayPieChart";
 import {useWallet, WalletContextState} from "@solana/wallet-adapter-react";
-import SelectWallet from "./createPortfolio/SelectWallet";
+import SelectWallet from "./createPortfolio/buttons/SelectWallet";
 import {BN} from "@project-serum/anchor";
 import {UserTokenBalance} from "../types/UserTokenBalance";
 import {Protocol} from "@qpools/sdk";
@@ -200,7 +200,7 @@ export const Main: FC = ({}) => {
 
                 return (
                     <>
-                        <StakeForm
+                        <CreatePortfolioView
                             allocationItems={allocationData}
                             selectedItemKey={selectedAsset}
                             modifyIndividualAllocationItem={modifyIndividualAllocationItem}
@@ -221,7 +221,7 @@ export const Main: FC = ({}) => {
             }
         } else if (displayForm === HeroFormState.ShowExistingPortfolio) {
             return (
-                <UnstakeForm/>
+                <RedeemPortfolioView/>
             );
         }
     }

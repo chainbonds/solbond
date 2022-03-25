@@ -4,11 +4,11 @@ import Image from "next/image";
 import {PositionInfo} from "@qpools/sdk";
 import {DisplayToken} from "../../types/DisplayToken";
 import {IExistingPortfolio, useExistingPortfolio} from "../../contexts/ExistingPortfolioProvider";
-import TableHeader from "../simple/TableHeader";
+import TableHeader from "../common/TableHeader";
 
 const tableColumns: (string | null)[] = ["Pool", "Assets", "USDC Value", null]
 
-export default function ExistingPortfolioTable() {
+export default function ExistingPortfolioTable({}) {
 
     const existingPortfolioProvider: IExistingPortfolio = useExistingPortfolio();
 

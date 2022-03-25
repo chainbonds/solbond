@@ -13,7 +13,7 @@ import {DisplayToken} from "../../types/DisplayToken";
 import {ChartableItemType} from "../../types/ChartableItemType";
 import {AllocData} from "../../types/AllocData";
 import {Protocol} from "@qpools/sdk";
-import TableHeader from "../simple/TableHeader";
+import TableHeader from "../common/TableHeader";
 
 // I guess this columns is also conditional, actually ...
 const tableColumns: (string | null)[] = [null, "Pay-In Asset", "Product", "Underlying Asset", "Allocation", "24H APY", "Absolute Amount"]
@@ -21,8 +21,9 @@ const tableColumns: (string | null)[] = [null, "Pay-In Asset", "Product", "Under
 interface Props {
     selectedAssets: Map<string, AllocData>,
     selectedAsset: string,
-    setSelectedAsset:  React.Dispatch<React.SetStateAction<string>>
+    setSelectedAsset: React.Dispatch<React.SetStateAction<string>>
 }
+
 export default function SuggestedPortfolioTable({selectedAssets, selectedAsset, setSelectedAsset}: Props) {
 
     // Instead of the raw pubkeys, store the pyth ID, and then you can look up the price using the pyth sdk ..
@@ -128,7 +129,7 @@ export default function SuggestedPortfolioTable({selectedAssets, selectedAsset, 
                     </td>
                     <td className="py-4 px-6 text-sm text-center font-normal text-gray-500 whitespace-nowrap dark:text-gray-100">
                         <a href={solscanLink(mintLP)} target={"_blank"} rel="noreferrer"
-                           // text-blue-600 dark:text-blue-500
+                            // text-blue-600 dark:text-blue-500
                            className="hover:underline">
                             {/*{shortenedAddressString(mintLP)}*/}
                             {item.name}
@@ -151,10 +152,10 @@ export default function SuggestedPortfolioTable({selectedAssets, selectedAsset, 
                         {(item.apy_24h).toFixed(1)}%
                     </td>
                     {item.allocationItem &&
-                        <td className="py-4 px-6 text-sm text-center whitespace-nowrap">
-                            {/* inputToken.name */}
-                            {item.allocationItem?.userInputAmount?.amount.uiAmount && (item.allocationItem?.userInputAmount?.amount.uiAmount).toFixed(2)}
-                        </td>
+                    <td className="py-4 px-6 text-sm text-center whitespace-nowrap">
+                        {/* inputToken.name */}
+                        {item.allocationItem?.userInputAmount?.amount.uiAmount && (item.allocationItem?.userInputAmount?.amount.uiAmount).toFixed(2)}
+                    </td>
                     }
                 </tr>
             </>
@@ -169,10 +170,11 @@ export default function SuggestedPortfolioTable({selectedAssets, selectedAsset, 
                     <div className="inline-block pb-2 min-w-full">
                         <div className="overflow-hidden shadow-md sm:rounded-lg">
                             <table className="min-w-full">
-                                <TableHeader columns={pieChartData ? tableColumns: tableColumns.slice(0, tableColumns.length - 1)} />
+                                <TableHeader
+                                    columns={pieChartData ? tableColumns : tableColumns.slice(0, tableColumns.length - 1)}/>
                                 {/* key={Math.random() + pieChartData[0].value} */}
                                 <tbody>
-                                    {pieChartData.map((position: ChartableItemType, index: number) => tableSingleRow(position, index))}
+                                {pieChartData.map((position: ChartableItemType, index: number) => tableSingleRow(position, index))}
                                 </tbody>
                             </table>
                         </div>

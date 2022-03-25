@@ -1,14 +1,13 @@
 import React from "react";
 import {BN} from "@project-serum/anchor";
-import {IRpcProvider, useRpc} from "../../contexts/RpcProvider";
+import {IRpcProvider, useRpc} from "../../../contexts/RpcProvider";
 import {PublicKey, Transaction} from "@solana/web3.js";
-import {sendAndConfirmTransaction} from "../../utils/utils";
-import {IItemsLoad, useItemsLoad} from "../../contexts/ItemsLoadingContext";
+import {sendAndConfirmTransaction} from "../../../utils/utils";
+import {IItemsLoad, useItemsLoad} from "../../../contexts/ItemsLoadingContext";
 import {MOCK} from "@qpools/sdk";
-import {ICrank, useCrank} from "../../contexts/CrankProvider";
-import {ILocalKeypair, useLocalKeypair} from "../../contexts/LocalKeypairProvider";
-import {IUserWalletAssets, useUserWalletAssets} from "../../contexts/UserWalletAssets";
-import {AllocData} from "../../types/AllocData";
+import {ICrank, useCrank} from "../../../contexts/CrankProvider";
+import {ILocalKeypair, useLocalKeypair} from "../../../contexts/LocalKeypairProvider";
+import {AllocData} from "../../../types/AllocData";
 import {registry, Protocol} from "@qpools/sdk";
 
 // TODO: Refactor the code here ... looks a bit too redundant.
@@ -16,6 +15,7 @@ import {registry, Protocol} from "@qpools/sdk";
 interface Props {
     allocationData: Map<string, AllocData>
 }
+
 // Gotta have as input the wallet assets
 export default function PurchaseButton({allocationData}: Props) {
 
@@ -62,7 +62,6 @@ export default function PurchaseButton({allocationData}: Props) {
         // We can also airdrop some stuff for now
 
 
-
         // Define the same for wrapped SOL, lol
 
         // For all LP tokens
@@ -83,8 +82,12 @@ export default function PurchaseButton({allocationData}: Props) {
          * Until then, assume that we have a weight of 1000 each (this weight thing is confusing when it's multi-asset)
          */
         // Make sure each one does not have null values
-        assetLpMints = assetLpMints.filter((mint: PublicKey, index: number) => {return weights[index].gt(new BN(0))});
-        weights = weights.filter((weight: BN) => {return weight.gt(new BN(0))});
+        assetLpMints = assetLpMints.filter((mint: PublicKey, index: number) => {
+            return weights[index].gt(new BN(0))
+        });
+        weights = weights.filter((weight: BN) => {
+            return weight.gt(new BN(0))
+        });
         // Once we hook it up to the other system, we can probably use something like this
         // let weights: BN[] = qPoolContext.portfolioRatios
         //     .filter((item: AllocData) => {return item.weight > 0})
@@ -156,10 +159,10 @@ export default function PurchaseButton({allocationData}: Props) {
 
         // TODO: change depending on user input
         let valueInUsdc: number = 2;
-        let AmountUsdc: BN = new BN(valueInUsdc).mul(new BN(10**MOCK.DEV.SABER_USDC_DECIMALS));
+        let AmountUsdc: BN = new BN(valueInUsdc).mul(new BN(10 ** MOCK.DEV.SABER_USDC_DECIMALS));
         let valueInSol: number = 1;
         // I guess mSOL has 9 decimal points
-        let AmountSol: BN = new BN(valueInSol).mul(new BN(10**9));
+        let AmountSol: BN = new BN(valueInSol).mul(new BN(10 ** 9));
         console.log("Total amount in Usdc is: ", valueInUsdc);
 
         if (!(valueInUsdc > 0)) {
