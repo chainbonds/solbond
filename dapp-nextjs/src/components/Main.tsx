@@ -22,7 +22,7 @@ export const Main: FC = ({}) => {
      * Determine which view to show
      */
     const determineDisplayedView = async () => {
-        if (walletProvider.wallet) {
+        if (!walletProvider.publicKey) {
             setDisplayForm(PortfolioState.WalletNotConnected);
         } else if (rpcProvider.portfolioObject) {
             let isFulfilled = await rpcProvider.portfolioObject.portfolioExists();
@@ -36,7 +36,7 @@ export const Main: FC = ({}) => {
     useEffect(() => {
         // Check if the account exists, and if it was fulfilled
         determineDisplayedView();
-    }, [rpcProvider.portfolioObject, rpcProvider.makePriceReload]);
+    }, [rpcProvider.portfolioObject, walletProvider.wallet, walletProvider.publicKey, rpcProvider.makePriceReload]);
 
     return (
         <div

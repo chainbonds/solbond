@@ -5,9 +5,10 @@ import {RedeemPortfolioButton} from "./RedeemPortfolioButton";
 
 interface Props {
     address: PublicKey,
-    value: number
+    value: number,
+    initialValue: number
 }
-export default function SinglePositionInPortfolioRow({address, value}: Props) {
+export default function SinglePositionInPortfolioRow({address, value, initialValue}: Props) {
 
     return (
         <>
@@ -23,6 +24,12 @@ export default function SinglePositionInPortfolioRow({address, value}: Props) {
                             </a>
                             }
                         </div>
+                        {initialValue &&
+                            <div className={"flex w-full mx-auto px-auto justify-center font-medium"}>
+                                {/* Maybe add logos to describe thee? */}
+                                initialValue.toFixed(2)
+                            </div>
+                        }
                         <div className={"flex w-full mx-auto px-auto justify-center font-medium"}>
                             ${value && value.toFixed(2)}
                         </div>

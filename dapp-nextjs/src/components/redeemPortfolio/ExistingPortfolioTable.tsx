@@ -6,9 +6,10 @@ import {DisplayToken} from "../../types/DisplayToken";
 import {IExistingPortfolio, useExistingPortfolio} from "../../contexts/ExistingPortfolioProvider";
 import TableHeader from "../common/TableHeader";
 
-const tableColumns: (string | null)[] = ["Pool", "Assets", "USDC Value", null]
-
-export default function ExistingPortfolioTable({}) {
+interface Props {
+    tableColumns: (string | null)[],
+}
+export default function ExistingPortfolioTable({tableColumns}: Props) {
 
     const existingPortfolioProvider: IExistingPortfolio = useExistingPortfolio();
 

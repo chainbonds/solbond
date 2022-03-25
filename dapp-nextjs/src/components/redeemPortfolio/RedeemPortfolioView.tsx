@@ -10,7 +10,6 @@ export default function RedeemPortfolioView({}) {
 
     const rpcProvider: IRpcProvider = useRpc();
     const existingPortfolioProvider: IExistingPortfolio = useExistingPortfolio();
-
     const [totalPortfolioValueInUsd, setTotalPortfolioValueInUsd] = useState<number>();
 
     useEffect(() => {
@@ -18,6 +17,8 @@ export default function RedeemPortfolioView({}) {
     }, [existingPortfolioProvider.totalPortfolioValueInUsd]);
 
     const displayListOfPortfolios = () => {
+
+        // await rpcProvider.portfolioObject!.getInitialDepositInAllCurrencies();
 
         if (!rpcProvider.portfolioObject) {
             return (
@@ -61,6 +62,7 @@ export default function RedeemPortfolioView({}) {
                 <SinglePositionInPortfolioRow
                     address={rpcProvider.portfolioObject.portfolioPDA}
                     value={totalPortfolioValueInUsd!}
+                    initialValue={0.}
                 />
             </>
         )

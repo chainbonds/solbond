@@ -15,11 +15,13 @@ interface PieChartDataInterface {
 export default function DisplayPieChart({allocationInformation, showPercentage}: Props) {
 
     const renderCustomizedLabel = ({cx, cy, midAngle, innerRadius, outerRadius, percent}: any) => {
-        const radius = innerRadius + (outerRadius - innerRadius) * 0.4; // 1.05;
+        const radius = innerRadius + (outerRadius - innerRadius) * -0.6; // 1.05;
         const x = cx + radius * Math.cos(-midAngle * RADIAN);
         const y = cy + radius * Math.sin(-midAngle * RADIAN);
+        console.log("x and cx are: ", cx, x);
+        // textAnchor={x > cx ? 'start' : 'end'}
         return (
-            <text x={x} y={y} fill="white" textAnchor={x > cx ? 'start' : 'end'} dominantBaseline="central">
+            <text x={x} y={y} fill="white" dominantBaseline="central">
                 {
                     percent ? `${(percent * 100).toFixed(0)}%` : null
                 }
@@ -66,7 +68,7 @@ export default function DisplayPieChart({allocationInformation, showPercentage}:
                      isAnimationActive={false} // this line is needed in order to see the labels. https://github.com/recharts/recharts/issues/929
                      label={showPercentage ? renderCustomizedLabel : false}
                      outerRadius={100}
-                     innerRadius={40}
+                     innerRadius={63}
                      dataKey="value"
                 >
                     {pieChartData.map((entry, index) => (

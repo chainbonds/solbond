@@ -66,7 +66,10 @@ export const ViewWalletConnectedPortfolioExists = ({}) => {
                     />
                 </div>
                 <div className="flex flex-col text-gray-300 my-auto divide-y divide-white">
-                    <ExistingPortfolioTable/>
+                    {/* Add another Column for how much this position has increased since buying ... */}
+                    <ExistingPortfolioTable
+                        tableColumns={["Pool", "Assets", "USDC Value", null]}
+                    />
                 </div>
             </div>
             <div className={"flex flex-row my-auto mt-7"}>

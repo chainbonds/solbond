@@ -38,7 +38,7 @@ export const ViewWalletNotConnected = ({}: Props) => {
         <>
             <div className={"flex flex-row w-full"}>
                 <h1 className={"text-4xl font-light"}>
-                    Would you like some passive income?
+                    Want to earn some passive income?
                 </h1>
             </div>
             <div className={"flex flex-row mt-5"}>
