@@ -495,7 +495,7 @@ let COLOR50 = [
 
 // All are from tailwind 3, the color for "slate-700" (index 700)
 export const PIECHART_COLORS = [
-    ...COLOR500
+    ...COLOR300
     // "#0369a1",
     // "#fafafa",
     // "#0c4a6e",

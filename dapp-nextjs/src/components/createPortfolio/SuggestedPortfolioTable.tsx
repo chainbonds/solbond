@@ -59,7 +59,7 @@ export default function SuggestedPortfolioTable({tableColumns, selectedAssets, s
     const tableSingleRow = (item: ChartableItemType, index: number) => {
 
         // Also add colors to the other portoflio ...
-        let color = PIECHART_COLORS[index % PIECHART_COLORS.length];
+        let color = PIECHART_COLORS[3*index % PIECHART_COLORS.length];
 
         // I guess we need the rich data ...
         console.log("THEREEEEEEEE", item.pool)
