@@ -18,10 +18,11 @@ import TableHeader from "../common/TableHeader";
 // I guess this columns is also conditional, actually ...
 const tableColumns: (string | null)[] = [null, "Pay-In Asset", "Product", "Underlying Asset", "Allocation", "24H APY", "Absolute Amount"]
 
+// TODO: Normalize (rename) the name "selectedAssets"
 interface Props {
     selectedAssets: Map<string, AllocData>,
-    selectedAsset: string,
-    setSelectedAsset: React.Dispatch<React.SetStateAction<string>>
+    selectedAsset: string | null,
+    setSelectedAsset: React.Dispatch<React.SetStateAction<string>> | null
 }
 
 export default function SuggestedPortfolioTable({selectedAssets, selectedAsset, setSelectedAsset}: Props) {
@@ -35,7 +36,8 @@ export default function SuggestedPortfolioTable({selectedAssets, selectedAsset, 
     ])
 
     useEffect(() => {
-        if (!selectedAssets) return;
+        // Selected Asset should be zero if nothing is there ...
+        // if (!selectedAssets) return;
         let sum = Array.from(selectedAssets.values()).reduce((sum: number, current: AllocData) => sum + current.weight, 0);
         setPieChartData((old: ChartableItemType[]) => {
                 let out: ChartableItemType[] = [];
@@ -101,7 +103,7 @@ export default function SuggestedPortfolioTable({selectedAssets, selectedAsset, 
                     key={theKey}
                     className={tailwindOnSelected}
                     onClick={() => {
-                        setSelectedAsset((_: string) => {
+                        setSelectedAsset!((_: string) => {
                             console.log("Item is:", item.allocationItem);
                             console.log("About to set the selectedAsset to", item);
                             console.log("About to set the selectedAsset to", item.allocationItem);
