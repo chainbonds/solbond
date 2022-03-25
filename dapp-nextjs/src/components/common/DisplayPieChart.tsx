@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from "react";
 import {PieChart, Pie, Cell} from "recharts";
-import {COLORS, RADIAN} from "../../const";
+import {PIECHART_COLORS, RADIAN} from "../../const";
 import {AllocData} from "../../types/AllocData";
 import {Protocol} from "@qpools/sdk";
 
@@ -72,7 +72,7 @@ export default function DisplayPieChart({allocationInformation, showPercentage}:
                     {pieChartData.map((entry, index) => (
                         <Cell
                             key={`cell-${Math.random() + pieChartData[index].value + index}`}
-                            fill={COLORS[index % COLORS.length]}/>
+                            fill={PIECHART_COLORS[5*(index) % PIECHART_COLORS.length]}/>
                     ))}
                 </Pie>
             </PieChart>

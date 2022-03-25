@@ -7,7 +7,7 @@ import {
 } from "../../utils/utils";
 import Image from "next/image";
 import {registry} from "@qpools/sdk";
-import {COLORS} from "../../const";
+import {PIECHART_COLORS} from "../../const";
 import {PublicKey} from "@solana/web3.js";
 import {DisplayToken} from "../../types/DisplayToken";
 import {ChartableItemType} from "../../types/ChartableItemType";
@@ -59,7 +59,7 @@ export default function SuggestedPortfolioTable({tableColumns, selectedAssets, s
     const tableSingleRow = (item: ChartableItemType, index: number) => {
 
         // Also add colors to the other portoflio ...
-        let color = COLORS[index % COLORS.length];
+        let color = PIECHART_COLORS[index % PIECHART_COLORS.length];
 
         // I guess we need the rich data ...
         console.log("THEREEEEEEEE", item.pool)
