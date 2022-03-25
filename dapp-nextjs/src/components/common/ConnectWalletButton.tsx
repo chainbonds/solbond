@@ -7,7 +7,7 @@ export default function ConnectWalletButton() {
     return (
         <WalletMultiButton
             style={{
-                background: "#be185d",  // BRAND_COLORS.slate900,
+                background: BRAND_COLORS.pink700,
                 // color: "white",
                 // width: 150 + connected,
                 // borderStyle: "solid",

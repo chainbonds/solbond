@@ -28,6 +28,7 @@ export const BRAND_COLORS = {
     slate400: "#94a3b8",
     slate200: "#e2e8f0",
     neutral50: "#fafafa",
+    pink700: "#be185d",
 }
 
 export const COLORS = [
