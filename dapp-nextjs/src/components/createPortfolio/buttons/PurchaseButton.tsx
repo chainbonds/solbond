@@ -184,15 +184,7 @@ export default function PurchaseButton({allocationData}: Props) {
          *  Depending on the type of protocol, we must first receive the input pools ...
          *  This is the first transaction ...
          */
-        let _mints: (PublicKey | null)[] = inputPoolsAndTokens.map(([pool, token]: [registry.ExplicitPool, registry.ExplicitToken]) => {
-            let mint = new PublicKey(token.address);
-            if (mint != registry.getNativeSolMint()) {
-                return null;
-            } else {
-                return mint;
-            }
-        })
-        let mints: PublicKey[] = _mints.filter((x: PublicKey | null): x is PublicKey => (x !== null));
+        let mints: PublicKey[] = inputPoolsAndTokens.map(([pool, token]: [registry.ExplicitPool, registry.ExplicitToken]) => new PublicKey(token.address));
         let txCreateAssociateTokenAccount = await rpcProvider.portfolioObject!.createAssociatedTokenAccounts(
             mints,
             rpcProvider.provider!.wallet
@@ -259,14 +251,14 @@ export default function PurchaseButton({allocationData}: Props) {
             let weight: BN = new BN(value.weight);
 
             if (value.protocol === Protocol.saber) {
+
+                // Make sure that the input mint is not Native SOL
+
                 let IxRegisterCurrencyInput = await rpcProvider.portfolioObject!.registerCurrencyInputInPortfolio(
                     currencyAmount,
                     currencyMint // Is the mint here the currency ... (?). If not, then replace this by getInputTokens from pool ... // Or fix this root-level
                 );
                 tx.add(IxRegisterCurrencyInput);
-
-                let IxSendUsdcToPortfolio = await rpcProvider.portfolioObject!.transfer_to_portfolio(value.userInputAmount!.mint);
-                tx.add(IxSendUsdcToPortfolio);
 
                 let IxApprovePositionWeightSaber = await rpcProvider.portfolioObject!.approvePositionWeightSaber(
                     lpAddress,
@@ -277,6 +269,9 @@ export default function PurchaseButton({allocationData}: Props) {
                     weight
                 )
                 tx.add(IxApprovePositionWeightSaber);
+
+                let IxSendUsdcToPortfolio = await rpcProvider.portfolioObject!.transfer_to_portfolio(value.userInputAmount!.mint);
+                tx.add(IxSendUsdcToPortfolio);
 
             } else if (value.protocol === Protocol.marinade) {
                 let lamports = new BN(value.userInputAmount!.amount.amount);
