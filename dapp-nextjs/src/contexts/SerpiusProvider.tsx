@@ -35,13 +35,11 @@ export function SerpiusEndpointProvider(props: any) {
 
     /**
      * Somewhat legacy, will fix and clear these items at a later stage ...
+     * You can find all endpoints in notion Docs/Serpius Endpoint Links
      */
     const fetchAndParseSerpiusEndpoint = async () => {
             console.log("#useEffect getSerpiusEndpoint");
             console.log("Loading the weights");
-            //registry.getSerpiusEndpoint()
-            //"https://qpools.serpius.com/weight_status_v2.json"
-            // let response = await axios.get<any>(getSerpiusEndpoint());
             let response = await axios.get<any>(registry.getSerpiusEndpoint());
             console.log("Here is the data :");
             console.log(typeof response.data);
@@ -68,8 +66,7 @@ export function SerpiusEndpointProvider(props: any) {
                     let newData = data.map((dataItem: AllocData) => {
                         console.log("data lp is: ", dataItem.lp);
 
-                        // For a quick fix, rename the UST-USDC to USDC-USDT
-                        // TODO: Remove for devnet ...
+                        // TODO: Remove for mainnet / devnet...
                         if (dataItem.lp === "UST-USDC") {
                             dataItem.lp = "USDC-USDT"
                         } else if (dataItem.lp === "mSOL") {

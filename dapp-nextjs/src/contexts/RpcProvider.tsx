@@ -43,18 +43,11 @@ export function useRpc() {
 
 export function RpcProvider(props: any) {
 
-    /**
-     * Generic state for RPC Calls
-     */
     const walletContext: WalletContextState = useWallet();
     const [connection, setConnection] = useState<Connection | undefined>(undefined);
     const [provider, setProvider] = useState<Provider | undefined>(undefined);
     const [_solbondProgram, setSolbondProgram] = useState<any>(null);
     const [userAccount, setUserAccount] = useState<WalletI | undefined>(undefined);
-
-    /**
-     * Helper objects for RPC Calls
-     */
     const [backendApi, setBackendApi] = useState<PortfolioFrontendFriendlyChainedInstructions | undefined>(undefined);
 
     /**
@@ -83,8 +76,6 @@ export function RpcProvider(props: any) {
         console.log("#initialize");
         console.log("Cluster URL is: ", String(process.env.NEXT_PUBLIC_CLUSTER_URL));
         let _connection: Connection = getConnectionString();
-        // // @ts-ignore  // For some reason this typing is ok ...
-        // let wallet: Wallet = walletContext.wallet;
         // @ts-ignore
         const _provider = new anchor.Provider(_connection, walletContext, anchor.Provider.defaultOptions());
         anchor.setProvider(_provider);
@@ -101,9 +92,6 @@ export function RpcProvider(props: any) {
             payer
         );
 
-        // console.log("All items are: ")
-        // console.log(payer);
-        // console.assert(payer);
         console.log(_solbondProgram);
         console.assert(_solbondProgram);
         console.log(_provider);
