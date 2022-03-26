@@ -2,12 +2,15 @@ import React from "react";
 import {BN} from "@project-serum/anchor";
 import {IRpcProvider, useRpc} from "../../../contexts/RpcProvider";
 import {PublicKey, Transaction} from "@solana/web3.js";
-import {sendAndConfirmTransaction} from "../../../utils/utils";
+import {getInputTokens, sendAndConfirmTransaction} from "../../../utils/utils";
 import {IItemsLoad, useItemsLoad} from "../../../contexts/ItemsLoadingContext";
 import {ICrank, useCrank} from "../../../contexts/CrankProvider";
 import {ILocalKeypair, useLocalKeypair} from "../../../contexts/LocalKeypairProvider";
 import {AllocData} from "../../../types/AllocData";
 import {registry, Protocol} from "@qpools/sdk";
+import {Property} from "csstype";
+import All = Property.All;
+import {getCurrentHub} from "@sentry/hub";
 
 // TODO: Refactor the code here ... looks a bit too redundant.
 //  Maybe try to push the logic into the sdk?
@@ -37,6 +40,9 @@ export default function PurchaseButton({allocationData}: Props) {
             alert("Please try again in a couple of seconds (We should really fix this error message)");
             return
         }
+
+        // Parse allocation data also as a array ...
+        let allocationDataAsArray = Array.from(allocationData.entries());
 
         // Gotta check if the amounts exist ...
         // if (!userWalletProvider.walletAssets) {
@@ -155,23 +161,236 @@ export default function PurchaseButton({allocationData}: Props) {
 
         // Do all the logic here ...
 
+        /************************************************************************************
+         * TRANSACTION 0
+         *************************************************************************************/
+
+        /**
+         * Get all possible input tokens ...
+         *  Intersection of whitelisted input tokens, times what ist input through the pools
+         */
+        let selectedAssetPools: registry.ExplicitPool[] = Array.from(allocationData.values()).map((asset) => {
+            // If there is no underlying pool, than this is a bug!!
+            return asset.pool!
+        });
+        let inputPoolsAndTokens: [registry.ExplicitPool, registry.ExplicitToken][] = getInputTokens(selectedAssetPools);
+        let inputPoolsAndTokensAsMap: Map<string, registry.ExplicitToken> =  new Map<string, registry.ExplicitToken>();
+        inputPoolsAndTokens.map(([pool, token]: [registry.ExplicitPool, registry.ExplicitToken]) => {
+                inputPoolsAndTokensAsMap.set(pool.lpToken.address, token)
+        });
 
         /**
          * Create associate token accounts
+         *  Depending on the type of protocol, we must first receive the input pools ...
+         *  This is the first transaction ...
+         */
+        let txCreateAssociateTokenAccount = await rpcProvider.portfolioObject!.createAssociatedTokenAccounts(
+            inputPoolsAndTokens.map(([pool, token]: [registry.ExplicitPool, registry.ExplicitToken]) => new PublicKey(token.address)),
+            rpcProvider.provider!.wallet
+        );
+        if (txCreateAssociateTokenAccount.instructions.length > 0) {
+            await sendAndConfirmTransaction(
+                rpcProvider._solbondProgram!.provider,
+                rpcProvider.connection!,
+                txCreateAssociateTokenAccount
+            );
+        }
+        await itemLoadContext.incrementCounter();
+
+        /************************************************************************************
+         * TRANSACTION 1
+         *************************************************************************************/
+
+        /**
+         * Create portfolio signed
+         *  Not dependend on the individual items
+         */
+        let tx: Transaction = new Transaction();
+        let IxCreatePortfolioPda = await rpcProvider.portfolioObject!.createPortfolioSigned(
+            weights,
+            assetLpMints
+        );
+        tx.add(IxCreatePortfolioPda);
+
+        /**
+         *
+         * (1) Register Currency Input Portfolio Accounts
+         *  Same as associated token accounts, we must first receive the input pools ...
+         *  Edge case: skip the case where the input is SOL. I should now really include the "empty" pubkey, of including raw-SOL, for the empty pubkey ...
+         *
+         *
+         * (2) Also transfer to portfolio ..
+         *  Same as associated token acounts, we must first receive the input pools, and their values ...
+         *
+         *
+         * (3) Approve Position Weights
+         *  Same as associated token accounts, we must first receive the input pools ...
+         *
+         */
+        await Promise.all(allocationDataAsArray.map(async ([key, value]: [string, AllocData], index: number) => {
+
+            // Do all types of checks here
+            // And I guess throw an error if that is not the case ...
+            // We can catch the error client-side, and display it in some modal or so
+
+            if (!value.userInputAmount) {
+                console.log("User input amount was not specified!");
+                console.log(value);
+                throw Error("User input amount was not specified! " + JSON.stringify(value));
+            }
+            if (!value.pool) {
+                console.log("Pool is not set!!");
+                console.log(value);
+                throw Error("Pool is not set! " + JSON.stringify(value));
+            }
+
+            let currencyAmount: BN = new BN(value.userInputAmount!.amount.amount);
+            let currencyMint: PublicKey = value.userInputAmount!.mint;
+            let lpAddress: PublicKey = new PublicKey(value.pool!.lpToken.address);
+            let weight: BN = new BN(value.weight);
+
+            if (value.protocol === Protocol.saber) {
+                let IxRegisterCurrencyInput = await rpcProvider.portfolioObject!.registerCurrencyInputInPortfolio(
+                    currencyAmount,
+                    currencyMint // Is the mint here the currency ... (?). If not, then replace this by getInputTokens from pool ... // Or fix this root-level
+                );
+                tx.add(IxRegisterCurrencyInput);
+
+                let IxSendUsdcToPortfolio = await rpcProvider.portfolioObject!.transfer_to_portfolio(value.userInputAmount!.mint);
+                tx.add(IxSendUsdcToPortfolio);
+
+                let IxApprovePositionWeightSaber = await rpcProvider.portfolioObject!.approvePositionWeightSaber(
+                    lpAddress,
+                    currencyAmount,
+                    new BN(0),  // Will be flipped in the backend .. // Shoudl probably remove the tokenB argument ...
+                    new BN(0),
+                    index,  // Hardcoded
+                    weight
+                )
+                tx.add(IxApprovePositionWeightSaber);
+
+            } else if (value.protocol === Protocol.marinade) {
+                let lamports = new BN(value.userInputAmount!.amount.amount);
+                if (lamports.lt(new BN(10 ** 9))) {
+                    throw Error("To utilize Marinade, you need to input at least 1SOL")
+                }
+
+                let IxApprovePositionWeightMarinade = await rpcProvider.portfolioObject!.approvePositionWeightMarinade(
+                    currencyAmount,
+                    index,
+                    weight
+                );
+                tx.add(IxApprovePositionWeightMarinade);
+
+            } else {
+                console.log("Protocol is not valid!");
+                throw Error("Protocol is not valid! " + JSON.stringify(value));
+            }
+        }));
+
+        /**
+         * Finally, send some SOL to the crank wallet s.t. the cranks can be executed
+         */
+        console.log("Depositing some SOL to run the cranks ...");
+        // This much SOL should suffice for now probably ...
+        let IxSendToCrankWallet = await rpcProvider.portfolioObject!.sendToCrankWallet(
+            localKeypairProvider.localTmpKeypair!.publicKey,
+            50_000_000
+        );
+        tx.add(IxSendToCrankWallet);
+        await itemLoadContext.incrementCounter();
+
+        console.log("Sending and signing the transaction");
+        console.log("Provider is: ");
+        console.log(rpcProvider._solbondProgram!.provider);
+        console.log(rpcProvider._solbondProgram!.provider.wallet.publicKey.toString());
+        await sendAndConfirmTransaction(
+            rpcProvider._solbondProgram!.provider,
+            rpcProvider.connection!,
+            tx
+        );
+        await itemLoadContext.incrementCounter();
+
+        /************************************************************************************
+         * TRANSACTION 2
+         *************************************************************************************/
+
+        /**
+         * Run cranks
+         *  Again, dependent on the protocol
+         */
+        await Promise.all(allocationDataAsArray.map(async ([key, value]: [string, AllocData], index: number) => {
+            if (value.protocol === Protocol.saber) {
+                let sgPermissionlessFullfillSaber = await crankProvider.crankRpcTool!.permissionlessFulfillSaber(index);
+                console.log("Fulfilled sg Saber is: ", sgPermissionlessFullfillSaber);
+            } else if (value.protocol === Protocol.marinade) {
+                let sgPermissionlessFullfillMarinade = await crankProvider.crankRpcTool!.createPositionMarinade(index);
+                console.log("Fulfilled sg Marinade is: ", sgPermissionlessFullfillMarinade);
+            } else {
+                console.log("Not all cranks could be fulfilled!!");
+                console.log(value);
+                throw Error("Not all cranks could be fulfilled!! " + JSON.stringify(value));
+            }
+        }));
+        await itemLoadContext.incrementCounter();
+        console.log("Updating price ...");
+        // Add another Counter "running cranks"
+        await rpcProvider.makePriceReload();
+        console.log("Done Purchasing!");
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            /***
+         * LEGACY OLD PURCHASE BUTTON
          */
 
 
 
-        let txCreateATA: Transaction = await rpcProvider.portfolioObject!.createAssociatedTokenAccounts([assetLpMints[0]], , rpcProvider.provider!.wallet);
-        if (txCreateATA.instructions.length > 0) {
-            await sendAndConfirmTransaction(
-                rpcProvider._solbondProgram!.provider,
-                rpcProvider.connection!,
-                txCreateATA
-                // qPoolContext.userAccount!.publicKey
-            );
-        }
-        await itemLoadContext.incrementCounter();
+
+
+
+
+
+
+
+
+
+
+
+
+        // let txCreateATA: Transaction = await rpcProvider.portfolioObject!.createAssociatedTokenAccounts([assetLpMints[0]], , rpcProvider.provider!.wallet);
+        // if (txCreateATA.instructions.length > 0) {
+        //     await sendAndConfirmTransaction(
+        //         rpcProvider._solbondProgram!.provider,
+        //         rpcProvider.connection!,
+        //         txCreateATA
+        //     );
+        // }
+        // await itemLoadContext.incrementCounter();
 
         // // TODO: change depending on user input
         // let valueInUsdc: number = 2;
@@ -196,160 +415,149 @@ export default function PurchaseButton({allocationData}: Props) {
          *
          */
         // TODO: Should not be a try catch around
-        console.log("Creating Portfolio");
-        let tx: Transaction = new Transaction();
-        let IxCreatePortfolioPda = await rpcProvider.portfolioObject!.createPortfolioSigned(
-            weights,
-            assetLpMints
-        );
-        tx.add(IxCreatePortfolioPda);
+        // console.log("Creating Portfolio");
+        // let tx: Transaction = new Transaction();
+        // let IxCreatePortfolioPda = await rpcProvider.portfolioObject!.createPortfolioSigned(
+        //     weights,
+        //     assetLpMints
+        // );
+        // tx.add(IxCreatePortfolioPda);
 
         console.log("Transfer Asset to Portfolio");
         // TODO: Check if they exist, if they already do exist, don't rewrite these ...
         // TODO: => Make an if-else statement, depending on whether this is USDC or mSOL. If this is bare SOL, you should skip this ...
         // TODO: ==> Gotta turn this into a
-        await Promise.all(Array.from(allocationData.entries()).map(async (entry: [string, AllocData], index: number) => {
-
-            let key: string = entry[0]
-            let value: AllocData = entry[1];
-
-            // TODO: Get currency mint
-            let currencyMint: PublicKey = value.userInputAmount!.mint;
-            let currencyAmount: BN = new BN(value.userInputAmount!.amount.amount);
-            // If this doesn't work, we have a bug! It must be filtered beforehand in the program-flow before
-
-            // Skip it
-
-            // Do a weird dictionary reading ... (?)
-            if (value.protocol === Protocol.saber) {
-                let IxRegisterCurrencyInput = await rpcProvider.portfolioObject!.registerCurrencyInputInPortfolio(
-                    currencyAmount,
-                    currencyMint
-                );
-                tx.add(IxRegisterCurrencyInput);
-            } else if (value.protocol === Protocol.marinade) {
-                // Let it fail if Marinade has less than 1 !
-                if (currencyAmount.lt(new BN(1_000_000_000))) {
-                    alert("If you want to pay into marinade finance, you need to at least pay in 1SOL");
-                    return;
-                }
-            } else {
-                console.log("Not all cranks could be fulfilled!!");
-                console.log(value);
-                throw Error("Not all cranks could be fulfilled!! " + JSON.stringify(value));
-            }
-        }));
+        // await Promise.all(Array.from(allocationData.entries()).map(async (entry: [string, AllocData], index: number) => {
+        //
+        //     let key: string = entry[0]
+        //     let value: AllocData = entry[1];
+        //
+        //     // TODO: Get currency mint
+        //     let currencyMint: PublicKey = value.userInputAmount!.mint;
+        //     let currencyAmount: BN = new BN(value.userInputAmount!.amount.amount);
+        //     // If this doesn't work, we have a bug! It must be filtered beforehand in the program-flow before
+        //
+        //     // Skip it
+        //
+        //     // Do a weird dictionary reading ... (?)
+        //     if (value.protocol === Protocol.saber) {
+        //         let IxRegisterCurrencyInput = await rpcProvider.portfolioObject!.registerCurrencyInputInPortfolio(
+        //             currencyAmount,
+        //             currencyMint
+        //         );
+        //         tx.add(IxRegisterCurrencyInput);
+        //     } else if (value.protocol === Protocol.marinade) {
+        //         // Let it fail if Marinade has less than 1 !
+        //         if (currencyAmount.lt(new BN(1_000_000_000))) {
+        //             alert("If you want to pay into marinade finance, you need to at least pay in 1SOL");
+        //             return;
+        //         }
+        //     } else {
+        //         console.log("Not all cranks could be fulfilled!!");
+        //         console.log(value);
+        //         throw Error("Not all cranks could be fulfilled!! " + JSON.stringify(value));
+        //     }
+        // }));
 
         // Create position approve for marinade, and the saber pool (again, hardcode this part lol).
         // Later these should be fetched from the frontend.
         console.log("Approve Position Saber");
 
         // Iterate through all items in AllocData
-        /**
-         * Now do Saber
-         */
-        await Promise.all(Array.from(allocationData.entries()).map(async (entry: [string, AllocData], index: number) => {
+        // /**
+        //  * Now do Saber
+        //  */
+        // await Promise.all(Array.from(allocationData.entries()).map(async (entry: [string, AllocData], index: number) => {
+        //
+        //     let key: string = entry[0]
+        //     let value: AllocData = entry[1];
+        //
+        //     // Do a weird dictionary reading ... (?)
+        //     if (value.protocol != Protocol.saber) {
+        //         return;
+        //     }
+        //
+        //     if (!value.userInputAmount) {
+        //         console.log("User input amount was not specified!");
+        //         console.log(value);
+        //         throw Error("User input amount was not specified! " + JSON.stringify(value));
+        //     }
+        //
+        //     console.log("Value is: ", value);
+        //
+        //     // Also get the value from the allocKey item
+        //     let amount = new BN(value.userInputAmount!.amount.amount);
+        //     let weight = new BN(value.weight);
+        //
+        // }));
 
-            let key: string = entry[0]
-            let value: AllocData = entry[1];
-
-            // Do a weird dictionary reading ... (?)
-            if (value.protocol != Protocol.saber) {
-                return;
-            }
-
-            if (!value.userInputAmount) {
-                console.log("User input amount was not specified!");
-                console.log(value);
-                throw Error("User input amount was not specified! " + JSON.stringify(value));
-            }
-
-            console.log("Value is: ", value);
-
-            // From the LP Mint, retrieve the saber pool address
-            let poolAddressFromLp = registry.saberPoolLpToken2poolAddress(new PublicKey(value.pool!.lpToken.address));
-            // Also get the value from the allocKey item
-            let amount = new BN(value.userInputAmount!.amount.amount);
-            let weight = new BN(value.weight);
-
-            let IxApprovePositionWeightSaber = await rpcProvider.portfolioObject!.approvePositionWeightSaber(
-                poolAddressFromLp,
-                amount,
-                new BN(0),  // Will be flipped in the backend ..
-                new BN(0),
-                index,  // Hardcoded
-                weight
-            )
-            tx.add(IxApprovePositionWeightSaber);
-        }));
-
-        /**
-         * Now do Marinade
-         */
-        // TODO: Let's hope that async map keeps order : if there is a bug with the orders, this is probably the first thing to check ...
-        await Promise.all(Array.from(allocationData.entries()).map(async (entry: [string, AllocData], index: number) => {
-
-            let key: string = entry[0]
-            let value: AllocData = entry[1];
-            // Do a weird dictionary reading ... (?)
-            if (value.protocol != Protocol.marinade) {
-                return;
-            }
-            if (!value.userInputAmount) {
-                console.log("User input amount was not specified!");
-                console.log(value);
-                throw Error("User input amount was not specified! " + JSON.stringify(value));
-            }
-            // Also get the value from the allocKey item
-            let amount = new BN(value.userInputAmount!.amount.amount);
-            // Assert that the amount here is greater than 1!
-            let weight = new BN(value.weight);
-            let IxApprovePositionWeightMarinade = await rpcProvider.portfolioObject!.approvePositionWeightMarinade(
-                amount,
-                index,
-                weight
-            );
-            tx.add(IxApprovePositionWeightMarinade);
-        }));
+        // /**
+        //  * Now do Marinade
+        //  */
+        // // TODO: Let's hope that async map keeps order : if there is a bug with the orders, this is probably the first thing to check ...
+        // await Promise.all(Array.from(allocationData.entries()).map(async (entry: [string, AllocData], index: number) => {
+        //
+        //     let key: string = entry[0]
+        //     let value: AllocData = entry[1];
+        //     // Do a weird dictionary reading ... (?)
+        //     if (value.protocol != Protocol.marinade) {
+        //         return;
+        //     }
+        //     if (!value.userInputAmount) {
+        //         console.log("User input amount was not specified!");
+        //         console.log(value);
+        //         throw Error("User input amount was not specified! " + JSON.stringify(value));
+        //     }
+        //     // Also get the value from the allocKey item
+        //     let amount = new BN(value.userInputAmount!.amount.amount);
+        //     // Assert that the amount here is greater than 1!
+        //     let weight = new BN(value.weight);
+        //     let IxApprovePositionWeightMarinade = await rpcProvider.portfolioObject!.approvePositionWeightMarinade(
+        //         amount,
+        //         index,
+        //         weight
+        //     );
+        //     tx.add(IxApprovePositionWeightMarinade);
+        // }));
 
         /**
          * Now transfer the funds (if it hasn't been done so already)
          */
         // Also make a map statement here ...
-        await Promise.all(Array.from(allocationData.entries()).map(async (entry: [string, AllocData], index: number) => {
+        // await Promise.all(Array.from(allocationData.entries()).map(async (entry: [string, AllocData], index: number) => {
+        //
+        //     let key: string = entry[0]
+        //     let value: AllocData = entry[1];
+        //
+        //     // Do a weird dictionary reading ... (?)
+        //     if (value.protocol === Protocol.marinade) {
+        //         return;
+        //     }
+        //     let currencyMint = value.userInputAmount!.mint;
+        //     // TODO: Is this set ... (?) Double-check where and how
+        //     let IxSendUsdcToPortfolio = await rpcProvider.portfolioObject!.transfer_to_portfolio(currencyMint);
+        //     tx.add(IxSendUsdcToPortfolio);
+        // }));
 
-            let key: string = entry[0]
-            let value: AllocData = entry[1];
-
-            // Do a weird dictionary reading ... (?)
-            if (value.protocol === Protocol.marinade) {
-                return;
-            }
-            let currencyMint = value.userInputAmount!.mint;
-            // TODO: Is this set ... (?) Double-check where and how
-            let IxSendUsdcToPortfolio = await rpcProvider.portfolioObject!.transfer_to_portfolio(currencyMint);
-            tx.add(IxSendUsdcToPortfolio);
-        }));
-
-        console.log("Depositing some SOL to run the cranks ...");
-        // This much SOL should suffice for now probably ...
-        let IxSendToCrankWallet = await rpcProvider.portfolioObject!.sendToCrankWallet(
-            localKeypairProvider.localTmpKeypair!.publicKey,
-            50_000_000
-        );
-        tx.add(IxSendToCrankWallet);
-        await itemLoadContext.incrementCounter();
-
-        console.log("Sending and signing the transaction");
-        console.log("Provider is: ");
-        console.log(rpcProvider._solbondProgram!.provider);
-        console.log(rpcProvider._solbondProgram!.provider.wallet.publicKey.toString());
-        await sendAndConfirmTransaction(
-            rpcProvider._solbondProgram!.provider,
-            rpcProvider.connection!,
-            tx
-        );
-        await itemLoadContext.incrementCounter();
+        // console.log("Depositing some SOL to run the cranks ...");
+        // // This much SOL should suffice for now probably ...
+        // let IxSendToCrankWallet = await rpcProvider.portfolioObject!.sendToCrankWallet(
+        //     localKeypairProvider.localTmpKeypair!.publicKey,
+        //     50_000_000
+        // );
+        // tx.add(IxSendToCrankWallet);
+        // await itemLoadContext.incrementCounter();
+        //
+        // console.log("Sending and signing the transaction");
+        // console.log("Provider is: ");
+        // console.log(rpcProvider._solbondProgram!.provider);
+        // console.log(rpcProvider._solbondProgram!.provider.wallet.publicKey.toString());
+        // await sendAndConfirmTransaction(
+        //     rpcProvider._solbondProgram!.provider,
+        //     rpcProvider.connection!,
+        //     tx
+        // );
+        // await itemLoadContext.incrementCounter();
 
         /**
          *

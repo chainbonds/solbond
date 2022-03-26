@@ -4,10 +4,30 @@ import {ChartableItemType} from "../types/ChartableItemType";
 import {DisplayToken} from "../types/DisplayToken";
 import {ProtocolType, PositionInfo, registry} from "@qpools/sdk";
 
+/**
+ * Perhaps a really stupid object. Should prob just use the registry.ExplicitToken object.
+ * Keep things simple, and the number of functions etc. low.
+ */
 export interface SelectedToken {
     name: string,
     mint: PublicKey
 }
+
+export const getTokensFromPools = (selectedAssetPools: registry.ExplicitPool[]): [registry.ExplicitPool, registry.ExplicitToken][] => {
+    let out: [registry.ExplicitPool, registry.ExplicitToken][] = [];
+    selectedAssetPools.map((pool: registry.ExplicitPool) => {
+        pool.tokens.map((token: registry.ExplicitToken) => out.push([pool, token]));
+    });
+    return out;
+}
+
+export const getInputTokens = (selectedAssetPools: registry.ExplicitPool[]): [registry.ExplicitPool, registry.ExplicitToken][] => {
+    let whitelistedTokenStrings = new Set<string>(registry.getWhitelistTokens());
+    let tokensInPools = getTokensFromPools(selectedAssetPools);
+    let out = tokensInPools.filter(([pool, token]: [registry.ExplicitPool, registry.ExplicitToken]) => {return whitelistedTokenStrings.has(token.address)});
+    return out;
+}
+
 export const getInputToken = (selectedAssetTokens: registry.ExplicitToken[]): SelectedToken => {
     let whitelistedTokenStrings = new Set<string>(registry.getWhitelistTokens());
     console.log("Whitelist tokens are: ", registry.getWhitelistTokens());
