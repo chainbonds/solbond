@@ -2,7 +2,7 @@ import React from "react";
 import {BN} from "@project-serum/anchor";
 import {IRpcProvider, useRpc} from "../../../contexts/RpcProvider";
 import {PublicKey, Transaction} from "@solana/web3.js";
-import {getInputTokens, sendAndConfirmTransaction} from "../../../utils/utils";
+import {getInputTokens, getTokensFromPools, sendAndConfirmTransaction} from "../../../utils/utils";
 import {IItemsLoad, useItemsLoad} from "../../../contexts/ItemsLoadingContext";
 import {ICrank, useCrank} from "../../../contexts/CrankProvider";
 import {ILocalKeypair, useLocalKeypair} from "../../../contexts/LocalKeypairProvider";
@@ -55,8 +55,8 @@ export default function PurchaseButton({allocationData}: Props) {
         //     throw Error("Value in USDC is not a number");
         // }
 
-        await itemLoadContext.addLoadItem({message: "Preparing Transaction"});
-        await itemLoadContext.addLoadItem({message: "(Sign): Creating Associated Token Accounts"});
+        // await itemLoadContext.addLoadItem({message: "Preparing Transaction"});
+        await itemLoadContext.addLoadItem({message: "Sign: Creating Associated Token Accounts"});
         await itemLoadContext.addLoadItem({message: "Sign: Create Portfolio & Sending Asset"});
         await itemLoadContext.addLoadItem({message: "Running cranks to distribute assets across liquidity pools..."});
 
@@ -191,6 +191,12 @@ export default function PurchaseButton({allocationData}: Props) {
             .map((pool: registry.ExplicitPool) => {
                 return pool.tokens.map((token: registry.ExplicitToken) => new PublicKey(token.address))
             }).flat();
+        // Also add the lp mints to the ATAs to be created ...
+        let lpMints: PublicKey[] = selectedAssetPools
+            .map((pool: registry.ExplicitPool) => {
+                return new PublicKey(pool.lpToken.address)
+            });
+        mints.push(...lpMints);
         // We assume that the .tokens object carries all the tokens needed to make it run ...
         let txCreateAssociateTokenAccount = await rpcProvider.portfolioObject!.createAssociatedTokenAccounts(
             mints,

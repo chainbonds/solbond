@@ -46,6 +46,7 @@ export function UserWalletAssetsProvider(props: any) {
      *          Push to the Table Object of Items
      */
     const updateUserAssetsAndRatiosAfterConnecting = async () => {
+        console.log("#updateUserAssetsAndRatiosAfterConnecting()");
 
         let newAllocData: AllocData[] = [];
 
@@ -93,7 +94,9 @@ export function UserWalletAssetsProvider(props: any) {
                         uiAmountString: ((solBalance.toNumber() / (10 ** 9))).toString()
                     };
                 } else {
+                    console.log("Mint is: ", mint.toString(), ata.toString());
                     userBalance = (await rpcProvider.connection!.getTokenAccountBalance(ata)).value;
+                    console.log("fetched successfully! ", userBalance);
                 }
                 let newPool: AllocData = {
                     ...fetchedPool,
@@ -127,6 +130,7 @@ export function UserWalletAssetsProvider(props: any) {
         setWalletAssets((_: AllocData[]) => {
             return newAllocData;
         });
+        console.log("##updateUserAssetsAndRatiosAfterConnecting()");
     }
 
     useEffect(() => {
