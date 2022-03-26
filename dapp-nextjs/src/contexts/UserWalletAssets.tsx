@@ -116,6 +116,7 @@ export function UserWalletAssetsProvider(props: any) {
                 // convert by pyth price, maybe
                 // Convert by pyth price,
                 // for now, hardcoding is enough, because we haven't started converting by the pyth price yet ...
+                // TODO: Replace this with pyth price oracles !
                 if (newPool.userInputAmount!.mint.equals(new PublicKey("So11111111111111111111111111111111111111112"))) {
                     newPool.weight = newPool.userInputAmount!.amount.uiAmount! * 93.;
                 } else {
