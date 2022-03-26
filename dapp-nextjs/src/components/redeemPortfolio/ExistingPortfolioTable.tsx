@@ -30,9 +30,14 @@ export default function ExistingPortfolioTable({tableColumns}: Props) {
         console.log("Icon A Icon B ", displayTokens);
         console.log("Printing the position to be printed now: ", position);
 
+        let theKey = Math.random() + position.mintLp.toString();
+
         return (
             <>
-                <tr className="dark:bg-gray-800">
+                <tr
+                    key={theKey}
+                    className="dark:bg-gray-800"
+                >
                     {/* Show the icons next to this ... */}
                     <td className="py-4 px-6 text-center text-sm font-medium text-gray-900 whitespace-nowrap dark:text-white">
                         {position.mintLp &&
@@ -75,7 +80,7 @@ export default function ExistingPortfolioTable({tableColumns}: Props) {
                             <table className="min-w-full">
                                 <TableHeader columns={tableColumns} />
                                 <tbody>
-                                {existingPortfolioProvider.positionInfos.map((position: PositionInfo) => tableSingleRow(position))}
+                                    {existingPortfolioProvider.positionInfos.map((position: PositionInfo) => tableSingleRow(position))}
                                 </tbody>
                             </table>
                         </div>
