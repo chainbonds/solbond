@@ -176,8 +176,8 @@ export default function SuggestedPortfolioTable({tableColumns, selectedAssets, s
                     <div className="inline-block pb-2 min-w-full">
                         <div className="overflow-hidden shadow-md sm:rounded-lg">
                             <table className="min-w-full">
+                                {/* + pieChartData[0].value */}
                                 <TableHeader
-                                    {/* + pieChartData[0].value */}
                                     key={Math.random()}
                                     columns={pieChartData ? tableColumns : tableColumns.slice(0, tableColumns.length - 1)}/>
                                 <tbody>
