@@ -184,8 +184,17 @@ export default function PurchaseButton({allocationData}: Props) {
          *  Depending on the type of protocol, we must first receive the input pools ...
          *  This is the first transaction ...
          */
+        let _mints: (PublicKey | null)[] = inputPoolsAndTokens.map(([pool, token]: [registry.ExplicitPool, registry.ExplicitToken]) => {
+            let mint = new PublicKey(token.address);
+            if (mint != registry.getNativeSolMint()) {
+                return null;
+            } else {
+                return mint;
+            }
+        })
+        let mints: PublicKey[] = _mints.filter((x: PublicKey | null): x is PublicKey => (x !== null));
         let txCreateAssociateTokenAccount = await rpcProvider.portfolioObject!.createAssociatedTokenAccounts(
-            inputPoolsAndTokens.map(([pool, token]: [registry.ExplicitPool, registry.ExplicitToken]) => new PublicKey(token.address)),
+            mints,
             rpcProvider.provider!.wallet
         );
         if (txCreateAssociateTokenAccount.instructions.length > 0) {

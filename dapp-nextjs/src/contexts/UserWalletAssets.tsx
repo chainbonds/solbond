@@ -5,6 +5,7 @@ import {getAssociatedTokenAddressOffCurve} from "@qpools/sdk/lib/utils";
 import {AllocData} from "../types/AllocData";
 import {IRpcProvider, useRpc} from "./RpcProvider";
 import {ISerpius, useSerpiusEndpoint} from "./SerpiusProvider";
+import {BN} from "@project-serum/anchor";
 
 
 export interface IUserWalletAssets {
@@ -77,20 +78,22 @@ export function UserWalletAssetsProvider(props: any) {
                 let ata = await getAssociatedTokenAddressOffCurve(mint, rpcProvider.userAccount!.publicKey);
                 // Finally get the users' balance
                 // Let's assume that if the token is wrapped solana, that we can also include the pure solana into this .
-                let userBalance: TokenAmount = (await rpcProvider.connection!.getTokenAccountBalance(ata)).value;
-                if (mint.equals(new PublicKey("So11111111111111111111111111111111111111112"))) {
+                let userBalance: TokenAmount;
+                if (mint.equals(registry.getNativeSolMint())) {
                     // TODO: refactor this into a util function or so ...
                     // This is quite hacky. How do we treat the wrapping / unrapping for this?
                     // Probably something like a transformer function would be nice for different protocols,
                     // i.e. for marinade it could turn the unwrapped SOL into wrapped SOL or so .. and then unwrap it again.
                     // the user would have to sign for this so it's not entirely feasible
-                    let solBalance: number = (await rpcProvider.connection!.getBalance(rpcProvider.userAccount!.publicKey));
+                    let solBalance: BN = new BN (await rpcProvider.connection!.getBalance(rpcProvider.userAccount!.publicKey));
                     userBalance = {
-                        amount: userBalance.amount + (await rpcProvider.connection!.getBalance(rpcProvider.userAccount!.publicKey)),
+                        amount: solBalance.toString(),
                         decimals: 9,
-                        uiAmount: (userBalance.uiAmount! + (solBalance / (10 ** 9))),
-                        uiAmountString: ((userBalance.uiAmount! + (solBalance / (10 ** 9)))).toString()
+                        uiAmount: (solBalance.toNumber() / (10 ** 9)),
+                        uiAmountString: ((solBalance.toNumber() / (10 ** 9))).toString()
                     };
+                } else {
+                    userBalance = (await rpcProvider.connection!.getTokenAccountBalance(ata)).value;
                 }
                 let newPool: AllocData = {
                     ...fetchedPool,
