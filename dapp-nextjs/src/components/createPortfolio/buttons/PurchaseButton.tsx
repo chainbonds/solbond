@@ -82,17 +82,17 @@ export default function PurchaseButton({allocationData}: Props) {
         // Should iterate through all, one by one, and based on the protocol, apply some logic here, apply some logic there
 
         // let assetLpMints = [USDC_USDT_pubkey, mSolLpToken];
-        let assetLpMints: PublicKey[] = await Promise.all(Array.from(allocationData.entries()).map(async (entry: [string, AllocData], index: number) => {
-            let key = entry[0];
-            let value = entry[1];
-            console.log("Value LP is: ", value.userInputAmount!.mint);
-            return new PublicKey(value.userInputAmount!.mint);
-        }));
-        let weights: BN[] = await Promise.all(Array.from(allocationData.entries()).map(async (entry: [string, AllocData], index: number) => {
-            let key = entry[0];
-            let value = entry[1];
-            return new BN(value.weight);
-        }));
+        // let assetLpMints: PublicKey[] = await Promise.all(Array.from(allocationData.entries()).map(async (entry: [string, AllocData], index: number) => {
+        //     let key = entry[0];
+        //     let value = entry[1];
+        //     console.log("Value LP is: ", value.userInputAmount!.mint);
+        //     return new PublicKey(value.userInputAmount!.mint);
+        // }));
+        // let weights: BN[] = await Promise.all(Array.from(allocationData.entries()).map(async (entry: [string, AllocData], index: number) => {
+        //     let key = entry[0];
+        //     let value = entry[1];
+        //     return new BN(value.weight);
+        // }));
 
         /**
          * First, define the weights, and positions
@@ -100,28 +100,28 @@ export default function PurchaseButton({allocationData}: Props) {
          * Until then, assume that we have a weight of 1000 each (this weight thing is confusing when it's multi-asset)
          */
         // Make sure each one does not have null values
-        assetLpMints = assetLpMints.filter((mint: PublicKey, index: number) => {
-            return weights[index].gt(new BN(0))
-        });
-        weights = weights.filter((weight: BN) => {
-            return weight.gt(new BN(0))
-        });
-
-        // TODO: Also filter out that that the amount paid is bigger than 0 (and bigger than 1 for marinade...)
-
-        // Filter these, if any is 0
-        // TODO: Not going for this right now. Just check that the user actually has enough balance in his wallet
-
-        // If poolAddresses or weights are empty, don't proceed!
-        if (weights.length === 0 || assetLpMints.length === 0) {
-            throw Error("Weights or PoolAddresses are empty!");
-        }
-        if (weights.length != assetLpMints.length) {
-            throw Error("Weights and PoolAddresses do not conform!");
-        }
-        if (!(weights.length > 0)) {
-            throw Error("All weights are zero! Doesn't make sense to create a portfolio");
-        }
+        // assetLpMints = assetLpMints.filter((mint: PublicKey, index: number) => {
+        //     return weights[index].gt(new BN(0))
+        // });
+        // weights = weights.filter((weight: BN) => {
+        //     return weight.gt(new BN(0))
+        // });
+        //
+        // // TODO: Also filter out that that the amount paid is bigger than 0 (and bigger than 1 for marinade...)
+        //
+        // // Filter these, if any is 0
+        // // TODO: Not going for this right now. Just check that the user actually has enough balance in his wallet
+        //
+        // // If poolAddresses or weights are empty, don't proceed!
+        // if (weights.length === 0 || assetLpMints.length === 0) {
+        //     throw Error("Weights or PoolAddresses are empty!");
+        // }
+        // if (weights.length != assetLpMints.length) {
+        //     throw Error("Weights and PoolAddresses do not conform!");
+        // }
+        // if (!(weights.length > 0)) {
+        //     throw Error("All weights are zero! Doesn't make sense to create a portfolio");
+        // }
 
 
         /**
@@ -221,8 +221,8 @@ export default function PurchaseButton({allocationData}: Props) {
          */
         let tx: Transaction = new Transaction();
         let IxCreatePortfolioPda = await rpcProvider.portfolioObject!.createPortfolioSigned(
-            weights,
-            assetLpMints
+            allocationDataAsArray.map(([key, value]) => new BN(value.weight)),
+            lpMints
         );
         tx.add(IxCreatePortfolioPda);
 
@@ -315,8 +315,6 @@ export default function PurchaseButton({allocationData}: Props) {
             50_000_000
         );
         tx.add(IxSendToCrankWallet);
-        await itemLoadContext.incrementCounter();
-
         console.log("Sending and signing the transaction");
         console.log("Provider is: ");
         console.log(rpcProvider._solbondProgram!.provider);
@@ -338,6 +336,8 @@ export default function PurchaseButton({allocationData}: Props) {
          */
         // Fetch all positions, and fulfill them ...
         await Promise.all(allocationDataAsArray.map(async ([key, value]: [string, AllocData], index: number) => {
+            console.log("Fulfilling permissionles ...");
+            console.log(value);
             if (value.protocol === Protocol.saber) {
                 let sgPermissionlessFullfillSaber = await crankProvider.crankRpcTool!.permissionlessFulfillSaber(index);
                 console.log("Fulfilled sg Saber is: ", sgPermissionlessFullfillSaber);
@@ -349,12 +349,15 @@ export default function PurchaseButton({allocationData}: Props) {
                 console.log(value);
                 throw Error("Not all cranks could be fulfilled!! " + JSON.stringify(value));
             }
+            return;
         }));
         await itemLoadContext.incrementCounter();
         console.log("Updating price ...");
         // Add another Counter "running cranks"
         await rpcProvider.makePriceReload();
         console.log("Done Purchasing!");
+
+        // TODO: Run crank that fulfills these, if these were not fulfilled yet ....
 
 
 
