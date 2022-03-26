@@ -180,8 +180,9 @@ export default function SuggestedPortfolioTable({tableColumns, selectedAssets, s
                                 <TableHeader
                                     key={Math.random()}
                                     columns={pieChartData ? tableColumns : tableColumns.slice(0, tableColumns.length - 1)}/>
-                                <tbody>
-                                {pieChartData.map((position: ChartableItemType, index: number) => tableSingleRow(position, index))}
+                                <tbody
+                                    key={Math.random()}>
+                                    {pieChartData.map((position: ChartableItemType, index: number) => tableSingleRow(position, index))}
                                 </tbody>
                             </table>
                         </div>

@@ -78,8 +78,11 @@ export default function ExistingPortfolioTable({tableColumns}: Props) {
                     <div className="inline-block pb-2 min-w-full">
                         <div className="overflow-hidden sm:rounded-lg">
                             <table className="min-w-full">
-                                <TableHeader columns={tableColumns} />
-                                <tbody>
+                                <TableHeader
+                                    key={Math.random()}
+                                    columns={tableColumns} />
+                                <tbody
+                                    key={Math.random()}>
                                     {existingPortfolioProvider.positionInfos.map((position: PositionInfo) => tableSingleRow(position))}
                                 </tbody>
                             </table>
