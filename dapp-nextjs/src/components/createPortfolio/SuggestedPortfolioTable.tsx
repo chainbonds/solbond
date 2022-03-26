@@ -99,8 +99,6 @@ export default function SuggestedPortfolioTable({tableColumns, selectedAssets, s
         let inputTokenLink: string = registry.getIconFromToken(inputToken.mint);
 
         return (
-            <>
-                {/* border-base-100 border-b */}
                 <tr
                     key={theKey}
                     className={tailwindOnSelected}
@@ -164,7 +162,6 @@ export default function SuggestedPortfolioTable({tableColumns, selectedAssets, s
                     </td>
                     }
                 </tr>
-            </>
         )
     }
 
@@ -175,7 +172,9 @@ export default function SuggestedPortfolioTable({tableColumns, selectedAssets, s
                 <div className="overflow-x-auto w-full">
                     <div className="inline-block pb-2 min-w-full">
                         <div className="overflow-hidden shadow-md sm:rounded-lg">
-                            <table className="min-w-full">
+                            <table className="min-w-full"
+                                   key={Math.random()}
+                            >
                                 {/* + pieChartData[0].value */}
                                 <TableHeader
                                     key={Math.random()}

@@ -33,41 +33,39 @@ export default function ExistingPortfolioTable({tableColumns}: Props) {
         let theKey = Math.random() + position.mintLp.toString();
 
         return (
-            <>
-                <tr
-                    key={theKey}
-                    className="dark:bg-gray-800"
-                >
-                    {/* Show the icons next to this ... */}
-                    <td className="py-4 px-6 text-center text-sm font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                        {position.mintLp &&
-                        <a href={solscanLink(position.mintLp)} target={"_blank"} rel="noreferrer"
-                           className="text-blue-600 dark:text-blue-500 hover:underline">
-                            {shortenedAddressString(position.mintLp)}
-                        </a>
-                        }
-                    </td>
-                    <td className="py-4 px-6 text-center text-sm font-medium text-gray-500 whitespace-nowrap dark:text-gray-400">
-                        {displayTokens.map((displayToken: DisplayToken) => {
-                            return (
-                                <a href={displayToken.tokenSolscanLink} target={"_blank"} rel="noreferrer"
-                                   className="text-blue-600 dark:text-blue-400 hover:underline">
-                                    <Image src={displayToken.tokenImageLink} width={30} height={30}/>
-                                </a>
-                            )
-                        })}
-                    </td>
-                    <td className="py-4 px-6 text-center text-sm font-medium text-gray-500 whitespace-nowrap dark:text-gray-400">
-                        {position.totalPositionValue && position.totalPositionValue.toFixed(2)}
-                    </td>
-                    <td className="py-4 px-6 text-center text-sm text-right whitespace-nowrap">
-                        {position.ataLp &&
-                        <a href={solscanLink(position.ataLp)} target={"_blank"} rel="noreferrer"
-                           className="text-blue-600 dark:text-blue-500 hover:underline">See on Solscan</a>
-                        }
-                    </td>
-                </tr>
-            </>
+            <tr
+                key={theKey}
+                className="dark:bg-gray-800"
+            >
+                {/* Show the icons next to this ... */}
+                <td className="py-4 px-6 text-center text-sm font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                    {position.mintLp &&
+                    <a href={solscanLink(position.mintLp)} target={"_blank"} rel="noreferrer"
+                       className="text-blue-600 dark:text-blue-500 hover:underline">
+                        {shortenedAddressString(position.mintLp)}
+                    </a>
+                    }
+                </td>
+                <td className="py-4 px-6 text-center text-sm font-medium text-gray-500 whitespace-nowrap dark:text-gray-400" key={Math.random()}>
+                    {displayTokens.map((displayToken: DisplayToken) => {
+                        return (
+                            <a key={Math.random()} href={displayToken.tokenSolscanLink} target={"_blank"} rel="noreferrer"
+                               className="text-blue-600 dark:text-blue-400 hover:underline">
+                                <Image src={displayToken.tokenImageLink} width={30} height={30}/>
+                            </a>
+                        )
+                    })}
+                </td>
+                <td className="py-4 px-6 text-center text-sm font-medium text-gray-500 whitespace-nowrap dark:text-gray-400">
+                    {position.totalPositionValue && position.totalPositionValue.toFixed(2)}
+                </td>
+                <td className="py-4 px-6 text-center text-sm text-right whitespace-nowrap">
+                    {position.ataLp &&
+                    <a href={solscanLink(position.ataLp)} target={"_blank"} rel="noreferrer"
+                       className="text-blue-600 dark:text-blue-500 hover:underline">See on Solscan</a>
+                    }
+                </td>
+            </tr>
         )
     }
 
@@ -77,7 +75,9 @@ export default function ExistingPortfolioTable({tableColumns}: Props) {
                 <div className="overflow-x-auto">
                     <div className="inline-block pb-2 min-w-full">
                         <div className="overflow-hidden sm:rounded-lg">
-                            <table className="min-w-full">
+                            <table className="min-w-full"
+                                   key={Math.random()}
+                            >
                                 <TableHeader
                                     key={Math.random()}
                                     columns={tableColumns} />
