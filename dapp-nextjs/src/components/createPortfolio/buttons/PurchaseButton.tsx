@@ -4,7 +4,6 @@ import {IRpcProvider, useRpc} from "../../../contexts/RpcProvider";
 import {PublicKey, Transaction} from "@solana/web3.js";
 import {sendAndConfirmTransaction} from "../../../utils/utils";
 import {IItemsLoad, useItemsLoad} from "../../../contexts/ItemsLoadingContext";
-import {MOCK} from "@qpools/sdk";
 import {ICrank, useCrank} from "../../../contexts/CrankProvider";
 import {ILocalKeypair, useLocalKeypair} from "../../../contexts/LocalKeypairProvider";
 import {AllocData} from "../../../types/AllocData";
@@ -69,12 +68,25 @@ export default function PurchaseButton({allocationData}: Props) {
         // Define all LP tokens here, and also their respective assets
         // Which should also allow for more assets
         // TODO: Remove this hardcoded values, and look these up from the backend JSON API
-        let USDC_mint = new PublicKey("2tWC4JAdL4AxEFJySziYJfsAnW2MHKRo98vbAPiRDSk8");
-        let USDC_USDT_pubkey: PublicKey = new PublicKey("VeNkoB1HvSP6bSeGybQDnx9wTWFsQb2NBCemeCDSuKL");  // This is the pool address, not the LP token ...
-        let mSolLpToken: PublicKey = new PublicKey("mSoLzYCxHdYgdzU16g5QSh3i5K3z3KZK7ytfqcJm7So");  // Assume the LP token to be the denominator for what underlying asset we target ...
+        // let USDC_mint = new PublicKey("2tWC4JAdL4AxEFJySziYJfsAnW2MHKRo98vbAPiRDSk8");
+        // let USDC_USDT_pubkey: PublicKey = new PublicKey("VeNkoB1HvSP6bSeGybQDnx9wTWFsQb2NBCemeCDSuKL");  // This is the pool address, not the LP token ...
+        // let mSolLpToken: PublicKey = new PublicKey("mSoLzYCxHdYgdzU16g5QSh3i5K3z3KZK7ytfqcJm7So");  // Assume the LP token to be the denominator for what underlying asset we target ...
 
-        let assetLpMints = [USDC_USDT_pubkey, mSolLpToken];
-        let weights: BN[] = [new BN(1000), new BN(1000)];
+        // TODO: Maybe just refactor this shitty purchase button as well...
+        // Should iterate through all, one by one, and based on the protocol, apply some logic here, apply some logic there
+
+        // let assetLpMints = [USDC_USDT_pubkey, mSolLpToken];
+        let assetLpMints: PublicKey[] = await Promise.all(Array.from(allocationData.entries()).map(async (entry: [string, AllocData], index: number) => {
+            let key = entry[0];
+            let value = entry[1];
+            console.log("Value LP is: ", value.userInputAmount!.mint);
+            return new PublicKey(value.userInputAmount!.mint);
+        }));
+        let weights: BN[] = await Promise.all(Array.from(allocationData.entries()).map(async (entry: [string, AllocData], index: number) => {
+            let key = entry[0];
+            let value = entry[1];
+            return new BN(value.weight);
+        }));
 
         /**
          * First, define the weights, and positions
@@ -88,15 +100,8 @@ export default function PurchaseButton({allocationData}: Props) {
         weights = weights.filter((weight: BN) => {
             return weight.gt(new BN(0))
         });
-        // Once we hook it up to the other system, we can probably use something like this
-        // let weights: BN[] = qPoolContext.portfolioRatios
-        //     .filter((item: AllocData) => {return item.weight > 0})
-        //     .map((item: AllocData) => {return new BN(item.weight)});
-        // let poolAddresses: PublicKey[] = qPoolContext.portfolioRatios
-        //     .filter((item: AllocData) => {return item.weight > 0})
-        //     .map((item: AllocData) => {return new PublicKey(item.pool!.swap.config.swapAccount)});
 
-        // let poolAddresses: PublicKey[] = [USDC_USDT_pubkey, mSOLLpToken];
+        // TODO: Also filter out that that the amount paid is bigger than 0 (and bigger than 1 for marinade...)
 
         // Filter these, if any is 0
         // TODO: Not going for this right now. Just check that the user actually has enough balance in his wallet
@@ -146,7 +151,18 @@ export default function PurchaseButton({allocationData}: Props) {
         // Have a look at this; but this is still needed!
         await itemLoadContext.incrementCounter();
         console.log("Creating associated token accounts ...");
-        let txCreateATA: Transaction = await rpcProvider.portfolioObject!.createAssociatedTokenAccounts([assetLpMints[0]], rpcProvider.provider!.wallet);
+        // TODO: Create separate LPs for Saber, and the other LPs
+
+        // Do all the logic here ...
+
+
+        /**
+         * Create associate token accounts
+         */
+
+
+
+        let txCreateATA: Transaction = await rpcProvider.portfolioObject!.createAssociatedTokenAccounts([assetLpMints[0]], , rpcProvider.provider!.wallet);
         if (txCreateATA.instructions.length > 0) {
             await sendAndConfirmTransaction(
                 rpcProvider._solbondProgram!.provider,
@@ -157,17 +173,17 @@ export default function PurchaseButton({allocationData}: Props) {
         }
         await itemLoadContext.incrementCounter();
 
-        // TODO: change depending on user input
-        let valueInUsdc: number = 2;
-        let AmountUsdc: BN = new BN(valueInUsdc).mul(new BN(10 ** MOCK.DEV.SABER_USDC_DECIMALS));
-        let valueInSol: number = 1;
-        // I guess mSOL has 9 decimal points
-        let AmountSol: BN = new BN(valueInSol).mul(new BN(10 ** 9));
-        console.log("Total amount in Usdc is: ", valueInUsdc);
-
-        if (!(valueInUsdc > 0)) {
-            throw Error("Amount to be paid in must be bigger than 0");
-        }
+        // // TODO: change depending on user input
+        // let valueInUsdc: number = 2;
+        // let AmountUsdc: BN = new BN(valueInUsdc).mul(new BN(10 ** MOCK.DEV.SABER_USDC_DECIMALS));
+        // let valueInSol: number = 1;
+        // // I guess mSOL has 9 decimal points
+        // let AmountSol: BN = new BN(valueInSol).mul(new BN(10 ** 9));
+        // console.log("Total amount in Usdc is: ", valueInUsdc);
+        //
+        // if (!(valueInUsdc > 0)) {
+        //     throw Error("Amount to be paid in must be bigger than 0");
+        // }
 
         // Gotta iterate over alloc-data, and create a position for each !!!
 
@@ -190,12 +206,39 @@ export default function PurchaseButton({allocationData}: Props) {
 
         console.log("Transfer Asset to Portfolio");
         // TODO: Check if they exist, if they already do exist, don't rewrite these ...
-        let IxRegisterCurrencyUsdcInput = await rpcProvider.portfolioObject!.registerCurrencyInputInPortfolio(
-            AmountUsdc, USDC_mint
-        );
-        tx.add(IxRegisterCurrencyUsdcInput);
+        // TODO: => Make an if-else statement, depending on whether this is USDC or mSOL. If this is bare SOL, you should skip this ...
+        // TODO: ==> Gotta turn this into a
+        await Promise.all(Array.from(allocationData.entries()).map(async (entry: [string, AllocData], index: number) => {
 
-        // Set of instructions here are hard-coded
+            let key: string = entry[0]
+            let value: AllocData = entry[1];
+
+            // TODO: Get currency mint
+            let currencyMint: PublicKey = value.userInputAmount!.mint;
+            let currencyAmount: BN = new BN(value.userInputAmount!.amount.amount);
+            // If this doesn't work, we have a bug! It must be filtered beforehand in the program-flow before
+
+            // Skip it
+
+            // Do a weird dictionary reading ... (?)
+            if (value.protocol === Protocol.saber) {
+                let IxRegisterCurrencyInput = await rpcProvider.portfolioObject!.registerCurrencyInputInPortfolio(
+                    currencyAmount,
+                    currencyMint
+                );
+                tx.add(IxRegisterCurrencyInput);
+            } else if (value.protocol === Protocol.marinade) {
+                // Let it fail if Marinade has less than 1 !
+                if (currencyAmount.lt(new BN(1_000_000_000))) {
+                    alert("If you want to pay into marinade finance, you need to at least pay in 1SOL");
+                    return;
+                }
+            } else {
+                console.log("Not all cranks could be fulfilled!!");
+                console.log(value);
+                throw Error("Not all cranks could be fulfilled!! " + JSON.stringify(value));
+            }
+        }));
 
         // Create position approve for marinade, and the saber pool (again, hardcode this part lol).
         // Later these should be fetched from the frontend.
@@ -269,7 +312,9 @@ export default function PurchaseButton({allocationData}: Props) {
             tx.add(IxApprovePositionWeightMarinade);
         }));
 
-        console.log("Sending USDC");
+        /**
+         * Now transfer the funds (if it hasn't been done so already)
+         */
         // Also make a map statement here ...
         await Promise.all(Array.from(allocationData.entries()).map(async (entry: [string, AllocData], index: number) => {
 
@@ -290,7 +335,7 @@ export default function PurchaseButton({allocationData}: Props) {
         // This much SOL should suffice for now probably ...
         let IxSendToCrankWallet = await rpcProvider.portfolioObject!.sendToCrankWallet(
             localKeypairProvider.localTmpKeypair!.publicKey,
-            10_000_000
+            50_000_000
         );
         tx.add(IxSendToCrankWallet);
         await itemLoadContext.incrementCounter();

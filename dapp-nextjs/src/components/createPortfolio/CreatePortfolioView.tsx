@@ -55,6 +55,7 @@ export default function CreatePortfolioView({allocationItems, selectedItemKey, m
     const userCurrencyField = () => {
 
         if (!allocationItems.has(selectedItemKey) || !allocationItems.get(selectedItemKey)?.userWalletAmount) {
+            console.log("Currency Balance not found!");
             return <></>
         }
 
@@ -65,10 +66,6 @@ export default function CreatePortfolioView({allocationItems, selectedItemKey, m
         let inputToken: SelectedToken = getInputToken(selectedAssetTokens);
         console.log("Input token in: ", inputToken);
         console.log("Asset that we're looking at is: ", asset);
-
-        if (allocationItems.has(selectedItemKey) && allocationItems.get(selectedItemKey)?.userWalletAmount) {
-            return <></>
-        }
 
         return (
             <UserInfoBalance
