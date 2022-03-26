@@ -19,7 +19,6 @@ export default function ExistingPortfolioTable({tableColumns}: Props) {
         }
 
         // TODO: Should prob merge the stuff from Ahmet ...
-
         console.log("mintLP is: ", position.mintLp);
         console.log("mintA is: ", position.mintA);
         console.log("mintB is: ", position.mintB);
