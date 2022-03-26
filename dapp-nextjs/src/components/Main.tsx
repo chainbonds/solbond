@@ -1,156 +1,70 @@
 import React, {FC, useEffect, useState} from "react";
-import LoadingItemsModal from "./modals/LoadingItemsModal";
-import PortfolioChartAndTable from "./portfolio/PortfolioChartAndTable";
-import {IQPool, useQPoolUserTool} from "../contexts/QPoolsProvider";
-import StakeForm from "./swap/StakeForm";
-import UnstakeForm from "./swap/UnstakeForm";
+import LoadingItemsModal from "./common/LoadingItemsModal";
 import {BRAND_COLORS} from "../const";
+import {IRpcProvider, useRpc} from "../contexts/RpcProvider";
+import {useWallet, WalletContextState} from "@solana/wallet-adapter-react";
+import {ViewWalletNotConnected} from "./ViewWalletNotConnected";
+import {ViewWalletConnectedCreatePortfolio} from "./ViewWalletConnectedCreatePortfolio";
+import {ViewWalletConnectedPortfolioExists} from "./ViewWalletConnectedPortfolioExists";
 
-enum HeroFormState {
-    Stake,
-    Unstake
+export enum PortfolioState {
+    WalletNotConnected,
+    ShowSuggestedPortfolio,
+    ShowExistingPortfolio
 }
-
 export const Main: FC = ({}) => {
 
-    // const title = () => {
-    //     return (
-    //         <div
-    //             id="slogan-wrapper"
-    //             className="w-full h-full flex"
-    //             style={{ backgroundColor: "#0f172a" }}
-    //         >
-    //             <div className={"relative text-center lg:text-left mx-auto lg:mx-0"}>
-    //                 <h1 className="absolute text-4xl lg:text-7xl font-bold transform -translate-x-1 -translate-y-1">
-    //                     Generate Yields
-    //                     <br/>
-    //                     Adjust Risk
-    //                 </h1>
-    //                 <h1 className="text-4xl lg:text-7xl font-bold text-pink-500">
-    //                     Generate Yields
-    //                     <br/>
-    //                     Adjust Risk
-    //                 </h1>
-    //             </div>
-    //         </div>
-    //     )
-    // }
+    const rpcProvider: IRpcProvider = useRpc();
+    const walletProvider: WalletContextState = useWallet();
+    const [displayForm, setDisplayForm] = useState<PortfolioState>(PortfolioState.WalletNotConnected);
 
-    const [totalAmountInUsdc, setTotalAmountInUsdc] = useState<number>(0.);
-    // Get the total USD value from the Stake Form or sth.
-    // useEffect(() => {
-    //     if (props.valueInUsdc) {
-    //         console.log("Defined!: ", props.valueInUsdc);
-    //         setTotalAmountInUsdc(props.valueInUsdc);
-    //     } else {
-    //         console.log("WARNING: Prop is empty!", props.valueInUsdc);
-    //     }
-    // }, [props.valueInUsdc]);
-
-    // Let this state be determined if the user has a portfolio
-    const [displayForm, setDisplayForm] = useState<HeroFormState>(HeroFormState.Stake);
-    const qPoolContext: IQPool = useQPoolUserTool();
-
-    const fetchAndDisplay = async () => {
-        if (qPoolContext.portfolioObject) {
-            let isFulfilled = await qPoolContext.portfolioObject!.portfolioExists();
+    /**
+     * Determine which view to show
+     */
+    const determineDisplayedView = async () => {
+        if (!walletProvider.publicKey) {
+            setDisplayForm(PortfolioState.WalletNotConnected);
+        } else if (rpcProvider.portfolioObject) {
+            let isFulfilled = await rpcProvider.portfolioObject.portfolioExists();
             if (isFulfilled) {
-                setDisplayForm(HeroFormState.Unstake);
+                setDisplayForm(PortfolioState.ShowExistingPortfolio);
             } else {
-                setDisplayForm(HeroFormState.Stake);
+                setDisplayForm(PortfolioState.ShowSuggestedPortfolio);
             }
         }
     };
-    //
     useEffect(() => {
         // Check if the account exists, and if it was fulfilled
-        fetchAndDisplay();
-    }, [qPoolContext.portfolioObject, qPoolContext.makePriceReload]);
+        determineDisplayedView();
+    }, [rpcProvider.portfolioObject, walletProvider.wallet, walletProvider.publicKey, rpcProvider.makePriceReload]);
 
-    const formComponent = () => {
-        if (displayForm === HeroFormState.Stake) {
-            return (
-                <StakeForm/>
-            );
-        } else if (displayForm === HeroFormState.Unstake) {
-            return (
-                <UnstakeForm/>
-            );
-        }
-    }
 
-    const titleString = () => {
-        if (displayForm === HeroFormState.Stake) {
-            return "Please Select Your Portfolio";
-        } else if (displayForm === HeroFormState.Unstake) {
-            return "Your Portfolio";
-        }
-    }
-
-    const descriptionString = () => {
-        if (displayForm === HeroFormState.Stake) {
-            return "This will be the allocation in which your assets generate yields";
-        } else if (displayForm === HeroFormState.Unstake) {
-            return "See the assets for your current portfolio";
-        }
-    }
+    useEffect(() => {
+        console.log("Flushing the portfolio of the user to the console");
+        if (rpcProvider.portfolioObject) {
+            rpcProvider.portfolioObject.portfolioExists().then((isFulfilled: boolean) => {
+                if (isFulfilled) {
+                    rpcProvider.portfolioObject!.flushAllAccountsToConsole();
+                } else {
+                    console.log("No position found!")
+                }
+            });
+        } else {console.log("PortfolioObject not created yet")}
+    }, [rpcProvider.portfolioObject]);
 
     return (
         <div
             id="content"
             className={"flex flex-col grow my-auto"}
-            style={{ backgroundColor: BRAND_COLORS.slate900 }}
+            style={{backgroundColor: BRAND_COLORS.slate900}}
         >
-            <LoadingItemsModal />
+            <LoadingItemsModal/>
             <div className={"flex flex-col grow w-full my-auto"}>
                 <div className={"flex flex-col mx-auto "}>
-                    <div className={"flex flex-row w-full"}>
-                        <h1 className={"text-3xl font-light"}>
-                            {titleString()}
-                        </h1>
-                        {/*
-                            Implement buttons, depending on
-                                (1) Sharpe Optimized
-                                (2) Best Yield
-                                (3) Take Wallet
-                        */}
-                    </div>
-                    <div className={"flex flex-row mt-2"}>
-                        <h2 className={"text-2xl font-light"}>
-                            {descriptionString()}
-                        </h2>
-                    </div>
-                    {/*<div className={"flex flex-row mx-auto w-full"}>*/}
-                    <div className={"flex flex-row mt-8"}>
-                        <PortfolioChartAndTable
-                                totalAmountInUsdc={100}
-                            />
-                    </div>
-                    {/*</div>*/}
-                    {/*<div className={"flex flex-row mx-auto w-full"}>*/}
-                    <div className={"flex flex-row my-auto mt-7"}>
-                        {formComponent()}
-                    </div>
-
-                    {/*</div>*/}
-
-                    {/*{title()}*/}
-                    {/*<div className="pt-4 pb-1 text-2xl text-gray-100 leading-10 text-center lg:text-left">*/}
-                    {/*    <p>*/}
-                    {/*        The most convenient way to generate passive income*/}
-                    {/*    </p>*/}
-                    {/*    <p>*/}
-                    {/*        without locking in liquidity. Risk-adjusted for your favorite asset.*/}
-                    {/*    </p>*/}
-                    {/*</div>*/}
-                    {/*<div className={"flex flex-row mx-auto my-auto mt-5"}>*/}
-                    {/*    <Statistics/>*/}
-                    {/*</div>*/}
+                    {(displayForm === PortfolioState.WalletNotConnected) && <ViewWalletNotConnected/>}
+                    {(displayForm === PortfolioState.ShowSuggestedPortfolio) && <ViewWalletConnectedCreatePortfolio/>}
+                    {(displayForm === PortfolioState.ShowExistingPortfolio) && <ViewWalletConnectedPortfolioExists/>}
                 </div>
-                {/*<div*/}
-                {/*    className={"my-auto w-96 mx-auto lg:mx-0 lg:w-full justify-center lg:justify-end lg:ml-14"}>*/}
-                {/*    <HeroForm/>*/}
-                {/*</div>*/}
             </div>
         </div>
     );

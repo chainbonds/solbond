@@ -1,9 +1,7 @@
 import React, {FC} from "react";
-import {LogoWithTitle} from "./assets/LogoWithTitle";
-import {AirdropButton} from "./buttons/AirdropButton";
-import {RunFulfillCrankButton} from "./buttons/RunFulfillCrankButton";
-import {RunWithdrawCrankButton} from "./buttons/RunWithdrawCrankButton";
-import ConnectWalletButton from "./buttons/ConnectWalletButton";
+import {LogoWithTitle} from "./common/LogoWithTitle";
+import ConnectWalletButton from "./common/ConnectWalletButton";
+import {FaucetButton} from "./createPortfolio/buttons/FaucetButton";
 
 export const Header: FC = ({}) => {
 
@@ -20,17 +18,12 @@ export const Header: FC = ({}) => {
                     <div className={"flex-1 px-2 mx-2"}>
                     </div>
                     {/*TODO Implement Devnet show (and also faucet maybe)*/}
+                    {/*  On mainnet, instead of Faucet, perhaps include a button "buy crypto" ... */}
                     <div className={"flex my-auto py-auto mx-auto md:mx-0"}>
                         <div className={"flex flex-col md:flex-row"}>
                             <div className={"px-2 py-2 mx-auto md:py-0 md:py-auto md:my-auto"}>
-                                <AirdropButton/>
+                                <FaucetButton/>
                             </div>
-                           {/* <div className={"px-2 py-2 mx-auto md:py-0 md:py-auto md:my-auto"}>
-                                <RunFulfillCrankButton />
-                            </div>
-                            <div className={"px-2 py-2 mx-auto md:py-0 md:py-auto md:my-auto"}>
-                                <RunWithdrawCrankButton />
-                            </div>*/}
                             <ConnectWalletButton/>
                         </div>
                     </div>
