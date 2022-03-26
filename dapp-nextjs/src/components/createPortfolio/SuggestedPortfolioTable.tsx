@@ -177,8 +177,9 @@ export default function SuggestedPortfolioTable({tableColumns, selectedAssets, s
                         <div className="overflow-hidden shadow-md sm:rounded-lg">
                             <table className="min-w-full">
                                 <TableHeader
+                                    {/* + pieChartData[0].value */}
+                                    key={Math.random()}
                                     columns={pieChartData ? tableColumns : tableColumns.slice(0, tableColumns.length - 1)}/>
-                                {/* key={Math.random() + pieChartData[0].value} */}
                                 <tbody>
                                 {pieChartData.map((position: ChartableItemType, index: number) => tableSingleRow(position, index))}
                                 </tbody>
