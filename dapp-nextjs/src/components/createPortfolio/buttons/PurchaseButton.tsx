@@ -263,7 +263,7 @@ export default function PurchaseButton({allocationData}: Props) {
             let lpAddress: PublicKey = new PublicKey(value.pool!.lpToken.address);
             let weight: BN = new BN(value.weight);
 
-            if (value.protocol === Protocol.saber) {
+            if (value.protocol.valueOf() === Protocol.saber.valueOf()) {
 
                 // Make sure that the input mint is not Native SOL
 
@@ -286,7 +286,7 @@ export default function PurchaseButton({allocationData}: Props) {
                 let IxSendUsdcToPortfolio = await rpcProvider.portfolioObject!.transfer_to_portfolio(value.userInputAmount!.mint);
                 tx.add(IxSendUsdcToPortfolio);
 
-            } else if (value.protocol === Protocol.marinade) {
+            } else if (value.protocol.valueOf() === Protocol.marinade.valueOf()) {
                 let lamports = new BN(value.userInputAmount!.amount.amount);
                 if (lamports.lt(new BN(10 ** 9))) {
                     throw Error("To utilize Marinade, you need to input at least 1SOL")
@@ -338,10 +338,10 @@ export default function PurchaseButton({allocationData}: Props) {
         await Promise.all(allocationDataAsArray.map(async ([key, value]: [string, AllocData], index: number) => {
             console.log("Fulfilling permissionles ...");
             console.log(value);
-            if (value.protocol === Protocol.saber) {
+            if (value.protocol.valueOf() === Protocol.saber.valueOf()) {
                 let sgPermissionlessFullfillSaber = await crankProvider.crankRpcTool!.permissionlessFulfillSaber(index);
                 console.log("Fulfilled sg Saber is: ", sgPermissionlessFullfillSaber);
-            } else if (value.protocol === Protocol.marinade) {
+            } else if (value.protocol.valueOf() === Protocol.marinade.valueOf()) {
                 let sgPermissionlessFullfillMarinade = await crankProvider.crankRpcTool!.createPositionMarinade(index);
                 console.log("Fulfilled sg Marinade is: ", sgPermissionlessFullfillMarinade);
             } else {
