@@ -155,7 +155,7 @@ export default function PurchaseButton({allocationData}: Props) {
         // TODO: Gotta normalize weights up to 1000
         // TODO:
         // Have a look at this; but this is still needed!
-        await itemLoadContext.incrementCounter();
+        // await itemLoadContext.incrementCounter();
         console.log("Creating associated token accounts ...");
         // TODO: Create separate LPs for Saber, and the other LPs
 
@@ -184,7 +184,14 @@ export default function PurchaseButton({allocationData}: Props) {
          *  Depending on the type of protocol, we must first receive the input pools ...
          *  This is the first transaction ...
          */
-        let mints: PublicKey[] = inputPoolsAndTokens.map(([pool, token]: [registry.ExplicitPool, registry.ExplicitToken]) => new PublicKey(token.address));
+        // TODO: Also add the other tokens, just for safety. These might be added later on ...
+            // i.e. mSOL for the portfolio (and the user), is missing.
+        // let mints: PublicKey[] = inputPoolsAndTokens.map(([pool, token]: [registry.ExplicitPool, registry.ExplicitToken]) => new PublicKey(token.address));
+        let mints: PublicKey[] = selectedAssetPools
+            .map((pool: registry.ExplicitPool) => {
+                return pool.tokens.map((token: registry.ExplicitToken) => new PublicKey(token.address))
+            }).flat();
+        // We assume that the .tokens object carries all the tokens needed to make it run ...
         let txCreateAssociateTokenAccount = await rpcProvider.portfolioObject!.createAssociatedTokenAccounts(
             mints,
             rpcProvider.provider!.wallet
@@ -323,6 +330,7 @@ export default function PurchaseButton({allocationData}: Props) {
          * Run cranks
          *  Again, dependent on the protocol
          */
+        // Fetch all positions, and fulfill them ...
         await Promise.all(allocationDataAsArray.map(async ([key, value]: [string, AllocData], index: number) => {
             if (value.protocol === Protocol.saber) {
                 let sgPermissionlessFullfillSaber = await crankProvider.crankRpcTool!.permissionlessFulfillSaber(index);
@@ -563,40 +571,40 @@ export default function PurchaseButton({allocationData}: Props) {
         // );
         // await itemLoadContext.incrementCounter();
 
-        /**
-         *
-         * Transaction 2 (Cranks):
-         *
-         */
-        console.log("Permissoinlessly fulfilling the transactions");
-        // await qPoolContext.crankRpcTool!.fullfillAllPermissionless();
-        // For now, don't do a forloop, just fulfill the two positions
-        // Again, run the loops here ...
-        await Promise.all(Array.from(allocationData.entries()).map(async (entry: [string, AllocData], index: number) => {
-
-            let key: string = entry[0]
-            let value: AllocData = entry[1];
-
-            // Do a weird dictionary reading ... (?)
-            if (value.protocol === Protocol.saber) {
-                let sgPermissionlessFullfillSaber = await crankProvider.crankRpcTool!.permissionlessFulfillSaber(index);
-                console.log("Fulfilled sg Saber is: ", sgPermissionlessFullfillSaber);
-            } else if (value.protocol === Protocol.marinade) {
-                let sgPermissionlessFullfillMarinade = await crankProvider.crankRpcTool!.createPositionMarinade(index);
-                console.log("Fulfilled sg Marinade is: ", sgPermissionlessFullfillMarinade);
-            } else {
-                console.log("Not all cranks could be fulfilled!!");
-                console.log(value);
-                throw Error("Not all cranks could be fulfilled!! " + JSON.stringify(value));
-            }
-        }));
-        await itemLoadContext.incrementCounter();
-
-        console.log("Updating price ...");
-        // Add another Counter "running cranks"
-        await rpcProvider.makePriceReload();
-
-        console.log("Done!");
+        // /**
+        //  *
+        //  * Transaction 2 (Cranks):
+        //  *
+        //  */
+        // console.log("Permissoinlessly fulfilling the transactions");
+        // // await qPoolContext.crankRpcTool!.fullfillAllPermissionless();
+        // // For now, don't do a forloop, just fulfill the two positions
+        // // Again, run the loops here ...
+        // await Promise.all(Array.from(allocationData.entries()).map(async (entry: [string, AllocData], index: number) => {
+        //
+        //     let key: string = entry[0]
+        //     let value: AllocData = entry[1];
+        //
+        //     // Do a weird dictionary reading ... (?)
+        //     if (value.protocol === Protocol.saber) {
+        //         let sgPermissionlessFullfillSaber = await crankProvider.crankRpcTool!.permissionlessFulfillSaber(index);
+        //         console.log("Fulfilled sg Saber is: ", sgPermissionlessFullfillSaber);
+        //     } else if (value.protocol === Protocol.marinade) {
+        //         let sgPermissionlessFullfillMarinade = await crankProvider.crankRpcTool!.createPositionMarinade(index);
+        //         console.log("Fulfilled sg Marinade is: ", sgPermissionlessFullfillMarinade);
+        //     } else {
+        //         console.log("Not all cranks could be fulfilled!!");
+        //         console.log(value);
+        //         throw Error("Not all cranks could be fulfilled!! " + JSON.stringify(value));
+        //     }
+        // }));
+        // await itemLoadContext.incrementCounter();
+        //
+        // console.log("Updating price ...");
+        // // Add another Counter "running cranks"
+        // await rpcProvider.makePriceReload();
+        //
+        // console.log("Done!");
 
 
         /**
