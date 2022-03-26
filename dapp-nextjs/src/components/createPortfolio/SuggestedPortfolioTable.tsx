@@ -142,7 +142,7 @@ export default function SuggestedPortfolioTable({tableColumns, selectedAssets, s
                     <td className="py-4 px-6 text-sm text-center font-normal text-gray-500 whitespace-nowrap dark:text-gray-100">
                         {displayTokens.map((displayToken: DisplayToken) => {
                             return (
-                                <a href={displayToken.tokenSolscanLink} target={"_blank"} rel="noreferrer"
+                                <a key={Math.random()} href={displayToken.tokenSolscanLink} target={"_blank"} rel="noreferrer"
                                    className="text-blue-600 dark:text-blue-400 hover:underline">
                                     <Image src={displayToken.tokenImageLink} width={30} height={30}/>
                                 </a>
