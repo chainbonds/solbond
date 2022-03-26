@@ -5,7 +5,6 @@ import {IExistingPortfolio, useExistingPortfolio} from "../../contexts/ExistingP
 import RowInList from "../common/RowInList";
 import SinglePositionInPortfolioRow from "../redeemPortfolio/SinglePositionInPortfolioRow";
 
-// The existing Portfolio Context could technically be just outside of this
 export default function RedeemPortfolioView({}) {
 
     const rpcProvider: IRpcProvider = useRpc();
@@ -17,8 +16,6 @@ export default function RedeemPortfolioView({}) {
     }, [existingPortfolioProvider.totalPortfolioValueInUsd]);
 
     const displayListOfPortfolios = () => {
-
-        // await rpcProvider.portfolioObject!.getInitialDepositInAllCurrencies();
 
         if (!rpcProvider.portfolioObject) {
             return (
