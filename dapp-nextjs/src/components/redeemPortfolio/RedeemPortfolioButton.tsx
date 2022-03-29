@@ -5,6 +5,8 @@ import {sendAndConfirmTransaction} from "../../utils/utils";
 import {IItemsLoad, useItemsLoad} from "../../contexts/ItemsLoadingContext";
 import {ILocalKeypair, useLocalKeypair} from "../../contexts/LocalKeypairProvider";
 import {ICrank, useCrank} from "../../contexts/CrankProvider";
+import {useErrorMessage} from "../../contexts/ErrorMessageContext";
+import {lamportsReserversForLocalWallet} from "../../const";
 
 export const RedeemPortfolioButton: FC = ({}) => {
 
@@ -12,6 +14,7 @@ export const RedeemPortfolioButton: FC = ({}) => {
     const localKeypairProvider: ILocalKeypair = useLocalKeypair();
     const crankProvider: ICrank = useCrank();
     const itemLoadContext: IItemsLoad = useItemsLoad();
+    const errorMessage = useErrorMessage();
 
     /**
      * Withdraw a Portfolio workflow:
@@ -65,17 +68,24 @@ export const RedeemPortfolioButton: FC = ({}) => {
         console.log("Send some to Crank Wallet");
         let IxSendToCrankWallet = await rpcProvider.portfolioObject!.sendToCrankWallet(
             localKeypairProvider.localTmpKeypair!.publicKey,
-            10_000_000
+            lamportsReserversForLocalWallet
         );
         tx.add(IxSendToCrankWallet);
 
         await itemLoadContext.incrementCounter();
         if (tx.instructions.length > 0) {
-            await sendAndConfirmTransaction(
-                rpcProvider._solbondProgram!.provider,
-                rpcProvider.connection!,
-                tx
-            );
+            try {
+                await sendAndConfirmTransaction(
+                    rpcProvider._solbondProgram!.provider,
+                    rpcProvider.connection!,
+                    tx
+                );
+            } catch (error) {
+                errorMessage.addErrorMessage(
+                    "Something went wrong approving the redeems!",
+                    String(error)
+                );
+            }
         }
         await itemLoadContext.incrementCounter();
 
@@ -85,10 +95,17 @@ export const RedeemPortfolioButton: FC = ({}) => {
         /**
          * Run the crank transactions
          */
-        await crankProvider.crankRpcTool!.redeemAllPositions(portfolio, positionsSaber, positionsMarinade);
-        await itemLoadContext.incrementCounter();
-        let sgTransferUsdcToUser = await crankProvider.crankRpcTool!.transfer_to_user(USDC_mint);
-        console.log("Signature to send back USDC", sgTransferUsdcToUser);
+        try {
+            await crankProvider.crankRpcTool!.redeemAllPositions(portfolio, positionsSaber, positionsMarinade);
+            await itemLoadContext.incrementCounter();
+            let sgTransferUsdcToUser = await crankProvider.crankRpcTool!.transfer_to_user(USDC_mint);
+            console.log("Signature to send back USDC", sgTransferUsdcToUser);
+        } catch (error) {
+            errorMessage.addErrorMessage(
+                "Something went wrong approving the redeems!",
+                String(error)
+            );
+        }
 
         // TODO: Swap mSOL ot marinade SOL optionally ...
         // TODO: Also make the marinade SOL disappear, and just airdrop new SOL
@@ -96,7 +113,8 @@ export const RedeemPortfolioButton: FC = ({}) => {
          * Send the lamports in the local crank wallet back to the user
          */
         let tmpWalletBalance: number = await rpcProvider.connection!.getBalance(localKeypairProvider.localTmpKeypair!.publicKey);
-        let lamportsBack = Math.min(tmpWalletBalance - 7_001, 0.0);
+        // This is approximately how much lamports is required for a single transaction...
+        let lamportsBack = Math.min(tmpWalletBalance - 7_001, 0);
         if (lamportsBack > 0) {
             let ix = await crankProvider.crankRpcTool!.sendToUsersWallet(
                 localKeypairProvider.localTmpKeypair!.publicKey,
@@ -104,11 +122,18 @@ export const RedeemPortfolioButton: FC = ({}) => {
             );
             let tx2 = new Transaction();
             tx2.add(ix);
-            await sendAndConfirmTransaction(
-                crankProvider.crankRpcTool!.crankProvider,
-                crankProvider.crankRpcTool!.connection!,
-                tx2
-            );
+            try {
+                await sendAndConfirmTransaction(
+                    crankProvider.crankRpcTool!.crankProvider,
+                    crankProvider.crankRpcTool!.connection!,
+                    tx2
+                );
+            } catch (error) {
+                errorMessage.addErrorMessage(
+                    "Something went wrong approving the redeems!",
+                    String(error)
+                );
+            }
         }
         await itemLoadContext.incrementCounter();
         await rpcProvider.makePriceReload();

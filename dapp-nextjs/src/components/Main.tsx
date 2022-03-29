@@ -6,6 +6,7 @@ import {useWallet, WalletContextState} from "@solana/wallet-adapter-react";
 import {ViewWalletNotConnected} from "./ViewWalletNotConnected";
 import {ViewWalletConnectedCreatePortfolio} from "./ViewWalletConnectedCreatePortfolio";
 import {ViewWalletConnectedPortfolioExists} from "./ViewWalletConnectedPortfolioExists";
+import ErrorMessageModal from "./common/ErrorMessageModal";
 
 export enum PortfolioState {
     WalletNotConnected,
@@ -66,6 +67,7 @@ export const Main: FC = ({}) => {
                     {(displayForm === PortfolioState.ShowExistingPortfolio) && <ViewWalletConnectedPortfolioExists/>}
                 </div>
             </div>
+            <ErrorMessageModal/>
         </div>
     );
 

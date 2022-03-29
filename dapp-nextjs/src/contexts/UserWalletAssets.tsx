@@ -6,6 +6,7 @@ import {AllocData} from "../types/AllocData";
 import {IRpcProvider, useRpc} from "./RpcProvider";
 import {ISerpius, useSerpiusEndpoint} from "./SerpiusProvider";
 import {BN} from "@project-serum/anchor";
+import {lamportsReserversForLocalWallet} from "../const";
 
 
 export interface IUserWalletAssets {
@@ -90,8 +91,8 @@ export function UserWalletAssetsProvider(props: any) {
                     userBalance = {
                         amount: solBalance.toString(),
                         decimals: 9,
-                        uiAmount: (solBalance.toNumber() / (10 ** 9)),
-                        uiAmountString: ((solBalance.toNumber() / (10 ** 9))).toString()
+                        uiAmount: (solBalance.toNumber() / (10 ** 9)) - lamportsReserversForLocalWallet,
+                        uiAmountString: ((solBalance.toNumber() / (10 ** 9)) - lamportsReserversForLocalWallet).toString()
                     };
                 } else {
                     console.log("Mint is: ", mint.toString(), ata.toString());
