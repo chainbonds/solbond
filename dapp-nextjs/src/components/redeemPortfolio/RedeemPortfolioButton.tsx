@@ -81,6 +81,7 @@ export const RedeemPortfolioButton: FC = ({}) => {
                     tx
                 );
             } catch (error) {
+                itemLoadContext.resetCounter();
                 errorMessage.addErrorMessage(
                     "Something went wrong approving the redeems!",
                     String(error)
@@ -101,6 +102,7 @@ export const RedeemPortfolioButton: FC = ({}) => {
             let sgTransferUsdcToUser = await crankProvider.crankRpcTool!.transfer_to_user(USDC_mint);
             console.log("Signature to send back USDC", sgTransferUsdcToUser);
         } catch (error) {
+            itemLoadContext.resetCounter();
             errorMessage.addErrorMessage(
                 "Something went wrong approving the redeems!",
                 String(error)
@@ -129,6 +131,7 @@ export const RedeemPortfolioButton: FC = ({}) => {
                     tx2
                 );
             } catch (error) {
+                itemLoadContext.resetCounter();
                 errorMessage.addErrorMessage(
                     "Something went wrong approving the redeems!",
                     String(error)
