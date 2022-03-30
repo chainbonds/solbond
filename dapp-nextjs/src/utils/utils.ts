@@ -18,9 +18,13 @@ export interface SelectedToken {
 // TODO: Replace this by a proper Pyth Provider, or pyth function ...
 export const multiplyAmountByPythprice = (x: number, mint: PublicKey)  => {
     let out: number;
-    if (mint.equals(new PublicKey("So11111111111111111111111111111111111111112"))) {
+    console.log("Mint is: ", mint.toString());
+    if (mint.equals(new PublicKey("NativeSo11111111111111111111111111111111111"))) {
         console.log("Assuming SOL...");
         out = x * 120.00;
+    } else if (mint.equals(new PublicKey("So11111111111111111111111111111111111111112"))) {
+        console.log("Assuming wrapped SOL...");
+        out = x * 115.49;
     } else if (mint.equals(new PublicKey("mSoLzYCxHdYgdzU16g5QSh3i5K3z3KZK7ytfqcJm7So"))) {
         console.log("Assuming mSOL...");
         out = x * 115.49;

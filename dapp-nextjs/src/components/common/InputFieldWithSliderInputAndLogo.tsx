@@ -22,7 +22,7 @@ export default function InputFieldWithSliderInputAndLogo({allocationItems, selec
         if (allocationItems.has(selectedItemKey) && allocationItems.get(selectedItemKey)?.userInputAmount && allocationItems.get(selectedItemKey)!.userInputAmount!.amount.uiAmount) {
             setValue(allocationItems.get(selectedItemKey)!.userInputAmount!.amount!.uiAmount!);
         }
-    }, [allocationItems, selectedItemKey]);
+    }, [selectedItemKey]);  // allocationItems,
     useEffect(() => {
         setValue(sliderValue);
     }, [sliderValue]);

@@ -72,12 +72,6 @@ export function UserWalletAssetsProvider(props: any) {
 
                 // Do a whitelist here which assets we accept ...
                 if (registry.getWhitelistTokens().filter((x: string) => x === token.address).length === 0) {
-                    console.log("Whitelist tokens etc. are");
-                    console.log(registry.getWhitelistTokens());
-                    console.log(token.address);
-                    console.log(token.address.toString());
-                    console.log("Done");
-                    throw Error("Serpius API for some reason did not return whitelisted tokens!");
                     return
                 }
 

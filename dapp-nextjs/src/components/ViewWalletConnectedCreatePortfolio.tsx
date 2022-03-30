@@ -8,7 +8,7 @@ import {UserTokenBalance} from "../types/UserTokenBalance";
 import {IUserWalletAssets, useUserWalletAssets} from "../contexts/UserWalletAssets";
 import {Protocol} from "@qpools/sdk";
 import {TokenAmount} from "@solana/web3.js";
-import {getTokenAmount} from "../utils/utils";
+import {getTokenAmount, multiplyAmountByPythprice} from "../utils/utils";
 
 export const ViewWalletConnectedCreatePortfolio = ({}) => {
 
@@ -74,14 +74,22 @@ export const ViewWalletConnectedCreatePortfolio = ({}) => {
             ata: currentlySelectedAsset.userInputAmount!.ata,
             amount: tokenAmount
         };
+
+        // re-calculate the usdc value according to the mint and input amount
+        let usdcAmount = multiplyAmountByPythprice(
+            userInputAmount.amount.uiAmount!,
+            userInputAmount.mint
+        );
+
         let newAsset: AllocData = {
+            weight: currentlySelectedAsset.weight,
             apy_24h: currentlySelectedAsset.apy_24h,
             lp: currentlySelectedAsset.lp,
             pool: currentlySelectedAsset.pool,
             protocol: currentlySelectedAsset.protocol,
             userInputAmount: userInputAmount,
             userWalletAmount: currentlySelectedAsset.userWalletAmount,
-            usdcAmount: currentlySelectedAsset.usdcAmount!
+            usdcAmount: usdcAmount
         };
 
         // Now set the stuff ...

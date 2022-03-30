@@ -89,9 +89,7 @@ export default function CreatePortfolioView({allocationItems, selectedItemKey, m
                             {inputField()}
                         </div>
                         <div className={"flex flex-row ml-auto my-auto mt-1"}>
-                            <PurchaseButton
-                                allocationData={allocationItems}
-                            />
+                            <PurchaseButton allocationData={allocationItems}/>
                         </div>
                     </div>
                     <div className={"flex flex-row mx-1 mt-1"}>
