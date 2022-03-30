@@ -6,9 +6,9 @@ import {AllocData} from "../types/AllocData";
 import {BN} from "@project-serum/anchor";
 import {UserTokenBalance} from "../types/UserTokenBalance";
 import {IUserWalletAssets, useUserWalletAssets} from "../contexts/UserWalletAssets";
-import {Protocol} from "@qpools/sdk";
+import {Protocol, registry} from "@qpools/sdk";
 import {TokenAmount} from "@solana/web3.js";
-import {getTokenAmount, multiplyAmountByPythprice} from "../utils/utils";
+import {getTokenAmount} from "../utils/utils";
 
 export const ViewWalletConnectedCreatePortfolio = ({}) => {
 
@@ -76,7 +76,7 @@ export const ViewWalletConnectedCreatePortfolio = ({}) => {
         };
 
         // re-calculate the usdc value according to the mint and input amount
-        let usdcAmount = multiplyAmountByPythprice(
+        let usdcAmount = registry.multiplyAmountByPythprice(
             userInputAmount.amount.uiAmount!,
             userInputAmount.mint
         );

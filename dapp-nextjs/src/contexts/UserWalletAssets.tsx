@@ -98,7 +98,7 @@ export function UserWalletAssetsProvider(props: any) {
                 }
 
                 // TODO: Replace this with pyth price oracles !
-                newPool.usdcAmount = multiplyAmountByPythprice(newPool.userInputAmount!.amount.uiAmount!, newPool.userInputAmount!.mint);
+                newPool.usdcAmount = registry.multiplyAmountByPythprice(newPool.userInputAmount!.amount.uiAmount!, newPool.userInputAmount!.mint);
                 console.log("Pushing object: ", newPool);
                 newAllocData.set(newPool.lp, newPool);
             }));

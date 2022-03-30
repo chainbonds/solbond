@@ -80,6 +80,7 @@ export function SerpiusEndpointProvider(props: any) {
                         let pool = registry.getPoolFromSplStringId(dataItem.lp);
                         let out: AllocData = {
                             apy_24h: dataItem.apy_24h,
+                            weight: dataItem.weight,
                             lp: dataItem.lp,
                             pool: pool,
                             // @ts-ignore

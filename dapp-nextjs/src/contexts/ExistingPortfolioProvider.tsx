@@ -6,6 +6,8 @@ import {ILoad, useLoad} from "./LoadingContext";
 import {AllocData} from "../types/AllocData";
 import {UserTokenBalance} from "../types/UserTokenBalance";
 import {ISerpius, useSerpiusEndpoint} from "./SerpiusProvider";
+import {Property} from "csstype";
+import All = Property.All;
 
 export interface IExistingPortfolio {
     positionInfos: Map<string, AllocData>,
@@ -50,18 +52,20 @@ export function ExistingPortfolioProvider(props: any) {
             // Change the positions into AllocData Objects
             let newAllocData: Map<string, AllocData> = new Map<string, AllocData>();
             storedPositions.map((x: PositionInfo) => {
-                let pool: registry.ExplicitPool = registry.getPoolFromLpMint(x.poolAddress);
+                console.log("Pool address is: ", x.mintLp);
+                let pool: registry.ExplicitPool = registry.getPoolFromLpMint(x.mintLp);
                 let amount: UserTokenBalance = {
                     amount: x.amountLp,
                     ata: x.ataLp,
                     mint: x.mintLp
                 }
                 // you can probably still get the apy-dates through the serpius endpoint
-                let apy24h: number = serpiusProvider.portfolioRatios.get(pool.name)!.apy_24h;
+                let serpiusObject: AllocData = serpiusProvider.portfolioRatios.get(pool.name)!;
                 // APY 24h is (if it was loaded already ...)
-                console.log("APY 24H is: ", apy24h);
+                console.log("Serpius object is: ", serpiusObject);
                 let allocData: AllocData = {
-                    apy_24h: apy24h,
+                    apy_24h: serpiusObject.apy_24h,
+                    weight: serpiusObject.weight,
                     lp: pool.name,
                     pool: pool,
                     protocol: x.protocol,

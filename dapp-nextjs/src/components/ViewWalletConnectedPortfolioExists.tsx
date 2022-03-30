@@ -25,6 +25,7 @@ export const ViewWalletConnectedPortfolioExists = ({}) => {
             }
             let tmp: AllocData = {
                 pool: position.pool,
+                weight: position.weight,
                 apy_24h: 0.,
                 lp: position.lp,
                 protocol: position.protocol,
@@ -73,7 +74,7 @@ export const ViewWalletConnectedPortfolioExists = ({}) => {
                 </div>
                 <div className="flex flex-col text-gray-300 my-auto divide-y divide-white">
                     <SuggestedPortfolioTable
-                        tableColumns={[null, "Pay-In Asset", "Product", "Underlying Asset", "Allocation", "24H APY", "Absolute Amount"]}
+                        tableColumns={[null, "Pay-In Asset", "Product", "Underlying Asset", "Allocation", "24H APY", "Absolute Amount", "USDC Value"]}
                         selectedAssets={allocationData}
                         selectedAsset={""}
                         setSelectedAsset={() => {}}
