@@ -1,5 +1,4 @@
-import React, {Fragment, useEffect, useState} from "react";
-import {Dialog, Transition} from "@headlessui/react";
+import React from "react";
 import {ErrorMessage, useErrorMessage} from "../../contexts/ErrorMessageContext";
 
 /**
@@ -11,26 +10,6 @@ import {ErrorMessage, useErrorMessage} from "../../contexts/ErrorMessageContext"
 export default function ErrorMessageModal() {
 
     const errorMessage = useErrorMessage();
-    // const [showModal, setShowModal] = useState<boolean>(false);
-    // const [messageToShow, setMessageToShow] = useState<ErrorMessage>({title: "", message: ""});
-
-    useEffect(() => {
-        console.log("All Error Messages are: ", errorMessage.errorMessages);
-        // setShowModal((_: boolean) => {
-        //     return (errorMessage.errorMessages.size > 0);
-        // });
-        // setMessageToShow((_: ErrorMessage) => {
-        //     if (errorMessage.errorMessages.size > 0) {
-        //         // Pick the latest one ... Or the one that is latest ...
-        //         // return (errorMessage)
-        //         let currentError = errorMessage.errorMessages.entries().next().value;
-        //         console.log("Displaying current error: ", currentError);
-        //         return currentError;
-        //     } else {
-        //         return {title: "", message: ""};
-        //     }
-        // })
-    }, [errorMessage.errorMessages]);
 
     const singleErrorMessage = (errorMessage: ErrorMessage) => {
         return (
@@ -39,12 +18,12 @@ export default function ErrorMessageModal() {
                     <div className="flex justify-center items-center m-1 font-medium py-1 px-2 bg-white rounded-md text-red-100 bg-red-700 border border-red-700 ">
                         <div slot="avatar">
                             <svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" fill="none"
-                                 viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                 stroke-linejoin="round" className="feather feather-alert-octagon w-5 h-5 mx-2">
+                                 viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" strokeLinecap="round"
+                                 strokeLinejoin="round" className="feather feather-alert-octagon w-5 h-5 mx-2">
                                 <polygon
-                                    points="7.86 2 16.14 2 22 7.86 22 16.14 16.14 22 7.86 22 2 16.14 2 7.86 7.86 2"></polygon>
-                                <line x1="12" y1="8" x2="12" y2="12"></line>
-                                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                                    points="7.86 2 16.14 2 22 7.86 22 16.14 16.14 22 7.86 22 2 16.14 2 7.86 7.86 2" />
+                                <line x1="12" y1="8" x2="12" y2="12" />
+                                <line x1="12" y1="16" x2="12.01" y2="16" />
                             </svg>
                         </div>
                         <div className="text-xl font-normal  max-w-full flex-initial">
@@ -69,11 +48,11 @@ export default function ErrorMessageModal() {
                         <div className="flex flex-auto flex-row-reverse">
                             <div>
                                 <svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" fill="none"
-                                     viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                     stroke-linejoin="round"
+                                     viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" strokeLinecap="round"
+                                     strokeLinejoin="round"
                                      className="feather feather-x cursor-pointer hover:text-green-400 rounded-full w-5 h-5 ml-2">
-                                    <line x1="18" y1="6" x2="6" y2="18"></line>
-                                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                                    <line x1="18" y1="6" x2="6" y2="18" />
+                                    <line x1="6" y1="6" x2="18" y2="18" />
                                 </svg>
                             </div>
                         </div>
