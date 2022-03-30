@@ -33,14 +33,14 @@ export const ViewWalletConnectedPortfolioExists = ({}) => {
             let lpId = registry.getPoolFromLpMint(position.mintLp);
             // TODO: Turn the totalPositionValue into it's USDC value ...
 
-            let usdcAmount: number;
-            if (userAmount.mint.equals(registry.getMarinadeSolMint())) {
-                usdcAmount = userAmount.amount.uiAmount! * 94;
-            } else if (userAmount.mint.equals(registry.getNativeSolMint())) {
-                usdcAmount = userAmount.amount.uiAmount! * 93;
-            } else {
-                usdcAmount = userAmount.amount.uiAmount!;
-            }
+            // let usdcAmount: number;
+            // if (userAmount.mint.equals(registry.getMarinadeSolMint())) {
+            //     usdcAmount = userAmount.amount.uiAmount! * 94;
+            // } else if (userAmount.mint.equals(registry.getNativeSolMint())) {
+            //     usdcAmount = userAmount.amount.uiAmount! * 93;
+            // } else {
+            //     usdcAmount = userAmount.amount.uiAmount!;
+            // }
 
             let tmp: AllocData = {
                 apy_24h: 0.,
@@ -48,8 +48,8 @@ export const ViewWalletConnectedPortfolioExists = ({}) => {
                 protocol: position.protocol,
                 userInputAmount: userAmount,
                 userWalletAmount: userAmount,
-                weight: usdcAmount,  // position.totalPositionValue,
-                usdcAmount: usdcAmount
+                weight: position.usdcValueLP,  // position.totalPositionValue,
+                usdcAmount: position.usdcValueLP
             };
             let key: string = Protocol[position.protocol] + " " + position.mintLp.toString();
             newAllocationData.set(key, tmp);

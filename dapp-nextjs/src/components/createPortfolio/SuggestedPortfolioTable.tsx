@@ -168,7 +168,7 @@ export default function SuggestedPortfolioTable({tableColumns, selectedAssets, s
                             {item.allocationItem?.userInputAmount?.amount.uiAmount && (item.allocationItem?.userInputAmount?.amount.uiAmount).toFixed(2)}
                         </td>
                     }
-                    {(item.allocationItem && item.allocationItem?.userInputAmount?.amount) &&
+                    {(item.allocationItem && item.allocationItem.usdcAmount) &&
                         <td className="py-4 px-6 text-sm text-center whitespace-nowrap">
                             {/* inputToken.name */}
                             {item.allocationItem?.usdcAmount && (item.allocationItem?.usdcAmount).toFixed(2)}

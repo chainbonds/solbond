@@ -6,11 +6,7 @@ import {AllocData} from "../types/AllocData";
 import {BN} from "@project-serum/anchor";
 import {UserTokenBalance} from "../types/UserTokenBalance";
 import {IUserWalletAssets, useUserWalletAssets} from "../contexts/UserWalletAssets";
-import {Protocol} from "@qpools/sdk";
-import {
-    getMarinadeSolMint,
-    getNativeSolMint
-} from "../../../../qPools-contract/qpools-sdk/lib/registry/registry-helper";
+import {Protocol, registry} from "@qpools/sdk";
 import {PublicKey} from "@solana/web3.js";
 
 export const ViewWalletConnectedCreatePortfolio = ({}) => {
@@ -44,9 +40,9 @@ export const ViewWalletConnectedCreatePortfolio = ({}) => {
                     let key: string = Protocol[x.protocol] + " " + x.lp;
                     let usdcAmount: number;
                     let mint = new PublicKey(x.pool!.lpToken.address);
-                    if (mint.equals(getMarinadeSolMint())) {
+                    if (mint.equals(registry.getMarinadeSolMint())) {
                         usdcAmount = x.userInputAmount!.amount.uiAmount! * 94;
-                    } else if (mint.equals(getNativeSolMint())) {
+                    } else if (mint.equals(registry.getNativeSolMint())) {
                         usdcAmount = x.userInputAmount!.amount.uiAmount! * 93;
                     } else {
                         usdcAmount = x.userInputAmount!.amount.uiAmount!;
@@ -92,6 +88,9 @@ export const ViewWalletConnectedCreatePortfolio = ({}) => {
                 uiAmountString: String(uiAmount)
             }
         };
+
+        // TODO: Gotta update the usdc amount as well
+
         let newAsset: AllocData = {
             apy_24h: currentlySelectedAsset.apy_24h,
             lp: currentlySelectedAsset.lp,
@@ -99,7 +98,8 @@ export const ViewWalletConnectedCreatePortfolio = ({}) => {
             protocol: currentlySelectedAsset.protocol,
             userInputAmount: userInputAmount,
             userWalletAmount: currentlySelectedAsset.userWalletAmount,
-            weight: currentlySelectedAsset.usdcAmount!
+            weight: currentlySelectedAsset.usdcAmount!,
+            // usdcAmount: currentlySelectedAsset.usdcAmount!
         };
 
         // Now set the stuff ...
