@@ -14,7 +14,7 @@ interface PieChartDataInterface {
     name: string,
     value: number
 }
-export default function DisplayPieChart({allocationInformation, showPercentage, displayInput=false}: Props) {
+export default function DisplayPieChart({allocationInformation, showPercentage, displayInput}: Props) {
 
     const renderCustomizedLabel = ({cx, cy, midAngle, innerRadius, outerRadius, percent}: any) => {
         const radius = innerRadius + (outerRadius - innerRadius) * -0.6; // 1.05;
