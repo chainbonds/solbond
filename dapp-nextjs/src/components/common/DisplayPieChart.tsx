@@ -2,8 +2,7 @@ import React, {useEffect, useState} from "react";
 import {PieChart, Pie, Cell} from "recharts";
 import {PIECHART_COLORS, RADIAN} from "../../const";
 import {AllocData} from "../../types/AllocData";
-import {Protocol} from "@qpools/sdk";
-import {getNativeSolMint} from "../../../../../qPools-contract/qpools-sdk/lib/registry/registry-helper";
+import {Protocol, registry} from "@qpools/sdk";
 
 interface Props {
     allocationInformation: Map<string, AllocData>,
@@ -58,7 +57,7 @@ export default function DisplayPieChart({allocationInformation, showPercentage, 
                             if (!value) {
                                 throw Error("Something went really wrong!");
                             }
-                            if (current.userInputAmount!.mint.equals(getNativeSolMint())) {
+                            if (current.userInputAmount!.mint.equals(registry.getNativeSolMint())) {
                                 value *= 93;
                             }
                             console.log("Value is: ", value);
