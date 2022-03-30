@@ -21,10 +21,11 @@ interface Props {
     tableColumns: (string | null)[],
     selectedAssets: Map<string, AllocData>,
     selectedAsset: string | null,
-    setSelectedAsset: React.Dispatch<React.SetStateAction<string>> | null
+    setSelectedAsset: React.Dispatch<React.SetStateAction<string>> | null,
+    assetChooseable: boolean
 }
 
-export default function SuggestedPortfolioTable({tableColumns, selectedAssets, selectedAsset, setSelectedAsset}: Props) {
+export default function SuggestedPortfolioTable({tableColumns, selectedAssets, selectedAsset, setSelectedAsset, assetChooseable}: Props) {
 
     // Instead of the raw pubkeys, store the pyth ID, and then you can look up the price using the pyth sdk ..
     // Much more sustainable also in terms of development
@@ -37,21 +38,18 @@ export default function SuggestedPortfolioTable({tableColumns, selectedAssets, s
     useEffect(() => {
         // Selected Asset should be zero if nothing is there ...
         // if (!selectedAssets) return;
-        let sum = Array.from(selectedAssets.values()).reduce((sum: number, current: AllocData) => sum + current.weight, 0);
+        // let sum = Array.from(selectedAssets.values()).reduce((sum: number, current: AllocData) => sum + current.usdcAmount, 0);
         setPieChartData((old: ChartableItemType[]) => {
                 let out: ChartableItemType[] = [];
 
                 // Change this to async map (?)
                 selectedAssets.forEach((current: AllocData, key: string) => {
-                    console.log("pool (1) ", current.lp);
-                    let pool = registry.getPoolFromSplStringId(current.lp);
-                    console.log("pool (2) ", pool);
                     let tmp = {
                         key: key,
                         name: Protocol[current.protocol].charAt(0).toUpperCase() + Protocol[current.protocol].slice(1) + " " + current.lp,
-                        value: ((100 * current.weight) / sum),
+                        value: current.usdcAmount,
                         apy_24h: current.apy_24h,
-                        pool: pool,
+                        pool: current.pool,
                         allocationItem: current
                     }
                     out.push(tmp)
@@ -87,12 +85,12 @@ export default function SuggestedPortfolioTable({tableColumns, selectedAssets, s
 
         // Should prob make the types equivalent. Should clean up all types in the front-end repo
         let tailwindOnSelected = "dark:bg-gray-800";
-        if (setSelectedAsset) {
+        if (setSelectedAsset && assetChooseable) {
             tailwindOnSelected += " hover:bg-gray-900"
         }
         // TODO: Perhaps it's easier to just hardcode it ...
         // TODO: This shouldn't make any sense ... obviously the LP is not equivalent to the item name
-        if (item.key === selectedAsset) {
+        if (item.key === selectedAsset && assetChooseable) {
             console.log("Matching indeed ...");
             tailwindOnSelected = "dark:bg-gray-900 hover:bg-gray-900";
         } else {
@@ -104,6 +102,9 @@ export default function SuggestedPortfolioTable({tableColumns, selectedAssets, s
         // Get (the name for) the asset to be inputted ...
         let inputToken: SelectedToken = getInputToken(item.pool.tokens);
         let inputTokenLink: string = registry.getIconFromToken(inputToken.mint);
+
+        // Add a counter here, depending on how many props there are in the object lol
+        // TODO: Solve this more elegantly ...
 
         return (
                 <tr
@@ -162,13 +163,13 @@ export default function SuggestedPortfolioTable({tableColumns, selectedAssets, s
                     <td className="py-4 px-6 text-sm text-center whitespace-nowrap">
                         {(item.apy_24h).toFixed(1)}%
                     </td>
-                    {(item.allocationItem && item.allocationItem?.userInputAmount?.amount) &&
+                    {(item.allocationItem && item.allocationItem?.userInputAmount?.amount && tableColumns.length > 5) &&
                         <td className="py-4 px-6 text-sm text-center whitespace-nowrap">
                             {/* inputToken.name */}
                             {item.allocationItem?.userInputAmount?.amount.uiAmount && (item.allocationItem?.userInputAmount?.amount.uiAmount).toFixed(2)}
                         </td>
                     }
-                    {(item.allocationItem && item.allocationItem.usdcAmount) &&
+                    {(item.allocationItem && item.allocationItem.usdcAmount && tableColumns.length > 6) &&
                         <td className="py-4 px-6 text-sm text-center whitespace-nowrap">
                             {/* inputToken.name */}
                             {item.allocationItem?.usdcAmount && (item.allocationItem?.usdcAmount).toFixed(2)}

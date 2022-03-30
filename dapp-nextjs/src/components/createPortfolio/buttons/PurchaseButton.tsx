@@ -216,10 +216,9 @@ export default function PurchaseButton({allocationData}: Props) {
             if (value.protocol.valueOf() === Protocol.saber.valueOf()) {
 
                 // Make sure that the input mint is not Native SOL
-
                 let IxRegisterCurrencyInput = await rpcProvider.portfolioObject!.registerCurrencyInputInPortfolio(
                     currencyAmount,
-                    currencyMint // Is the mint here the currency ... (?). If not, then replace this by getInputTokens from pool ... // Or fix this root-level
+                    currencyMint
                 );
                 tx.add(IxRegisterCurrencyInput);
 

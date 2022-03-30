@@ -1,6 +1,5 @@
 import React, {useEffect, useState} from "react";
 import {AllocData} from "../types/AllocData";
-import {Protocol} from "@qpools/sdk";
 import DisplayPieChart from "./common/DisplayPieChart";
 import SuggestedPortfolioTable from "./createPortfolio/SuggestedPortfolioTable";
 import SelectWallet from "./createPortfolio/buttons/SelectWallet";
@@ -13,16 +12,13 @@ export const ViewWalletNotConnected = ({}: Props) => {
     const [allocationData, setAllocationData] = useState<Map<string, AllocData>>(new Map());
     // Selected assets should be set to null here ...
 
-    // Maybe set loading until we are able to read the serpius API
-    // TODO: Probably will have to move this up-level again ...
     useEffect(() => {
         // Yet another option would be to load the assets from the portfolio position ...
         setAllocationData((_: Map<string, AllocData>) => {
             console.log("The new allocation (serpius) data is: ", serpiusProvider.portfolioRatios!);
-            // TODO: Replace the assets here (form a map from an Array)
             let out: Map<string, AllocData> = new Map<string, AllocData>();
-            serpiusProvider.portfolioRatios!.map((x: AllocData) => {
-                let key: string = Protocol[x.protocol] + " " + x.lp;
+            Array.from(serpiusProvider.portfolioRatios!.values()).map((x: AllocData) => {
+                let key: string = x.lp; //  Protocol[x.protocol] + " " +
                 out.set(key, x);
             });
             return out;
@@ -58,6 +54,7 @@ export const ViewWalletNotConnected = ({}: Props) => {
                         selectedAssets={allocationData}
                         selectedAsset={null}
                         setSelectedAsset={null}
+                        assetChooseable={false}
                     />
                 </div>
             </div>

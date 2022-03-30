@@ -38,7 +38,6 @@ export function ExistingPortfolioProvider(props: any) {
         calculateAllUsdcValues();
     }, [rpcProvider.userAccount, rpcProvider.provider, rpcProvider.reloadPriceSentinel, serpiusProvider.portfolioRatios]);
 
-    // Calculate all usdc values
     const calculateAllUsdcValues = async () => {
         console.log("#useEffect calculateAllUsdcValues");
         if (rpcProvider.userAccount && rpcProvider.portfolioObject && (await accountExists(rpcProvider.connection!, rpcProvider.portfolioObject.portfolioPDA))) {

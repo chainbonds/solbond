@@ -84,7 +84,7 @@ export function SerpiusEndpointProvider(props: any) {
                             pool: pool,
                             // @ts-ignore
                             protocol: Protocol[dataItem.protocol],   // Gotta convert the string to an enum ...
-                            usdcAmount: 0
+                            usdcAmount: (100 / (data.length))
                         };
                         console.log("data item is", out);
                         newData.set(out.lp, out);

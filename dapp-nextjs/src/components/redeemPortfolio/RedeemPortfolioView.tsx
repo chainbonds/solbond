@@ -35,7 +35,7 @@ export default function RedeemPortfolioView({}) {
         //         />
         //     );
         // }
-        if (existingPortfolioProvider.positionInfos.length === 0) {
+        if (existingPortfolioProvider.positionInfos.size === 0) {
             // TODO: Here, the user should for some reason run the cranks (?)
             return (
                 <RowInList

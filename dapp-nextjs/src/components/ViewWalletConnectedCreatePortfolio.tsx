@@ -6,8 +6,9 @@ import {AllocData} from "../types/AllocData";
 import {BN} from "@project-serum/anchor";
 import {UserTokenBalance} from "../types/UserTokenBalance";
 import {IUserWalletAssets, useUserWalletAssets} from "../contexts/UserWalletAssets";
-import {Protocol, registry} from "@qpools/sdk";
-import {PublicKey} from "@solana/web3.js";
+import {Protocol} from "@qpools/sdk";
+import {TokenAmount} from "@solana/web3.js";
+import {getTokenAmount} from "../utils/utils";
 
 export const ViewWalletConnectedCreatePortfolio = ({}) => {
 
@@ -28,7 +29,7 @@ export const ViewWalletConnectedCreatePortfolio = ({}) => {
     useEffect(() => {
         if (
             userWalletAssetsProvider.walletAssets &&
-            userWalletAssetsProvider.walletAssets.length > 0 &&
+            userWalletAssetsProvider.walletAssets.size > 0 &&
             allocationData.size < 1
         ) {
             setAllocationData((_: Map<string, AllocData>) => {
@@ -36,18 +37,8 @@ export const ViewWalletConnectedCreatePortfolio = ({}) => {
                 let out: Map<string, AllocData> = new Map<string, AllocData>();
                 // Take the wallet assets at spin-up,
                 // After that, take the user input assets ...
-                userWalletAssetsProvider.walletAssets!.map((x: AllocData) => {
+                Array.from(userWalletAssetsProvider.walletAssets!.values()).map((x: AllocData) => {
                     let key: string = Protocol[x.protocol] + " " + x.lp;
-                    let usdcAmount: number;
-                    let mint = new PublicKey(x.pool!.lpToken.address);
-                    if (mint.equals(registry.getMarinadeSolMint())) {
-                        usdcAmount = x.userInputAmount!.amount.uiAmount! * 94;
-                    } else if (mint.equals(registry.getNativeSolMint())) {
-                        usdcAmount = x.userInputAmount!.amount.uiAmount! * 93;
-                    } else {
-                        usdcAmount = x.userInputAmount!.amount.uiAmount!;
-                    }
-                    x.usdcAmount = usdcAmount;
                     out.set(key, x);
                 });
                 console.log("Updated Map (1) is: ", out);
@@ -75,22 +66,14 @@ export const ViewWalletConnectedCreatePortfolio = ({}) => {
         }
         let currentlySelectedAsset: AllocData = {...allocationData.get(currentlySelectedKey)!};
 
-        let numberInclDecimals = (new BN(absoluteBalance * (10 ** currentlySelectedAsset.userInputAmount!.amount.decimals)));
-        let uiAmount = (numberInclDecimals.toNumber() / (10 ** currentlySelectedAsset.userInputAmount!.amount.decimals));
+        let numberInclDecimals: BN = (new BN(absoluteBalance * (10 ** currentlySelectedAsset.userInputAmount!.amount.decimals)));
+        let tokenAmount: TokenAmount = getTokenAmount(numberInclDecimals, currentlySelectedAsset.userInputAmount!.amount.decimals);
 
         let userInputAmount: UserTokenBalance = {
             mint: currentlySelectedAsset.userInputAmount!.mint,
             ata: currentlySelectedAsset.userInputAmount!.ata,
-            amount: {
-                amount: numberInclDecimals.toString(),
-                decimals: currentlySelectedAsset.userInputAmount!.amount.decimals,
-                uiAmount: uiAmount,
-                uiAmountString: String(uiAmount)
-            }
+            amount: tokenAmount
         };
-
-        // TODO: Gotta update the usdc amount as well
-
         let newAsset: AllocData = {
             apy_24h: currentlySelectedAsset.apy_24h,
             lp: currentlySelectedAsset.lp,
@@ -98,7 +81,6 @@ export const ViewWalletConnectedCreatePortfolio = ({}) => {
             protocol: currentlySelectedAsset.protocol,
             userInputAmount: userInputAmount,
             userWalletAmount: currentlySelectedAsset.userWalletAmount,
-            // weight: currentlySelectedAsset.usdcAmount!,
             usdcAmount: currentlySelectedAsset.usdcAmount!
         };
 
@@ -143,6 +125,7 @@ export const ViewWalletConnectedCreatePortfolio = ({}) => {
                         selectedAssets={allocationData}
                         selectedAsset={selectedAsset}
                         setSelectedAsset={setSelectedAsset}
+                        assetChooseable={true}
                     />
                 </div>
             </div>

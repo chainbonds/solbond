@@ -7,7 +7,7 @@ import {IRpcProvider, useRpc} from "./RpcProvider";
 import {ISerpius, useSerpiusEndpoint} from "./SerpiusProvider";
 import {BN} from "@project-serum/anchor";
 import {lamportsReserversForLocalWallet} from "../const";
-import {getTokenAmount} from "../utils/utils";
+import {getTokenAmount, multiplyAmountByPythprice} from "../utils/utils";
 
 
 export interface IUserWalletAssets {
@@ -97,17 +97,8 @@ export function UserWalletAssetsProvider(props: any) {
                     userWalletAmount: {mint: mint, ata: ata, amount: userBalance}
                 }
 
-                // also overwrite the weight to be the user's estimated USDC balance for this token ...
-                // convert by pyth price, maybe
-                // Convert by pyth price,
-                // for now, hardcoding is enough, because we haven't started converting by the pyth price yet ...
                 // TODO: Replace this with pyth price oracles !
-                if (newPool.userInputAmount!.mint.equals(new PublicKey("So11111111111111111111111111111111111111112"))) {
-                    newPool.usdcAmount = newPool.userInputAmount!.amount.uiAmount! * 93.;
-                } else {
-                    console.log("Assuming USDC...");
-                    newPool.usdcAmount = newPool.userInputAmount!.amount.uiAmount!;
-                }
+                newPool.usdcAmount = multiplyAmountByPythprice(newPool.userInputAmount!.amount.uiAmount!, newPool.userInputAmount!.mint);
                 console.log("Pushing object: ", newPool);
                 newAllocData.set(newPool.lp, newPool);
             }));
