@@ -1,19 +1,22 @@
-import React from "react";
+import React, {useState} from "react";
 import {displayTokensFromPositionInfo, shortenedAddressString, solscanLink} from "../../utils/utils";
 import Image from "next/image";
 import {PositionInfo} from "@qpools/sdk";
 import {DisplayToken} from "../../types/DisplayToken";
-import {IExistingPortfolio, useExistingPortfolio} from "../../contexts/ExistingPortfolioProvider";
 import TableHeader from "../common/TableHeader";
-import {ILoad, useLoad} from "../../contexts/LoadingContext";
+import {AllocData} from "../../types/AllocData";
+import {ChartableItemType} from "../../types/ChartableItemType";
 
 interface Props {
     tableColumns: (string | null)[],
+    selectedAssets: Map<string, AllocData>
 }
-export default function ExistingPortfolioTable({tableColumns}: Props) {
+export default function ExistingPortfolioTable({tableColumns, selectedAssets}: Props) {
 
-    const loadingProvider: ILoad = useLoad();
-    const existingPortfolioProvider: IExistingPortfolio = useExistingPortfolio();
+    const [pieChartData, setPieChartData] = useState<ChartableItemType[]>([
+        {key: "USDC-USDT", name: "USDC-USDT", value: 500, apy_24h: 0.},
+        {key: "USDC-PAI", name: "USDC-PAI", value: 500, apy_24h: 0.},
+    ])
 
     const tableSingleRow = (position: PositionInfo) => {
 
@@ -82,11 +85,12 @@ export default function ExistingPortfolioTable({tableColumns}: Props) {
                             >
                                 <TableHeader
                                     key={Math.random()}
-                                    columns={tableColumns} />
-                                <tbody
-                                    key={Math.random()}>
-                                    {existingPortfolioProvider.positionInfos.map((position: PositionInfo) => tableSingleRow(position))}
-                                </tbody>
+                                    columns={tableColumns}
+                                />
+                                {/*<tbody*/}
+                                {/*    key={Math.random()}>*/}
+                                {/*    /!*{existingPortfolioProvider.positionInfos.map((position: PositionInfo) => tableSingleRow(position))}*!/*/}
+                                {/*</tbody>*/}
                             </table>
                         </div>
                     </div>

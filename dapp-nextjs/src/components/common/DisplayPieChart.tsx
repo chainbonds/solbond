@@ -62,6 +62,7 @@ export default function DisplayPieChart({allocationInformation, showPercentage, 
                             }
                             console.log("Value is: ", value);
                         } else {
+                            // Perhaps remove this, for simplicity
                             value = ((100 * current.weight) / sum);
                         }
 

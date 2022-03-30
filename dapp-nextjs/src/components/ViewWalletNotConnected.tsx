@@ -1,8 +1,6 @@
 import React, {useEffect, useState} from "react";
 import {AllocData} from "../types/AllocData";
 import {Protocol} from "@qpools/sdk";
-import {BRAND_COLORS} from "../const";
-import LoadingItemsModal from "./common/LoadingItemsModal";
 import DisplayPieChart from "./common/DisplayPieChart";
 import SuggestedPortfolioTable from "./createPortfolio/SuggestedPortfolioTable";
 import SelectWallet from "./createPortfolio/buttons/SelectWallet";
@@ -44,7 +42,6 @@ export const ViewWalletNotConnected = ({}: Props) => {
             <div className={"flex flex-row mt-5"}>
                 <h2 className={"text-2xl font-light"}>
                     Please Connect your Wallet First!
-                    {/*This will be the allocation in which your assets generate yields*/}
                 </h2>
             </div>
             <div className={"flex flex-row mt-8"}>
@@ -61,7 +58,6 @@ export const ViewWalletNotConnected = ({}: Props) => {
                         selectedAssets={allocationData}
                         selectedAsset={null}
                         setSelectedAsset={null}
-                        // modifyAllocationData={modifyIndividualAllocationItem}
                     />
                 </div>
             </div>

@@ -40,13 +40,18 @@ export default function SuggestedPortfolioTable({tableColumns, selectedAssets, s
         let sum = Array.from(selectedAssets.values()).reduce((sum: number, current: AllocData) => sum + current.weight, 0);
         setPieChartData((old: ChartableItemType[]) => {
                 let out: ChartableItemType[] = [];
+
+                // Change this to async map (?)
                 selectedAssets.forEach((current: AllocData, key: string) => {
+                    console.log("pool (1) ", current.lp);
+                    let pool = registry.getPoolFromSplStringId(current.lp);
+                    console.log("pool (2) ", pool);
                     let tmp = {
                         key: key,
                         name: Protocol[current.protocol].charAt(0).toUpperCase() + Protocol[current.protocol].slice(1) + " " + current.lp,
                         value: ((100 * current.weight) / sum),
                         apy_24h: current.apy_24h,
-                        pool: registry.getPoolFromSplStringId(current.lp),
+                        pool: pool,
                         allocationItem: current
                     }
                     out.push(tmp)
@@ -70,7 +75,9 @@ export default function SuggestedPortfolioTable({tableColumns, selectedAssets, s
             )
         }
 
+        console.log("Converting display token to this: ", item);
         let displayTokens: DisplayToken[] = displayTokensFromChartableAsset(item);
+        console.log("Converting display token to this: (2) ", item);
 
         let mintLP = new PublicKey(item.pool!.lpToken.address);
 

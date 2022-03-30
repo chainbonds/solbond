@@ -5,7 +5,8 @@ import RedeemPortfolioView from "./redeemPortfolio/RedeemPortfolioView";
 import {AllocData} from "../types/AllocData";
 import {IExistingPortfolio, useExistingPortfolio} from "../contexts/ExistingPortfolioProvider";
 import {PositionInfo, Protocol} from "@qpools/sdk";
-import {ILoad, useLoad} from "../contexts/LoadingContext";
+import {UserTokenBalance} from "../types/UserTokenBalance";
+import SuggestedPortfolioTable from "./createPortfolio/SuggestedPortfolioTable";
 
 export const ViewWalletConnectedPortfolioExists = ({}) => {
 
@@ -22,12 +23,19 @@ export const ViewWalletConnectedPortfolioExists = ({}) => {
         await Promise.all(existingPortfolioProvider.positionInfos.map(async (position: PositionInfo ) => {
             // Pool is prob not reqired, if we only want to display these ...
             // Also, perhaps also reduce PositionInfo to AllocData, otherwise it's confusing in terms of types ...
+            // Replace the userInputAmount and userWalletAmount
+
+            let userAmount: UserTokenBalance = {
+                amount: position.amountLp,
+                ata: position.ataLp,
+                mint: position.mintLp
+            }
             let tmp: AllocData = {
                 apy_24h: 0.,
                 lp: position.mintLp.toString(),
                 protocol: position.protocol,
-                userInputAmount: undefined,
-                userWalletAmount: undefined,
+                userInputAmount: userAmount,
+                userWalletAmount: userAmount,
                 weight: position.totalPositionValue
             };
             let key: string = Protocol[position.protocol] + " " + position.mintLp.toString();
@@ -71,8 +79,15 @@ export const ViewWalletConnectedPortfolioExists = ({}) => {
                 </div>
                 <div className="flex flex-col text-gray-300 my-auto divide-y divide-white">
                     {/* Add another Column for how much this position has increased since buying ... */}
-                    <ExistingPortfolioTable
+                    {/*<ExistingPortfolioTable*/}
+                    {/*    tableColumns={["Pool", "Assets", "USDC Value", null]}*/}
+                    {/*    selectedAssets={allocationData}*/}
+                    {/*/>*/}
+                    <SuggestedPortfolioTable
                         tableColumns={["Pool", "Assets", "USDC Value", null]}
+                        selectedAssets={allocationData}
+                        selectedAsset={""}
+                        setSelectedAsset={() => {}}
                     />
                 </div>
             </div>

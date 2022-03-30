@@ -151,6 +151,7 @@ export default function PurchaseButton({allocationData}: Props) {
                 );
             } catch (error) {
                 itemLoadContext.resetCounter();
+                console.log(String(error));
                 errorMessage.addErrorMessage(
                     "Something went wrong creating the associated token accounts",
                     String(error)
@@ -302,6 +303,7 @@ export default function PurchaseButton({allocationData}: Props) {
                     console.log("Fulfilled sg Saber is: ", sgPermissionlessFullfillSaber);
                 } catch (error) {
                     itemLoadContext.resetCounter();
+                    console.log(String(error));
                     errorMessage.addErrorMessage(
                         "Fulfilling the Saber Protocol failed.",
                         String(error)
@@ -314,6 +316,7 @@ export default function PurchaseButton({allocationData}: Props) {
                     console.log("Fulfilled sg Marinade is: ", sgPermissionlessFullfillMarinade);
                 } catch (error) {
                     itemLoadContext.resetCounter();
+                    console.log(String(error));
                     errorMessage.addErrorMessage(
                         "Fulfilling the Marinade Protocol failed.",
                         String(error)

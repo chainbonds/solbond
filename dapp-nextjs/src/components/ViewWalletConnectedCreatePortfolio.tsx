@@ -25,8 +25,6 @@ export const ViewWalletConnectedCreatePortfolio = ({}) => {
      * Set the Portfolio to resemble the user's Wallet
      */
     useEffect(() => {
-        // TODO: If the user has no assets (!), then ask him if he wants to buy some crypto
-        // Yet another option would be to load the assets from the portfolio position ...
         if (
             userWalletAssetsProvider.walletAssets &&
             userWalletAssetsProvider.walletAssets.length > 0 &&
@@ -66,7 +64,6 @@ export const ViewWalletConnectedCreatePortfolio = ({}) => {
         }
         let currentlySelectedAsset: AllocData = {...allocationData.get(currentlySelectedKey)!};
 
-        // TODO: Gotta find a way to deal with the absolute balance ...
         let numberInclDecimals = (new BN(absoluteBalance * (10 ** currentlySelectedAsset.userInputAmount!.amount.decimals)));
         let uiAmount = (numberInclDecimals.toNumber() / (10 ** currentlySelectedAsset.userInputAmount!.amount.decimals));
 
@@ -131,7 +128,6 @@ export const ViewWalletConnectedCreatePortfolio = ({}) => {
                         selectedAssets={allocationData}
                         selectedAsset={selectedAsset}
                         setSelectedAsset={setSelectedAsset}
-                        // modifyAllocationData={modifyIndividualAllocationItem}
                     />
                 </div>
             </div>
