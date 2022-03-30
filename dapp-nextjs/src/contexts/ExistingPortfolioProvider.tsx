@@ -2,6 +2,7 @@ import React, {useState, useContext, useEffect} from 'react';
 import {accountExists} from "@qpools/sdk";
 import {PositionInfo} from "@qpools/sdk";
 import {IRpcProvider, useRpc} from "./RpcProvider";
+import {ILoad, useLoad} from "./LoadingContext";
 
 export interface IExistingPortfolio {
     positionInfos: PositionInfo[],
@@ -22,6 +23,7 @@ export function useExistingPortfolio() {
 export function ExistingPortfolioProvider(props: any) {
 
     const rpcProvider: IRpcProvider = useRpc();
+    const loadingProvider: ILoad = useLoad();
 
     const [positionInfos, setPositionInfos] = useState<PositionInfo[]>([]);
     const [totalPortfolioValueInUsd, setTotalPortfolioValueUsd] = useState<number>(0.);
@@ -39,7 +41,9 @@ export function ExistingPortfolioProvider(props: any) {
         console.log("#useEffect calculateAllUsdcValues");
         if (rpcProvider.userAccount && rpcProvider.portfolioObject && (await accountExists(rpcProvider.connection!, rpcProvider.portfolioObject.portfolioPDA))) {
             console.log("Going in here ..");
+            loadingProvider.increaseCounter();
             let {storedPositions, usdAmount} = await rpcProvider.portfolioObject.getPortfolioUsdcValue();
+            loadingProvider.decreaseCounter();
             setTotalPortfolioValueUsd(usdAmount);
             setPositionInfos(storedPositions);
         } else {

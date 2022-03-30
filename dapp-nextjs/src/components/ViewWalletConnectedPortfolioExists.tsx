@@ -5,16 +5,18 @@ import RedeemPortfolioView from "./redeemPortfolio/RedeemPortfolioView";
 import {AllocData} from "../types/AllocData";
 import {IExistingPortfolio, useExistingPortfolio} from "../contexts/ExistingPortfolioProvider";
 import {PositionInfo, Protocol} from "@qpools/sdk";
+import {ILoad, useLoad} from "../contexts/LoadingContext";
 
-interface Props {
-
-}
 export const ViewWalletConnectedPortfolioExists = ({}) => {
 
     const existingPortfolioProvider: IExistingPortfolio = useExistingPortfolio();
     const [allocationData, setAllocationData] = useState<Map<string, AllocData>>(new Map());
 
     const setExistingPortfolioAsAllocationData = async () => {
+        console.log("#setExistingPortfolioAsAllocationData()");
+
+        // Set a loading provider until the data is retrieved ...
+
         // Go through all positionInfos, and create a new Map accordingy ...
         let newAllocationData: Map<string, AllocData> = new Map<string, AllocData>();
         await Promise.all(existingPortfolioProvider.positionInfos.map(async (position: PositionInfo ) => {
@@ -34,6 +36,7 @@ export const ViewWalletConnectedPortfolioExists = ({}) => {
         setAllocationData((oldAllocationData: Map<string, AllocData>) => {
             return newAllocationData;
         });
+        console.log("##setExistingPortfolioAsAllocationData()");
     }
 
     useEffect(() => {
@@ -63,6 +66,7 @@ export const ViewWalletConnectedPortfolioExists = ({}) => {
                     <DisplayPieChart
                         showPercentage={false}
                         allocationInformation={allocationData}
+                        displayInput={false}
                     />
                 </div>
                 <div className="flex flex-col text-gray-300 my-auto divide-y divide-white">

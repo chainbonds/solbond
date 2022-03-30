@@ -5,15 +5,18 @@ import {PositionInfo} from "@qpools/sdk";
 import {DisplayToken} from "../../types/DisplayToken";
 import {IExistingPortfolio, useExistingPortfolio} from "../../contexts/ExistingPortfolioProvider";
 import TableHeader from "../common/TableHeader";
+import {ILoad, useLoad} from "../../contexts/LoadingContext";
 
 interface Props {
     tableColumns: (string | null)[],
 }
 export default function ExistingPortfolioTable({tableColumns}: Props) {
 
+    const loadingProvider: ILoad = useLoad();
     const existingPortfolioProvider: IExistingPortfolio = useExistingPortfolio();
 
     const tableSingleRow = (position: PositionInfo) => {
+
         if (position.amountLp && !position.amountLp.uiAmount && (position.amountLp.uiAmount != 0)) {
             return <></>
         }
