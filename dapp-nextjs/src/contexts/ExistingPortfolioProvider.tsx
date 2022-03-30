@@ -58,7 +58,9 @@ export function ExistingPortfolioProvider(props: any) {
                     amount: x.amountLp,
                     ata: x.ataLp,
                     mint: x.mintLp
-                }
+                };
+                console.log("Displaying individual amounts are: ", amount);
+                console.log("usdcValueLp ", x.usdcValueLP);
                 // you can probably still get the apy-dates through the serpius endpoint
                 let serpiusObject: AllocData = serpiusProvider.portfolioRatios.get(pool.name)!;
                 // APY 24h is (if it was loaded already ...)
