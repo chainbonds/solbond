@@ -7,6 +7,11 @@ import {BN} from "@project-serum/anchor";
 import {UserTokenBalance} from "../types/UserTokenBalance";
 import {IUserWalletAssets, useUserWalletAssets} from "../contexts/UserWalletAssets";
 import {Protocol} from "@qpools/sdk";
+import {
+    getMarinadeSolMint,
+    getNativeSolMint
+} from "../../../../qPools-contract/qpools-sdk/lib/registry/registry-helper";
+import {PublicKey} from "@solana/web3.js";
 
 export const ViewWalletConnectedCreatePortfolio = ({}) => {
 
@@ -37,6 +42,16 @@ export const ViewWalletConnectedCreatePortfolio = ({}) => {
                 // After that, take the user input assets ...
                 userWalletAssetsProvider.walletAssets!.map((x: AllocData) => {
                     let key: string = Protocol[x.protocol] + " " + x.lp;
+                    let usdcAmount: number;
+                    let mint = new PublicKey(x.pool!.lpToken.address);
+                    if (mint.equals(getMarinadeSolMint())) {
+                        usdcAmount = x.userInputAmount!.amount.uiAmount! * 94;
+                    } else if (mint.equals(getNativeSolMint())) {
+                        usdcAmount = x.userInputAmount!.amount.uiAmount! * 93;
+                    } else {
+                        usdcAmount = x.userInputAmount!.amount.uiAmount!;
+                    }
+                    x.usdcAmount = usdcAmount;
                     out.set(key, x);
                 });
                 console.log("Updated Map (1) is: ", out);
@@ -84,7 +99,7 @@ export const ViewWalletConnectedCreatePortfolio = ({}) => {
             protocol: currentlySelectedAsset.protocol,
             userInputAmount: userInputAmount,
             userWalletAmount: currentlySelectedAsset.userWalletAmount,
-            weight: currentlySelectedAsset.weight
+            weight: currentlySelectedAsset.usdcAmount!
         };
 
         // Now set the stuff ...
@@ -124,7 +139,7 @@ export const ViewWalletConnectedCreatePortfolio = ({}) => {
                 </div>
                 <div className="flex flex-col text-gray-300 my-auto divide-y divide-white">
                     <SuggestedPortfolioTable
-                        tableColumns={[null, "Pay-In Asset", "Product", "Underlying Asset", "Allocation", "24H APY", "Absolute Amount"]}
+                        tableColumns={[null, "Pay-In Asset", "Product", "Underlying Asset", "Allocation", "24H APY", "Absolute Amount", "USDC Value"]}
                         selectedAssets={allocationData}
                         selectedAsset={selectedAsset}
                         setSelectedAsset={setSelectedAsset}

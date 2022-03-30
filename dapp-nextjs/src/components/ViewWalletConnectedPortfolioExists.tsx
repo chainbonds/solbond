@@ -1,10 +1,9 @@
 import DisplayPieChart from "./common/DisplayPieChart";
 import React, {useEffect, useState} from "react";
-import ExistingPortfolioTable from "./redeemPortfolio/ExistingPortfolioTable";
 import RedeemPortfolioView from "./redeemPortfolio/RedeemPortfolioView";
 import {AllocData} from "../types/AllocData";
 import {IExistingPortfolio, useExistingPortfolio} from "../contexts/ExistingPortfolioProvider";
-import {PositionInfo, Protocol} from "@qpools/sdk";
+import {PositionInfo, Protocol, registry} from "@qpools/sdk";
 import {UserTokenBalance} from "../types/UserTokenBalance";
 import SuggestedPortfolioTable from "./createPortfolio/SuggestedPortfolioTable";
 
@@ -30,13 +29,27 @@ export const ViewWalletConnectedPortfolioExists = ({}) => {
                 ata: position.ataLp,
                 mint: position.mintLp
             }
+            // from the lp mint, get the name in the registry ...
+            let lpId = registry.getPoolFromLpMint(position.mintLp);
+            // TODO: Turn the totalPositionValue into it's USDC value ...
+
+            let usdcAmount: number;
+            if (userAmount.mint.equals(registry.getMarinadeSolMint())) {
+                usdcAmount = userAmount.amount.uiAmount! * 94;
+            } else if (userAmount.mint.equals(registry.getNativeSolMint())) {
+                usdcAmount = userAmount.amount.uiAmount! * 93;
+            } else {
+                usdcAmount = userAmount.amount.uiAmount!;
+            }
+
             let tmp: AllocData = {
                 apy_24h: 0.,
-                lp: position.mintLp.toString(),
+                lp: lpId.name,
                 protocol: position.protocol,
                 userInputAmount: userAmount,
                 userWalletAmount: userAmount,
-                weight: position.totalPositionValue
+                weight: usdcAmount,  // position.totalPositionValue,
+                usdcAmount: usdcAmount
             };
             let key: string = Protocol[position.protocol] + " " + position.mintLp.toString();
             newAllocationData.set(key, tmp);
@@ -84,7 +97,7 @@ export const ViewWalletConnectedPortfolioExists = ({}) => {
                     {/*    selectedAssets={allocationData}*/}
                     {/*/>*/}
                     <SuggestedPortfolioTable
-                        tableColumns={["Pool", "Assets", "USDC Value", null]}
+                        tableColumns={[null, "Pay-In Asset", "Product", "Underlying Asset", "Allocation", "24H APY", "Absolute Amount"]}
                         selectedAssets={allocationData}
                         selectedAsset={""}
                         setSelectedAsset={() => {}}

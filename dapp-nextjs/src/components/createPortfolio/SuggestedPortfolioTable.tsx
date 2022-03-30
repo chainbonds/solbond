@@ -163,10 +163,16 @@ export default function SuggestedPortfolioTable({tableColumns, selectedAssets, s
                         {(item.apy_24h).toFixed(1)}%
                     </td>
                     {(item.allocationItem && item.allocationItem?.userInputAmount?.amount) &&
-                    <td className="py-4 px-6 text-sm text-center whitespace-nowrap">
-                        {/* inputToken.name */}
-                        {item.allocationItem?.userInputAmount?.amount.uiAmount && (item.allocationItem?.userInputAmount?.amount.uiAmount).toFixed(2)}
-                    </td>
+                        <td className="py-4 px-6 text-sm text-center whitespace-nowrap">
+                            {/* inputToken.name */}
+                            {item.allocationItem?.userInputAmount?.amount.uiAmount && (item.allocationItem?.userInputAmount?.amount.uiAmount).toFixed(2)}
+                        </td>
+                    }
+                    {(item.allocationItem && item.allocationItem?.userInputAmount?.amount) &&
+                        <td className="py-4 px-6 text-sm text-center whitespace-nowrap">
+                            {/* inputToken.name */}
+                            {item.allocationItem?.usdcAmount && (item.allocationItem?.usdcAmount).toFixed(2)}
+                        </td>
                     }
                 </tr>
         )

@@ -10,4 +10,5 @@ export interface AllocData {
     pool?: registry.ExplicitPool,
     userInputAmount?: UserTokenBalance,
     userWalletAmount?: UserTokenBalance
+    usdcAmount?: number
 }

@@ -53,17 +53,18 @@ export default function DisplayPieChart({allocationInformation, showPercentage, 
                         if (displayInput && current.userInputAmount!.amount.uiAmount) {
                             // Do a converstion by the pyth price
                             // TODO: Write a function which takes the uiamount and mint, and generates the USDC amount ...
-                            value = current.userInputAmount!.amount.uiAmount!;
+                            value = current.usdcAmount!;  // current.userInputAmount!.amount.uiAmount!;
                             if (!value) {
                                 throw Error("Something went really wrong!");
                             }
-                            if (current.userInputAmount!.mint.equals(registry.getNativeSolMint())) {
-                                value *= 93;
-                            }
+                            // if (current.userInputAmount!.mint.equals(registry.getNativeSolMint())) {
+                            //     // value *= 93;
+                            // }
                             console.log("Value is: ", value);
                         } else {
                             // Perhaps remove this, for simplicity
-                            value = ((100 * current.weight) / sum);
+                            // value = ((100 * current.weight) / sum);
+                            value = current.usdcAmount!;
                         }
 
                         return {
