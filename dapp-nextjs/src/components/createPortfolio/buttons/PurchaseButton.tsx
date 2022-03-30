@@ -150,6 +150,7 @@ export default function PurchaseButton({allocationData}: Props) {
                     txCreateAssociateTokenAccount
                 );
             } catch (error) {
+                itemLoadContext.resetCounter();
                 errorMessage.addErrorMessage(
                     "Something went wrong creating the associated token accounts",
                     String(error)
@@ -274,6 +275,7 @@ export default function PurchaseButton({allocationData}: Props) {
                 tx
             );
         } catch (error) {
+            itemLoadContext.resetCounter();
             errorMessage.addErrorMessage(
                 "Something went wrong creating the portfolio",
                 String(error)
@@ -299,6 +301,7 @@ export default function PurchaseButton({allocationData}: Props) {
                     let sgPermissionlessFullfillSaber = await crankProvider.crankRpcTool!.permissionlessFulfillSaber(index);
                     console.log("Fulfilled sg Saber is: ", sgPermissionlessFullfillSaber);
                 } catch (error) {
+                    itemLoadContext.resetCounter();
                     errorMessage.addErrorMessage(
                         "Fulfilling the Saber Protocol failed.",
                         String(error)
@@ -310,6 +313,7 @@ export default function PurchaseButton({allocationData}: Props) {
                     let sgPermissionlessFullfillMarinade = await crankProvider.crankRpcTool!.createPositionMarinade(index);
                     console.log("Fulfilled sg Marinade is: ", sgPermissionlessFullfillMarinade);
                 } catch (error) {
+                    itemLoadContext.resetCounter();
                     errorMessage.addErrorMessage(
                         "Fulfilling the Marinade Protocol failed.",
                         String(error)
