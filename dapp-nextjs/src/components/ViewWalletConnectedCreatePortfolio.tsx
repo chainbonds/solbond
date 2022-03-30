@@ -12,7 +12,7 @@ import {PublicKey} from "@solana/web3.js";
 export const ViewWalletConnectedCreatePortfolio = ({}) => {
 
     const userWalletAssetsProvider: IUserWalletAssets = useUserWalletAssets();
-    const [allocationData, setAllocationData] = useState<Map<string, AllocData>>(new Map());
+    const [allocationData, setAllocationData] = useState<Map<string, AllocData>>(new Map<string, AllocData>());
     const [selectedAsset, setSelectedAsset] = useState<string>("");
 
     useEffect(() => {
@@ -98,8 +98,8 @@ export const ViewWalletConnectedCreatePortfolio = ({}) => {
             protocol: currentlySelectedAsset.protocol,
             userInputAmount: userInputAmount,
             userWalletAmount: currentlySelectedAsset.userWalletAmount,
-            weight: currentlySelectedAsset.usdcAmount!,
-            // usdcAmount: currentlySelectedAsset.usdcAmount!
+            // weight: currentlySelectedAsset.usdcAmount!,
+            usdcAmount: currentlySelectedAsset.usdcAmount!
         };
 
         // Now set the stuff ...

@@ -48,7 +48,7 @@ export const ViewWalletConnectedPortfolioExists = ({}) => {
                 protocol: position.protocol,
                 userInputAmount: userAmount,
                 userWalletAmount: userAmount,
-                weight: position.usdcValueLP,  // position.totalPositionValue,
+                // weight: position.usdcValueLP,  // position.totalPositionValue,
                 usdcAmount: position.usdcValueLP
             };
             let key: string = Protocol[position.protocol] + " " + position.mintLp.toString();
