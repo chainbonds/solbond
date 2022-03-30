@@ -68,9 +68,15 @@ export function UserWalletAssetsProvider(props: any) {
             let tokens: registry.ExplicitToken[] = fetchedPool.pool.tokens;
             await Promise.all(tokens.map(async (token: registry.ExplicitToken) => {
 
+                // Gotta get the input tokens ...
+
                 // Do a whitelist here which assets we accept ...
                 if (registry.getWhitelistTokens().filter((x: string) => x === token.address).length === 0) {
-                    console.log(registry.getWhitelistTokens(), token.address, token.address.toString());
+                    console.log("Whitelist tokens etc. are");
+                    console.log(registry.getWhitelistTokens());
+                    console.log(token.address);
+                    console.log(token.address.toString());
+                    console.log("Done");
                     throw Error("Serpius API for some reason did not return whitelisted tokens!");
                     return
                 }

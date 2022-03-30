@@ -6,7 +6,7 @@ import {Protocol} from "@qpools/sdk";
 export interface AllocData {
     lp: string,
     // Should include weights here
-    // weight: number,
+    weight: number,
     protocol: Protocol,
     apy_24h: number,
     // Should include the input token here

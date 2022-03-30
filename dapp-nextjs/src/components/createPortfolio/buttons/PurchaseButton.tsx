@@ -225,7 +225,7 @@ export default function PurchaseButton({allocationData}: Props) {
                 let IxApprovePositionWeightSaber = await rpcProvider.portfolioObject!.approvePositionWeightSaber(
                     lpAddress,
                     currencyAmount,
-                    new BN(0),  // Will be flipped in the backend .. // Shoudl probably remove the tokenB argument ...
+                    new BN(0),  // Will be flipped in the backend .. // Should probably remove the tokenB argument ...
                     new BN(0),
                     index,  // Hardcoded
                     weight
