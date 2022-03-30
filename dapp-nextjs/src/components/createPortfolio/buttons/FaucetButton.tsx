@@ -127,12 +127,8 @@ export const FaucetButton: FC = ({}) => {
         }
 
         await rpcProvider.makePriceReload();
-
         await loadContext.decreaseCounter();
     };
-
-    // TODO: If the rpc provider is not loaded, should prob render something else ...(?)
-
 
     return (
         <>

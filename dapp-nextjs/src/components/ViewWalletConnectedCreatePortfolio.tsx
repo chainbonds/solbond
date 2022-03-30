@@ -29,15 +29,19 @@ export const ViewWalletConnectedCreatePortfolio = ({}) => {
         // Yet another option would be to load the assets from the portfolio position ...
         if (
             userWalletAssetsProvider.walletAssets &&
-            userWalletAssetsProvider.walletAssets.length > 0
+            userWalletAssetsProvider.walletAssets.length > 0 &&
+            allocationData.size < 1
         ) {
             setAllocationData((_: Map<string, AllocData>) => {
                 console.log("The new allocation (wallet) data is: ", userWalletAssetsProvider.walletAssets);
                 let out: Map<string, AllocData> = new Map<string, AllocData>();
+                // Take the wallet assets at spin-up,
+                // After that, take the user input assets ...
                 userWalletAssetsProvider.walletAssets!.map((x: AllocData) => {
                     let key: string = Protocol[x.protocol] + " " + x.lp;
                     out.set(key, x);
                 });
+                console.log("Updated Map (1) is: ", out);
                 return out;
             });
         }
@@ -48,7 +52,7 @@ export const ViewWalletConnectedCreatePortfolio = ({}) => {
      * Perhaps I should find a way to do this more efficiently ... not entirely sure how though
      * Also I think from a react-perspective this is the right approach, because the key of the object needs to change
      *
-     * @param currentlySelectedAsset
+     * @param currentlySelectedKey
      * @param absoluteBalance
      */
     const modifyIndividualAllocationItem = (currentlySelectedKey: string, absoluteBalance: number) => {
@@ -93,6 +97,7 @@ export const ViewWalletConnectedCreatePortfolio = ({}) => {
             // Also add another key prop (one id for us, one key for react maybe?) to force re-rendering ...
             let updatedMap = new Map<string, AllocData>(oldAllocationData);
             updatedMap.set(selectedAsset, newAsset)
+            console.log("Updated Map is: ", updatedMap);
             return updatedMap;
         });
 
@@ -117,6 +122,7 @@ export const ViewWalletConnectedCreatePortfolio = ({}) => {
                     <DisplayPieChart
                         showPercentage={false}
                         allocationInformation={allocationData}
+                        displayInput={true}
                     />
                 </div>
                 <div className="flex flex-col text-gray-300 my-auto divide-y divide-white">
