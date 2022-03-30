@@ -15,6 +15,7 @@ import {CrankProvider} from "../contexts/CrankProvider";
 import {SerpiusEndpointProvider} from "../contexts/SerpiusProvider";
 import {UserWalletAssetsProvider} from "../contexts/UserWalletAssets";
 import {ExistingPortfolioProvider} from "../contexts/ExistingPortfolioProvider";
+import {ErrorMessageProvider} from "../contexts/ErrorMessageContext";
 
 const SOLANA_NETWORK = WalletAdapterNetwork.Devnet;
 const network = SOLANA_NETWORK;
@@ -31,25 +32,27 @@ function MyApp({Component, pageProps}: AppProps) {
 
     return (
         <LocalKeypairProvider>
-            <LoadProvider>
-                <ItemsLoadProvider>
-                    <SerpiusEndpointProvider>
-                        <ConnectionProvider endpoint={endpoint}>
-                            <WalletProvider>
-                                <RpcProvider>
-                                    <UserWalletAssetsProvider>
-                                        <ExistingPortfolioProvider>
-                                            <CrankProvider>
-                                                <Component {...pageProps} />
-                                            </CrankProvider>
-                                        </ExistingPortfolioProvider>
-                                    </UserWalletAssetsProvider>
-                                </RpcProvider>
-                            </WalletProvider>
-                        </ConnectionProvider>
-                    </SerpiusEndpointProvider>
-                </ItemsLoadProvider>
-            </LoadProvider>
+            <ErrorMessageProvider>
+                <LoadProvider>
+                    <ItemsLoadProvider>
+                        <SerpiusEndpointProvider>
+                            <ConnectionProvider endpoint={endpoint}>
+                                <WalletProvider>
+                                    <RpcProvider>
+                                        <UserWalletAssetsProvider>
+                                            <ExistingPortfolioProvider>
+                                                <CrankProvider>
+                                                    <Component {...pageProps} />
+                                                </CrankProvider>
+                                            </ExistingPortfolioProvider>
+                                        </UserWalletAssetsProvider>
+                                    </RpcProvider>
+                                </WalletProvider>
+                            </ConnectionProvider>
+                        </SerpiusEndpointProvider>
+                    </ItemsLoadProvider>
+                </LoadProvider>
+            </ErrorMessageProvider>
         </LocalKeypairProvider>
     );
 }

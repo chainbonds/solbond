@@ -1,5 +1,7 @@
 import {clusterApiUrl, Connection, PublicKey} from "@solana/web3.js";
 
+export const lamportsReserversForLocalWallet = 500_000;
+
 // TODO: Need to have a switch between devnet and mainnet
 export function getConnectionString(): Connection {
     let _connection;

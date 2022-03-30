@@ -69,10 +69,8 @@ export default function CreatePortfolioView({allocationItems, selectedItemKey, m
 
         return (
             <UserInfoBalance
-                currencyMint={inputToken.mint}
                 currencyName={inputToken.name}
                 currencyBalance={allocationItems.get(selectedItemKey)?.userWalletAmount?.amount.uiAmount || null}
-                solBalance={allocationItems.get(selectedItemKey)?.userWalletAmount?.amount.uiAmount || null}  // TODO: Did we pass in the SOL balance anyways ... (?)
             />
         );
     }

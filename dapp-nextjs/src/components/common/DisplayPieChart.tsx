@@ -2,17 +2,18 @@ import React, {useEffect, useState} from "react";
 import {PieChart, Pie, Cell} from "recharts";
 import {PIECHART_COLORS, RADIAN} from "../../const";
 import {AllocData} from "../../types/AllocData";
-import {Protocol} from "@qpools/sdk";
+import {Protocol, registry} from "@qpools/sdk";
 
 interface Props {
     allocationInformation: Map<string, AllocData>,
-    showPercentage: boolean
+    showPercentage: boolean,
+    displayInput: boolean
 }
 interface PieChartDataInterface {
     name: string,
     value: number
 }
-export default function DisplayPieChart({allocationInformation, showPercentage}: Props) {
+export default function DisplayPieChart({allocationInformation, showPercentage, displayInput}: Props) {
 
     const renderCustomizedLabel = ({cx, cy, midAngle, innerRadius, outerRadius, percent}: any) => {
         const radius = innerRadius + (outerRadius - innerRadius) * -0.6; // 1.05;
@@ -46,9 +47,27 @@ export default function DisplayPieChart({allocationInformation, showPercentage}:
                 return Array.from(allocationInformation.values())
                     .sort((a, b) => a.lp > b.lp ? 1 : -1)
                     .map((current: AllocData) => {
+
+                        // if display info, then set the weight to the pyth-price adjusted input usdc values ..
+                        let value: number;
+                        if (displayInput && current.userInputAmount!.amount.uiAmount) {
+                            // Do a converstion by the pyth price
+                            // TODO: Write a function which takes the uiamount and mint, and generates the USDC amount ...
+                            value = current.userInputAmount!.amount.uiAmount!;
+                            if (!value) {
+                                throw Error("Something went really wrong!");
+                            }
+                            if (current.userInputAmount!.mint.equals(registry.getNativeSolMint())) {
+                                value *= 93;
+                            }
+                            console.log("Value is: ", value);
+                        } else {
+                            value = ((100 * current.weight) / sum);
+                        }
+
                         return {
                             name: Protocol[current.protocol] + " " + current.lp,
-                            value: ((100 * current.weight) / sum)
+                            value: value
                         }
                     }
                 );

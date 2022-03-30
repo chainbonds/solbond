@@ -2,15 +2,14 @@ import React from "react";
 import {BN} from "@project-serum/anchor";
 import {IRpcProvider, useRpc} from "../../../contexts/RpcProvider";
 import {PublicKey, Transaction} from "@solana/web3.js";
-import {getInputTokens, getTokensFromPools, sendAndConfirmTransaction} from "../../../utils/utils";
+import {getInputTokens, sendAndConfirmTransaction} from "../../../utils/utils";
 import {IItemsLoad, useItemsLoad} from "../../../contexts/ItemsLoadingContext";
 import {ICrank, useCrank} from "../../../contexts/CrankProvider";
 import {ILocalKeypair, useLocalKeypair} from "../../../contexts/LocalKeypairProvider";
 import {AllocData} from "../../../types/AllocData";
 import {registry, Protocol} from "@qpools/sdk";
-import {Property} from "csstype";
-import All = Property.All;
-import {getCurrentHub} from "@sentry/hub";
+import {useErrorMessage} from "../../../contexts/ErrorMessageContext";
+import {lamportsReserversForLocalWallet} from "../../../const";
 
 // TODO: Refactor the code here ... looks a bit too redundant.
 //  Maybe try to push the logic into the sdk?
@@ -25,6 +24,7 @@ export default function PurchaseButton({allocationData}: Props) {
     const crankProvider: ICrank = useCrank();
     const localKeypairProvider: ILocalKeypair = useLocalKeypair();
     const itemLoadContext: IItemsLoad = useItemsLoad();
+    const errorMessage = useErrorMessage();
 
     /**
      *
@@ -65,6 +65,17 @@ export default function PurchaseButton({allocationData}: Props) {
         if (allocationDataAsArray.length < 1) {
             alert("Somehow no data was passed on to purchase a portfolio ...");
             return
+        }
+
+        // Before starting, make sure the user has at least some SOL ....
+        // 1_000_000_000
+        if ((await rpcProvider.connection!.getBalance(rpcProvider.userAccount!.publicKey)) < 100_000) {
+            // TODO: Gotta redirect her to Moonpay
+            errorMessage.addErrorMessage(
+                "You don't seem to have enough SOL in your wallet to execute this transaction ...",
+                String("")
+            );
+            return;
         }
 
         await itemLoadContext.addLoadItem({message: "Sign: Creating Associated Token Accounts"});
@@ -132,11 +143,20 @@ export default function PurchaseButton({allocationData}: Props) {
             rpcProvider.provider!.wallet
         );
         if (txCreateAssociateTokenAccount.instructions.length > 0) {
-            await sendAndConfirmTransaction(
-                rpcProvider._solbondProgram!.provider,
-                rpcProvider.connection!,
-                txCreateAssociateTokenAccount
-            );
+            try {
+                await sendAndConfirmTransaction(
+                    rpcProvider._solbondProgram!.provider,
+                    rpcProvider.connection!,
+                    txCreateAssociateTokenAccount
+                );
+            } catch (error) {
+                itemLoadContext.resetCounter();
+                errorMessage.addErrorMessage(
+                    "Something went wrong creating the associated token accounts",
+                    String(error)
+                );
+                return;
+            }
         }
         await itemLoadContext.incrementCounter();
 
@@ -218,9 +238,9 @@ export default function PurchaseButton({allocationData}: Props) {
             } else if (value.protocol.valueOf() === Protocol.marinade.valueOf()) {
                 let lamports = new BN(value.userInputAmount!.amount.amount);
                 if (lamports.lt(new BN(10 ** 9))) {
-                    throw Error("To utilize Marinade, you need to input at least 1SOL")
+                    errorMessage.addWarningMessage("To utilize Marinade, you need to input at least 1SOL", "You have inputted this number of lamports: " + lamports.toString());
+                    // throw Error()
                 }
-
                 let IxApprovePositionWeightMarinade = await rpcProvider.portfolioObject!.approvePositionWeightMarinade(
                     currencyAmount,
                     index,
@@ -241,18 +261,27 @@ export default function PurchaseButton({allocationData}: Props) {
         // This much SOL should suffice for now probably ...
         let IxSendToCrankWallet = await rpcProvider.portfolioObject!.sendToCrankWallet(
             localKeypairProvider.localTmpKeypair!.publicKey,
-            50_000_000
+            lamportsReserversForLocalWallet
         );
         tx.add(IxSendToCrankWallet);
         console.log("Sending and signing the transaction");
         console.log("Provider is: ");
         console.log(rpcProvider._solbondProgram!.provider);
         console.log(rpcProvider._solbondProgram!.provider.wallet.publicKey.toString());
-        await sendAndConfirmTransaction(
-            rpcProvider._solbondProgram!.provider,
-            rpcProvider.connection!,
-            tx
-        );
+        try {
+            await sendAndConfirmTransaction(
+                rpcProvider._solbondProgram!.provider,
+                rpcProvider.connection!,
+                tx
+            );
+        } catch (error) {
+            itemLoadContext.resetCounter();
+            errorMessage.addErrorMessage(
+                "Something went wrong creating the portfolio",
+                String(error)
+            );
+            return;
+        }
         await itemLoadContext.incrementCounter();
 
         /************************************************************************************
@@ -268,15 +297,38 @@ export default function PurchaseButton({allocationData}: Props) {
             console.log("Fulfilling permissionles ...");
             console.log(value);
             if (value.protocol.valueOf() === Protocol.saber.valueOf()) {
-                let sgPermissionlessFullfillSaber = await crankProvider.crankRpcTool!.permissionlessFulfillSaber(index);
-                console.log("Fulfilled sg Saber is: ", sgPermissionlessFullfillSaber);
+                try {
+                    let sgPermissionlessFullfillSaber = await crankProvider.crankRpcTool!.permissionlessFulfillSaber(index);
+                    console.log("Fulfilled sg Saber is: ", sgPermissionlessFullfillSaber);
+                } catch (error) {
+                    itemLoadContext.resetCounter();
+                    errorMessage.addErrorMessage(
+                        "Fulfilling the Saber Protocol failed.",
+                        String(error)
+                    );
+                    return;
+                }
             } else if (value.protocol.valueOf() === Protocol.marinade.valueOf()) {
-                let sgPermissionlessFullfillMarinade = await crankProvider.crankRpcTool!.createPositionMarinade(index);
-                console.log("Fulfilled sg Marinade is: ", sgPermissionlessFullfillMarinade);
+                try {
+                    let sgPermissionlessFullfillMarinade = await crankProvider.crankRpcTool!.createPositionMarinade(index);
+                    console.log("Fulfilled sg Marinade is: ", sgPermissionlessFullfillMarinade);
+                } catch (error) {
+                    itemLoadContext.resetCounter();
+                    errorMessage.addErrorMessage(
+                        "Fulfilling the Marinade Protocol failed.",
+                        String(error)
+                    );
+                    return;
+                }
             } else {
                 console.log("Not all cranks could be fulfilled!!");
                 console.log(value);
-                throw Error("Not all cranks could be fulfilled!! " + JSON.stringify(value));
+                // throw Error("Not all cranks could be fulfilled!! " + JSON.stringify(value));
+                errorMessage.addErrorMessage(
+                    "Some Protocol outside has been specified!",
+                    "Not all cranks have been fulfilled, this protocool was not found: " + JSON.stringify(value)
+                );
+                return;
             }
             return;
         }));

@@ -6,6 +6,7 @@ import {AllocData} from "../types/AllocData";
 import {IRpcProvider, useRpc} from "./RpcProvider";
 import {ISerpius, useSerpiusEndpoint} from "./SerpiusProvider";
 import {BN} from "@project-serum/anchor";
+import {lamportsReserversForLocalWallet} from "../const";
 
 
 export interface IUserWalletAssets {
@@ -87,12 +88,14 @@ export function UserWalletAssetsProvider(props: any) {
                     // i.e. for marinade it could turn the unwrapped SOL into wrapped SOL or so .. and then unwrap it again.
                     // the user would have to sign for this so it's not entirely feasible
                     let solBalance: BN = new BN (await rpcProvider.connection!.getBalance(rpcProvider.userAccount!.publicKey));
+                    console.log("solbalance before ", solBalance);
                     userBalance = {
                         amount: solBalance.toString(),
                         decimals: 9,
-                        uiAmount: (solBalance.toNumber() / (10 ** 9)),
-                        uiAmountString: ((solBalance.toNumber() / (10 ** 9))).toString()
+                        uiAmount: Math.max(((solBalance.toNumber() - lamportsReserversForLocalWallet) / (10 ** 9)), 0.0),
+                        uiAmountString: Math.max((((solBalance.toNumber() - lamportsReserversForLocalWallet) / (10 ** 9)))).toString()
                     };
+                    console.log("solbalanc eafter ... ")
                 } else {
                     console.log("Mint is: ", mint.toString(), ata.toString());
                     userBalance = (await rpcProvider.connection!.getTokenAccountBalance(ata)).value;

@@ -52,6 +52,7 @@ export const ViewWalletNotConnected = ({}: Props) => {
                     <DisplayPieChart
                         showPercentage={false}
                         allocationInformation={allocationData}
+                        displayInput={false}
                     />
                 </div>
                 <div className="flex flex-col text-gray-300 my-auto divide-y divide-white">

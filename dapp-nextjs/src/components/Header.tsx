@@ -2,6 +2,7 @@ import React, {FC} from "react";
 import {LogoWithTitle} from "./common/LogoWithTitle";
 import ConnectWalletButton from "./common/ConnectWalletButton";
 import {FaucetButton} from "./createPortfolio/buttons/FaucetButton";
+import {DevnetButton} from "./createPortfolio/buttons/DevnetButton";
 
 export const Header: FC = ({}) => {
 
@@ -23,6 +24,11 @@ export const Header: FC = ({}) => {
                         <div className={"flex flex-col md:flex-row"}>
                             <div className={"px-2 py-2 mx-auto md:py-0 md:py-auto md:my-auto"}>
                                 <FaucetButton/>
+                            </div>
+                            <div className={"px-2 py-2 mx-auto md:py-0 md:py-auto md:my-auto text-center justify-center"}>
+                                <div className={"mr-2"}>
+                                    <DevnetButton />
+                                </div>
                             </div>
                             <ConnectWalletButton/>
                         </div>

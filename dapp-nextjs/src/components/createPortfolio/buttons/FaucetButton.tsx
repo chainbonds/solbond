@@ -7,11 +7,13 @@ import {Connection, Transaction} from "@solana/web3.js";
 import {Token, TOKEN_PROGRAM_ID} from "@solana/spl-token";
 import {useLoad} from "../../../contexts/LoadingContext";
 import {createAssociatedTokenAccountSendUnsigned, MOCK} from "@qpools/sdk";
+import {useErrorMessage} from "../../../contexts/ErrorMessageContext";
 
 export const FaucetButton: FC = ({}) => {
 
     const rpcProvider: IRpcProvider = useRpc();
     const loadContext = useLoad();
+    const errorMessage = useErrorMessage();
 
     // Onclick, alert that the user must connect his wallet first!
     const faucetAssets = async () => {
@@ -29,9 +31,16 @@ export const FaucetButton: FC = ({}) => {
 
         // Airdrop some solana first, to make sure we can run this transaction ...
         if ((await rpcProvider.connection!.getBalance(rpcProvider.userAccount!.publicKey)) <= 5e9) {
-            let tx0 = await rpcProvider.connection!.requestAirdrop(rpcProvider.userAccount!.publicKey, 1e9 + 2e8);
-            await rpcProvider.connection!.confirmTransaction(tx0, 'finalized');
-            console.log("Airdropped 1 SOL!");
+            try {
+                let tx0 = await rpcProvider.connection!.requestAirdrop(rpcProvider.userAccount!.publicKey, 1e9 + 2e8);
+                await rpcProvider.connection!.confirmTransaction(tx0, 'finalized');
+                console.log("Airdropped 1 SOL!");
+            } catch (error) {
+                errorMessage.addErrorMessage(
+                    "Something went wrong airdropping SOL. Please check with your RPC provider!",
+                    String(error)
+                );
+            }
         }
 
         // TODO: Generate a USDC account
@@ -101,22 +110,25 @@ export const FaucetButton: FC = ({}) => {
         transaction.recentBlockhash = blockhash.blockhash;
         let connection: Connection = rpcProvider.connection!;
         console.log("Added connection");
-        const tx1 = await connection.sendTransaction(
-            transaction,
-            [airdropAdmin]
-        );
-        console.log("Added transaction");
-        await connection.confirmTransaction(tx1);
-        console.log("Should have received: ", airdropAmount.toNumber());
-        console.log("Airdropped tokens! ", airdropAmount.toString());
+        try {
+            const tx1 = await connection.sendTransaction(
+                transaction,
+                [airdropAdmin]
+            );
+            console.log("Added transaction");
+            await connection.confirmTransaction(tx1);
+            console.log("Should have received: ", airdropAmount.toNumber());
+            console.log("Airdropped tokens! ", airdropAmount.toString());
+        } catch (error) {
+            errorMessage.addErrorMessage(
+                "Something went wrong minting the tokens to your Wallet",
+                String(error)
+            );
+        }
 
         await rpcProvider.makePriceReload();
-
         await loadContext.decreaseCounter();
     };
-
-    // TODO: If the rpc provider is not loaded, should prob render something else ...(?)
-
 
     return (
         <>
