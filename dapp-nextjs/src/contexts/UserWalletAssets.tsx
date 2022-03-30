@@ -93,7 +93,7 @@ export function UserWalletAssetsProvider(props: any) {
                         amount: solBalance.toString(),
                         decimals: 9,
                         uiAmount: Math.max(((solBalance.toNumber() - lamportsReserversForLocalWallet) / (10 ** 9)), 0.0),
-                        uiAmountString: Math.max((((solBalance.toNumber() - lamportsRgeserversForLocalWallet) / (10 ** 9)))).toString()
+                        uiAmountString: Math.max((((solBalance.toNumber() - lamportsReserversForLocalWallet) / (10 ** 9)))).toString()
                     };
                     console.log("solbalanc eafter ... ")
                 } else {
