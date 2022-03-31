@@ -21,10 +21,11 @@ interface Props {
     tableColumns: (string | null)[],
     selectedAssets: Map<string, AllocData>,
     selectedAsset: string | null,
-    setSelectedAsset: React.Dispatch<React.SetStateAction<string>> | null
+    setSelectedAsset: React.Dispatch<React.SetStateAction<string>> | null,
+    assetChooseable: boolean
 }
 
-export default function SuggestedPortfolioTable({tableColumns, selectedAssets, selectedAsset, setSelectedAsset}: Props) {
+export default function SuggestedPortfolioTable({tableColumns, selectedAssets, selectedAsset, setSelectedAsset, assetChooseable}: Props) {
 
     // Instead of the raw pubkeys, store the pyth ID, and then you can look up the price using the pyth sdk ..
     // Much more sustainable also in terms of development
@@ -37,16 +38,18 @@ export default function SuggestedPortfolioTable({tableColumns, selectedAssets, s
     useEffect(() => {
         // Selected Asset should be zero if nothing is there ...
         // if (!selectedAssets) return;
-        let sum = Array.from(selectedAssets.values()).reduce((sum: number, current: AllocData) => sum + current.weight, 0);
+        // let sum = Array.from(selectedAssets.values()).reduce((sum: number, current: AllocData) => sum + current.usdcAmount, 0);
         setPieChartData((old: ChartableItemType[]) => {
                 let out: ChartableItemType[] = [];
+
+                // Change this to async map (?)
                 selectedAssets.forEach((current: AllocData, key: string) => {
                     let tmp = {
                         key: key,
                         name: Protocol[current.protocol].charAt(0).toUpperCase() + Protocol[current.protocol].slice(1) + " " + current.lp,
-                        value: ((100 * current.weight) / sum),
+                        value: current.usdcAmount,
                         apy_24h: current.apy_24h,
-                        pool: registry.getPoolFromSplStringId(current.lp),
+                        pool: current.pool,
                         allocationItem: current
                     }
                     out.push(tmp)
@@ -70,7 +73,9 @@ export default function SuggestedPortfolioTable({tableColumns, selectedAssets, s
             )
         }
 
+        console.log("Converting display token to this: ", item);
         let displayTokens: DisplayToken[] = displayTokensFromChartableAsset(item);
+        console.log("Converting display token to this: (2) ", item);
 
         let mintLP = new PublicKey(item.pool!.lpToken.address);
 
@@ -80,12 +85,12 @@ export default function SuggestedPortfolioTable({tableColumns, selectedAssets, s
 
         // Should prob make the types equivalent. Should clean up all types in the front-end repo
         let tailwindOnSelected = "dark:bg-gray-800";
-        if (setSelectedAsset) {
+        if (setSelectedAsset && assetChooseable) {
             tailwindOnSelected += " hover:bg-gray-900"
         }
         // TODO: Perhaps it's easier to just hardcode it ...
         // TODO: This shouldn't make any sense ... obviously the LP is not equivalent to the item name
-        if (item.key === selectedAsset) {
+        if (item.key === selectedAsset && assetChooseable) {
             console.log("Matching indeed ...");
             tailwindOnSelected = "dark:bg-gray-900 hover:bg-gray-900";
         } else {
@@ -97,6 +102,9 @@ export default function SuggestedPortfolioTable({tableColumns, selectedAssets, s
         // Get (the name for) the asset to be inputted ...
         let inputToken: SelectedToken = getInputToken(item.pool.tokens);
         let inputTokenLink: string = registry.getIconFromToken(inputToken.mint);
+
+        // Add a counter here, depending on how many props there are in the object lol
+        // TODO: Solve this more elegantly ...
 
         return (
                 <tr
@@ -115,7 +123,7 @@ export default function SuggestedPortfolioTable({tableColumns, selectedAssets, s
                     }}
                 >
                     {/* Show the icons next to this ... */}
-                    <td className="py-4 px-6 text-sm text--center font-normal text-gray-900 whitespace-nowrap dark:text-gray-100">
+                    <td className="py-4 lg:px-6 text-sm text--center font-normal text-gray-900 whitespace-nowrap dark:text-gray-100">
                         <div className="flex items-center">
                             <div className="ml-4">
                                 <div
@@ -125,21 +133,22 @@ export default function SuggestedPortfolioTable({tableColumns, selectedAssets, s
                             </div>
                         </div>
                     </td>
-                    <td className="py-4 px-6 text-sm text-center font-normal text-gray-500 whitespace-nowrap dark:text-gray-100">
+                    <td className="py-4 lg:px-6 text-sm text-center font-normal text-gray-500 whitespace-nowrap dark:text-gray-100">
                         <a href={solscanLink(inputToken.mint)} target={"_blank"} rel="noreferrer"
                            className="text-blue-600 dark:text-blue-400 hover:underline">
                             <Image className={"rounded-3xl"} src={inputTokenLink} width={30} height={30}/>
                         </a>
                     </td>
-                    <td className="py-4 px-6 text-sm text-center font-normal text-gray-500 whitespace-nowrap dark:text-gray-100">
-                        <a href={solscanLink(mintLP)} target={"_blank"} rel="noreferrer"
-                            // text-blue-600 dark:text-blue-500
-                           className="hover:underline">
-                            {/*{shortenedAddressString(mintLP)}*/}
-                            {item.name}
-                        </a>
+                    <td className="py-4 lg:px-6 text-sm text-center font-normal text-gray-500 whitespace-nowrap dark:text-gray-100">
+                        <div className={"flex flex-row"}>
+                            <a href={solscanLink(mintLP)} target={"_blank"} rel="noreferrer"
+                               className="hover:underline">
+                                {/*{shortenedAddressString(mintLP)}*/}
+                                {item.name}
+                            </a>
+                        </div>
                     </td>
-                    <td className="py-4 px-6 text-sm text-center font-normal text-gray-500 whitespace-nowrap dark:text-gray-100">
+                    <td className="py-4 lg:px-6 text-sm text-center font-normal text-gray-500 whitespace-nowrap dark:text-gray-100">
                         {displayTokens.map((displayToken: DisplayToken) => {
                             return (
                                 <a key={Math.random()} href={displayToken.tokenSolscanLink} target={"_blank"} rel="noreferrer"
@@ -149,43 +158,50 @@ export default function SuggestedPortfolioTable({tableColumns, selectedAssets, s
                             )
                         })}
                     </td>
-                    <td className="py-4 px-6 text-sm text-center font-normal whitespace-nowrap dark:text-gray-100">
+                    <td className="py-4 lg:px-6 text-sm text-center font-normal whitespace-nowrap dark:text-gray-100">
                         {item.value.toFixed(0)}%
                     </td>
-                    <td className="py-4 px-6 text-sm text-center whitespace-nowrap">
+                    <td className="py-4 lg:px-6 text-sm text-center whitespace-nowrap">
                         {(item.apy_24h).toFixed(1)}%
                     </td>
-                    {(item.allocationItem && item.allocationItem?.userInputAmount?.amount) &&
-                    <td className="py-4 px-6 text-sm text-center whitespace-nowrap">
-                        {/* inputToken.name */}
-                        {item.allocationItem?.userInputAmount?.amount.uiAmount && (item.allocationItem?.userInputAmount?.amount.uiAmount).toFixed(2)}
-                    </td>
+                    {(item.allocationItem && item.allocationItem?.userInputAmount?.amount && tableColumns.length > 5) &&
+                        <td className="py-4 lg:px-6 text-sm text-center whitespace-nowrap">
+                            {/* inputToken.name */}
+                            {item.allocationItem?.userInputAmount?.amount.uiAmount && (item.allocationItem?.userInputAmount?.amount.uiAmount).toFixed(2)}
+                        </td>
+                    }
+                    {(item.allocationItem && item.allocationItem.usdcAmount && tableColumns.length > 6) &&
+                        <td className="py-4 lg:px-6 text-sm text-center whitespace-nowrap">
+                            {/* inputToken.name */}
+                            {item.allocationItem?.usdcAmount && (item.allocationItem?.usdcAmount).toFixed(2)}
+                        </td>
                     }
                 </tr>
         )
     }
 
-
     return (
         <>
-            <div className="flex flex-col">
-                <div className="overflow-x-auto w-full">
-                    <div className="inline-block pb-2 min-w-full">
-                        <div className="overflow-hidden shadow-md sm:rounded-lg">
-                            <table className="min-w-full"
-                                   key={Math.random()}
-                            >
-                                {/* + pieChartData[0].value */}
-                                <TableHeader
-                                    key={Math.random()}
-                                    columns={pieChartData ? tableColumns : tableColumns.slice(0, tableColumns.length - 1)}/>
-                                <tbody
-                                    key={Math.random()}>
-                                    {pieChartData.map((position: ChartableItemType, index: number) => tableSingleRow(position, index))}
-                                </tbody>
-                            </table>
-                        </div>
+            <div className="moverflow-x-scroll lg:overflow-hidden ">
+                {/*inline-block*/}
+                <div className="pb-2 min-w-full overflow-x-scroll">
+                    {/* hidden lg:block */}
+                    <div className="shadow-md rounded-md overflow-x-scroll">
+                        <table className="min-w-full"
+                               key={Math.random()}
+                        >
+                            {/* + pieChartData[0].value */}
+                            <TableHeader
+                                key={Math.random()}
+                                columns={pieChartData ? tableColumns : tableColumns.slice(0, tableColumns.length - 1)}/>
+                            <tbody
+                                key={Math.random()}>
+                                {pieChartData.map((position: ChartableItemType, index: number) => tableSingleRow(position, index))}
+                            </tbody>
+                        </table>
                     </div>
+                    {/*<div className={"grid grid-cols-1 gap-4 lg:hidden"} >*/}
+                    {/*</div>*/}
                 </div>
             </div>
         </>

@@ -30,20 +30,6 @@ export function ErrorMessageProvider(props: any) {
 
     const [errorMessages, setErrorMessages] = useState<Map<string, ErrorMessage>>(new Map<string, ErrorMessage>());
 
-    // For testing purposes, add some keys at the beginning ..
-    // useEffect(()  => {
-    //     setErrorMessages((oldErrorMessages: Map<string, ErrorMessage>) => {
-    //         let updatedMap = new Map<string, ErrorMessage>(oldErrorMessages);
-    //         let errorMessage: ErrorMessage = {
-    //             title: "Error",
-    //             subtitle: "Some description on this error without going into too much detail!",
-    //             message: "Lorem Ipsum!!"
-    //         };
-    //         updatedMap.set("Some Error", errorMessage);
-    //         return updatedMap;
-    //     });
-    // }, []);
-
     const addWarningMessage = (messageId: string, description: string, detailedMessage: string) => {
         setErrorMessages((oldErrorMessages: Map<string, ErrorMessage>) => {
             let updatedMap = new Map<string, ErrorMessage>(oldErrorMessages);

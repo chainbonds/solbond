@@ -42,29 +42,12 @@ export default function DisplayPieChart({allocationInformation, showPercentage, 
             return;
         }
 
-        let sum = Array.from(allocationInformation.values()).reduce((sum: number, current: AllocData) => sum + current.weight, 0);
+        // let sum = Array.from(allocationInformation.values()).reduce((sum: number, current: AllocData) => sum + current.usdcAmount, 0);
         setPieChartData((_: any) => {
                 return Array.from(allocationInformation.values())
                     .sort((a, b) => a.lp > b.lp ? 1 : -1)
                     .map((current: AllocData) => {
-
-                        // if display info, then set the weight to the pyth-price adjusted input usdc values ..
-                        let value: number;
-                        if (displayInput && current.userInputAmount!.amount.uiAmount) {
-                            // Do a converstion by the pyth price
-                            // TODO: Write a function which takes the uiamount and mint, and generates the USDC amount ...
-                            value = current.userInputAmount!.amount.uiAmount!;
-                            if (!value) {
-                                throw Error("Something went really wrong!");
-                            }
-                            if (current.userInputAmount!.mint.equals(registry.getNativeSolMint())) {
-                                value *= 93;
-                            }
-                            console.log("Value is: ", value);
-                        } else {
-                            value = ((100 * current.weight) / sum);
-                        }
-
+                        let value = current.usdcAmount!;  // current.userInputAmount!.amount.uiAmount!;
                         return {
                             name: Protocol[current.protocol] + " " + current.lp,
                             value: value

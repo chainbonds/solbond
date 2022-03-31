@@ -19,10 +19,16 @@ export default function InputFieldWithSliderInputAndLogo({allocationItems, selec
     const [inputValue, setInputValue] = useState<number>(0.);
 
     useEffect(() => {
+        if (allocationItems.get(selectedItemKey)!.userInputAmount!.amount!.uiAmount!) {
+            setValue(allocationItems.get(selectedItemKey)!.userInputAmount!.amount!.uiAmount!);
+        }
+    }, []);
+
+    useEffect(() => {
         if (allocationItems.has(selectedItemKey) && allocationItems.get(selectedItemKey)?.userInputAmount && allocationItems.get(selectedItemKey)!.userInputAmount!.amount.uiAmount) {
             setValue(allocationItems.get(selectedItemKey)!.userInputAmount!.amount!.uiAmount!);
         }
-    }, [allocationItems, selectedItemKey]);
+    }, [selectedItemKey]);  // allocationItems,
     useEffect(() => {
         setValue(sliderValue);
     }, [sliderValue]);

@@ -6,12 +6,14 @@ import {AllocData} from "../types/AllocData";
 import {BN} from "@project-serum/anchor";
 import {UserTokenBalance} from "../types/UserTokenBalance";
 import {IUserWalletAssets, useUserWalletAssets} from "../contexts/UserWalletAssets";
-import {Protocol} from "@qpools/sdk";
+import {Protocol, registry} from "@qpools/sdk";
+import {TokenAmount} from "@solana/web3.js";
+import {getTokenAmount} from "../utils/utils";
 
 export const ViewWalletConnectedCreatePortfolio = ({}) => {
 
     const userWalletAssetsProvider: IUserWalletAssets = useUserWalletAssets();
-    const [allocationData, setAllocationData] = useState<Map<string, AllocData>>(new Map());
+    const [allocationData, setAllocationData] = useState<Map<string, AllocData>>(new Map<string, AllocData>());
     const [selectedAsset, setSelectedAsset] = useState<string>("");
 
     useEffect(() => {
@@ -25,11 +27,9 @@ export const ViewWalletConnectedCreatePortfolio = ({}) => {
      * Set the Portfolio to resemble the user's Wallet
      */
     useEffect(() => {
-        // TODO: If the user has no assets (!), then ask him if he wants to buy some crypto
-        // Yet another option would be to load the assets from the portfolio position ...
         if (
             userWalletAssetsProvider.walletAssets &&
-            userWalletAssetsProvider.walletAssets.length > 0 &&
+            userWalletAssetsProvider.walletAssets.size > 0 &&
             allocationData.size < 1
         ) {
             setAllocationData((_: Map<string, AllocData>) => {
@@ -37,7 +37,7 @@ export const ViewWalletConnectedCreatePortfolio = ({}) => {
                 let out: Map<string, AllocData> = new Map<string, AllocData>();
                 // Take the wallet assets at spin-up,
                 // After that, take the user input assets ...
-                userWalletAssetsProvider.walletAssets!.map((x: AllocData) => {
+                Array.from(userWalletAssetsProvider.walletAssets!.values()).map((x: AllocData) => {
                     let key: string = Protocol[x.protocol] + " " + x.lp;
                     out.set(key, x);
                 });
@@ -66,28 +66,30 @@ export const ViewWalletConnectedCreatePortfolio = ({}) => {
         }
         let currentlySelectedAsset: AllocData = {...allocationData.get(currentlySelectedKey)!};
 
-        // TODO: Gotta find a way to deal with the absolute balance ...
-        let numberInclDecimals = (new BN(absoluteBalance * (10 ** currentlySelectedAsset.userInputAmount!.amount.decimals)));
-        let uiAmount = (numberInclDecimals.toNumber() / (10 ** currentlySelectedAsset.userInputAmount!.amount.decimals));
+        let numberInclDecimals: BN = (new BN(absoluteBalance * (10 ** currentlySelectedAsset.userInputAmount!.amount.decimals)));
+        let tokenAmount: TokenAmount = getTokenAmount(numberInclDecimals, currentlySelectedAsset.userInputAmount!.amount.decimals);
 
         let userInputAmount: UserTokenBalance = {
             mint: currentlySelectedAsset.userInputAmount!.mint,
             ata: currentlySelectedAsset.userInputAmount!.ata,
-            amount: {
-                amount: numberInclDecimals.toString(),
-                decimals: currentlySelectedAsset.userInputAmount!.amount.decimals,
-                uiAmount: uiAmount,
-                uiAmountString: String(uiAmount)
-            }
+            amount: tokenAmount
         };
+
+        // re-calculate the usdc value according to the mint and input amount
+        let usdcAmount = registry.multiplyAmountByPythprice(
+            userInputAmount.amount.uiAmount!,
+            userInputAmount.mint
+        );
+
         let newAsset: AllocData = {
+            weight: currentlySelectedAsset.weight,
             apy_24h: currentlySelectedAsset.apy_24h,
             lp: currentlySelectedAsset.lp,
             pool: currentlySelectedAsset.pool,
             protocol: currentlySelectedAsset.protocol,
             userInputAmount: userInputAmount,
             userWalletAmount: currentlySelectedAsset.userWalletAmount,
-            weight: currentlySelectedAsset.weight
+            usdcAmount: usdcAmount
         };
 
         // Now set the stuff ...
@@ -106,43 +108,39 @@ export const ViewWalletConnectedCreatePortfolio = ({}) => {
     console.log("Allocation Data is: ", allocationData, selectedAsset);
 
     return (
-        <>
-            <div className={"flex flex-row w-full"}>
-                <h1 className={"text-3xl font-light"}>
-                    Please Select Your Portfolio
-                </h1>
-            </div>
-            <div className={"flex flex-row mt-2"}>
-                <h2 className={"text-2xl font-light"}>
-                    This will be the allocation in which your assets generate yields
-                </h2>
-            </div>
-            <div className={"flex flex-row mt-8"}>
-                <div className={"flex my-auto mx-auto p-8"}>
+        <div className={"flex flex-col text-center lg:text-left"}>
+            <h1 className={"text-3xl font-light"}>
+                Please Select Your Portfolio
+            </h1>
+            <h2 className={"text-2xl font-light"}>
+                This will be the allocation in which your assets generate yields
+            </h2>
+            <div className={"flex flex-col lg:flex-row mt-8"}>
+                <div className={"my-auto mx-auto p-8"}>
                     <DisplayPieChart
                         showPercentage={false}
                         allocationInformation={allocationData}
                         displayInput={true}
                     />
                 </div>
-                <div className="flex flex-col text-gray-300 my-auto divide-y divide-white">
+                <div className="my-auto">
                     <SuggestedPortfolioTable
-                        tableColumns={[null, "Pay-In Asset", "Product", "Underlying Asset", "Allocation", "24H APY", "Absolute Amount"]}
+                        tableColumns={[null, "Currency", "Product", "Exposure", "Allocation", "24H APY", "Amount", "USDC Value"]}
                         selectedAssets={allocationData}
                         selectedAsset={selectedAsset}
                         setSelectedAsset={setSelectedAsset}
-                        // modifyAllocationData={modifyIndividualAllocationItem}
+                        assetChooseable={true}
                     />
                 </div>
             </div>
-            <div className={"flex flex-row my-auto mt-7"}>
+            <div className={"my-auto mt-7"}>
                 <CreatePortfolioView
                     allocationItems={allocationData}
                     selectedItemKey={selectedAsset}
                     modifyIndividualAllocationItem={modifyIndividualAllocationItem}
                 />
             </div>
-        </>
+        </div>
     )
 
 }

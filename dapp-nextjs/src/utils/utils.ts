@@ -1,8 +1,9 @@
 import {Connection, PublicKey, Transaction} from "@solana/web3.js";
-import {Provider} from "@project-serum/anchor";
+import {BN, Provider} from "@project-serum/anchor";
 import {ChartableItemType} from "../types/ChartableItemType";
 import {DisplayToken} from "../types/DisplayToken";
 import {ProtocolType, PositionInfo, registry} from "@qpools/sdk";
+import {lamportsReserversForLocalWallet} from "../const";
 
 /**
  * Perhaps a really stupid object. Should prob just use the registry.ExplicitToken object.
@@ -11,6 +12,15 @@ import {ProtocolType, PositionInfo, registry} from "@qpools/sdk";
 export interface SelectedToken {
     name: string,
     mint: PublicKey
+}
+
+export const getTokenAmount = (x: BN, decimals: number) => {
+    return {
+        amount: x.toString(),
+        decimals: decimals,
+        uiAmount: Math.max(((x.toNumber() - lamportsReserversForLocalWallet) / (10 ** decimals)), 0.0),
+        uiAmountString: Math.max((((x.toNumber() - lamportsReserversForLocalWallet) / (10 ** decimals)))).toString()
+    };
 }
 
 export const getTokensFromPools = (selectedAssetPools: registry.ExplicitPool[]): [registry.ExplicitPool, registry.ExplicitToken][] => {

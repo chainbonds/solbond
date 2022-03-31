@@ -151,6 +151,7 @@ export default function PurchaseButton({allocationData}: Props) {
                 );
             } catch (error) {
                 itemLoadContext.resetCounter();
+                console.log(String(error));
                 errorMessage.addErrorMessage(
                     "Something went wrong creating the associated token accounts",
                     String(error)
@@ -215,17 +216,16 @@ export default function PurchaseButton({allocationData}: Props) {
             if (value.protocol.valueOf() === Protocol.saber.valueOf()) {
 
                 // Make sure that the input mint is not Native SOL
-
                 let IxRegisterCurrencyInput = await rpcProvider.portfolioObject!.registerCurrencyInputInPortfolio(
                     currencyAmount,
-                    currencyMint // Is the mint here the currency ... (?). If not, then replace this by getInputTokens from pool ... // Or fix this root-level
+                    currencyMint
                 );
                 tx.add(IxRegisterCurrencyInput);
 
                 let IxApprovePositionWeightSaber = await rpcProvider.portfolioObject!.approvePositionWeightSaber(
                     lpAddress,
                     currencyAmount,
-                    new BN(0),  // Will be flipped in the backend .. // Shoudl probably remove the tokenB argument ...
+                    new BN(0),  // Will be flipped in the backend .. // Should probably remove the tokenB argument ...
                     new BN(0),
                     index,  // Hardcoded
                     weight
@@ -302,6 +302,7 @@ export default function PurchaseButton({allocationData}: Props) {
                     console.log("Fulfilled sg Saber is: ", sgPermissionlessFullfillSaber);
                 } catch (error) {
                     itemLoadContext.resetCounter();
+                    console.log(String(error));
                     errorMessage.addErrorMessage(
                         "Fulfilling the Saber Protocol failed.",
                         String(error)
@@ -314,6 +315,7 @@ export default function PurchaseButton({allocationData}: Props) {
                     console.log("Fulfilled sg Marinade is: ", sgPermissionlessFullfillMarinade);
                 } catch (error) {
                     itemLoadContext.resetCounter();
+                    console.log(String(error));
                     errorMessage.addErrorMessage(
                         "Fulfilling the Marinade Protocol failed.",
                         String(error)

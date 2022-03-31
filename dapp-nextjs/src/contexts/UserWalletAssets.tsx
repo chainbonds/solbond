@@ -6,15 +6,15 @@ import {AllocData} from "../types/AllocData";
 import {IRpcProvider, useRpc} from "./RpcProvider";
 import {ISerpius, useSerpiusEndpoint} from "./SerpiusProvider";
 import {BN} from "@project-serum/anchor";
-import {lamportsReserversForLocalWallet} from "../const";
+import {getTokenAmount} from "../utils/utils";
 
 
 export interface IUserWalletAssets {
-    walletAssets: AllocData[] | undefined
+    walletAssets: Map<string, AllocData>
 }
 
 const defaultValue: IUserWalletAssets = {
-    walletAssets: undefined
+    walletAssets: new Map<string, AllocData>()
 }
 
 const UserWalletAssetsContext = React.createContext<IUserWalletAssets>(defaultValue);
@@ -31,7 +31,7 @@ export function UserWalletAssetsProvider(props: any) {
     /**
      * Generic state for RPC Calls
      */
-    const [walletAssets, setWalletAssets] = useState<AllocData[]>([]);
+    const [walletAssets, setWalletAssets] = useState<Map<string, AllocData>>(new Map<string, AllocData>());
 
     // TODO: We should both set the portfolio ratio's here
     // We should also set the user's walet ratio's here ...
@@ -49,7 +49,7 @@ export function UserWalletAssetsProvider(props: any) {
     const updateUserAssetsAndRatiosAfterConnecting = async () => {
         console.log("#updateUserAssetsAndRatiosAfterConnecting()");
 
-        let newAllocData: AllocData[] = [];
+        let newAllocData: Map<string, AllocData> = new Map<string, AllocData>();
 
         if (!rpcProvider.userAccount || !rpcProvider.connection) {
             return
@@ -59,16 +59,15 @@ export function UserWalletAssetsProvider(props: any) {
         // (1) Get all token accounts owned that we get from the serpius API ...
         // .filter((item, index) => {return portfolioRatios.indexOf(item) === index})
         // TODO: Remove duplicates with this filter ...
-        await Promise.all(serpiusProvider.portfolioRatios.map(async (fetchedPool: AllocData) => {
+        await Promise.all(Array.from(serpiusProvider.portfolioRatios.values()).map(async (fetchedPool: AllocData) => {
             console.log("Iterating through pool: ", fetchedPool)
 
             // Now we have the pool
             // When are the tokens not defined ...
-            let tokens: registry.ExplicitToken[] | undefined = fetchedPool.pool?.tokens;
-            if (!tokens) {
-                return;
-            }
+            let tokens: registry.ExplicitToken[] = fetchedPool.pool.tokens;
             await Promise.all(tokens.map(async (token: registry.ExplicitToken) => {
+
+                // Gotta get the input tokens ...
 
                 // Do a whitelist here which assets we accept ...
                 if (registry.getWhitelistTokens().filter((x: string) => x === token.address).length === 0) {
@@ -82,20 +81,10 @@ export function UserWalletAssetsProvider(props: any) {
                 // Let's assume that if the token is wrapped solana, that we can also include the pure solana into this .
                 let userBalance: TokenAmount;
                 if (mint.equals(registry.getNativeSolMint())) {
-                    // TODO: refactor this into a util function or so ...
-                    // This is quite hacky. How do we treat the wrapping / unrapping for this?
-                    // Probably something like a transformer function would be nice for different protocols,
-                    // i.e. for marinade it could turn the unwrapped SOL into wrapped SOL or so .. and then unwrap it again.
-                    // the user would have to sign for this so it's not entirely feasible
                     let solBalance: BN = new BN (await rpcProvider.connection!.getBalance(rpcProvider.userAccount!.publicKey));
                     console.log("solbalance before ", solBalance);
-                    userBalance = {
-                        amount: solBalance.toString(),
-                        decimals: 9,
-                        uiAmount: Math.max(((solBalance.toNumber() - lamportsReserversForLocalWallet) / (10 ** 9)), 0.0),
-                        uiAmountString: Math.max((((solBalance.toNumber() - lamportsReserversForLocalWallet) / (10 ** 9)))).toString()
-                    };
-                    console.log("solbalanc eafter ... ")
+                    userBalance = getTokenAmount(solBalance, 9);
+                    console.log("solbalance after ... ")
                 } else {
                     console.log("Mint is: ", mint.toString(), ata.toString());
                     userBalance = (await rpcProvider.connection!.getTokenAccountBalance(ata)).value;
@@ -103,35 +92,18 @@ export function UserWalletAssetsProvider(props: any) {
                 }
                 let newPool: AllocData = {
                     ...fetchedPool,
-                    userInputAmount: {
-                        mint: mint,
-                        ata: ata,
-                        amount: userBalance
-                    },
-                    userWalletAmount: {
-                        mint: mint,
-                        ata: ata,
-                        amount: {...userBalance}
-                    }
+                    userInputAmount: {mint: mint, ata: ata, amount: userBalance},
+                    userWalletAmount: {mint: mint, ata: ata, amount: userBalance}
                 }
 
-                // also overwrite the weight to be the user's estimated USDC balance for this token ...
-                // convert by pyth price, maybe
-                // Convert by pyth price,
-                // for now, hardcoding is enough, because we haven't started converting by the pyth price yet ...
                 // TODO: Replace this with pyth price oracles !
-                if (newPool.userInputAmount!.mint.equals(new PublicKey("So11111111111111111111111111111111111111112"))) {
-                    newPool.weight = newPool.userInputAmount!.amount.uiAmount! * 93.;
-                } else {
-                    console.log("Assuming USDC...");
-                    newPool.weight = newPool.userInputAmount!.amount.uiAmount!;
-                }
+                newPool.usdcAmount = registry.multiplyAmountByPythprice(newPool.userInputAmount!.amount.uiAmount!, newPool.userInputAmount!.mint);
                 console.log("Pushing object: ", newPool);
-                newAllocData.push(newPool);
+                newAllocData.set(newPool.lp, newPool);
             }));
         }));
 
-        setWalletAssets((_: AllocData[]) => {
+        setWalletAssets((_: Map<string, AllocData>) => {
             return newAllocData;
         });
         console.log("##updateUserAssetsAndRatiosAfterConnecting()");

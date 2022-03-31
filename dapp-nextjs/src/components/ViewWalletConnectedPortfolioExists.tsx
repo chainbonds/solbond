@@ -1,11 +1,11 @@
 import DisplayPieChart from "./common/DisplayPieChart";
 import React, {useEffect, useState} from "react";
-import ExistingPortfolioTable from "./redeemPortfolio/ExistingPortfolioTable";
 import RedeemPortfolioView from "./redeemPortfolio/RedeemPortfolioView";
 import {AllocData} from "../types/AllocData";
 import {IExistingPortfolio, useExistingPortfolio} from "../contexts/ExistingPortfolioProvider";
-import {PositionInfo, Protocol} from "@qpools/sdk";
-import {ILoad, useLoad} from "../contexts/LoadingContext";
+import {Protocol} from "@qpools/sdk";
+import SuggestedPortfolioTable from "./createPortfolio/SuggestedPortfolioTable";
+import Error from "next/error";
 
 export const ViewWalletConnectedPortfolioExists = ({}) => {
 
@@ -15,22 +15,25 @@ export const ViewWalletConnectedPortfolioExists = ({}) => {
     const setExistingPortfolioAsAllocationData = async () => {
         console.log("#setExistingPortfolioAsAllocationData()");
 
-        // Set a loading provider until the data is retrieved ...
-
         // Go through all positionInfos, and create a new Map accordingy ...
         let newAllocationData: Map<string, AllocData> = new Map<string, AllocData>();
-        await Promise.all(existingPortfolioProvider.positionInfos.map(async (position: PositionInfo ) => {
-            // Pool is prob not reqired, if we only want to display these ...
-            // Also, perhaps also reduce PositionInfo to AllocData, otherwise it's confusing in terms of types ...
+        await Promise.all(Array.from(existingPortfolioProvider.positionInfos.values()).map(async (position: AllocData ) => {
+            // Assert here that position userInputAmount are not empty (?)
+            if (!position.userInputAmount || !position.userWalletAmount) {
+                // @ts-ignore
+                throw Error("User Amounts were not successfully loaded " + JSON.stringify(position));
+            }
             let tmp: AllocData = {
+                pool: position.pool,
+                weight: position.weight,
                 apy_24h: 0.,
-                lp: position.mintLp.toString(),
+                lp: position.lp,
                 protocol: position.protocol,
-                userInputAmount: undefined,
-                userWalletAmount: undefined,
-                weight: position.totalPositionValue
+                userInputAmount: position.userInputAmount,
+                userWalletAmount: position.userWalletAmount,
+                usdcAmount: position.usdcAmount
             };
-            let key: string = Protocol[position.protocol] + " " + position.mintLp.toString();
+            let key: string = Protocol[position.protocol] + " " + tmp.lp.toString();
             newAllocationData.set(key, tmp);
         }));
         setAllocationData((oldAllocationData: Map<string, AllocData>) => {
@@ -40,7 +43,7 @@ export const ViewWalletConnectedPortfolioExists = ({}) => {
     }
 
     useEffect(() => {
-        if (existingPortfolioProvider.positionInfos.length > 0) {
+        if (existingPortfolioProvider.positionInfos.size > 0) {
             // Overwrite the allocatoin according to position Infos ...
             setExistingPortfolioAsAllocationData();
         }
@@ -50,36 +53,35 @@ export const ViewWalletConnectedPortfolioExists = ({}) => {
     // console.log("Allocation Data is: ", allocationData, selectedAsset);
 
     return (
-        <>
-            <div className={"flex flex-row w-full"}>
-                <h1 className={"text-3xl font-light"}>
-                    Your Portfolio
-                </h1>
-            </div>
-            <div className={"flex flex-row mt-2"}>
-                <h2 className={"text-2xl font-light"}>
-                    See the assets for your current portfolio
-                </h2>
-            </div>
-            <div className={"flex flex-row mt-8"}>
-                <div className={"flex my-auto mx-auto p-8"}>
+        <div className={"flex flex-col text-center lg:text-left"}>
+            <h1 className={"text-4xl font-light"}>
+                Your Portfolio
+            </h1>
+            <h2 className={"mt-5 text-2xl font-light"}>
+                See the assets for your current portfolio
+            </h2>
+            <div className={"flex flex-col lg:flex-row mt-8"}>
+                <div className={"my-auto mx-auto p-8"}>
                     <DisplayPieChart
                         showPercentage={false}
                         allocationInformation={allocationData}
                         displayInput={false}
                     />
                 </div>
-                <div className="flex flex-col text-gray-300 my-auto divide-y divide-white">
-                    {/* Add another Column for how much this position has increased since buying ... */}
-                    <ExistingPortfolioTable
-                        tableColumns={["Pool", "Assets", "USDC Value", null]}
+                <div className="my-auto">
+                    <SuggestedPortfolioTable
+                        tableColumns={[null, "Currency", "Product", "Exposure", "Allocation", "24H APY", "Amount", "USDC Value"]}
+                        selectedAssets={allocationData}
+                        selectedAsset={""}
+                        setSelectedAsset={() => {}}
+                        assetChooseable={false}
                     />
                 </div>
             </div>
-            <div className={"flex flex-row my-auto mt-7"}>
+            <div className={"my-auto mt-7"}>
                 <RedeemPortfolioView/>
             </div>
-        </>
+        </div>
     )
 
 }

@@ -16,7 +16,6 @@ export default function CreatePortfolioView({allocationItems, selectedItemKey, m
     const [displayOnramperModal, setDisplayOnramperModal] = useState<boolean>(false);
 
     // TODO: Probably gotta make the Marinade case-distinction here already ...
-
     console.log("Allocation items are: ", allocationItems);
 
     if (!allocationItems) {
@@ -90,13 +89,10 @@ export default function CreatePortfolioView({allocationItems, selectedItemKey, m
                             {inputField()}
                         </div>
                         <div className={"flex flex-row ml-auto my-auto mt-1"}>
-                            <PurchaseButton
-                                allocationData={allocationItems}
-                            />
+                            <PurchaseButton allocationData={allocationItems}/>
                         </div>
                     </div>
                     <div className={"flex flex-row mx-1 mt-1"}>
-                        {/* TODO: Pass in the SOL balance separately ... and acculuate this in a separate variable, perhaps (or another AllocData, with a special mint) */}
                         {userCurrencyField()}
                     </div>
                 </div>
