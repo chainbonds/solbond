@@ -61,7 +61,7 @@ export const Main: FC = ({}) => {
         >
             <LoadingItemsModal/>
             <div className={"flex flex-col grow w-full my-auto"}>
-                <div className={"flex flex-col mx-auto "}>
+                <div className={"md:mx-auto"}>
                     {(displayForm === PortfolioState.WalletNotConnected) && <ViewWalletNotConnected/>}
                     {(displayForm === PortfolioState.ShowSuggestedPortfolio) && <ViewWalletConnectedCreatePortfolio/>}
                     {(displayForm === PortfolioState.ShowExistingPortfolio) && <ViewWalletConnectedPortfolioExists/>}

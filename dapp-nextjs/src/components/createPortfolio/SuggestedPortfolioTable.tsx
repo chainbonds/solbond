@@ -182,11 +182,11 @@ export default function SuggestedPortfolioTable({tableColumns, selectedAssets, s
 
     return (
         <>
-            <div className="overflow-auto lg:overflow-hidden w-full">
+            <div className="moverflow-x-scroll lg:overflow-hidden ">
                 {/*inline-block*/}
-                <div className="pb-2 min-w-full overflow-auto">
+                <div className="pb-2 min-w-full overflow-x-scroll">
                     {/* hidden lg:block */}
-                    <div className="shadow-md rounded-md overflow-auto">
+                    <div className="shadow-md rounded-md overflow-x-scroll">
                         <table className="min-w-full"
                                key={Math.random()}
                         >

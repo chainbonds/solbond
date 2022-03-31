@@ -29,7 +29,7 @@ export const ViewWalletNotConnected = ({}: Props) => {
 
     // Cannot talk much about yields, risks etc. _yet_
     return (
-        <div className={"flex flex-col text-center lg:text-left"}>
+        <div className={"text-center lg:text-left"}>
             <h1 className={"text-4xl font-light"}>
                 Want to earn some passive income?
             </h1>
@@ -44,7 +44,7 @@ export const ViewWalletNotConnected = ({}: Props) => {
                         displayInput={false}
                     />
                 </div>
-                <div className="overflow-x-scroll">
+                <div className="my-auto overflow-x-scroll">
                     <SuggestedPortfolioTable
                         tableColumns={[null, "Currency", "Product", "Exposure", "Allocation", "24H APY"]}
                         selectedAssets={allocationData}
