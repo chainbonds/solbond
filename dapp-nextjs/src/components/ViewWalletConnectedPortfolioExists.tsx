@@ -53,28 +53,24 @@ export const ViewWalletConnectedPortfolioExists = ({}) => {
     // console.log("Allocation Data is: ", allocationData, selectedAsset);
 
     return (
-        <>
-            <div className={"flex flex-row w-full"}>
-                <h1 className={"text-3xl font-light"}>
-                    Your Portfolio
-                </h1>
-            </div>
-            <div className={"flex flex-row mt-2"}>
-                <h2 className={"text-2xl font-light"}>
-                    See the assets for your current portfolio
-                </h2>
-            </div>
-            <div className={"flex flex-row mt-8"}>
-                <div className={"flex my-auto mx-auto p-8"}>
+        <div className={"flex flex-col text-center lg:text-left"}>
+            <h1 className={"text-4xl font-light"}>
+                Your Portfolio
+            </h1>
+            <h2 className={"mt-5 text-2xl font-light"}>
+                See the assets for your current portfolio
+            </h2>
+            <div className={"flex flex-col lg:flex-row mt-8"}>
+                <div className={"my-auto mx-auto p-8"}>
                     <DisplayPieChart
                         showPercentage={false}
                         allocationInformation={allocationData}
                         displayInput={false}
                     />
                 </div>
-                <div className="flex flex-col text-gray-300 my-auto divide-y divide-white">
+                <div className="my-auto">
                     <SuggestedPortfolioTable
-                        tableColumns={[null, "Pay-In Asset", "Product", "Underlying Asset", "Allocation", "24H APY", "Absolute Amount", "USDC Value"]}
+                        tableColumns={[null, "Currency", "Product", "Exposure", "Allocation", "24H APY", "Amount", "USDC Value"]}
                         selectedAssets={allocationData}
                         selectedAsset={""}
                         setSelectedAsset={() => {}}
@@ -82,10 +78,10 @@ export const ViewWalletConnectedPortfolioExists = ({}) => {
                     />
                 </div>
             </div>
-            <div className={"flex flex-row my-auto mt-7"}>
+            <div className={"my-auto mt-7"}>
                 <RedeemPortfolioView/>
             </div>
-        </>
+        </div>
     )
 
 }

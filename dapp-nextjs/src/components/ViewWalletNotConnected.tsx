@@ -29,28 +29,24 @@ export const ViewWalletNotConnected = ({}: Props) => {
 
     // Cannot talk much about yields, risks etc. _yet_
     return (
-        <>
-            <div className={"flex flex-row w-full"}>
-                <h1 className={"text-4xl font-light"}>
-                    Want to earn some passive income?
-                </h1>
-            </div>
-            <div className={"flex flex-row mt-5"}>
-                <h2 className={"text-2xl font-light"}>
-                    Please Connect your Wallet First!
-                </h2>
-            </div>
-            <div className={"flex flex-row mt-8"}>
-                <div className={"flex my-auto mx-auto p-8"}>
+        <div className={"flex flex-col text-center lg:text-left"}>
+            <h1 className={"text-4xl font-light"}>
+                Want to earn some passive income?
+            </h1>
+            <h2 className={"mt-5 text-2xl font-light"}>
+                Please Connect your Wallet First!
+            </h2>
+            <div className={"flex flex-col lg:flex-row mt-8"}>
+                <div className={"my-auto mx-auto p-8"}>
                     <DisplayPieChart
                         showPercentage={false}
                         allocationInformation={allocationData}
                         displayInput={false}
                     />
                 </div>
-                <div className="flex flex-col text-gray-300 my-auto divide-y divide-white">
+                <div className="overflow-x-scroll">
                     <SuggestedPortfolioTable
-                        tableColumns={[null, "Pay-In Asset", "Product", "Underlying Asset", "Allocation", "24H APY"]}
+                        tableColumns={[null, "Currency", "Product", "Exposure", "Allocation", "24H APY"]}
                         selectedAssets={allocationData}
                         selectedAsset={null}
                         setSelectedAsset={null}
@@ -61,7 +57,7 @@ export const ViewWalletNotConnected = ({}: Props) => {
             <div className={"flex flex-row my-auto mt-7"}>
                 <SelectWallet/>
             </div>
-        </>
+        </div>
     )
 
 }

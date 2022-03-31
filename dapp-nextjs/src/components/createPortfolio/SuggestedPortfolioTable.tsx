@@ -123,7 +123,7 @@ export default function SuggestedPortfolioTable({tableColumns, selectedAssets, s
                     }}
                 >
                     {/* Show the icons next to this ... */}
-                    <td className="py-4 px-6 text-sm text--center font-normal text-gray-900 whitespace-nowrap dark:text-gray-100">
+                    <td className="py-4 lg:px-6 text-sm text--center font-normal text-gray-900 whitespace-nowrap dark:text-gray-100">
                         <div className="flex items-center">
                             <div className="ml-4">
                                 <div
@@ -133,21 +133,22 @@ export default function SuggestedPortfolioTable({tableColumns, selectedAssets, s
                             </div>
                         </div>
                     </td>
-                    <td className="py-4 px-6 text-sm text-center font-normal text-gray-500 whitespace-nowrap dark:text-gray-100">
+                    <td className="py-4 lg:px-6 text-sm text-center font-normal text-gray-500 whitespace-nowrap dark:text-gray-100">
                         <a href={solscanLink(inputToken.mint)} target={"_blank"} rel="noreferrer"
                            className="text-blue-600 dark:text-blue-400 hover:underline">
                             <Image className={"rounded-3xl"} src={inputTokenLink} width={30} height={30}/>
                         </a>
                     </td>
-                    <td className="py-4 px-6 text-sm text-center font-normal text-gray-500 whitespace-nowrap dark:text-gray-100">
-                        <a href={solscanLink(mintLP)} target={"_blank"} rel="noreferrer"
-                            // text-blue-600 dark:text-blue-500
-                           className="hover:underline">
-                            {/*{shortenedAddressString(mintLP)}*/}
-                            {item.name}
-                        </a>
+                    <td className="py-4 lg:px-6 text-sm text-center font-normal text-gray-500 whitespace-nowrap dark:text-gray-100">
+                        <div className={"flex flex-row"}>
+                            <a href={solscanLink(mintLP)} target={"_blank"} rel="noreferrer"
+                               className="hover:underline">
+                                {/*{shortenedAddressString(mintLP)}*/}
+                                {item.name}
+                            </a>
+                        </div>
                     </td>
-                    <td className="py-4 px-6 text-sm text-center font-normal text-gray-500 whitespace-nowrap dark:text-gray-100">
+                    <td className="py-4 lg:px-6 text-sm text-center font-normal text-gray-500 whitespace-nowrap dark:text-gray-100">
                         {displayTokens.map((displayToken: DisplayToken) => {
                             return (
                                 <a key={Math.random()} href={displayToken.tokenSolscanLink} target={"_blank"} rel="noreferrer"
@@ -157,20 +158,20 @@ export default function SuggestedPortfolioTable({tableColumns, selectedAssets, s
                             )
                         })}
                     </td>
-                    <td className="py-4 px-6 text-sm text-center font-normal whitespace-nowrap dark:text-gray-100">
+                    <td className="py-4 lg:px-6 text-sm text-center font-normal whitespace-nowrap dark:text-gray-100">
                         {item.value.toFixed(0)}%
                     </td>
-                    <td className="py-4 px-6 text-sm text-center whitespace-nowrap">
+                    <td className="py-4 lg:px-6 text-sm text-center whitespace-nowrap">
                         {(item.apy_24h).toFixed(1)}%
                     </td>
                     {(item.allocationItem && item.allocationItem?.userInputAmount?.amount && tableColumns.length > 5) &&
-                        <td className="py-4 px-6 text-sm text-center whitespace-nowrap">
+                        <td className="py-4 lg:px-6 text-sm text-center whitespace-nowrap">
                             {/* inputToken.name */}
                             {item.allocationItem?.userInputAmount?.amount.uiAmount && (item.allocationItem?.userInputAmount?.amount.uiAmount).toFixed(2)}
                         </td>
                     }
                     {(item.allocationItem && item.allocationItem.usdcAmount && tableColumns.length > 6) &&
-                        <td className="py-4 px-6 text-sm text-center whitespace-nowrap">
+                        <td className="py-4 lg:px-6 text-sm text-center whitespace-nowrap">
                             {/* inputToken.name */}
                             {item.allocationItem?.usdcAmount && (item.allocationItem?.usdcAmount).toFixed(2)}
                         </td>
@@ -179,27 +180,28 @@ export default function SuggestedPortfolioTable({tableColumns, selectedAssets, s
         )
     }
 
-
     return (
         <>
-            <div className="flex flex-col">
-                <div className="overflow-x-auto w-full">
-                    <div className="inline-block pb-2 min-w-full">
-                        <div className="overflow-hidden shadow-md sm:rounded-lg">
-                            <table className="min-w-full"
-                                   key={Math.random()}
-                            >
-                                {/* + pieChartData[0].value */}
-                                <TableHeader
-                                    key={Math.random()}
-                                    columns={pieChartData ? tableColumns : tableColumns.slice(0, tableColumns.length - 1)}/>
-                                <tbody
-                                    key={Math.random()}>
-                                    {pieChartData.map((position: ChartableItemType, index: number) => tableSingleRow(position, index))}
-                                </tbody>
-                            </table>
-                        </div>
+            <div className="overflow-auto lg:overflow-hidden w-full">
+                {/*inline-block*/}
+                <div className="pb-2 min-w-full overflow-auto">
+                    {/* hidden lg:block */}
+                    <div className="shadow-md rounded-md overflow-auto">
+                        <table className="min-w-full"
+                               key={Math.random()}
+                        >
+                            {/* + pieChartData[0].value */}
+                            <TableHeader
+                                key={Math.random()}
+                                columns={pieChartData ? tableColumns : tableColumns.slice(0, tableColumns.length - 1)}/>
+                            <tbody
+                                key={Math.random()}>
+                                {pieChartData.map((position: ChartableItemType, index: number) => tableSingleRow(position, index))}
+                            </tbody>
+                        </table>
                     </div>
+                    {/*<div className={"grid grid-cols-1 gap-4 lg:hidden"} >*/}
+                    {/*</div>*/}
                 </div>
             </div>
         </>

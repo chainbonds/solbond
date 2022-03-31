@@ -6,8 +6,7 @@ import {AllocData} from "../types/AllocData";
 import {IRpcProvider, useRpc} from "./RpcProvider";
 import {ISerpius, useSerpiusEndpoint} from "./SerpiusProvider";
 import {BN} from "@project-serum/anchor";
-import {lamportsReserversForLocalWallet} from "../const";
-import {getTokenAmount, multiplyAmountByPythprice} from "../utils/utils";
+import {getTokenAmount} from "../utils/utils";
 
 
 export interface IUserWalletAssets {

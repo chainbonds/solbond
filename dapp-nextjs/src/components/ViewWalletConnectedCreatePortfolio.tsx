@@ -108,28 +108,24 @@ export const ViewWalletConnectedCreatePortfolio = ({}) => {
     console.log("Allocation Data is: ", allocationData, selectedAsset);
 
     return (
-        <>
-            <div className={"flex flex-row w-full"}>
-                <h1 className={"text-3xl font-light"}>
-                    Please Select Your Portfolio
-                </h1>
-            </div>
-            <div className={"flex flex-row mt-2"}>
-                <h2 className={"text-2xl font-light"}>
-                    This will be the allocation in which your assets generate yields
-                </h2>
-            </div>
-            <div className={"flex flex-row mt-8"}>
-                <div className={"flex my-auto mx-auto p-8"}>
+        <div className={"flex flex-col text-center lg:text-left"}>
+            <h1 className={"text-3xl font-light"}>
+                Please Select Your Portfolio
+            </h1>
+            <h2 className={"text-2xl font-light"}>
+                This will be the allocation in which your assets generate yields
+            </h2>
+            <div className={"flex flex-col lg:flex-row mt-8"}>
+                <div className={"my-auto mx-auto p-8"}>
                     <DisplayPieChart
                         showPercentage={false}
                         allocationInformation={allocationData}
                         displayInput={true}
                     />
                 </div>
-                <div className="flex flex-col text-gray-300 my-auto divide-y divide-white">
+                <div className="my-auto">
                     <SuggestedPortfolioTable
-                        tableColumns={[null, "Pay-In Asset", "Product", "Underlying Asset", "Allocation", "24H APY", "Absolute Amount", "USDC Value"]}
+                        tableColumns={[null, "Currency", "Product", "Exposure", "Allocation", "24H APY", "Amount", "USDC Value"]}
                         selectedAssets={allocationData}
                         selectedAsset={selectedAsset}
                         setSelectedAsset={setSelectedAsset}
@@ -137,14 +133,14 @@ export const ViewWalletConnectedCreatePortfolio = ({}) => {
                     />
                 </div>
             </div>
-            <div className={"flex flex-row my-auto mt-7"}>
+            <div className={"my-auto mt-7"}>
                 <CreatePortfolioView
                     allocationItems={allocationData}
                     selectedItemKey={selectedAsset}
                     modifyIndividualAllocationItem={modifyIndividualAllocationItem}
                 />
             </div>
-        </>
+        </div>
     )
 
 }

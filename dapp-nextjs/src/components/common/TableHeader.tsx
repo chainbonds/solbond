@@ -20,7 +20,7 @@ export default function TableHeader({columns}: Props) {
                         return (
                             <th scope="col"
                                 key={Math.random()}
-                                className="py-3 px-6 mx-auto text-xs text-center font-medium tracking-wider text-center text-gray-700 uppercase dark:text-gray-400">
+                                className="py-3 px-3 lg:px-6 mx-auto text-xs text-center font-medium tracking-wider text-center text-gray-700 uppercase dark:text-gray-400">
                                 {x}
                             </th>
                         )
@@ -28,7 +28,7 @@ export default function TableHeader({columns}: Props) {
                         return (
                             <th scope="col"
                                 key={Math.random()}
-                                className="relative py-3 px-6">
+                                className="relative py-3 lg:px-6">
                                 <span className="sr-only">Edit</span>
                             </th>
                         )
