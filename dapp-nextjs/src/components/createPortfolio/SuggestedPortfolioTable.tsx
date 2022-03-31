@@ -43,11 +43,13 @@ export default function SuggestedPortfolioTable({tableColumns, selectedAssets, s
                 let out: ChartableItemType[] = [];
 
                 // Change this to async map (?)
+                let allocationSum = Array.from(selectedAssets.values()).reduce((sum, current) => sum + current.usdcAmount, 1);
                 selectedAssets.forEach((current: AllocData, key: string) => {
+                    console.log("Value is: ", current.usdcAmount, allocationSum);
                     let tmp = {
                         key: key,
                         name: Protocol[current.protocol].charAt(0).toUpperCase() + Protocol[current.protocol].slice(1) + " " + current.lp,
-                        value: current.usdcAmount,
+                        value: (100 * current.usdcAmount) / allocationSum,
                         apy_24h: current.apy_24h,
                         pool: current.pool,
                         allocationItem: current
