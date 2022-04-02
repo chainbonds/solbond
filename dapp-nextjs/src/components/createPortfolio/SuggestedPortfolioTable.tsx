@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from "react";
 import {
-    displayTokensFromChartableAsset,
+    displayTokensFromChartableAsset, displayTokensFromPool,
     getInputToken,
     SelectedToken,
     solscanLink
@@ -35,30 +35,34 @@ export default function SuggestedPortfolioTable({tableColumns, selectedAssets, s
         {key: "USDC-PAI", name: "USDC-PAI", value: 500, apy_24h: 0.},
     ])
 
-    useEffect(() => {
-        // Selected Asset should be zero if nothing is there ...
-        // if (!selectedAssets) return;
-        // let sum = Array.from(selectedAssets.values()).reduce((sum: number, current: AllocData) => sum + current.usdcAmount, 0);
-        setPieChartData((old: ChartableItemType[]) => {
-                let out: ChartableItemType[] = [];
-
-                // Change this to async map (?)
-                let allocationSum = Array.from(selectedAssets.values()).reduce((sum, current) => sum + current.usdcAmount, 0);
-                selectedAssets.forEach((current: AllocData, key: string) => {
-                    console.log("Value is: ", current.usdcAmount, allocationSum);
-                    let tmp = {
-                        key: key,
-                        name: Protocol[current.protocol].charAt(0).toUpperCase() + Protocol[current.protocol].slice(1) + " " + current.lp,
-                        value: allocationSum > 0 ? (100 * current.usdcAmount) / allocationSum : 0,
-                        apy_24h: current.apy_24h,
-                        pool: current.pool,
-                        allocationItem: current
-                    }
-                    out.push(tmp)
-                });
-                return out
+    const pieChartLoader = async () => {
+        // Change this to async map (?)
+        let allocationSum = Array.from(selectedAssets.values()).reduce((sum, current) => sum + current.usdcAmount, 0);
+        // : string
+        // : AllocData
+        let newPieChartData: ChartableItemType[] = await Promise.all(Array.from(selectedAssets.entries()).map(async ([key, current]) => {
+            console.log("Value is: ", current.usdcAmount, allocationSum);
+            let displayTokens: DisplayToken[] = await displayTokensFromPool(current.pool);
+            let inputToken: SelectedToken = await getInputToken(current.pool.tokens);
+            let inputTokenLink: string = await registry.getIconFromToken(inputToken.mint);
+            let tmp: ChartableItemType = {
+                key: key,
+                name: Protocol[current.protocol].charAt(0).toUpperCase() + Protocol[current.protocol].slice(1) + " " + current.lp,
+                value: allocationSum > 0 ? (100 * current.usdcAmount) / allocationSum : 0,
+                apy_24h: current.apy_24h,
+                pool: current.pool,
+                allocationItem: current,
+                displayTokens: displayTokens,
+                inputToken: inputToken,
+                inputTokenLink: inputTokenLink,
             }
-        )
+            return tmp;
+        }));
+        setPieChartData((old: ChartableItemType[]) => {return newPieChartData});
+    }
+
+    useEffect(() => {
+        pieChartLoader();
     }, [selectedAssets]);
 
     const tableSingleRow = (item: ChartableItemType, index: number) => {
@@ -76,7 +80,8 @@ export default function SuggestedPortfolioTable({tableColumns, selectedAssets, s
         }
 
         console.log("Converting display token to this: ", item);
-        let displayTokens: DisplayToken[] = displayTokensFromChartableAsset(item);
+        // TODO: Gotta make this async again ... /// Moved
+        // let displayTokens: DisplayToken[] = await displayTokensFromChartableAsset(item);
         console.log("Converting display token to this: (2) ", item);
 
         let mintLP = new PublicKey(item.pool!.lpToken.address);
@@ -102,8 +107,8 @@ export default function SuggestedPortfolioTable({tableColumns, selectedAssets, s
         console.log("tailwindOnSelected is: ", tailwindOnSelected);
 
         // Get (the name for) the asset to be inputted ...
-        let inputToken: SelectedToken = getInputToken(item.pool.tokens);
-        let inputTokenLink: string = registry.getIconFromToken(inputToken.mint);
+        // let inputToken: SelectedToken = await getInputToken(item.pool.tokens);
+        // let inputTokenLink: string = await registry.getIconFromToken(inputToken.mint);
 
         // Add a counter here, depending on how many props there are in the object lol
         // TODO: Solve this more elegantly ...
@@ -136,10 +141,14 @@ export default function SuggestedPortfolioTable({tableColumns, selectedAssets, s
                         </div>
                     </td>
                     <td className="py-4 lg:px-6 text-sm text-center font-normal text-gray-500 whitespace-nowrap dark:text-gray-100">
-                        <a href={solscanLink(inputToken.mint)} target={"_blank"} rel="noreferrer"
-                           className="text-blue-600 dark:text-blue-400 hover:underline">
-                            <Image className={"rounded-3xl"} src={inputTokenLink} width={30} height={30}/>
-                        </a>
+                        {item.inputToken &&
+                            <a href={solscanLink(item.inputToken!.mint)} target={"_blank"} rel="noreferrer"
+                               className="text-blue-600 dark:text-blue-400 hover:underline">
+                                {item.inputTokenLink &&
+                                    <Image className={"rounded-3xl"} src={item.inputTokenLink!} width={30} height={30}/>
+                                }
+                            </a>
+                        }
                     </td>
                     <td className="py-4 lg:px-6 text-sm text-center font-normal text-gray-500 whitespace-nowrap dark:text-gray-100">
                         <div className={"flex flex-row"}>
@@ -151,7 +160,7 @@ export default function SuggestedPortfolioTable({tableColumns, selectedAssets, s
                         </div>
                     </td>
                     <td className="py-4 lg:px-6 text-sm text-center font-normal text-gray-500 whitespace-nowrap dark:text-gray-100">
-                        {displayTokens.map((displayToken: DisplayToken) => {
+                        {item.displayTokens && item.displayTokens!.map((displayToken: DisplayToken) => {
                             return (
                                 <a key={Math.random()} href={displayToken.tokenSolscanLink} target={"_blank"} rel="noreferrer"
                                    className="text-blue-600 dark:text-blue-400 hover:underline">

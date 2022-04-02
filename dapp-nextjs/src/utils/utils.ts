@@ -2,7 +2,7 @@ import {Connection, PublicKey, Transaction} from "@solana/web3.js";
 import {BN, Provider} from "@project-serum/anchor";
 import {ChartableItemType} from "../types/ChartableItemType";
 import {DisplayToken} from "../types/DisplayToken";
-import {ProtocolType, PositionInfo, registry} from "@qpools/sdk";
+import {Protocol, ProtocolType, registry} from "@qpools/sdk";
 import {lamportsReserversForLocalWallet} from "../const";
 
 /**
@@ -31,16 +31,16 @@ export const getTokensFromPools = (selectedAssetPools: registry.ExplicitPool[]):
     return out;
 }
 
-export const getInputTokens = (selectedAssetPools: registry.ExplicitPool[]): [registry.ExplicitPool, registry.ExplicitToken][] => {
-    let whitelistedTokenStrings = new Set<string>(registry.getWhitelistTokens());
+export const getInputTokens = async (selectedAssetPools: registry.ExplicitPool[]): Promise<[registry.ExplicitPool, registry.ExplicitToken][]> => {
+    let whitelistedTokenStrings = new Set<string>(await registry.getWhitelistTokens());
     let tokensInPools = getTokensFromPools(selectedAssetPools);
     let out = tokensInPools.filter(([pool, token]: [registry.ExplicitPool, registry.ExplicitToken]) => {return whitelistedTokenStrings.has(token.address)});
     return out;
 }
 
-export const getInputToken = (selectedAssetTokens: registry.ExplicitToken[]): SelectedToken => {
-    let whitelistedTokenStrings = new Set<string>(registry.getWhitelistTokens());
-    console.log("Whitelist tokens are: ", registry.getWhitelistTokens());
+export const getInputToken = async (selectedAssetTokens: registry.ExplicitToken[]): Promise<SelectedToken> => {
+    let whitelistedTokenStrings = new Set<string>(await registry.getWhitelistTokens());
+    console.log("Whitelist tokens are: ", await registry.getWhitelistTokens());
     let filteredTokens: registry.ExplicitToken[] = selectedAssetTokens.filter((x: registry.ExplicitToken) => {
         // console.log("Looking at the token: ", x);
         console.log("Looking at the token: ", x.address);
@@ -48,6 +48,7 @@ export const getInputToken = (selectedAssetTokens: registry.ExplicitToken[]): Se
         console.log("Does it have it: ", whitelistedTokenStrings.has(x.address));
         return whitelistedTokenStrings.has(x.address)
     })
+    console.log("Whitelist tokens are: ", await registry.getWhitelistTokens());
     console.log("Initial set of input tokens is: ", filteredTokens);
     let inputTokens: SelectedToken[] = filteredTokens.map((x: registry.ExplicitToken) => {
         return {
@@ -58,7 +59,6 @@ export const getInputToken = (selectedAssetTokens: registry.ExplicitToken[]): Se
     console.log("Input tokens are: ", inputTokens);
     // Gotta assert that at least one of the tokens is an input token:
     if (inputTokens.length < 1) {
-        console.log("Whitelist tokens are: ", registry.getWhitelistTokens());
         console.log("SelectedAssetToken: ", selectedAssetTokens);
         throw Error("Somehow this pool has no whitelisted input tokens!");
     }
@@ -66,40 +66,48 @@ export const getInputToken = (selectedAssetTokens: registry.ExplicitToken[]): Se
     return inputToken;
 }
 
-export const displayTokensFromPositionInfo = (position: PositionInfo): DisplayToken[] => {
-    if (!position) {
-        return []
-    }
+export const displayTokensFromPool = async (pool: registry.ExplicitPool): Promise<DisplayToken[]> => {
 
     let displayTokens: DisplayToken[] = [];
 
-    if (position.protocolType === ProtocolType.DEXLP) {
+    if (!pool) {
+        return []
+    }
+
+    if (pool.protocol === Protocol.saber) {
         let displayTokenItemA: DisplayToken = {
-            tokenImageLink: registry.getIconFromToken(position.mintA),
-            tokenSolscanLink: solscanLink(position.mintA)
+            tokenImageLink: await registry.getIconFromToken(new PublicKey(pool.tokens[0].address)),
+            tokenSolscanLink: solscanLink(new PublicKey(pool.tokens[0].address))
         };
         displayTokens.push(displayTokenItemA);
         let displayTokenItemB: DisplayToken = {
-            tokenImageLink: registry.getIconFromToken(position.mintB),
-            tokenSolscanLink: solscanLink(position.mintB)
+            tokenImageLink: await registry.getIconFromToken(new PublicKey(pool.tokens[1].address)),
+            tokenSolscanLink: solscanLink(new PublicKey(pool.tokens[1].address))
         };
         displayTokens.push(displayTokenItemB);
-    } else if (position.protocolType === ProtocolType.Staking) {
+    } else if (pool.protocol === Protocol.marinade) {
         let displayTokenItem: DisplayToken = {
-            tokenImageLink: registry.getIconFromToken(position.mintLp),
-            tokenSolscanLink: solscanLink(position.mintLp)
+            tokenImageLink: await registry.getIconFromToken(new PublicKey(pool.lpToken.address)),
+            tokenSolscanLink: solscanLink(new PublicKey(pool.lpToken.address))
         };
         displayTokens.push(displayTokenItem);
-    } else if (position.protocolType === ProtocolType.Lending) {
-        throw Error("Where does lending come from? We haven't even implement anything in this direction!" + JSON.stringify(position));
+    } else if (pool.protocol === Protocol.solend) {
+        // TODO: Double check if the lp-token actually has any icon ...
+        // If not, then the LP-Token was not added as an Token to the list of all possible tokens ...
+        let displayTokenItem: DisplayToken = {
+            tokenImageLink: await registry.getIconFromToken(new PublicKey(pool.lpToken.address)),
+            tokenSolscanLink: solscanLink(new PublicKey(pool.lpToken.address))
+        };
+        displayTokens.push(displayTokenItem);
     } else {
-        throw Error("Type of borrow lending not found" + JSON.stringify(position));
+        console.log("pool", pool);
+        throw Error("Protocol not found" + JSON.stringify(pool));
     }
 
     return displayTokens;
 }
 
-export const displayTokensFromChartableAsset = (item: ChartableItemType): DisplayToken[] => {
+export const displayTokensFromChartableAsset = async (item: ChartableItemType): Promise<DisplayToken[]> => {
 
     let displayTokens: DisplayToken[] = [];
 
@@ -107,27 +115,34 @@ export const displayTokensFromChartableAsset = (item: ChartableItemType): Displa
         return []
     }
 
-    if (item.pool.poolType === ProtocolType.DEXLP) {
+    if (item.pool.protocol === Protocol.saber) {
         let displayTokenItemA: DisplayToken = {
-            tokenImageLink: registry.getIconFromToken(new PublicKey(item.pool.tokens[0].address)),
+            tokenImageLink: await registry.getIconFromToken(new PublicKey(item.pool.tokens[0].address)),
             tokenSolscanLink: solscanLink(new PublicKey(item.pool.tokens[0].address))
         };
         displayTokens.push(displayTokenItemA);
         let displayTokenItemB: DisplayToken = {
-            tokenImageLink: registry.getIconFromToken(new PublicKey(item.pool.tokens[1].address)),
+            tokenImageLink: await registry.getIconFromToken(new PublicKey(item.pool.tokens[1].address)),
             tokenSolscanLink: solscanLink(new PublicKey(item.pool.tokens[1].address))
         };
         displayTokens.push(displayTokenItemB);
-    } else if (item.pool.poolType === ProtocolType.Staking) {
+    } else if (item.pool.protocol === Protocol.marinade) {
         let displayTokenItem: DisplayToken = {
-            tokenImageLink: registry.getIconFromToken(new PublicKey(item.pool.lpToken.address)),
+            tokenImageLink: await registry.getIconFromToken(new PublicKey(item.pool.lpToken.address)),
             tokenSolscanLink: solscanLink(new PublicKey(item.pool.lpToken.address))
         };
         displayTokens.push(displayTokenItem);
-    } else if (item.pool.poolType === ProtocolType.Lending) {
-        throw Error("Where does lending come from? We haven't even implement anything in this direction!" + JSON.stringify(item));
+    } else if (item.pool.protocol === Protocol.solend) {
+        // TODO: Double check if the lp-token actually has any icon ...
+        // If not, then the LP-Token was not added as an Token to the list of all possible tokens ...
+        let displayTokenItem: DisplayToken = {
+            tokenImageLink: await registry.getIconFromToken(new PublicKey(item.pool.lpToken.address)),
+            tokenSolscanLink: solscanLink(new PublicKey(item.pool.lpToken.address))
+        };
+        displayTokens.push(displayTokenItem);
     } else {
-        throw Error("Type of borrow lending not found" + JSON.stringify(item.pool.poolType) + " helo " + JSON.stringify(item.pool));
+        console.log("item.pool", item, item.pool);
+        throw Error("Protocol not found" + JSON.stringify(item.pool));
     }
 
     return displayTokens;

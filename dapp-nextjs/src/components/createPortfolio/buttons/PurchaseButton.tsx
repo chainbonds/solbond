@@ -116,10 +116,13 @@ export default function PurchaseButton({allocationData}: Props) {
             // If there is no underlying pool, than this is a bug!!
             return asset.pool!
         });
-        let inputPoolsAndTokens: [registry.ExplicitPool, registry.ExplicitToken][] = getInputTokens(selectedAssetPools);
+        let inputPoolsAndTokens: [registry.ExplicitPool, registry.ExplicitToken][] = await getInputTokens(selectedAssetPools);
         let inputPoolsAndTokensAsMap: Map<string, registry.ExplicitToken> = new Map<string, registry.ExplicitToken>();
         inputPoolsAndTokens.map(([pool, token]: [registry.ExplicitPool, registry.ExplicitToken]) => {
             inputPoolsAndTokensAsMap.set(pool.lpToken.address, token)
+        });
+        let uniqueInputTokens: PublicKey[] = inputPoolsAndTokens.map(([_, token]: [registry.ExplicitPool, registry.ExplicitToken]) => {
+            return new PublicKey(token.address);
         });
 
         /**
@@ -172,7 +175,8 @@ export default function PurchaseButton({allocationData}: Props) {
         let tx: Transaction = new Transaction();
         let IxCreatePortfolioPda = await rpcProvider.portfolioObject!.createPortfolioSigned(
             allocationDataAsArray.map(([key, value]) => new BN(value.weight)),
-            lpMints
+            lpMints,
+            new BN(uniqueInputTokens.length)
         );
         tx.add(IxCreatePortfolioPda);
 

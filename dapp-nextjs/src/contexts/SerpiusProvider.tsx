@@ -62,35 +62,35 @@ export function SerpiusEndpointProvider(props: any) {
                 console.log("(2) Data and type is: ", typeof data, data);
 
                 // Fetch the additional token account for each data item in AllocData
+
+                // Replace the allocData through
+
+                // Now add the information about the ExplicitSaberPool into it as well
+                let newData: Map<string, AllocData> = new Map<string, AllocData>();
+                await Promise.all(data.map(async (dataItem: SerpiusInput) => {
+                    console.log("data lp is: ", dataItem.lp);
+                    // TODO: Remove for mainnet / devnet...
+                    if (dataItem.lp === "UST-USDC") {
+                        dataItem.lp = "USDC-USDT"
+                    } else if (dataItem.lp === "mSOL") {
+                        dataItem.lp = "marinade"
+                    }
+
+                    let pool = await registry.getPoolFromSplStringId(dataItem.lp);
+                    let out: AllocData = {
+                        apy_24h: dataItem.apy_24h,
+                        weight: dataItem.weight,
+                        lp: dataItem.lp,
+                        pool: pool,
+                        // @ts-ignore
+                        protocol: Protocol[dataItem.protocol],   // Gotta convert the string to an enum ...
+                        usdcAmount: (100 / (data.length))
+                    };
+                    console.log("data item is", out);
+                    newData.set(out.lp, out);
+                }));
+
                 setPortfolioRatios((_: Map<string, AllocData>) => {
-
-                    // Replace the allocData through
-
-                    // Now add the information about the ExplicitSaberPool into it as well
-                    let newData: Map<string, AllocData> = new Map<string, AllocData>();
-                    data.map((dataItem: SerpiusInput) => {
-                        console.log("data lp is: ", dataItem.lp);
-                        // TODO: Remove for mainnet / devnet...
-                        if (dataItem.lp === "UST-USDC") {
-                            dataItem.lp = "USDC-USDT"
-                        } else if (dataItem.lp === "mSOL") {
-                            dataItem.lp = "marinade"
-                        }
-
-                        let pool = registry.getPoolFromSplStringId(dataItem.lp);
-                        let out: AllocData = {
-                            apy_24h: dataItem.apy_24h,
-                            weight: dataItem.weight,
-                            lp: dataItem.lp,
-                            pool: pool,
-                            // @ts-ignore
-                            protocol: Protocol[dataItem.protocol],   // Gotta convert the string to an enum ...
-                            usdcAmount: (100 / (data.length))
-                        };
-                        console.log("data item is", out);
-                        newData.set(out.lp, out);
-                    });
-
                     console.log("Updating new portfolio ratios ...");
                     return newData
                 });

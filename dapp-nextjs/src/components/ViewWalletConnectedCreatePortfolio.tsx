@@ -55,7 +55,7 @@ export const ViewWalletConnectedCreatePortfolio = ({}) => {
      * @param currentlySelectedKey
      * @param absoluteBalance
      */
-    const modifyIndividualAllocationItem = (currentlySelectedKey: string, absoluteBalance: number) => {
+    const modifyIndividualAllocationItem = async (currentlySelectedKey: string, absoluteBalance: number) => {
 
         // TODO: This shit will break for sure ..
         if (currentlySelectedKey === "") {
@@ -76,7 +76,7 @@ export const ViewWalletConnectedCreatePortfolio = ({}) => {
         };
 
         // re-calculate the usdc value according to the mint and input amount
-        let usdcAmount = registry.multiplyAmountByPythprice(
+        let usdcAmount = await registry.multiplyAmountByPythprice(
             userInputAmount.amount.uiAmount!,
             userInputAmount.mint
         );
@@ -120,7 +120,6 @@ export const ViewWalletConnectedCreatePortfolio = ({}) => {
                     <DisplayPieChart
                         showPercentage={false}
                         allocationInformation={allocationData}
-                        displayInput={true}
                     />
                 </div>
                 <div className="my-auto">

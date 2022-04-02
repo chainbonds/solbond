@@ -41,7 +41,6 @@ export const ViewWalletNotConnected = ({}: Props) => {
                     <DisplayPieChart
                         showPercentage={false}
                         allocationInformation={allocationData}
-                        displayInput={false}
                     />
                 </div>
                 <div className="my-auto overflow-x-scroll">

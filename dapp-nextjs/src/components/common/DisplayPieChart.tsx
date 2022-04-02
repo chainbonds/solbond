@@ -6,14 +6,13 @@ import {Protocol, registry} from "@qpools/sdk";
 
 interface Props {
     allocationInformation: Map<string, AllocData>,
-    showPercentage: boolean,
-    displayInput: boolean
+    showPercentage: boolean
 }
 interface PieChartDataInterface {
     name: string,
     value: number
 }
-export default function DisplayPieChart({allocationInformation, showPercentage, displayInput}: Props) {
+export default function DisplayPieChart({allocationInformation, showPercentage}: Props) {
 
     const renderCustomizedLabel = ({cx, cy, midAngle, innerRadius, outerRadius, percent}: any) => {
         const radius = innerRadius + (outerRadius - innerRadius) * -0.6; // 1.05;

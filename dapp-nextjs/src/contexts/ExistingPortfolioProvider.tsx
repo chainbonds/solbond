@@ -51,9 +51,9 @@ export function ExistingPortfolioProvider(props: any) {
 
             // Change the positions into AllocData Objects
             let newAllocData: Map<string, AllocData> = new Map<string, AllocData>();
-            storedPositions.map((x: PositionInfo) => {
+            await Promise.all(storedPositions.map(async (x: PositionInfo) => {
                 console.log("Pool address is: ", x.mintLp);
-                let pool: registry.ExplicitPool = registry.getPoolFromLpMint(x.mintLp);
+                let pool: registry.ExplicitPool = await registry.getPoolFromLpMint(x.mintLp);
                 let amount: UserTokenBalance = {
                     amount: x.amountLp,
                     ata: x.ataLp,
@@ -76,7 +76,7 @@ export function ExistingPortfolioProvider(props: any) {
                     usdcAmount: x.usdcValueLP
                 }
                 newAllocData.set(pool.name, allocData);
-            });
+            }));
 
             setPositionInfos((oldAllocData: Map<string, AllocData>) => {
                 return newAllocData;
