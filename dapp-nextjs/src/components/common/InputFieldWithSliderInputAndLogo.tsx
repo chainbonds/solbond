@@ -1,8 +1,9 @@
 import React, {useEffect, useState} from "react";
 import Image from "next/image";
 import {BRAND_COLORS} from "../../const";
-import {registry} from "@qpools/sdk";
 import {AllocData} from "../../types/AllocData";
+import {ExplicitToken} from "@qpools/sdk";
+import {getWhitelistTokens} from "@qpools/sdk";
 
 interface Props {
     allocationItems: Map<string, AllocData>,
@@ -88,7 +89,7 @@ export default function InputFieldWithSliderInputAndLogo({allocationItems, selec
         return (<></>);
     }
 
-    const logoPath = allocationItems.get(selectedItemKey)!.pool?.tokens.filter((x: registry.ExplicitToken) => {return registry.getWhitelistTokens()})[0].logoURI!;
+    const logoPath = allocationItems.get(selectedItemKey)!.pool?.tokens.filter((x: ExplicitToken) => {return getWhitelistTokens()})[0].logoURI!;
     return (
         <>
             <div className="flex flex-col form-control w-full">

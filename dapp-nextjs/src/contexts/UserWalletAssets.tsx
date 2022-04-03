@@ -1,12 +1,13 @@
 import React, {useState, useContext, useEffect} from 'react';
 import {PublicKey, TokenAmount} from "@solana/web3.js";
-import {registry} from "@qpools/sdk";
 import {getAssociatedTokenAddressOffCurve} from "@qpools/sdk/lib/utils";
 import {AllocData} from "../types/AllocData";
 import {IRpcProvider, useRpc} from "./RpcProvider";
 import {ISerpius, useSerpiusEndpoint} from "./SerpiusProvider";
 import {BN} from "@project-serum/anchor";
 import {getTokenAmount} from "../utils/utils";
+import {ExplicitToken, multiplyAmountByPythprice} from "../../../../qPools-contract/qpools-sdk";
+import {getNativeSolMint, getWhitelistTokens} from "../../../../qPools-contract/qpools-sdk/lib/const";
 
 
 export interface IUserWalletAssets {
@@ -64,13 +65,13 @@ export function UserWalletAssetsProvider(props: any) {
 
             // Now we have the pool
             // When are the tokens not defined ...
-            let tokens: registry.ExplicitToken[] = fetchedPool.pool.tokens;
-            await Promise.all(tokens.map(async (token: registry.ExplicitToken) => {
+            let tokens: ExplicitToken[] = fetchedPool.pool.tokens;
+            await Promise.all(tokens.map(async (token: ExplicitToken) => {
 
                 // Gotta get the input tokens ...
 
                 // Do a whitelist here which assets we accept ...
-                if (registry.getWhitelistTokens().filter((x: string) => x === token.address).length === 0) {
+                if (getWhitelistTokens().filter((x: string) => x === token.address).length === 0) {
                     return
                 }
 
@@ -80,7 +81,7 @@ export function UserWalletAssetsProvider(props: any) {
                 // Finally get the users' balance
                 // Let's assume that if the token is wrapped solana, that we can also include the pure solana into this .
                 let userBalance: TokenAmount;
-                if (mint.equals(registry.getNativeSolMint())) {
+                if (mint.equals(getNativeSolMint())) {
                     let solBalance: BN = new BN (await rpcProvider.connection!.getBalance(rpcProvider.userAccount!.publicKey));
                     console.log("solbalance before ", solBalance);
                     userBalance = getTokenAmount(solBalance, 9);
@@ -97,7 +98,7 @@ export function UserWalletAssetsProvider(props: any) {
                 }
 
                 // TODO: Replace this with pyth price oracles !
-                newPool.usdcAmount = await registry.multiplyAmountByPythprice(newPool.userInputAmount!.amount.uiAmount!, newPool.userInputAmount!.mint);
+                newPool.usdcAmount = await multiplyAmountByPythprice(newPool.userInputAmount!.amount.uiAmount!, newPool.userInputAmount!.mint);
                 console.log("Pushing object: ", newPool);
                 newAllocData.set(newPool.lp, newPool);
             }));

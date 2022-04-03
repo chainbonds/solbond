@@ -1,12 +1,10 @@
 import React, {useEffect, useState} from "react";
 import {
-    displayTokensFromChartableAsset, displayTokensFromPool,
     getInputToken,
     SelectedToken,
     solscanLink
 } from "../../utils/utils";
 import Image from "next/image";
-import {registry} from "@qpools/sdk";
 import {PIECHART_COLORS} from "../../const";
 import {PublicKey} from "@solana/web3.js";
 import {DisplayToken} from "../../types/DisplayToken";
@@ -14,6 +12,7 @@ import {ChartableItemType} from "../../types/ChartableItemType";
 import {AllocData} from "../../types/AllocData";
 import {Protocol} from "@qpools/sdk";
 import TableHeader from "../common/TableHeader";
+import {useRpc} from "../../contexts/RpcProvider";
 
 // I guess this columns is also conditional, actually ...
 // TODO: Normalize (rename) the name "selectedAssets"
@@ -30,6 +29,9 @@ export default function SuggestedPortfolioTable({tableColumns, selectedAssets, s
     // Instead of the raw pubkeys, store the pyth ID, and then you can look up the price using the pyth sdk ..
     // Much more sustainable also in terms of development
 
+    // Import the rpc provider just to access the registry ...
+    const rpcProvider = useRpc();
+
     const [pieChartData, setPieChartData] = useState<ChartableItemType[]>([
         {key: "USDC-USDT", name: "USDC-USDT", value: 500, apy_24h: 0.},
         {key: "USDC-PAI", name: "USDC-PAI", value: 500, apy_24h: 0.},
@@ -44,9 +46,10 @@ export default function SuggestedPortfolioTable({tableColumns, selectedAssets, s
             .sort((a, b) => a[1].lp > b[1].lp ? 1 : -1)
             .map(async ([key, current]) => {
                 console.log("Value is: ", current.usdcAmount, allocationSum);
-                let displayTokens: DisplayToken[] = await displayTokensFromPool(current.pool);
+                let displayTokens: DisplayToken[] = await rpcProvider.displayTokensFromPool(current.pool);
                 let inputToken: SelectedToken = await getInputToken(current.pool.tokens);
-                let inputTokenLink: string = await registry.getIconFromToken(inputToken.mint);
+                // TODO This should probably be somewhere else ...
+                let inputTokenLink: string = await rpcProvider.registry!.getIconUriFromToken(inputToken.mint.toString());
                 let tmp: ChartableItemType = {
                     key: key,
                     name: Protocol[current.protocol].charAt(0).toUpperCase() + Protocol[current.protocol].slice(1) + " " + current.lp,

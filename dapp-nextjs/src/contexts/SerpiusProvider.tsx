@@ -1,7 +1,9 @@
 import React, {useState, useContext, useEffect} from 'react';
 import axios from "axios";
-import {registry, Protocol} from "@qpools/sdk";
+import {Protocol} from "@qpools/sdk";
 import {AllocData} from "../types/AllocData";
+import {useRpc} from "./RpcProvider";
+import {ExplicitPool} from "@qpools/sdk";
 
 export interface ISerpius {
     portfolioRatios: Map<string, AllocData>,
@@ -31,6 +33,7 @@ export function SerpiusEndpointProvider(props: any) {
     /**
      * App-dependent variables
      */
+    const rpcProvider = useRpc();
     const [portfolioRatios, setPortfolioRatios] = useState<Map<string, AllocData>>(hardcodedApiResponse);
 
     /**
@@ -40,7 +43,7 @@ export function SerpiusEndpointProvider(props: any) {
     const fetchAndParseSerpiusEndpoint = async () => {
             console.log("#useEffect getSerpiusEndpoint");
             console.log("Loading the weights");
-            let response: any = await axios.get<any>(registry.getSerpiusEndpoint());
+            let response: any = await axios.get<any>(rpcProvider.registry!.getSerpiusEndpoint());
             console.log("Here is the data :");
             console.log(typeof response.data);
             console.log(JSON.stringify(response.data));
@@ -79,7 +82,10 @@ export function SerpiusEndpointProvider(props: any) {
                         dataItem.lp = "Solana"
                     }
 
-                    let pool = await registry.getPoolFromSplStringId(dataItem.lp);
+                    let pool: ExplicitPool | null = await rpcProvider.registry!.getPoolFromSplStringId(dataItem.lp);
+                    if (!pool) {
+                        throw Error("The Id that the serpius endpoint provides was not found in the registry ...: " + dataItem.lp);
+                    }
                     let out: AllocData = {
                         apy_24h: dataItem.apy_24h,
                         weight: dataItem.weight,

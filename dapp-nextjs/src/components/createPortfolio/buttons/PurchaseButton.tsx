@@ -7,7 +7,7 @@ import {IItemsLoad, useItemsLoad} from "../../../contexts/ItemsLoadingContext";
 import {ICrank, useCrank} from "../../../contexts/CrankProvider";
 import {ILocalKeypair, useLocalKeypair} from "../../../contexts/LocalKeypairProvider";
 import {AllocData} from "../../../types/AllocData";
-import {registry, Protocol} from "@qpools/sdk";
+import {ExplicitPool, ExplicitToken, Protocol} from "@qpools/sdk";
 import {useErrorMessage} from "../../../contexts/ErrorMessageContext";
 import {lamportsReserversForLocalWallet} from "../../../const";
 
@@ -112,16 +112,16 @@ export default function PurchaseButton({allocationData}: Props) {
          * Get all possible input tokens ...
          *  Intersection of whitelisted input tokens, times what ist input through the pools
          */
-        let selectedAssetPools: registry.ExplicitPool[] = Array.from(allocationData.values()).map((asset) => {
+        let selectedAssetPools: ExplicitPool[] = Array.from(allocationData.values()).map((asset) => {
             // If there is no underlying pool, than this is a bug!!
             return asset.pool!
         });
-        let inputPoolsAndTokens: [registry.ExplicitPool, registry.ExplicitToken][] = await getInputTokens(selectedAssetPools);
-        let inputPoolsAndTokensAsMap: Map<string, registry.ExplicitToken> = new Map<string, registry.ExplicitToken>();
-        inputPoolsAndTokens.map(([pool, token]: [registry.ExplicitPool, registry.ExplicitToken]) => {
+        let inputPoolsAndTokens: [ExplicitPool, ExplicitToken][] = await getInputTokens(selectedAssetPools);
+        let inputPoolsAndTokensAsMap: Map<string, ExplicitToken> = new Map<string, ExplicitToken>();
+        inputPoolsAndTokens.map(([pool, token]: [ExplicitPool, ExplicitToken]) => {
             inputPoolsAndTokensAsMap.set(pool.lpToken.address, token)
         });
-        let uniqueInputTokens: PublicKey[] = inputPoolsAndTokens.map(([_, token]: [registry.ExplicitPool, registry.ExplicitToken]) => {
+        let uniqueInputTokens: PublicKey[] = inputPoolsAndTokens.map(([_, token]: [ExplicitPool, ExplicitToken]) => {
             return new PublicKey(token.address);
         });
 
@@ -131,12 +131,12 @@ export default function PurchaseButton({allocationData}: Props) {
          *  This is the first transaction ...
          */
         let mints: PublicKey[] = selectedAssetPools
-            .map((pool: registry.ExplicitPool) => {
-                return pool.tokens.map((token: registry.ExplicitToken) => new PublicKey(token.address))
+            .map((pool: ExplicitPool) => {
+                return pool.tokens.map((token: ExplicitToken) => new PublicKey(token.address))
             }).flat();
         // Also add the lp mints to the ATAs to be created ...
         let lpMints: PublicKey[] = selectedAssetPools
-            .map((pool: registry.ExplicitPool) => {
+            .map((pool: ExplicitPool) => {
                 return new PublicKey(pool.lpToken.address)
             });
         mints.push(...lpMints);

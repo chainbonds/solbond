@@ -35,10 +35,10 @@ function MyApp({Component, pageProps}: AppProps) {
             <ErrorMessageProvider>
                 <LoadProvider>
                     <ItemsLoadProvider>
-                        <SerpiusEndpointProvider>
-                            <ConnectionProvider endpoint={endpoint}>
-                                <WalletProvider>
-                                    <RpcProvider>
+                        <ConnectionProvider endpoint={endpoint}>
+                            <WalletProvider>
+                                <RpcProvider>
+                                    <SerpiusEndpointProvider>
                                         <UserWalletAssetsProvider>
                                             <ExistingPortfolioProvider>
                                                 <CrankProvider>
@@ -46,10 +46,10 @@ function MyApp({Component, pageProps}: AppProps) {
                                                 </CrankProvider>
                                             </ExistingPortfolioProvider>
                                         </UserWalletAssetsProvider>
-                                    </RpcProvider>
-                                </WalletProvider>
-                            </ConnectionProvider>
-                        </SerpiusEndpointProvider>
+                                    </SerpiusEndpointProvider>
+                                </RpcProvider>
+                            </WalletProvider>
+                        </ConnectionProvider>
                     </ItemsLoadProvider>
                 </LoadProvider>
             </ErrorMessageProvider>

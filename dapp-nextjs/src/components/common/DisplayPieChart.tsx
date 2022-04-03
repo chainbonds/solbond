@@ -2,7 +2,7 @@ import React, {useEffect, useState} from "react";
 import {PieChart, Pie, Cell} from "recharts";
 import {PIECHART_COLORS, RADIAN} from "../../const";
 import {AllocData} from "../../types/AllocData";
-import {Protocol, registry} from "@qpools/sdk";
+import {Protocol} from "@qpools/sdk";
 
 interface Props {
     allocationInformation: Map<string, AllocData>,

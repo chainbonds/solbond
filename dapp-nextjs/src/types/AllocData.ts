@@ -1,4 +1,4 @@
-import {registry} from "@qpools/sdk";
+import {ExplicitPool} from "@qpools/sdk";
 import {UserTokenBalance} from "./UserTokenBalance";
 import {Protocol} from "@qpools/sdk";
 
@@ -11,7 +11,7 @@ export interface AllocData {
     apy_24h: number,
     // Should include the input token here
     // Can have multiple ones with the same pool, then
-    pool: registry.ExplicitPool,
+    pool: ExplicitPool,
     userInputAmount?: UserTokenBalance,
     userWalletAmount?: UserTokenBalance
     usdcAmount: number

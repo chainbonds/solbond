@@ -1,14 +1,17 @@
 import React, {useState, useContext, useEffect} from 'react';
 import {Provider} from "@project-serum/anchor";
-import {Connection, Keypair} from "@solana/web3.js";
+import {Connection, Keypair, PublicKey} from "@solana/web3.js";
 import {Token, TOKEN_PROGRAM_ID} from "@solana/spl-token";
 import * as anchor from "@project-serum/anchor";
 import {solbondProgram} from "../programs/solbond";
 import {WalletI} from "easy-spl";
-import {PortfolioFrontendFriendlyChainedInstructions} from "@qpools/sdk";
+import {ExplicitPool, PortfolioFrontendFriendlyChainedInstructions, Protocol} from "@qpools/sdk";
 import {MOCK} from "@qpools/sdk";
 import {getConnectionString} from "../const";
 import {useWallet, WalletContextState} from "@solana/wallet-adapter-react";
+import {DisplayToken} from "../types/DisplayToken";
+import {solscanLink} from "../utils/utils";
+import {Registry} from "@qpools/sdk";
 
 
 export interface IRpcProvider {
@@ -17,15 +20,18 @@ export interface IRpcProvider {
     reloadPriceSentinel: boolean,
     connection: Connection | undefined,
     provider: Provider | undefined,
+    registry: Registry | undefined;
     _solbondProgram: any,
     makePriceReload: any,
     userAccount: WalletI | undefined,
     currencyMint: Token | undefined,
+    displayTokensFromPool: any
 }
 
 const defaultValue: IRpcProvider = {
     portfolioObject: undefined,
     reloadPriceSentinel: false,
+    registry: undefined,
     makePriceReload: () => console.log("Error not loaded yet!"),
     initialize: () => console.log("Error not loaded yet!"),
     connection: undefined,
@@ -33,6 +39,7 @@ const defaultValue: IRpcProvider = {
     _solbondProgram: () => console.error("attempting to use AuthContext outside of a valid provider"),
     userAccount: undefined,
     currencyMint: undefined,
+    displayTokensFromPool: () => console.log("Error not loaded yet!")
 }
 
 const RpcContext = React.createContext<IRpcProvider>(defaultValue);
@@ -49,6 +56,7 @@ export function RpcProvider(props: any) {
     const [_solbondProgram, setSolbondProgram] = useState<any>(null);
     const [userAccount, setUserAccount] = useState<WalletI | undefined>(undefined);
     const [backendApi, setBackendApi] = useState<PortfolioFrontendFriendlyChainedInstructions | undefined>(undefined);
+    const [registry, setRegistry] = useState<Registry | undefined>(undefined);
 
     /**
      * App-dependent variables
@@ -75,6 +83,8 @@ export function RpcProvider(props: any) {
     const initialize = () => {
         console.log("#initialize");
         console.log("Cluster URL is: ", String(process.env.NEXT_PUBLIC_CLUSTER_URL));
+        let _registry: Registry = new Registry();
+        _registry.initializeRegistry();
         let _connection: Connection = getConnectionString();
         // @ts-ignore
         const _provider = new anchor.Provider(_connection, walletContext, anchor.Provider.defaultOptions());
@@ -92,6 +102,8 @@ export function RpcProvider(props: any) {
             payer
         );
 
+        console.log(_registry);
+        console.assert(_registry);
         console.log(_solbondProgram);
         console.assert(_solbondProgram);
         console.log(_provider);
@@ -102,6 +114,8 @@ export function RpcProvider(props: any) {
         let backendApi = new PortfolioFrontendFriendlyChainedInstructions(_connection, _provider, _solbondProgram);
 
         // Do a bunch of setstate, and wait ...
+        setRegistry(() => _registry);
+        setConnection(() => _connection);
         setConnection(() => _connection);
         setProvider(() => _provider);
         setSolbondProgram(() => _solbondProgram);
@@ -112,16 +126,59 @@ export function RpcProvider(props: any) {
         console.log("##initialize");
     };
 
+    const displayTokensFromPool = async (pool: ExplicitPool): Promise<DisplayToken[]> => {
+
+        let displayTokens: DisplayToken[] = [];
+
+        if (!pool) {
+            return []
+        }
+
+        if (pool.protocol === Protocol.saber) {
+            let displayTokenItemA: DisplayToken = {
+                tokenImageLink: await registry!.getIconUriFromToken(pool.tokens[0].address),
+                tokenSolscanLink: solscanLink(new PublicKey(pool.tokens[0].address))
+            };
+            displayTokens.push(displayTokenItemA);
+            let displayTokenItemB: DisplayToken = {
+                tokenImageLink: await registry!.getIconUriFromToken(pool.tokens[1].address),
+                tokenSolscanLink: solscanLink(new PublicKey(pool.tokens[1].address))
+            };
+            displayTokens.push(displayTokenItemB);
+        } else if (pool.protocol === Protocol.marinade) {
+            let displayTokenItem: DisplayToken = {
+                tokenImageLink: await registry!.getIconUriFromToken(pool.lpToken.address),
+                tokenSolscanLink: solscanLink(new PublicKey(pool.lpToken.address))
+            };
+            displayTokens.push(displayTokenItem);
+        } else if (pool.protocol === Protocol.solend) {
+            // TODO: Double check if the lp-token actually has any icon ...
+            // If not, then the LP-Token was not added as an Token to the list of all possible tokens ...
+            let displayTokenItem: DisplayToken = {
+                tokenImageLink: await registry!.getIconUriFromToken(pool.lpToken.address),
+                tokenSolscanLink: solscanLink(new PublicKey(pool.lpToken.address))
+            };
+            displayTokens.push(displayTokenItem);
+        } else {
+            console.log("pool", pool);
+            throw Error("Protocol not found" + JSON.stringify(pool));
+        }
+
+        return displayTokens;
+    }
+
     const value: IRpcProvider = {
         portfolioObject: backendApi,
         initialize,
         connection,
         provider,
+        registry,
         _solbondProgram,
         userAccount,
         currencyMint,
         makePriceReload,
-        reloadPriceSentinel
+        reloadPriceSentinel,
+        displayTokensFromPool
     };
 
     return (
