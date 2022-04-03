@@ -6,12 +6,15 @@ import {AllocData} from "../types/AllocData";
 import {BN} from "@project-serum/anchor";
 import {UserTokenBalance} from "../types/UserTokenBalance";
 import {IUserWalletAssets, useUserWalletAssets} from "../contexts/UserWalletAssets";
-import {Protocol} from "@qpools/sdk";
+import {Protocol, Registry} from "@qpools/sdk";
 import {TokenAmount} from "@solana/web3.js";
 import {getTokenAmount} from "../utils/utils";
 import {multiplyAmountByPythprice} from "@qpools/sdk";
 
-export const ViewWalletConnectedCreatePortfolio = ({}) => {
+interface Props {
+    registry: Registry
+}
+export const ViewWalletConnectedCreatePortfolio = ({registry}: Props) => {
 
     const userWalletAssetsProvider: IUserWalletAssets = useUserWalletAssets();
     const [allocationData, setAllocationData] = useState<Map<string, AllocData>>(new Map<string, AllocData>());
@@ -126,6 +129,7 @@ export const ViewWalletConnectedCreatePortfolio = ({}) => {
                 </div>
                 <div className="my-auto">
                     <SuggestedPortfolioTable
+                        registry={registry}
                         tableColumns={[null, "Currency", "Product", "Exposure", "Allocation", "24H APY", "Amount", "USDC Value"]}
                         selectedAssets={allocationData}
                         selectedAsset={selectedAsset}

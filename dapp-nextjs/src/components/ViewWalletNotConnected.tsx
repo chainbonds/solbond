@@ -4,9 +4,12 @@ import DisplayPieChart from "./common/DisplayPieChart";
 import SuggestedPortfolioTable from "./createPortfolio/SuggestedPortfolioTable";
 import SelectWallet from "./createPortfolio/buttons/SelectWallet";
 import {ISerpius, useSerpiusEndpoint} from "../contexts/SerpiusProvider";
+import {Registry} from "../../../../qPools-contract/qpools-sdk";
 
-interface Props {}
-export const ViewWalletNotConnected = ({}: Props) => {
+interface Props {
+    registry: Registry
+}
+export const ViewWalletNotConnected = ({registry}: Props) => {
 
     const serpiusProvider: ISerpius = useSerpiusEndpoint();
     const [allocationData, setAllocationData] = useState<Map<string, AllocData>>(new Map());
@@ -45,6 +48,7 @@ export const ViewWalletNotConnected = ({}: Props) => {
                 </div>
                 <div className="my-auto overflow-x-scroll">
                     <SuggestedPortfolioTable
+                        registry={registry}
                         tableColumns={[null, "Currency", "Product", "Exposure", "Allocation", "24H APY"]}
                         selectedAssets={allocationData}
                         selectedAsset={null}

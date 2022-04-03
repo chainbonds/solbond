@@ -7,13 +7,17 @@ import {ViewWalletNotConnected} from "./ViewWalletNotConnected";
 import {ViewWalletConnectedCreatePortfolio} from "./ViewWalletConnectedCreatePortfolio";
 import {ViewWalletConnectedPortfolioExists} from "./ViewWalletConnectedPortfolioExists";
 import ErrorMessageModal from "./common/ErrorMessageModal";
+import {Registry} from "../../../../qPools-contract/qpools-sdk";
 
 export enum PortfolioState {
     WalletNotConnected,
     ShowSuggestedPortfolio,
     ShowExistingPortfolio
 }
-export const Main: FC = ({}) => {
+interface Props {
+    registry: Registry
+}
+export const Main = ({registry}: Props) => {
 
     const rpcProvider: IRpcProvider = useRpc();
     const walletProvider: WalletContextState = useWallet();
@@ -62,9 +66,9 @@ export const Main: FC = ({}) => {
             <LoadingItemsModal/>
             <div className={"flex flex-col grow w-full my-auto"}>
                 <div className={"md:mx-auto"}>
-                    {(displayForm === PortfolioState.WalletNotConnected) && <ViewWalletNotConnected/>}
-                    {(displayForm === PortfolioState.ShowSuggestedPortfolio) && <ViewWalletConnectedCreatePortfolio/>}
-                    {(displayForm === PortfolioState.ShowExistingPortfolio) && <ViewWalletConnectedPortfolioExists/>}
+                    {(displayForm === PortfolioState.WalletNotConnected) && <ViewWalletNotConnected registry={registry}/>}
+                    {(displayForm === PortfolioState.ShowSuggestedPortfolio) && <ViewWalletConnectedCreatePortfolio registry={registry}/>}
+                    {(displayForm === PortfolioState.ShowExistingPortfolio) && <ViewWalletConnectedPortfolioExists registry={registry}/>}
                 </div>
             </div>
             <ErrorMessageModal/>

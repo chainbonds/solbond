@@ -16,6 +16,7 @@ import {SerpiusEndpointProvider} from "../contexts/SerpiusProvider";
 import {UserWalletAssetsProvider} from "../contexts/UserWalletAssets";
 import {ExistingPortfolioProvider} from "../contexts/ExistingPortfolioProvider";
 import {ErrorMessageProvider} from "../contexts/ErrorMessageContext";
+import {Registry} from "../../../../qPools-contract/qpools-sdk";
 
 const SOLANA_NETWORK = WalletAdapterNetwork.Devnet;
 const network = SOLANA_NETWORK;
@@ -29,27 +30,28 @@ const WalletProvider = dynamic(
 
 function MyApp({Component, pageProps}: AppProps) {
     const endpoint = useMemo(() => clusterApiUrl(network), []);
+    const registry = new Registry();
 
     return (
         <LocalKeypairProvider>
             <ErrorMessageProvider>
                 <LoadProvider>
                     <ItemsLoadProvider>
-                        <ConnectionProvider endpoint={endpoint}>
-                            <WalletProvider>
-                                <RpcProvider>
-                                    <SerpiusEndpointProvider>
+                        <SerpiusEndpointProvider registry={registry}>
+                            <ConnectionProvider endpoint={endpoint}>
+                                <WalletProvider>
+                                    <RpcProvider>
                                         <UserWalletAssetsProvider>
-                                            <ExistingPortfolioProvider>
+                                            <ExistingPortfolioProvider registry={registry}>
                                                 <CrankProvider>
-                                                    <Component {...pageProps} />
+                                                    <Component {...pageProps} registry={registry} />
                                                 </CrankProvider>
                                             </ExistingPortfolioProvider>
                                         </UserWalletAssetsProvider>
-                                    </SerpiusEndpointProvider>
-                                </RpcProvider>
-                            </WalletProvider>
-                        </ConnectionProvider>
+                                    </RpcProvider>
+                                </WalletProvider>
+                            </ConnectionProvider>
+                        </SerpiusEndpointProvider>
                     </ItemsLoadProvider>
                 </LoadProvider>
             </ErrorMessageProvider>

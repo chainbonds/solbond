@@ -1,8 +1,7 @@
 import React, {useState, useContext, useEffect} from 'react';
 import axios from "axios";
-import {Protocol} from "@qpools/sdk";
+import {Protocol, Registry} from "@qpools/sdk";
 import {AllocData} from "../types/AllocData";
-import {useRpc} from "./RpcProvider";
 import {ExplicitPool} from "@qpools/sdk";
 
 export interface ISerpius {
@@ -28,12 +27,15 @@ interface SerpiusInput {
     apy_24h: number
 }
 
-export function SerpiusEndpointProvider(props: any) {
+interface Props {
+    children: any;
+    registry: Registry
+}
+export function SerpiusEndpointProvider(props: Props) {
 
     /**
      * App-dependent variables
      */
-    const rpcProvider = useRpc();
     const [portfolioRatios, setPortfolioRatios] = useState<Map<string, AllocData>>(hardcodedApiResponse);
 
     /**
@@ -43,7 +45,7 @@ export function SerpiusEndpointProvider(props: any) {
     const fetchAndParseSerpiusEndpoint = async () => {
             console.log("#useEffect getSerpiusEndpoint");
             console.log("Loading the weights");
-            let response: any = await axios.get<any>(rpcProvider.registry!.getSerpiusEndpoint());
+            let response: any = await axios.get<any>(props.registry.getSerpiusEndpoint());
             console.log("Here is the data :");
             console.log(typeof response.data);
             console.log(JSON.stringify(response.data));
@@ -74,15 +76,19 @@ export function SerpiusEndpointProvider(props: any) {
                     console.log("data lp is: ", dataItem.lp);
                     // TODO: Remove for mainnet / devnet...
                     // TODO: Also add case-distinction for the protocol ...
-                    if (dataItem.lp === "UST-USDC") {
-                        dataItem.lp = "USDC-USDT"
+                    if (dataItem.lp === "USDC-USDT") {
+                        dataItem.lp = "usdc_usdt"
                     } else if (dataItem.lp === "mSOL") {
+                        // dataItem.lp = "marinade"
                         dataItem.lp = "marinade"
                     } else if (dataItem.lp === "USDC") {
-                        dataItem.lp = "Solana"
+                        dataItem.lp = "cSOL"
+                        // dataItem.lp = "Solana"
                     }
 
-                    let pool: ExplicitPool | null = await rpcProvider.registry!.getPoolFromSplStringId(dataItem.lp);
+                    console.log("Registry is: ", props.registry);
+
+                    let pool: ExplicitPool | null = await props.registry.getPoolFromSplStringId(dataItem.lp);
                     if (!pool) {
                         throw Error("The Id that the serpius endpoint provides was not found in the registry ...: " + dataItem.lp);
                     }

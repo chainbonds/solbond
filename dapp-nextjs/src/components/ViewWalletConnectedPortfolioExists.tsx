@@ -3,11 +3,14 @@ import React, {useEffect, useState} from "react";
 import RedeemPortfolioView from "./redeemPortfolio/RedeemPortfolioView";
 import {AllocData} from "../types/AllocData";
 import {IExistingPortfolio, useExistingPortfolio} from "../contexts/ExistingPortfolioProvider";
-import {Protocol} from "@qpools/sdk";
+import {Protocol, Registry} from "@qpools/sdk";
 import SuggestedPortfolioTable from "./createPortfolio/SuggestedPortfolioTable";
 import Error from "next/error";
 
-export const ViewWalletConnectedPortfolioExists = ({}) => {
+interface Props {
+    registry: Registry
+}
+export const ViewWalletConnectedPortfolioExists = ({registry}: Props) => {
 
     const existingPortfolioProvider: IExistingPortfolio = useExistingPortfolio();
     const [allocationData, setAllocationData] = useState<Map<string, AllocData>>(new Map());
@@ -69,6 +72,7 @@ export const ViewWalletConnectedPortfolioExists = ({}) => {
                 </div>
                 <div className="my-auto">
                     <SuggestedPortfolioTable
+                        registry={registry}
                         tableColumns={[null, "Currency", "Product", "Exposure", "Allocation", "24H APY", "Amount", "USDC Value"]}
                         selectedAssets={allocationData}
                         selectedAsset={""}

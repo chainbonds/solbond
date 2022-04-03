@@ -1,12 +1,11 @@
 import React, {useState, useContext, useEffect} from 'react';
-import {accountExists, ExplicitPool} from "@qpools/sdk";
+import {accountExists, ExplicitPool, Registry} from "@qpools/sdk";
 import {PositionInfo} from "@qpools/sdk";
 import {IRpcProvider, useRpc} from "./RpcProvider";
 import {ILoad, useLoad} from "./LoadingContext";
 import {AllocData} from "../types/AllocData";
 import {UserTokenBalance} from "../types/UserTokenBalance";
 import {ISerpius, useSerpiusEndpoint} from "./SerpiusProvider";
-import {Property} from "csstype";
 
 export interface IExistingPortfolio {
     positionInfos: Map<string, AllocData>,
@@ -24,7 +23,11 @@ export function useExistingPortfolio() {
     return useContext(ExistingPortfolioContext);
 }
 
-export function ExistingPortfolioProvider(props: any) {
+interface Props {
+    children: any;
+    registry: Registry
+}
+export function ExistingPortfolioProvider(props: Props) {
 
     const rpcProvider: IRpcProvider = useRpc();
     const serpiusProvider: ISerpius = useSerpiusEndpoint();
@@ -52,7 +55,7 @@ export function ExistingPortfolioProvider(props: any) {
             let newAllocData: Map<string, AllocData> = new Map<string, AllocData>();
             await Promise.all(storedPositions.map(async (x: PositionInfo) => {
                 console.log("Pool address is: ", x.mintLp);
-                let pool: ExplicitPool | null = await rpcProvider.registry!.getPoolByLpToken(x.mintLp.toString());
+                let pool: ExplicitPool | null = await props.registry.getPoolByLpToken(x.mintLp.toString());
                 if (!pool) {
                     throw Error("For some reason, the mintLp does not correspond to a pool. Make sure you're using the latest version of the app, and that the devs included all pools that are used!");
                 }
