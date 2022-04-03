@@ -68,7 +68,7 @@ export default function SuggestedPortfolioTable({tableColumns, selectedAssets, s
     const tableSingleRow = (item: ChartableItemType, index: number) => {
 
         // Also add colors to the other portoflio ...
-        let color = PIECHART_COLORS[3*index % PIECHART_COLORS.length];
+        let color = PIECHART_COLORS[(3*index) % PIECHART_COLORS.length];
 
         // I guess we need the rich data ...
         console.log("THEREEEEEEEE", item.pool)
@@ -91,15 +91,15 @@ export default function SuggestedPortfolioTable({tableColumns, selectedAssets, s
         console.log("new Key", theKey, "for index", index)
 
         // Should prob make the types equivalent. Should clean up all types in the front-end repo
-        let tailwindOnSelected = "dark:bg-gray-800";
+        let tailwindOnSelected = "dark:bg-gray-900";
         if (setSelectedAsset && assetChooseable) {
-            tailwindOnSelected += " hover:bg-gray-900"
+            tailwindOnSelected += " hover:bg-gray-800"
         }
         // TODO: Perhaps it's easier to just hardcode it ...
         // TODO: This shouldn't make any sense ... obviously the LP is not equivalent to the item name
         if (item.key === selectedAsset && assetChooseable) {
             console.log("Matching indeed ...");
-            tailwindOnSelected = "dark:bg-gray-900 hover:bg-gray-900";
+            tailwindOnSelected = "dark:bg-gray-800 hover:bg-gray-800";
         } else {
             console.log("Bullshit... not matching lol")
         }

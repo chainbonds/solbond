@@ -7,7 +7,6 @@ import {AllocData} from "../types/AllocData";
 import {UserTokenBalance} from "../types/UserTokenBalance";
 import {ISerpius, useSerpiusEndpoint} from "./SerpiusProvider";
 import {Property} from "csstype";
-import All = Property.All;
 
 export interface IExistingPortfolio {
     positionInfos: Map<string, AllocData>,

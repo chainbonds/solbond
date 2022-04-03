@@ -65,6 +65,7 @@ export const ViewWalletConnectedCreatePortfolio = ({}) => {
             throw Error("The key you're trying to modify does not exist for some reason! " + currentlySelectedKey);
         }
         let currentlySelectedAsset: AllocData = {...allocationData.get(currentlySelectedKey)!};
+        console.log("Currently Selected is: ", currentlySelectedAsset);
 
         let numberInclDecimals: BN = (new BN(absoluteBalance * (10 ** currentlySelectedAsset.userInputAmount!.amount.decimals)));
         let tokenAmount: TokenAmount = getTokenAmount(numberInclDecimals, currentlySelectedAsset.userInputAmount!.amount.decimals);
