@@ -91,6 +91,9 @@ export function UserWalletAssetsProvider(props: any) {
                     userBalance = (await rpcProvider.connection!.getTokenAccountBalance(ata)).value;
                     console.log("fetched successfully! ", userBalance);
                 }
+
+                // TODO: For each token, also bootstrap the logos here ...
+
                 let newPool: AllocData = {
                     ...fetchedPool,
                     userInputAmount: {mint: mint, ata: ata, amount: userBalance},

@@ -110,7 +110,7 @@ export const ViewWalletConnectedCreatePortfolio = ({registry}: Props) => {
 
     }
 
-    console.log("Allocation Data is: ", allocationData, selectedAsset);
+    console.log("Allocation Data is: (111)", allocationData, selectedAsset);
 
     return (
         <div className={"flex flex-col text-center lg:text-left"}>

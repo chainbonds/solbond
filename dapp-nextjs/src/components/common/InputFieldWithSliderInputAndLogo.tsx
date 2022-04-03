@@ -89,14 +89,18 @@ export default function InputFieldWithSliderInputAndLogo({allocationItems, selec
         return (<></>);
     }
 
+    console.log("Allocation Items are: ", allocationItems);
     const logoPath = allocationItems.get(selectedItemKey)!.pool?.tokens.filter((x: ExplicitToken) => {return getWhitelistTokens()})[0].logoURI!;
+    console.log("Logo Path is: ", logoPath);
     return (
         <>
             <div className="flex flex-col form-control w-full">
                 <div className="mx-auto my-auto p-1 relative text-gray-300 focus-within:text-gray-300 w-full h-full">
                   <span className="absolute inset-y-0 left-0 flex items-center pl-2 h-full">
                     <div className={"flex w-full my-auto text-center content-center"}>
-                        <Image alt={currencyName} src={logoPath} height={34} width={34} className={"rounded-3xl"}/>
+                        {logoPath &&
+                            <Image alt={currencyName} src={logoPath} height={34} width={34} className={"rounded-3xl"}/>
+                        }
                         <text className={"my-auto text-center content-center mx-2"}>
                             {currencyName}
                         </text>

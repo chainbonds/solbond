@@ -6,7 +6,7 @@ import {Main} from "../../components/Main";
 import LoadingOverlay from "react-loading-overlay";
 import {useLoad} from "../../contexts/LoadingContext";
 import {BRAND_COLORS} from "../../const";
-import {Registry} from "../../../../../qPools-contract/qpools-sdk";
+import {Registry} from "@qpools/sdk";
 
 interface Props {
     registry: Registry
