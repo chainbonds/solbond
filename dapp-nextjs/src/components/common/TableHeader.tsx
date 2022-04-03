@@ -19,7 +19,7 @@ export default function TableHeader({columns}: Props) {
                     if (x) {
                         return (
                             <th scope="col"
-                                key={Math.random()}
+                                key={x}
                                 className="py-3 px-3 lg:px-6 mx-auto text-xs text-center font-medium tracking-wider text-center text-gray-700 uppercase dark:text-gray-400">
                                 {x}
                             </th>
@@ -27,7 +27,7 @@ export default function TableHeader({columns}: Props) {
                     } else {
                         return (
                             <th scope="col"
-                                key={Math.random()}
+                                key={x}
                                 className="relative py-3 lg:px-6">
                                 <span className="sr-only">Edit</span>
                             </th>

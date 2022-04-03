@@ -74,7 +74,8 @@ export default function DisplayPieChart({allocationInformation, showPercentage}:
                 >
                     {pieChartData.map((entry, index) => (
                         <Cell
-                            key={`cell-${Math.random() + pieChartData[index].value + index}`}
+                            // Math.random() +
+                            key={`cell-${pieChartData[index].value + index}`}
                             fill={PIECHART_COLORS[(3*index) % PIECHART_COLORS.length]}/>
                     ))}
                 </Pie>

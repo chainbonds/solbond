@@ -3,11 +3,12 @@ import {FaFaucet} from "react-icons/fa";
 import {BN} from "@project-serum/anchor";
 import {IRpcProvider, useRpc} from "../../../contexts/RpcProvider";
 import airdropAdmin from "@qpools/sdk/src/devnet/airdropAdmin";
-import {Connection, Transaction} from "@solana/web3.js";
+import {Connection, PublicKey, SystemProgram, Transaction} from "@solana/web3.js";
 import {Token, TOKEN_PROGRAM_ID} from "@solana/spl-token";
 import {useLoad} from "../../../contexts/LoadingContext";
 import {createAssociatedTokenAccountSendUnsigned, MOCK} from "@qpools/sdk";
 import {useErrorMessage} from "../../../contexts/ErrorMessageContext";
+import {syncNative} from "@solendprotocol/solend-sdk";
 
 export const FaucetButton: FC = ({}) => {
 
@@ -32,7 +33,7 @@ export const FaucetButton: FC = ({}) => {
         // Airdrop some solana first, to make sure we can run this transaction ...
         if ((await rpcProvider.connection!.getBalance(rpcProvider.userAccount!.publicKey)) <= 5e9) {
             try {
-                let tx0 = await rpcProvider.connection!.requestAirdrop(rpcProvider.userAccount!.publicKey, 1e9 + 2e8);
+                let tx0 = await rpcProvider.connection!.requestAirdrop(rpcProvider.userAccount!.publicKey, 1e9 + 4e8);
                 await rpcProvider.connection!.confirmTransaction(tx0, 'finalized');
                 console.log("Airdropped 1 SOL!");
             } catch (error) {
@@ -74,7 +75,29 @@ export const FaucetButton: FC = ({}) => {
             rpcProvider.provider!.wallet
         );
 
+        /** Finally, also create a wrapped SOL Associated token account
+         *
+         */
+        let wrappedSolMint = new PublicKey("So11111111111111111111111111111111111111112");
+        const associatedTokenAccountWrappedSol = await createAssociatedTokenAccountSendUnsigned(
+            rpcProvider.connection!,
+            wrappedSolMint,
+            rpcProvider.provider!.wallet.publicKey,
+            rpcProvider.provider!.wallet
+        );
+
         console.log("Currency admin account is: ", currencyAdminAccount.toString());
+        const givemoney = new Transaction().add(
+            SystemProgram.transfer({
+                fromPubkey: rpcProvider.provider!.wallet.publicKey,
+                toPubkey: associatedTokenAccountWrappedSol,
+                lamports: 3e8,
+            }),
+            syncNative(associatedTokenAccountWrappedSol)
+        );
+        let sg = await rpcProvider.provider!.send(givemoney);
+        await rpcProvider.provider!.connection.confirmTransaction(sg);
+        console.log("Created native sync ..", sg);
 
         // TODO: Replace this with "transfer-to" instructions
         console.log("Working");

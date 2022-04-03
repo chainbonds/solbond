@@ -40,25 +40,30 @@ export default function SuggestedPortfolioTable({tableColumns, selectedAssets, s
         let allocationSum = Array.from(selectedAssets.values()).reduce((sum, current) => sum + current.usdcAmount, 0);
         // : string
         // : AllocData
-        let newPieChartData: ChartableItemType[] = await Promise.all(Array.from(selectedAssets.entries()).map(async ([key, current]) => {
-            console.log("Value is: ", current.usdcAmount, allocationSum);
-            let displayTokens: DisplayToken[] = await displayTokensFromPool(current.pool);
-            let inputToken: SelectedToken = await getInputToken(current.pool.tokens);
-            let inputTokenLink: string = await registry.getIconFromToken(inputToken.mint);
-            let tmp: ChartableItemType = {
-                key: key,
-                name: Protocol[current.protocol].charAt(0).toUpperCase() + Protocol[current.protocol].slice(1) + " " + current.lp,
-                value: allocationSum > 0 ? (100 * current.usdcAmount) / allocationSum : 0,
-                apy_24h: current.apy_24h,
-                pool: current.pool,
-                allocationItem: current,
-                displayTokens: displayTokens,
-                inputToken: inputToken,
-                inputTokenLink: inputTokenLink,
-            }
-            return tmp;
-        }));
-        setPieChartData((old: ChartableItemType[]) => {return newPieChartData});
+        let newPieChartData: ChartableItemType[] = await Promise.all(Array.from(selectedAssets.entries())
+            .sort((a, b) => a[1].lp > b[1].lp ? 1 : -1)
+            .map(async ([key, current]) => {
+                console.log("Value is: ", current.usdcAmount, allocationSum);
+                let displayTokens: DisplayToken[] = await displayTokensFromPool(current.pool);
+                let inputToken: SelectedToken = await getInputToken(current.pool.tokens);
+                let inputTokenLink: string = await registry.getIconFromToken(inputToken.mint);
+                let tmp: ChartableItemType = {
+                    key: key,
+                    name: Protocol[current.protocol].charAt(0).toUpperCase() + Protocol[current.protocol].slice(1) + " " + current.lp,
+                    value: allocationSum > 0 ? (100 * current.usdcAmount) / allocationSum : 0,
+                    apy_24h: current.apy_24h,
+                    pool: current.pool,
+                    allocationItem: current,
+                    displayTokens: displayTokens,
+                    inputToken: inputToken,
+                    inputTokenLink: inputTokenLink,
+                }
+                return tmp;
+            })
+        );
+        setPieChartData((old: ChartableItemType[]) => {
+            return newPieChartData
+        });
     }
 
     useEffect(() => {
@@ -87,15 +92,12 @@ export default function SuggestedPortfolioTable({tableColumns, selectedAssets, s
         let mintLP = new PublicKey(item.pool!.lpToken.address);
 
         console.log("item :", item.value);
-        let theKey = Math.random() + item.value + index;
-        console.log("new Key", theKey, "for index", index)
 
         // Should prob make the types equivalent. Should clean up all types in the front-end repo
         let tailwindOnSelected = "dark:bg-gray-900";
         if (setSelectedAsset && assetChooseable) {
             tailwindOnSelected += " hover:bg-gray-800"
         }
-        // TODO: Perhaps it's easier to just hardcode it ...
         // TODO: This shouldn't make any sense ... obviously the LP is not equivalent to the item name
         if (item.key === selectedAsset && assetChooseable) {
             console.log("Matching indeed ...");
@@ -117,7 +119,7 @@ export default function SuggestedPortfolioTable({tableColumns, selectedAssets, s
 
         return (
                 <tr
-                    key={theKey}
+                    key={item.value + index}
                     className={tailwindOnSelected}
                     onClick={() => {
                         if (setSelectedAsset) {
@@ -204,14 +206,15 @@ export default function SuggestedPortfolioTable({tableColumns, selectedAssets, s
                     {/* hidden lg:block */}
                     <div className="shadow-md rounded-md overflow-x-scroll">
                         <table className="min-w-full"
-                               key={Math.random()}
+                               // key={Math.random()}
                         >
                             {/* + pieChartData[0].value */}
                             <TableHeader
-                                key={Math.random()}
+                                // key={Math.random()}
                                 columns={pieChartData ? tableColumns : tableColumns.slice(0, tableColumns.length - 1)}/>
                             <tbody
-                                key={Math.random()}>
+                                // key={Math.random()}
+                            >
                                 {pieChartData.map((position: ChartableItemType, index: number) => tableSingleRow(position, index))}
                             </tbody>
                         </table>
