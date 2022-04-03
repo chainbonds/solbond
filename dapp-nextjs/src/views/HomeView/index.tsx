@@ -14,6 +14,8 @@ interface Props {
 export const HomeView = ({registry}: Props) => {
 
     const {loading} = useLoad();
+
+
     return (
         <>
             <LoadingOverlay

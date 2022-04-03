@@ -40,7 +40,7 @@ function MyApp({Component, pageProps}: AppProps) {
                         <SerpiusEndpointProvider registry={registry}>
                             <ConnectionProvider endpoint={endpoint}>
                                 <WalletProvider>
-                                    <RpcProvider>
+                                    <RpcProvider registry={registry}>
                                         <UserWalletAssetsProvider>
                                             <ExistingPortfolioProvider registry={registry}>
                                                 <CrankProvider>

@@ -5,7 +5,7 @@ import {Token, TOKEN_PROGRAM_ID} from "@solana/spl-token";
 import * as anchor from "@project-serum/anchor";
 import {solbondProgram} from "../programs/solbond";
 import {WalletI} from "easy-spl";
-import {PortfolioFrontendFriendlyChainedInstructions} from "@qpools/sdk";
+import {PortfolioFrontendFriendlyChainedInstructions, Registry} from "@qpools/sdk";
 import {MOCK} from "@qpools/sdk";
 import {getConnectionString} from "../const";
 import {useWallet, WalletContextState} from "@solana/wallet-adapter-react";
@@ -14,7 +14,7 @@ export interface IRpcProvider {
     portfolioObject: PortfolioFrontendFriendlyChainedInstructions | undefined,
     initialize: any,
     reloadPriceSentinel: boolean,
-    connection: Connection | undefined,
+    connection: Connection,
     provider: Provider | undefined,
     _solbondProgram: any,
     makePriceReload: any,
@@ -27,7 +27,7 @@ const defaultValue: IRpcProvider = {
     reloadPriceSentinel: false,
     makePriceReload: () => console.log("Error not loaded yet!"),
     initialize: () => console.log("Error not loaded yet!"),
-    connection: undefined,
+    connection: getConnectionString(),
     provider: undefined,
     _solbondProgram: () => console.error("attempting to use AuthContext outside of a valid provider"),
     userAccount: undefined,
@@ -40,10 +40,14 @@ export function useRpc() {
     return useContext(RpcContext);
 }
 
-export function RpcProvider(props: any) {
+interface Props {
+    registry: Registry
+    children: any
+}
+export function RpcProvider(props: Props) {
 
     const walletContext: WalletContextState = useWallet();
-    const [connection, setConnection] = useState<Connection | undefined>(undefined);
+    const [connection, setConnection] = useState<Connection>(getConnectionString());
     const [provider, setProvider] = useState<Provider | undefined>(undefined);
     const [_solbondProgram, setSolbondProgram] = useState<any>(null);
     const [userAccount, setUserAccount] = useState<WalletI | undefined>(undefined);
@@ -74,18 +78,17 @@ export function RpcProvider(props: any) {
     const initialize = () => {
         console.log("#initialize");
         console.log("Cluster URL is: ", String(process.env.NEXT_PUBLIC_CLUSTER_URL));
-        let _connection: Connection = getConnectionString();
         // @ts-ignore
-        const _provider = new anchor.Provider(_connection, walletContext, anchor.Provider.defaultOptions());
+        const _provider = new anchor.Provider(connection, walletContext, anchor.Provider.defaultOptions());
         anchor.setProvider(_provider);
-        const _solbondProgram: any = solbondProgram(_connection, _provider);
+        const _solbondProgram: any = solbondProgram(connection, _provider);
         console.log("Solbond ProgramId is: ", _solbondProgram.programId.toString());
         const _userAccount: WalletI = _provider.wallet;
 
         // @ts-expect-error
         let payer = _provider.wallet.payer as Keypair;
         let _currencyMint = new Token(
-            _connection,
+            connection,
             MOCK.DEV.SABER_USDC,
             TOKEN_PROGRAM_ID,
             payer
@@ -95,14 +98,10 @@ export function RpcProvider(props: any) {
         console.assert(_solbondProgram);
         console.log(_provider);
         console.assert(_provider);
-        console.log(_connection);
-        console.assert(_connection);
 
-        let backendApi = new PortfolioFrontendFriendlyChainedInstructions(_connection, _provider, _solbondProgram);
+        let backendApi = new PortfolioFrontendFriendlyChainedInstructions(connection, _provider, _solbondProgram, props.registry);
 
         // Do a bunch of setstate, and wait ...
-        setConnection(() => _connection);
-        setConnection(() => _connection);
         setProvider(() => _provider);
         setSolbondProgram(() => _solbondProgram);
         setUserAccount(() => _userAccount);
