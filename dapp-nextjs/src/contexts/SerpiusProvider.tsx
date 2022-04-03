@@ -40,7 +40,7 @@ export function SerpiusEndpointProvider(props: any) {
     const fetchAndParseSerpiusEndpoint = async () => {
             console.log("#useEffect getSerpiusEndpoint");
             console.log("Loading the weights");
-            let response = await axios.get<any>(registry.getSerpiusEndpoint());
+            let response: any = await axios.get<any>(registry.getSerpiusEndpoint());
             console.log("Here is the data :");
             console.log(typeof response.data);
             console.log(JSON.stringify(response.data));
@@ -70,10 +70,13 @@ export function SerpiusEndpointProvider(props: any) {
                 await Promise.all(data.map(async (dataItem: SerpiusInput) => {
                     console.log("data lp is: ", dataItem.lp);
                     // TODO: Remove for mainnet / devnet...
+                    // TODO: Also add case-distinction for the protocol ...
                     if (dataItem.lp === "UST-USDC") {
                         dataItem.lp = "USDC-USDT"
                     } else if (dataItem.lp === "mSOL") {
                         dataItem.lp = "marinade"
+                    } else if (dataItem.lp === "USDC") {
+                        dataItem.lp = "Solana"
                     }
 
                     let pool = await registry.getPoolFromSplStringId(dataItem.lp);

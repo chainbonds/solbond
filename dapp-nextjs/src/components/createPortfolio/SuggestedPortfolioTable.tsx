@@ -106,6 +106,8 @@ export default function SuggestedPortfolioTable({tableColumns, selectedAssets, s
         console.log("Item and selected asset are: ", item.name, selectedAsset);
         console.log("tailwindOnSelected is: ", tailwindOnSelected);
 
+        console.log("Item to be rendered is: ", item);
+
         // Get (the name for) the asset to be inputted ...
         // let inputToken: SelectedToken = await getInputToken(item.pool.tokens);
         // let inputTokenLink: string = await registry.getIconFromToken(inputToken.mint);
@@ -161,10 +163,13 @@ export default function SuggestedPortfolioTable({tableColumns, selectedAssets, s
                     </td>
                     <td className="py-4 lg:px-6 text-sm text-center font-normal text-gray-500 whitespace-nowrap dark:text-gray-100">
                         {item.displayTokens && item.displayTokens!.map((displayToken: DisplayToken) => {
+                            console.log("Display Token is: ", displayToken);
                             return (
                                 <a key={Math.random()} href={displayToken.tokenSolscanLink} target={"_blank"} rel="noreferrer"
                                    className="text-blue-600 dark:text-blue-400 hover:underline">
-                                    <Image src={displayToken.tokenImageLink} width={30} height={30}/>
+                                    {displayToken.tokenImageLink &&
+                                        <Image src={displayToken.tokenImageLink!} width={30} height={30}/>
+                                    }
                                 </a>
                             )
                         })}
