@@ -67,14 +67,10 @@ export default function CreatePortfolioView({allocationItems, selectedItemKey, m
                             <PurchaseButton allocationData={allocationItems}/>
                         </div>
                     </div>
-                    <div className={"flex flex-row mx-1 mt-1"}>
-                        { (selectedToken && allocationItems.has(selectedItemKey) && allocationItems.get(selectedItemKey)?.userWalletAmount ) &&
-                            <UserInfoBalance
-                                currencyName={selectedToken.name}
-                                currencyBalance={allocationItems.get(selectedItemKey)?.userWalletAmount?.amount.uiAmount || null}
-                            />
-                        }
-                    </div>
+                    {/*<div className={"flex flex-row mx-1 mt-1"}>*/}
+                    {/*    /!*{ (selectedToken && allocationItems.has(selectedItemKey) && allocationItems.get(selectedItemKey)?.userWalletAmount ) &&*!/*/}
+                    {/*    /!*}*!/*/}
+                    {/*</div>*/}
                 </div>
             </div>
         </>

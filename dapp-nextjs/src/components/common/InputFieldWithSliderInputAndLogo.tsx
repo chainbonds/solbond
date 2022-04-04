@@ -7,6 +7,7 @@ import {getWhitelistTokens} from "@qpools/sdk";
 import {BN} from "@project-serum/anchor";
 import {TokenAmount} from "@solana/web3.js";
 import {getTokenAmount} from "../../utils/utils";
+import UserInfoBalance from "./UserInfoBalance";
 
 interface Props {
     allocationItems: Map<string, AllocData>,
@@ -23,6 +24,8 @@ export default function InputFieldWithSliderInputAndLogo({allocationItems, selec
     const [sliderValue, setSliderValue] = useState<number>(0.);
     const [inputValue, setInputValue] = useState<number>(0.);
     const [maxAvailableInputBalance, setMaxAvailableInputBalance] = useState<number>(0.);
+
+    const [errorMessage, setErrorMessage] = useState<string>("");
 
     // Define max and the rest here maybe (and also currency-name ...
     // diff: number
@@ -148,8 +151,10 @@ export default function InputFieldWithSliderInputAndLogo({allocationItems, selec
                     if (newValue > maxAvailableInputBalance) {
                         console.log("Cannot permit (1)");
                         setInputValue(maxAvailableInputBalance);
+                        setErrorMessage("You cannot input more than there is in your wallet!");
                     } else {
                         setInputValue(newValue);
+                        setErrorMessage("");
                     }
                     await calculateAvailableAmount();
                 }}
@@ -174,8 +179,10 @@ export default function InputFieldWithSliderInputAndLogo({allocationItems, selec
                         if (newValue > maxAvailableInputBalance) {
                             console.log("Cannot permit (2)");
                             setSliderValue(maxAvailableInputBalance);
+                            setErrorMessage("You cannot input more than there is in your wallet!");
                         } else {
                             setSliderValue(newValue);
+                            setErrorMessage("");
                         }
                         await calculateAvailableAmount();
                     }}
@@ -215,6 +222,28 @@ export default function InputFieldWithSliderInputAndLogo({allocationItems, selec
                 </div>
                 <div className={"mx-auto my-auto p-1 w-full"}>
                     {inputRangeField()}
+                </div>
+                <div className={"flex flex-col"}>
+                    {/*<div className={"items-start justify-start"}>*/}
+                    {/*    <UserInfoBalance*/}
+                    {/*        currencyName={currencyName}*/}
+                    {/*        currencyBalance={allocationItems.get(selectedItemKey)?.userWalletAmount?.amount.uiAmount || null}*/}
+                    {/*    />*/}
+                    {/*</div>*/}
+                    <div className={"items-start justify-start"}>
+                        { allocationItems.get(selectedItemKey)?.userWalletAmount?.amount.uiAmount &&
+                            <div className={"text-gray-500 text-sm font-semibold items-start justify-start"}>
+                                Planning to deposit: {
+                                    (allocationItems.get(selectedItemKey)?.userWalletAmount?.amount.uiAmount! - maxAvailableInputBalance)?.toFixed(2)
+                                } out of {
+                                    (allocationItems.get(selectedItemKey)?.userWalletAmount?.amount.uiAmount!).toFixed()
+                                } {currencyName}
+                            </div>
+                        }
+                    </div>
+                    <div className={"text-red-500 text-sm font-bold"}>
+                        {errorMessage && errorMessage}
+                    </div>
                 </div>
             </div>
         </>
