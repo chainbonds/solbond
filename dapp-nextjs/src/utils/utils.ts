@@ -15,15 +15,16 @@ export interface SelectedToken {
 }
 
 export const getTokenAmount = (x: BN, decimals: BN): TokenAmount => {
-    let decimalAsPower = (new BN(10)).pow(decimals);
-    let uiAmountBN = BN.max(((x.mul(decimalAsPower).sub(lamportsReserversForLocalWallet))), new BN(0.0));
-    let uiAmount = uiAmountBN.toString(); // Add a dot at the decimal point ...
-    uiAmount = uiAmount.substring(0, uiAmount.length - decimals.toNumber()) + "." + uiAmount.substring(uiAmount.length - decimals.toNumber(), uiAmount.length);
+    // TODO: Am I fucking stupid??? The lamports ReserversForLocalWallet only applies for solana ...
+    let decimalsAsNumber = decimals.toNumber();
+    let decimalExpanded = (new BN(10)).pow(decimals);
+    // Still do BN operations ...
+    // x.mul()
     return {
         amount: x.toString(),
-        decimals: decimals.toNumber(),
-        uiAmount: Number(uiAmount),
-        uiAmountString: uiAmount.toString()
+        decimals: decimalsAsNumber,
+        uiAmount: Math.max(((x.toNumber()) / (10 ** decimalsAsNumber)), 0.0),
+        uiAmountString: Math.max((((x.toNumber()) / (10 ** decimalsAsNumber)))).toString()
     };
 }
 

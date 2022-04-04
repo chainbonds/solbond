@@ -59,7 +59,7 @@ export const ViewWalletConnectedCreatePortfolio = ({registry}: Props) => {
      * @param currentlySelectedKey
      * @param absoluteBalance
      */
-    const modifyIndividualAllocationItem = async (currentlySelectedKey: string, absoluteBalance: number): Promise<void> => {
+    const modifyIndividualAllocationItem = async (currentlySelectedKey: string, tokenAmount: TokenAmount): Promise<void> => {
 
         // TODO: This shit will break for sure ..
         if (currentlySelectedKey === "") {
@@ -70,9 +70,6 @@ export const ViewWalletConnectedCreatePortfolio = ({registry}: Props) => {
         }
         let currentlySelectedAsset: AllocData = {...allocationData.get(currentlySelectedKey)!};
         console.log("Currently Selected is: ", currentlySelectedAsset);
-
-        let numberInclDecimals: BN = (new BN(absoluteBalance)).mul((new BN(10)).pow(new BN(currentlySelectedAsset.userInputAmount!.amount.decimals)));
-        let tokenAmount: TokenAmount = getTokenAmount(numberInclDecimals, new BN(currentlySelectedAsset.userInputAmount!.amount.decimals));
 
         let userInputAmount: UserTokenBalance = {
             mint: currentlySelectedAsset.userInputAmount!.mint,

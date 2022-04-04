@@ -6,12 +6,13 @@ import {ExplicitPool, ExplicitToken, Protocol, Registry} from "@qpools/sdk";
 import {getWhitelistTokens} from "@qpools/sdk";
 import {BN} from "@project-serum/anchor";
 import {TokenAmount} from "@solana/web3.js";
+import {getTokenAmount} from "../../utils/utils";
 
 interface Props {
     allocationItems: Map<string, AllocData>,
     selectedItemKey: string,
     currencyName: string,
-    modifyIndividualAllocationItem: (arg0: string, arg1: number) => Promise<void>,
+    modifyIndividualAllocationItem: (arg0: string, arg1: TokenAmount) => Promise<void>,
     min: number,
     max: number,
     registry: Registry
@@ -22,6 +23,7 @@ export default function InputFieldWithSliderInputAndLogo({allocationItems, selec
     const [sliderValue, setSliderValue] = useState<number>(0.);
     const [inputValue, setInputValue] = useState<number>(0.);
     const [maxAvailableInputBalance, setMaxAvailableInputBalance] = useState<number>(0.);
+    const [decimals, setDecimals] = useState<number>(1);
 
     // Define max and the rest here maybe (and also currency-name ...
     const calculateAvailableAmount = async (diff: number) => {
@@ -56,6 +58,7 @@ export default function InputFieldWithSliderInputAndLogo({allocationItems, selec
                 totalInputtedAmount = totalInputtedAmount.add(inputAmount);
                 walletAmount = new BN(allocationItems.get(id)!.userWalletAmount!.amount.amount);
                 decimals = allocationItems.get(id)!.userWalletAmount!.amount.decimals;
+                setDecimals(decimals);
             });
 
         // Get how much the user has in his wallet
@@ -79,33 +82,26 @@ export default function InputFieldWithSliderInputAndLogo({allocationItems, selec
         if (allocationItems.has(selectedItemKey) && allocationItems.get(selectedItemKey)?.userInputAmount && allocationItems.get(selectedItemKey)!.userInputAmount!.amount.uiAmount) {
             setValue(allocationItems.get(selectedItemKey)!.userInputAmount!.amount!.uiAmount!);
         }
-    }, [selectedItemKey]);  // allocationItems,
+    }, [selectedItemKey]);
     useEffect(() => {
-        // modifyIndividualAllocationItem(selectedItemKey, sliderValue).then((newValue: number | null) => {
-        //     if (newValue) {
-        //         setValue(newValue);
-        //         setInputValue(newValue);
-        //     }
-        // });
         setValue(sliderValue);
     }, [sliderValue]);
     useEffect(() => {
-        // First, modify the input,
-        // Then, if the input is not modifiable, set this value to false ...
-        // modifyIndividualAllocationItem(selectedItemKey, inputValue).then((newValue: number | null) => {
-        //     if (newValue) {
-        //         setValue(newValue);
-        //         setSliderValue(newValue);
-        //     }
-        // });
         setValue(inputValue);
     }, [inputValue]);
     useEffect(() => {
-        // setSliderValue(value);
-        // setInputValue(value);
-        // Now also modify this quantity ...
-        // TODO: Check if you can put these in again, after you implement the max logic
-        modifyIndividualAllocationItem(selectedItemKey, value);
+        if (!allocationItems.has(selectedItemKey)) {
+            console.log("Selected key not found ...", allocationItems, selectedItemKey);
+            return;
+        }
+        let currentlySelectedAsset: AllocData = allocationItems.get(selectedItemKey)!;
+        if (!currentlySelectedAsset.userInputAmount) {
+            console.log("input amount not found ...", currentlySelectedAsset.userInputAmount);
+            return;
+        }
+        let numberInclDecimals: BN = (new BN(value)).mul((new BN(10)).pow(new BN(currentlySelectedAsset.userInputAmount!.amount.decimals)));
+        let tokenAmount: TokenAmount = getTokenAmount(numberInclDecimals, new BN(currentlySelectedAsset.userInputAmount!.amount.decimals));
+        modifyIndividualAllocationItem(selectedItemKey, tokenAmount);
     }, [value]);
 
     // Add the blocker here, maybe (?)
@@ -134,7 +130,9 @@ export default function InputFieldWithSliderInputAndLogo({allocationItems, selec
                     if (newValue > maxAvailableInputBalance) {
                         console.log("Cannot permit (1)");
                         // alert("Cannot permit to pay in more than you own!");
+                        // TODO: UNCOMMENT
                         setInputValue(maxAvailableInputBalance);
+                        setInputValue(newValue);
                     } else {
                         setInputValue(newValue);
                     }
@@ -159,7 +157,9 @@ export default function InputFieldWithSliderInputAndLogo({allocationItems, selec
                         if (newValue > maxAvailableInputBalance) {
                             console.log("Cannot permit (2)");
                             // alert("Cannot permit to pay in more than you own!");
-                            setSliderValue(maxAvailableInputBalance);
+                            // TODO: Uncomment
+                            // setSliderValue(maxAvailableInputBalance);
+                            setSliderValue(newValue);
                         } else {
                             setSliderValue(newValue);
                         }
