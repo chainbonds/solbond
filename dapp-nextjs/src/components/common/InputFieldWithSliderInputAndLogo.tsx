@@ -38,26 +38,35 @@ export default function InputFieldWithSliderInputAndLogo({allocationItems, selec
         }
         let inputCurrency = currentlySelectedAsset.userInputAmount!.mint;
 
+        // Get the full wallet amount ..
+        let walletAmount: BN = new BN(currentlySelectedAsset.userWalletAmount!.amount!.amount);
+        let decimals: number = currentlySelectedAsset.userWalletAmount!.amount.decimals;
         let totalInputtedAmount: BN = new BN(0);
-        let walletAmount: BN = new BN(0);
-        let decimals: number = 1;
+
         (await registry.getPoolsByInputToken(inputCurrency.toString()))
             .filter((x: ExplicitPool) => {
                 // Gotta create the id same as when loading the data. Create a function for this...
                 let id = String(Protocol[x.protocol]) + " " + x.id;
+                let currentElementsId = selectedItemKey;
+
+                console.log("id and current element id is: ", id, currentElementsId);
+                // Also ignore the element with this key ...
+                if (currentElementsId === id) {
+                    return false;
+                }
+
                 if (allocationItems.has(id)) {
                     return true
                 } else {
                     console.log("Name not found!", id, x, allocationItems);
                     return false
                 }
+
             })
             .map((x: ExplicitPool) => {
                 let id = String(Protocol[x.protocol]) + " " + x.id;
                 let inputAmount = new BN(allocationItems.get(id)!.userInputAmount!.amount.amount);
                 totalInputtedAmount = totalInputtedAmount.add(inputAmount);
-                walletAmount = new BN(allocationItems.get(id)!.userWalletAmount!.amount.amount);
-                decimals = allocationItems.get(id)!.userWalletAmount!.amount.decimals;
             });
 
         // Get how much the user has in his wallet
