@@ -88,6 +88,7 @@ export function UserWalletAssetsProvider(props: any) {
                 let userBalance: TokenAmount;
                 // Set the starting balance always at 0
                 let startingBalance: TokenAmount;
+                // TODO: Let's assume that 10% of the user's assets is currently put into each pool ...
                 if (mint.equals(getWrappedSolMint())) {
                     // In the case of wrapped sol, combine the balance from the native SOL,
                     // as well as the balance from the wrapped SOL
@@ -97,7 +98,7 @@ export function UserWalletAssetsProvider(props: any) {
                     console.log("solbalance before ", solBalance);
                     userBalance = getTokenAmount(totalBalance.sub(lamportsReserversForLocalWallet), new BN(9));
                     // Could also divide this by the number of input assets or sth ...
-                    startingBalance = getTokenAmount(new BN(userBalance.amount).div(new BN(10)), new BN(9));
+                    startingBalance = getTokenAmount(new BN(userBalance.amount).div(new BN(10)), new BN(userBalance.decimals));
                     console.log("solbalance after ... ");
                 } else {
                     console.log("Mint is: ", mint.toString(), ata.toString());

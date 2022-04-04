@@ -23,10 +23,10 @@ export default function InputFieldWithSliderInputAndLogo({allocationItems, selec
     const [sliderValue, setSliderValue] = useState<number>(0.);
     const [inputValue, setInputValue] = useState<number>(0.);
     const [maxAvailableInputBalance, setMaxAvailableInputBalance] = useState<number>(0.);
-    const [decimals, setDecimals] = useState<number>(1);
 
     // Define max and the rest here maybe (and also currency-name ...
-    const calculateAvailableAmount = async (diff: number) => {
+    // diff: number
+    const calculateAvailableAmount = async () => {
         if (!allocationItems.has(selectedItemKey)) {
             console.log("Selected key not found ...", allocationItems, selectedItemKey);
             return;
@@ -58,7 +58,6 @@ export default function InputFieldWithSliderInputAndLogo({allocationItems, selec
                 totalInputtedAmount = totalInputtedAmount.add(inputAmount);
                 walletAmount = new BN(allocationItems.get(id)!.userWalletAmount!.amount.amount);
                 decimals = allocationItems.get(id)!.userWalletAmount!.amount.decimals;
-                setDecimals(decimals);
             });
 
         // Get how much the user has in his wallet
@@ -66,10 +65,12 @@ export default function InputFieldWithSliderInputAndLogo({allocationItems, selec
         let amountLeft: BN = walletAmount.sub(totalInputtedAmount);
         console.log("All amounts are: ", walletAmount.toString(), totalInputtedAmount.toString(), amountLeft.toString());
         // Gotta divide the available amount by the decimals ...
-        setMaxAvailableInputBalance((amountLeft.toNumber() / decimals) - diff);
+        let newMaxInputAmount: number = (amountLeft.toNumber() / (10 ** decimals));
+        console.log(newMaxInputAmount);
+        setMaxAvailableInputBalance(newMaxInputAmount);
     }
     useEffect(() => {
-        calculateAvailableAmount(0.);
+        calculateAvailableAmount();
     }, [allocationItems]);
 
     useEffect(() => {
@@ -79,7 +80,10 @@ export default function InputFieldWithSliderInputAndLogo({allocationItems, selec
     }, []);
 
     useEffect(() => {
-        if (allocationItems.has(selectedItemKey) && allocationItems.get(selectedItemKey)?.userInputAmount && allocationItems.get(selectedItemKey)!.userInputAmount!.amount.uiAmount) {
+        if (
+            allocationItems.has(selectedItemKey) && allocationItems.get(selectedItemKey)?.userInputAmount &&
+            allocationItems.get(selectedItemKey)!.userInputAmount!.amount.uiAmount
+        ) {
             setValue(allocationItems.get(selectedItemKey)!.userInputAmount!.amount!.uiAmount!);
         }
     }, [selectedItemKey]);
@@ -99,8 +103,13 @@ export default function InputFieldWithSliderInputAndLogo({allocationItems, selec
             console.log("input amount not found ...", currentlySelectedAsset.userInputAmount);
             return;
         }
-        let numberInclDecimals: BN = (new BN(value)).mul((new BN(10)).pow(new BN(currentlySelectedAsset.userInputAmount!.amount.decimals)));
+        console.log("Value that we're getting is: ", value);
+        let power = (new BN(10)).pow(new BN(currentlySelectedAsset.userInputAmount!.amount.decimals));
+        console.log("power is: ", power.toString());
+        let numberInclDecimals: BN = power.muln(value);
+        console.log("Number incl decimals is: ", numberInclDecimals.toString());
         let tokenAmount: TokenAmount = getTokenAmount(numberInclDecimals, new BN(currentlySelectedAsset.userInputAmount!.amount.decimals));
+        console.log("Number incl decimals is: ", tokenAmount);
         modifyIndividualAllocationItem(selectedItemKey, tokenAmount);
     }, [value]);
 
@@ -122,17 +131,14 @@ export default function InputFieldWithSliderInputAndLogo({allocationItems, selec
                 onChange={async (event) => {
                     let newValue = Number(event.target.value);
                     console.log("New " + String(currencyName) + " is: " + String(newValue));
-                    let diff: number = (newValue - value);
-                    await calculateAvailableAmount(diff);
+                    // let diff: number = Math.max(newValue - value, 0.);
+                    await calculateAvailableAmount();
                     // Add the difference ...
                     // TODO: Also add the case that the user does less than this total value ...
                     // let diff = newValue - value;
                     if (newValue > maxAvailableInputBalance) {
                         console.log("Cannot permit (1)");
-                        // alert("Cannot permit to pay in more than you own!");
-                        // TODO: UNCOMMENT
                         setInputValue(maxAvailableInputBalance);
-                        setInputValue(newValue);
                     } else {
                         setInputValue(newValue);
                     }
@@ -152,14 +158,12 @@ export default function InputFieldWithSliderInputAndLogo({allocationItems, selec
                         let newValue = Number(event.target.value);
                         console.log("New " + String(currencyName) + " is: " + String(newValue));
                         // Gotta double-check that this is not above the maximum balance ...
-                        let diff: number = (newValue - value);
-                        await calculateAvailableAmount(diff);
+                        // let diff: number = Math.max(newValue - value, 0.);
+                        // diff
+                        await calculateAvailableAmount();
                         if (newValue > maxAvailableInputBalance) {
                             console.log("Cannot permit (2)");
-                            // alert("Cannot permit to pay in more than you own!");
-                            // TODO: Uncomment
-                            // setSliderValue(maxAvailableInputBalance);
-                            setSliderValue(newValue);
+                            setSliderValue(maxAvailableInputBalance);
                         } else {
                             setSliderValue(newValue);
                         }

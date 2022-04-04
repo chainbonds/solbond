@@ -14,17 +14,23 @@ export interface SelectedToken {
     mint: PublicKey
 }
 
+// TODO: The usage of this is ambigious. I need to chase these bugs everywhere!!!
+// TODO: Write tests for this stupid shit ...
+/**
+ *
+ * @param x The big-number that should be written into a tokenAmountNumber. Should be lamports, and include decimals!
+ *  This cannot be negative
+ * @param decimals
+ */
 export const getTokenAmount = (x: BN, decimals: BN): TokenAmount => {
-    // TODO: Am I fucking stupid??? The lamports ReserversForLocalWallet only applies for solana ...
     let decimalsAsNumber = decimals.toNumber();
     let decimalExpanded = (new BN(10)).pow(decimals);
-    // Still do BN operations ...
-    // x.mul()
+    let uiAmount = Math.max(x.toNumber() / decimalExpanded.toNumber(), 0.0);
     return {
         amount: x.toString(),
         decimals: decimalsAsNumber,
-        uiAmount: Math.max(((x.toNumber()) / (10 ** decimalsAsNumber)), 0.0),
-        uiAmountString: Math.max((((x.toNumber()) / (10 ** decimalsAsNumber)))).toString()
+        uiAmount: uiAmount,
+        uiAmountString: uiAmount.toString()
     };
 }
 
