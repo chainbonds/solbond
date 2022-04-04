@@ -24,6 +24,7 @@ export default function InputFieldWithSliderInputAndLogo({allocationItems, selec
     const [sliderValue, setSliderValue] = useState<number>(0.);
     const [inputValue, setInputValue] = useState<number>(0.);
     const [maxAvailableInputBalance, setMaxAvailableInputBalance] = useState<number>(0.);
+    const [totalInputBalance, setTotalInputBalance] = useState<number>(0.);
 
     const [errorMessage, setErrorMessage] = useState<string>("");
 
@@ -74,6 +75,8 @@ export default function InputFieldWithSliderInputAndLogo({allocationItems, selec
 
         // Get how much the user has in his wallet
         // and display an error message when this constraint is not set ...
+        let readableTotalInputtedAmount = getTokenAmount(totalInputtedAmount, new BN(decimals)).uiAmount!;
+        setTotalInputBalance(readableTotalInputtedAmount);
         let amountLeft: BN = walletAmount.sub(totalInputtedAmount);
         console.log("All amounts are: ", walletAmount.toString(), totalInputtedAmount.toString(), amountLeft.toString());
         // Gotta divide the available amount by the decimals ...
@@ -83,7 +86,7 @@ export default function InputFieldWithSliderInputAndLogo({allocationItems, selec
     }
     useEffect(() => {
         calculateAvailableAmount();
-    }, [allocationItems]);
+    }, [selectedItemKey, allocationItems]);
 
     useEffect(() => {
         if (allocationItems.get(selectedItemKey)!.userInputAmount!.amount!.uiAmount!) {
@@ -122,7 +125,9 @@ export default function InputFieldWithSliderInputAndLogo({allocationItems, selec
         console.log("Number incl decimals is: ", numberInclDecimals.toString());
         let tokenAmount: TokenAmount = getTokenAmount(numberInclDecimals, new BN(currentlySelectedAsset.userInputAmount!.amount.decimals));
         console.log("Number incl decimals is: ", tokenAmount);
-        modifyIndividualAllocationItem(selectedItemKey, tokenAmount);
+        modifyIndividualAllocationItem(selectedItemKey, tokenAmount).then(() => {
+            calculateAvailableAmount();
+        });
     }, [value]);
 
     // Add the blocker here, maybe (?)
@@ -156,7 +161,6 @@ export default function InputFieldWithSliderInputAndLogo({allocationItems, selec
                         setInputValue(newValue);
                         setErrorMessage("");
                     }
-                    await calculateAvailableAmount();
                 }}
             />
         </>)
@@ -184,7 +188,6 @@ export default function InputFieldWithSliderInputAndLogo({allocationItems, selec
                             setSliderValue(newValue);
                             setErrorMessage("");
                         }
-                        await calculateAvailableAmount();
                     }}
                     value={value}
                     className="range range-xs"
@@ -231,10 +234,12 @@ export default function InputFieldWithSliderInputAndLogo({allocationItems, selec
                     {/*    />*/}
                     {/*</div>*/}
                     <div className={"items-start justify-start"}>
-                        { allocationItems.get(selectedItemKey)?.userWalletAmount?.amount.uiAmount &&
+                        { (
+                            allocationItems.get(selectedItemKey)?.userWalletAmount?.amount.uiAmount
+                            ) &&
                             <div className={"text-gray-500 text-sm font-semibold items-start justify-start"}>
                                 Planning to deposit: {
-                                    (allocationItems.get(selectedItemKey)?.userWalletAmount?.amount.uiAmount! - maxAvailableInputBalance)?.toFixed(2)
+                                    (totalInputBalance)?.toFixed(2)
                                 } out of {
                                     (allocationItems.get(selectedItemKey)?.userWalletAmount?.amount.uiAmount!).toFixed()
                                 } {currencyName}
