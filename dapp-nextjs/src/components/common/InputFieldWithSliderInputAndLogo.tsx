@@ -7,7 +7,6 @@ import {getWhitelistTokens} from "@qpools/sdk";
 import {BN} from "@project-serum/anchor";
 import {TokenAmount} from "@solana/web3.js";
 import {getTokenAmount} from "../../utils/utils";
-import UserInfoBalance from "./UserInfoBalance";
 
 interface Props {
     allocationItems: Map<string, AllocData>,
@@ -28,6 +27,41 @@ export default function InputFieldWithSliderInputAndLogo({allocationItems, selec
 
     const [errorMessage, setErrorMessage] = useState<string>("");
 
+    const calculateTotalDepositingAmount = async () => {
+        if (!allocationItems.has(selectedItemKey)) {
+            console.log("Selected key not found ...", allocationItems, selectedItemKey);
+            return;
+        }
+        let currentlySelectedAsset: AllocData = allocationItems.get(selectedItemKey)!;
+        if (!currentlySelectedAsset.userInputAmount) {
+            console.log("input amount not found ...", currentlySelectedAsset.userInputAmount);
+            return;
+        }
+        let inputCurrency = currentlySelectedAsset.userInputAmount!.mint;
+        let totalInputtedAmount: BN = new BN(0);
+        let decimals: number = currentlySelectedAsset.userWalletAmount!.amount.decimals;
+        (await registry.getPoolsByInputToken(inputCurrency.toString()))
+            .filter((x: ExplicitPool) => {
+                // Gotta create the id same as when loading the data. Create a function for this...
+                let id = String(Protocol[x.protocol]) + " " + x.id;
+                if (allocationItems.has(id)) {
+                    return true
+                } else {
+                    console.log("Name not found!", id, x, allocationItems);
+                    return false
+                }
+
+            })
+            .map((x: ExplicitPool) => {
+                let id = String(Protocol[x.protocol]) + " " + x.id;
+                let inputAmount = new BN(allocationItems.get(id)!.userInputAmount!.amount.amount);
+                totalInputtedAmount = totalInputtedAmount.add(inputAmount);
+            });
+        let readableTotalInputtedAmount = getTokenAmount(totalInputtedAmount, new BN(decimals)).uiAmount!;
+        console.log("Readable total input amount is: ", readableTotalInputtedAmount);
+        setTotalInputBalance(readableTotalInputtedAmount);
+    }
+
     // Define max and the rest here maybe (and also currency-name ...
     // diff: number
     const calculateAvailableAmount = async () => {
@@ -46,7 +80,6 @@ export default function InputFieldWithSliderInputAndLogo({allocationItems, selec
         let walletAmount: BN = new BN(currentlySelectedAsset.userWalletAmount!.amount!.amount);
         let decimals: number = currentlySelectedAsset.userWalletAmount!.amount.decimals;
         let totalInputtedAmount: BN = new BN(0);
-
         (await registry.getPoolsByInputToken(inputCurrency.toString()))
             .filter((x: ExplicitPool) => {
                 // Gotta create the id same as when loading the data. Create a function for this...
@@ -73,10 +106,6 @@ export default function InputFieldWithSliderInputAndLogo({allocationItems, selec
                 totalInputtedAmount = totalInputtedAmount.add(inputAmount);
             });
 
-        // Get how much the user has in his wallet
-        // and display an error message when this constraint is not set ...
-        let readableTotalInputtedAmount = getTokenAmount(totalInputtedAmount, new BN(decimals)).uiAmount!;
-        setTotalInputBalance(readableTotalInputtedAmount);
         let amountLeft: BN = walletAmount.sub(totalInputtedAmount);
         console.log("All amounts are: ", walletAmount.toString(), totalInputtedAmount.toString(), amountLeft.toString());
         // Gotta divide the available amount by the decimals ...
@@ -86,7 +115,13 @@ export default function InputFieldWithSliderInputAndLogo({allocationItems, selec
     }
     useEffect(() => {
         calculateAvailableAmount();
-    }, [selectedItemKey, allocationItems]);
+        calculateTotalDepositingAmount();
+    }, [selectedItemKey, allocationItems, value]);
+
+    useEffect(() => {
+        console.log("Total Input Balance Changed!");
+        console.log(totalInputBalance);
+    }, [totalInputBalance]);
 
     useEffect(() => {
         if (allocationItems.get(selectedItemKey)!.userInputAmount!.amount!.uiAmount!) {
@@ -227,12 +262,6 @@ export default function InputFieldWithSliderInputAndLogo({allocationItems, selec
                     {inputRangeField()}
                 </div>
                 <div className={"flex flex-col"}>
-                    {/*<div className={"items-start justify-start"}>*/}
-                    {/*    <UserInfoBalance*/}
-                    {/*        currencyName={currencyName}*/}
-                    {/*        currencyBalance={allocationItems.get(selectedItemKey)?.userWalletAmount?.amount.uiAmount || null}*/}
-                    {/*    />*/}
-                    {/*</div>*/}
                     <div className={"items-start justify-start"}>
                         { (
                             allocationItems.get(selectedItemKey)?.userWalletAmount?.amount.uiAmount
@@ -242,7 +271,7 @@ export default function InputFieldWithSliderInputAndLogo({allocationItems, selec
                                     (totalInputBalance)?.toFixed(2)
                                 } out of {
                                     (allocationItems.get(selectedItemKey)?.userWalletAmount?.amount.uiAmount!).toFixed()
-                                } {currencyName}
+                                } {currencyName} in Your Wallet
                             </div>
                         }
                     </div>
