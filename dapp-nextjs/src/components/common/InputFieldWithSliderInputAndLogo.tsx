@@ -5,12 +5,13 @@ import {AllocData} from "../../types/AllocData";
 import {ExplicitPool, ExplicitToken, Protocol, Registry} from "@qpools/sdk";
 import {getWhitelistTokens} from "@qpools/sdk";
 import {BN} from "@project-serum/anchor";
+import {TokenAmount} from "@solana/web3.js";
 
 interface Props {
     allocationItems: Map<string, AllocData>,
     selectedItemKey: string,
     currencyName: string,
-    modifyIndividualAllocationItem: (arg0: string, arg1: number) => Promise<number | null>,
+    modifyIndividualAllocationItem: (arg0: string, arg1: number) => Promise<void>,
     min: number,
     max: number,
     registry: Registry
@@ -23,19 +24,21 @@ export default function InputFieldWithSliderInputAndLogo({allocationItems, selec
     const [maxAvailableInputBalance, setMaxAvailableInputBalance] = useState<number>(0.);
 
     // Define max and the rest here maybe (and also currency-name ...
-
-    const calculateAvailableAmount = async () => {
+    const calculateAvailableAmount = async (diff: number) => {
         if (!allocationItems.has(selectedItemKey)) {
+            console.log("Selected key not found ...", allocationItems, selectedItemKey);
             return;
         }
         let currentlySelectedAsset: AllocData = allocationItems.get(selectedItemKey)!;
         if (!currentlySelectedAsset.userInputAmount) {
+            console.log("input amount not found ...", currentlySelectedAsset.userInputAmount);
             return;
         }
         let inputCurrency = currentlySelectedAsset.userInputAmount!.mint;
 
         let totalInputtedAmount: BN = new BN(0);
         let walletAmount: BN = new BN(0);
+        let decimals: number = 1;
         (await registry.getPoolsByInputToken(inputCurrency.toString()))
             .filter((x: ExplicitPool) => {
                 // Gotta create the id same as when loading the data. Create a function for this...
@@ -51,15 +54,19 @@ export default function InputFieldWithSliderInputAndLogo({allocationItems, selec
                 let id = String(Protocol[x.protocol]) + " " + x.id;
                 let inputAmount = new BN(allocationItems.get(id)!.userInputAmount!.amount.amount);
                 totalInputtedAmount = totalInputtedAmount.add(inputAmount);
+                walletAmount = new BN(allocationItems.get(id)!.userWalletAmount!.amount.amount);
+                decimals = allocationItems.get(id)!.userWalletAmount!.amount.decimals;
             });
 
         // Get how much the user has in his wallet
         // and display an error message when this constraint is not set ...
         let amountLeft: BN = walletAmount.sub(totalInputtedAmount);
-        setMaxAvailableInputBalance(amountLeft.toNumber());
+        console.log("All amounts are: ", walletAmount.toString(), totalInputtedAmount.toString(), amountLeft.toString());
+        // Gotta divide the available amount by the decimals ...
+        setMaxAvailableInputBalance((amountLeft.toNumber() / decimals) - diff);
     }
     useEffect(() => {
-
+        calculateAvailableAmount(0.);
     }, [allocationItems]);
 
     useEffect(() => {
@@ -74,30 +81,32 @@ export default function InputFieldWithSliderInputAndLogo({allocationItems, selec
         }
     }, [selectedItemKey]);  // allocationItems,
     useEffect(() => {
-        modifyIndividualAllocationItem(selectedItemKey, sliderValue).then((newValue: number | null) => {
-            if (newValue) {
-                setValue(newValue);
-                setInputValue(newValue);
-            }
-        });
+        // modifyIndividualAllocationItem(selectedItemKey, sliderValue).then((newValue: number | null) => {
+        //     if (newValue) {
+        //         setValue(newValue);
+        //         setInputValue(newValue);
+        //     }
+        // });
+        setValue(sliderValue);
     }, [sliderValue]);
     useEffect(() => {
         // First, modify the input,
         // Then, if the input is not modifiable, set this value to false ...
-        modifyIndividualAllocationItem(selectedItemKey, inputValue).then((newValue: number | null) => {
-            if (newValue) {
-                setValue(newValue);
-                setSliderValue(newValue);
-            }
-        });
+        // modifyIndividualAllocationItem(selectedItemKey, inputValue).then((newValue: number | null) => {
+        //     if (newValue) {
+        //         setValue(newValue);
+        //         setSliderValue(newValue);
+        //     }
+        // });
+        setValue(inputValue);
     }, [inputValue]);
-    // useEffect(() => {
-    //     setSliderValue(value);
-    //     setInputValue(value);
-    //     // Now also modify this quantity ...
-    //     // TODO: Check if you can put these in again, after you implement the max logic
-    //     // modifyIndividualAllocationItem(selectedItemKey, value);
-    // }, [value]);
+    useEffect(() => {
+        // setSliderValue(value);
+        // setInputValue(value);
+        // Now also modify this quantity ...
+        // TODO: Check if you can put these in again, after you implement the max logic
+        modifyIndividualAllocationItem(selectedItemKey, value);
+    }, [value]);
 
     // Add the blocker here, maybe (?)
 
@@ -114,14 +123,20 @@ export default function InputFieldWithSliderInputAndLogo({allocationItems, selec
                 min={min}
                 max={max}
                 value={value}
-                onChange={(event) => {
+                onChange={async (event) => {
                     let newValue = Number(event.target.value);
                     console.log("New " + String(currencyName) + " is: " + String(newValue));
+                    let diff: number = (newValue - value);
+                    await calculateAvailableAmount(diff);
+                    // Add the difference ...
+                    // TODO: Also add the case that the user does less than this total value ...
+                    // let diff = newValue - value;
                     if (newValue > maxAvailableInputBalance) {
-                        console.log("Cannot permit ");
-                        alert("Cannot permit to pay in more than you own!");
+                        console.log("Cannot permit (1)");
+                        // alert("Cannot permit to pay in more than you own!");
+                        setInputValue(maxAvailableInputBalance);
                     } else {
-                        setInputValue(newValue)
+                        setInputValue(newValue);
                     }
                 }}
             />
@@ -135,13 +150,16 @@ export default function InputFieldWithSliderInputAndLogo({allocationItems, selec
                     step={"0.0001"}
                     min={min}
                     max={max}
-                    onChange={(event) => {
+                    onChange={async (event) => {
                         let newValue = Number(event.target.value);
                         console.log("New " + String(currencyName) + " is: " + String(newValue));
                         // Gotta double-check that this is not above the maximum balance ...
+                        let diff: number = (newValue - value);
+                        await calculateAvailableAmount(diff);
                         if (newValue > maxAvailableInputBalance) {
-                            console.log("Cannot permit ");
-                            alert("Cannot permit to pay in more than you own!");
+                            console.log("Cannot permit (2)");
+                            // alert("Cannot permit to pay in more than you own!");
+                            setSliderValue(maxAvailableInputBalance);
                         } else {
                             setSliderValue(newValue);
                         }

@@ -1,4 +1,4 @@
-import {Connection, PublicKey, Transaction} from "@solana/web3.js";
+import {Connection, PublicKey, TokenAmount, Transaction} from "@solana/web3.js";
 import {BN, Provider} from "@project-serum/anchor";
 import {lamportsReserversForLocalWallet} from "../const";
 import {ExplicitPool} from "@qpools/sdk";
@@ -14,14 +14,31 @@ export interface SelectedToken {
     mint: PublicKey
 }
 
-export const getTokenAmount = (x: BN, decimals: number) => {
+export const getTokenAmount = (x: BN, decimals: BN): TokenAmount => {
+    let decimalAsPower = (new BN(10)).pow(decimals);
+    let uiAmountBN = BN.max(((x.mul(decimalAsPower).sub(lamportsReserversForLocalWallet))), new BN(0.0));
+    let uiAmount = uiAmountBN.toString(); // Add a dot at the decimal point ...
+    uiAmount = uiAmount.substring(0, uiAmount.length - decimals.toNumber()) + "." + uiAmount.substring(uiAmount.length - decimals.toNumber(), uiAmount.length);
     return {
         amount: x.toString(),
-        decimals: decimals,
-        uiAmount: Math.max(((x.toNumber() - lamportsReserversForLocalWallet) / (10 ** decimals)), 0.0),
-        uiAmountString: Math.max((((x.toNumber() - lamportsReserversForLocalWallet) / (10 ** decimals)))).toString()
+        decimals: decimals.toNumber(),
+        uiAmount: Number(uiAmount),
+        uiAmountString: uiAmount.toString()
     };
 }
+
+// export const getTokenAmount = (x: BN, decimals: BN): TokenAmount => {
+//     let decimalAsPower = (new BN(10)).pow(decimals);
+//     let uiAmountBN = BN.max(((x.mul(decimalAsPower).sub(lamportsReserversForLocalWallet))), new BN(0.0));
+//     let uiAmount = uiAmountBN.toString(); // Add a dot at the decimal point ...
+//     uiAmount = uiAmount.substring(0, uiAmount.length - decimals.toNumber()) + "." + uiAmount.substring(uiAmount.length - decimals.toNumber(), uiAmount.length);
+//     return {
+//         amount: x.toString(),
+//         decimals: decimals.toNumber(),
+//         uiAmount: Number(uiAmount),
+//         uiAmountString: uiAmount.toString()
+//     };
+// }
 
 export const getTokensFromPools = (selectedAssetPools: ExplicitPool[]): [ExplicitPool, ExplicitToken][] => {
     let out: [ExplicitPool, ExplicitToken][] = [];

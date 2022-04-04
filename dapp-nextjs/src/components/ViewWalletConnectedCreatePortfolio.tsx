@@ -59,11 +59,11 @@ export const ViewWalletConnectedCreatePortfolio = ({registry}: Props) => {
      * @param currentlySelectedKey
      * @param absoluteBalance
      */
-    const modifyIndividualAllocationItem = async (currentlySelectedKey: string, absoluteBalance: number): Promise<number | null> => {
+    const modifyIndividualAllocationItem = async (currentlySelectedKey: string, absoluteBalance: number): Promise<void> => {
 
         // TODO: This shit will break for sure ..
         if (currentlySelectedKey === "") {
-            return null;
+            return;
         }
         if (!allocationData.has(currentlySelectedKey)) {
             throw Error("The key you're trying to modify does not exist for some reason! " + currentlySelectedKey);
@@ -71,8 +71,8 @@ export const ViewWalletConnectedCreatePortfolio = ({registry}: Props) => {
         let currentlySelectedAsset: AllocData = {...allocationData.get(currentlySelectedKey)!};
         console.log("Currently Selected is: ", currentlySelectedAsset);
 
-        let numberInclDecimals: BN = (new BN(absoluteBalance * (10 ** currentlySelectedAsset.userInputAmount!.amount.decimals)));
-        let tokenAmount: TokenAmount = getTokenAmount(numberInclDecimals, currentlySelectedAsset.userInputAmount!.amount.decimals);
+        let numberInclDecimals: BN = (new BN(absoluteBalance)).mul((new BN(10)).pow(new BN(currentlySelectedAsset.userInputAmount!.amount.decimals)));
+        let tokenAmount: TokenAmount = getTokenAmount(numberInclDecimals, new BN(currentlySelectedAsset.userInputAmount!.amount.decimals));
 
         let userInputAmount: UserTokenBalance = {
             mint: currentlySelectedAsset.userInputAmount!.mint,
@@ -108,90 +108,12 @@ export const ViewWalletConnectedCreatePortfolio = ({registry}: Props) => {
         // Also add another key prop (one id for us, one key for react maybe?) to force re-rendering ...
         let updatedMap = new Map<string, AllocData>(allocationData);
         updatedMap.set(selectedAsset, newAsset)
-        // allocationsToBeModified.map((x: AllocData) => {
-        //     updatedMap.set(x.lp, x);
-        // })
-
-        // Finally, make a check if this arrangement goes above what the user want to allocate ...
-        // let allAllocationsWithThisToken = (await registry.getPoolsByInputToken(userInputAmount.mint.toString()))
-        //     .filter((x: ExplicitPool) => {
-        //         // Gotta create the id same as when loading the data. Create a function for this...
-        //         let id = String(Protocol[x.protocol]) + " " + x.id;
-        //         if (allocationData.has(id)) {
-        //             return true
-        //         } else {
-        //             console.log("Name not found!", id, x, allocationData);
-        //             return false
-        //         }
-        //     })
-        //     .map((x: ExplicitPool) => {
-        //         let id = String(Protocol[x.protocol]) + " " + x.id;
-        //         let inputAmount = new BN(allocationData.get(id)!.userInputAmount!.amount.amount);
-        //         return inputAmount;
-        //     });
-        // let totalInputtedAmount: BN = new BN(0);
-        // allAllocationsWithThisToken.map((current: BN) => {
-        //     totalInputtedAmount = totalInputtedAmount.add(current)
-        // });
-        // // Do not allow the user to prnumberInclDecimalsoceed, if this total amount is higher than the wallet's amount
-        // let totalAvailableAmount: BN = new BN(currentlySelectedAsset.userWalletAmount!.amount.amount);
-        // if (totalInputtedAmount.gt(totalAvailableAmount)) {
-        //     // Maybe show a small error somewhere, or lock it ....
-        //     console.log("Total amount is not ok! ", totalInputtedAmount.toString(), totalAvailableAmount.toString());
-        //     return absoluteBalance;
-        // } else {
-        //     console.log("Total amount is still ok! ", totalInputtedAmount.toString(), totalAvailableAmount.toString());
-        // }
 
         // Now set the stuff ...
         setAllocationData((oldAllocationData: Map<string, AllocData>) => {
             console.log("Updated Map is: ", updatedMap);
             return updatedMap;
         });
-
-        // If all is successful, return the new, updated balance
-        // return totalInputtedAmount.toNumber();
-
-        // /**
-        //  * Now implement the logic which (based on the amount that was there last time), re-distributes the portfolio to all other elements
-        //  */
-        // let oldNumberInclDecimals: BN = new BN(currentlySelectedAsset.userInputAmount!.amount.amount);
-        // let percentageChange: number = absoluteDiff(oldNumberInclDecimals, numberInclDecimals).toNumber() / numberInclDecimals.toNumber();
-        //
-        // // TODO: Now subtract (in percentage), uniformly across all other assets
-        // // Maybe transpose this operation, might be faster (but not needed right now  ...)
-        // let allocationsToBeModified: AllocData[] = await Promise.all((await registry.getPoolsByInputToken(userInputAmount.mint.toString()))
-        //     .filter((x: ExplicitPool) => {
-        //         // Gotta create the id same as when loading the data. Create a function for this...
-        //         if (allocationData.has(x.name)) {
-        //             return true
-        //         } else {
-        //             console.log("Name not found!", x.name, allocationData);
-        //             return false
-        //         }
-        //     })
-        //     .map(async (x: ExplicitPool) => {
-        //         // Create an alloc-data from this
-        //         // Gotta have more uniform names ...
-        //         // TODO: Unify how to create ids ... perhaps just use the mint of the lp token / certificate...
-        //         let newAsset = {...allocationData.get(x.name)}
-        //         // TODO: Calculate the numberInclDecimals, take the old one, and percentage-wise substract it from the new inputs ...
-        //         // let percentageDifference: BN = ();
-        //         let numberInclDecimals: BN = (new BN(absoluteBalance * (10 ** currentlySelectedAsset.userInputAmount!.amount.decimals)));
-        //         let tokenAmount: TokenAmount = getTokenAmount(numberInclDecimals, currentlySelectedAsset.userInputAmount!.amount.decimals);
-        //         newAsset.userInputAmount = {
-        //             mint: newAsset.userInputAmount!.mint,
-        //             ata: newAsset.userInputAmount!.ata,
-        //             amount: tokenAmount
-        //         };
-        //         let usdcAmount = await multiplyAmountByPythprice(
-        //             userInputAmount.amount.uiAmount!,
-        //             userInputAmount.mint
-        //         );
-        //         newAsset.usdcAmount = usdcAmount;
-        //         return newAsset;
-        //     })
-        // );
 
     }
 
@@ -228,6 +150,7 @@ export const ViewWalletConnectedCreatePortfolio = ({registry}: Props) => {
                     allocationItems={allocationData}
                     selectedItemKey={selectedAsset}
                     modifyIndividualAllocationItem={modifyIndividualAllocationItem}
+                    registry={registry}
                 />
             </div>
         </div>

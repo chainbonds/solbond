@@ -94,14 +94,14 @@ export function UserWalletAssetsProvider(props: any) {
                     let wrappedSolBalance: BN = new BN((await rpcProvider.connection!.getTokenAccountBalance(ata)).value.amount);
                     let totalBalance: BN = wrappedSolBalance.add(solBalance);
                     console.log("solbalance before ", solBalance);
-                    userBalance = getTokenAmount(totalBalance, 9);
+                    userBalance = getTokenAmount(totalBalance, new BN(9));
                     // Could also divide this by the number of input assets or sth ...
-                    startingBalance = getTokenAmount(new BN(0), 9);
+                    startingBalance = getTokenAmount(new BN(0), new BN(9));
                     console.log("solbalance after ... ");
                 } else {
                     console.log("Mint is: ", mint.toString(), ata.toString());
                     userBalance = (await rpcProvider.connection!.getTokenAccountBalance(ata)).value;
-                    startingBalance = getTokenAmount(new BN(0), userBalance.decimals);
+                    startingBalance = getTokenAmount(new BN(0), new BN(userBalance.decimals));
                     console.log("fetched successfully! ", userBalance);
                 }
 

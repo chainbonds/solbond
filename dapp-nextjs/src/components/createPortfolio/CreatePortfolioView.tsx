@@ -5,13 +5,15 @@ import {AllocData} from "../../types/AllocData";
 import {getInputToken, SelectedToken} from "../../utils/utils";
 import InputFieldWithSliderInputAndLogo from "../common/InputFieldWithSliderInputAndLogo";
 import PurchaseButton from "../createPortfolio/buttons/PurchaseButton";
+import {Registry} from "../../../../../qPools-contract/qpools-sdk";
 
 interface Props {
     allocationItems: Map<string, AllocData>,
     selectedItemKey: string,
-    modifyIndividualAllocationItem: (arg0: string, arg1: number) => Promise<number | null>
+    modifyIndividualAllocationItem: (arg0: string, arg1: number) => Promise<void>,
+    registry: Registry
 }
-export default function CreatePortfolioView({allocationItems, selectedItemKey, modifyIndividualAllocationItem}: Props) {
+export default function CreatePortfolioView({allocationItems, selectedItemKey, modifyIndividualAllocationItem, registry}: Props) {
 
     const [displayOnramperModal, setDisplayOnramperModal] = useState<boolean>(false);
     const [selectedToken, setSelectedToken] = useState<SelectedToken | null>();
@@ -56,6 +58,7 @@ export default function CreatePortfolioView({allocationItems, selectedItemKey, m
                                     currencyName={selectedToken.name}
                                     min={0}
                                     max={allocationItems.get(selectedItemKey)!.userWalletAmount!.amount.uiAmount! ? allocationItems.get(selectedItemKey)!.userWalletAmount!.amount.uiAmount! : 100}
+                                    registry={registry}
                                 />
                             }
                         </div>
