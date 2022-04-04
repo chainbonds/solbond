@@ -9,7 +9,7 @@ import PurchaseButton from "../createPortfolio/buttons/PurchaseButton";
 interface Props {
     allocationItems: Map<string, AllocData>,
     selectedItemKey: string,
-    modifyIndividualAllocationItem: (arg0: string, arg1: number) => void
+    modifyIndividualAllocationItem: (arg0: string, arg1: number) => Promise<number | null>
 }
 export default function CreatePortfolioView({allocationItems, selectedItemKey, modifyIndividualAllocationItem}: Props) {
 

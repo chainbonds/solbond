@@ -85,6 +85,8 @@ export function UserWalletAssetsProvider(props: any) {
                 // Finally get the users' balance
                 // Let's assume that if the token is wrapped solana, that we can also include the pure solana into this.
                 let userBalance: TokenAmount;
+                // Set the starting balance always at 0
+                let startingBalance: TokenAmount;
                 if (mint.equals(getWrappedSolMint())) {
                     // In the case of wrapped sol, combine the balance from the native SOL,
                     // as well as the balance from the wrapped SOL
@@ -93,10 +95,13 @@ export function UserWalletAssetsProvider(props: any) {
                     let totalBalance: BN = wrappedSolBalance.add(solBalance);
                     console.log("solbalance before ", solBalance);
                     userBalance = getTokenAmount(totalBalance, 9);
-                    console.log("solbalance after ... ")
+                    // Could also divide this by the number of input assets or sth ...
+                    startingBalance = getTokenAmount(new BN(0), 9);
+                    console.log("solbalance after ... ");
                 } else {
                     console.log("Mint is: ", mint.toString(), ata.toString());
                     userBalance = (await rpcProvider.connection!.getTokenAccountBalance(ata)).value;
+                    startingBalance = getTokenAmount(new BN(0), userBalance.decimals);
                     console.log("fetched successfully! ", userBalance);
                 }
 
@@ -104,7 +109,7 @@ export function UserWalletAssetsProvider(props: any) {
 
                 let newPool: AllocData = {
                     ...fetchedPool,
-                    userInputAmount: {mint: mint, ata: ata, amount: userBalance},
+                    userInputAmount: {mint: mint, ata: ata, amount: startingBalance},
                     userWalletAmount: {mint: mint, ata: ata, amount: userBalance}
                 }
 

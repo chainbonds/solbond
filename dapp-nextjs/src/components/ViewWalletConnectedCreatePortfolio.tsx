@@ -59,11 +59,11 @@ export const ViewWalletConnectedCreatePortfolio = ({registry}: Props) => {
      * @param currentlySelectedKey
      * @param absoluteBalance
      */
-    const modifyIndividualAllocationItem = async (currentlySelectedKey: string, absoluteBalance: number): Promise<number> => {
+    const modifyIndividualAllocationItem = async (currentlySelectedKey: string, absoluteBalance: number): Promise<number | null> => {
 
         // TODO: This shit will break for sure ..
         if (currentlySelectedKey === "") {
-            return absoluteBalance;
+            return null;
         }
         if (!allocationData.has(currentlySelectedKey)) {
             throw Error("The key you're trying to modify does not exist for some reason! " + currentlySelectedKey);
@@ -113,35 +113,35 @@ export const ViewWalletConnectedCreatePortfolio = ({registry}: Props) => {
         // })
 
         // Finally, make a check if this arrangement goes above what the user want to allocate ...
-        let allAllocationsWithThisToken = (await registry.getPoolsByInputToken(userInputAmount.mint.toString()))
-            .filter((x: ExplicitPool) => {
-                // Gotta create the id same as when loading the data. Create a function for this...
-                let id = String(Protocol[x.protocol]) + " " + x.id;
-                if (allocationData.has(id)) {
-                    return true
-                } else {
-                    console.log("Name not found!", id, x, allocationData);
-                    return false
-                }
-            })
-            .map((x: ExplicitPool) => {
-                let id = String(Protocol[x.protocol]) + " " + x.id;
-                let inputAmount = new BN(allocationData.get(id)!.userInputAmount!.amount.amount);
-                return inputAmount;
-            });
-        let totalInputtedAmount: BN = new BN(0);
-        allAllocationsWithThisToken.map((current: BN) => {
-            totalInputtedAmount = totalInputtedAmount.add(current)
-        });
-        // Do not allow the user to proceed, if this total amount is higher than the wallet's amount
-        let totalAvailableAmount: BN = new BN(currentlySelectedAsset.userWalletAmount!.amount.amount);
-        if (totalInputtedAmount.gt(totalAvailableAmount)) {
-            // Maybe show a small error somewhere, or lock it ....
-            console.log("Total amount is not ok! ", totalInputtedAmount.toString(), totalAvailableAmount.toString());
-            return absoluteBalance;
-        } else {
-            console.log("Total amount is still ok! ", totalInputtedAmount.toString(), totalAvailableAmount.toString());
-        }
+        // let allAllocationsWithThisToken = (await registry.getPoolsByInputToken(userInputAmount.mint.toString()))
+        //     .filter((x: ExplicitPool) => {
+        //         // Gotta create the id same as when loading the data. Create a function for this...
+        //         let id = String(Protocol[x.protocol]) + " " + x.id;
+        //         if (allocationData.has(id)) {
+        //             return true
+        //         } else {
+        //             console.log("Name not found!", id, x, allocationData);
+        //             return false
+        //         }
+        //     })
+        //     .map((x: ExplicitPool) => {
+        //         let id = String(Protocol[x.protocol]) + " " + x.id;
+        //         let inputAmount = new BN(allocationData.get(id)!.userInputAmount!.amount.amount);
+        //         return inputAmount;
+        //     });
+        // let totalInputtedAmount: BN = new BN(0);
+        // allAllocationsWithThisToken.map((current: BN) => {
+        //     totalInputtedAmount = totalInputtedAmount.add(current)
+        // });
+        // // Do not allow the user to prnumberInclDecimalsoceed, if this total amount is higher than the wallet's amount
+        // let totalAvailableAmount: BN = new BN(currentlySelectedAsset.userWalletAmount!.amount.amount);
+        // if (totalInputtedAmount.gt(totalAvailableAmount)) {
+        //     // Maybe show a small error somewhere, or lock it ....
+        //     console.log("Total amount is not ok! ", totalInputtedAmount.toString(), totalAvailableAmount.toString());
+        //     return absoluteBalance;
+        // } else {
+        //     console.log("Total amount is still ok! ", totalInputtedAmount.toString(), totalAvailableAmount.toString());
+        // }
 
         // Now set the stuff ...
         setAllocationData((oldAllocationData: Map<string, AllocData>) => {
@@ -150,7 +150,7 @@ export const ViewWalletConnectedCreatePortfolio = ({registry}: Props) => {
         });
 
         // If all is successful, return the new, updated balance
-        return totalInputtedAmount.toNumber();
+        // return totalInputtedAmount.toNumber();
 
         // /**
         //  * Now implement the logic which (based on the amount that was there last time), re-distributes the portfolio to all other elements
