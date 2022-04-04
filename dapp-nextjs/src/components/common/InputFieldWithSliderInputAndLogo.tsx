@@ -142,6 +142,7 @@ export default function InputFieldWithSliderInputAndLogo({allocationItems, selec
                     } else {
                         setInputValue(newValue);
                     }
+                    await calculateAvailableAmount();
                 }}
             />
         </>)
@@ -167,6 +168,7 @@ export default function InputFieldWithSliderInputAndLogo({allocationItems, selec
                         } else {
                             setSliderValue(newValue);
                         }
+                        await calculateAvailableAmount();
                     }}
                     value={value}
                     className="range range-xs"
