@@ -81,7 +81,7 @@ export function SerpiusEndpointProvider(props: Props) {
                     } else if (dataItem.lp === "mSOL") {
                         // dataItem.lp = "marinade"
                         dataItem.lp = "marinade"
-                    } else if (dataItem.lp === "USDC") {
+                    } else if (dataItem.lp === "SOL") {
                         dataItem.lp = "cSOL"
                         // dataItem.lp = "Solana"
                     }

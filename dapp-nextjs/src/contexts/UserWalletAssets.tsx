@@ -7,7 +7,11 @@ import {ISerpius, useSerpiusEndpoint} from "./SerpiusProvider";
 import {BN} from "@project-serum/anchor";
 import {getTokenAmount} from "../utils/utils";
 import {ExplicitToken, multiplyAmountByPythprice} from "../../../../qPools-contract/qpools-sdk";
-import {getNativeSolMint, getWhitelistTokens} from "../../../../qPools-contract/qpools-sdk/lib/const";
+import {
+    getNativeSolMint,
+    getWhitelistTokens,
+    getWrappedSolMint
+} from "../../../../qPools-contract/qpools-sdk/lib/const";
 
 
 export interface IUserWalletAssets {
@@ -79,12 +83,16 @@ export function UserWalletAssetsProvider(props: any) {
                 let mint: PublicKey = new PublicKey(token.address);
                 let ata = await getAssociatedTokenAddressOffCurve(mint, rpcProvider.userAccount!.publicKey);
                 // Finally get the users' balance
-                // Let's assume that if the token is wrapped solana, that we can also include the pure solana into this .
+                // Let's assume that if the token is wrapped solana, that we can also include the pure solana into this.
                 let userBalance: TokenAmount;
-                if (mint.equals(getNativeSolMint())) {
+                if (mint.equals(getWrappedSolMint())) {
+                    // In the case of wrapped sol, combine the balance from the native SOL,
+                    // as well as the balance from the wrapped SOL
                     let solBalance: BN = new BN (await rpcProvider.connection!.getBalance(rpcProvider.userAccount!.publicKey));
+                    let wrappedSolBalance: BN = new BN((await rpcProvider.connection!.getTokenAccountBalance(ata)).value.amount);
+                    let totalBalance: BN = wrappedSolBalance.add(solBalance);
                     console.log("solbalance before ", solBalance);
-                    userBalance = getTokenAmount(solBalance, 9);
+                    userBalance = getTokenAmount(totalBalance, 9);
                     console.log("solbalance after ... ")
                 } else {
                     console.log("Mint is: ", mint.toString(), ata.toString());

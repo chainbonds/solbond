@@ -241,6 +241,7 @@ export default function PurchaseButton({allocationData}: Props) {
 
             } else if (value.protocol.valueOf() === Protocol.marinade.valueOf()) {
                 let lamports = new BN(value.userInputAmount!.amount.amount);
+                // TODO: Turn the excess lamports into wrapped SOL (add a send + create-native-sync instruction for this)
                 if (lamports.lt(new BN(10 ** 9))) {
                     errorMessage.addWarningMessage("To utilize Marinade, you need to input at least 1SOL", "You have inputted this number of lamports: " + lamports.toString());
                     // throw Error()
@@ -252,11 +253,29 @@ export default function PurchaseButton({allocationData}: Props) {
                 );
                 tx.add(IxApprovePositionWeightMarinade);
 
+            } else if (value.protocol.valueOf() === Protocol.solend.valueOf()) {
+
+                let IxApprovePositionWeightSolend = await rpcProvider.portfolioObject!.approvePositionWeightSolend(
+                    currencyMint,
+                    currencyAmount,
+                    index,
+                    weight
+                )
+                tx.add(IxApprovePositionWeightSolend);
+
+                // TODO: Double-check if you need this for solend ...
+                let IxSendUsdcToPortfolio = await rpcProvider.portfolioObject!.transfer_to_portfolio(value.userInputAmount!.mint);
+                tx.add(IxSendUsdcToPortfolio);
+
             } else {
                 console.log("Protocol is not valid!");
                 throw Error("Protocol is not valid! " + JSON.stringify(value));
             }
         }));
+
+
+        // TODO: Turn the excess lamports into wrapped SOL (add a send + create-native-sync instruction for this)
+        //  Or vice-versa
 
         /**
          * Finally, send some SOL to the crank wallet s.t. the cranks can be executed
@@ -317,6 +336,24 @@ export default function PurchaseButton({allocationData}: Props) {
                 try {
                     let sgPermissionlessFullfillMarinade = await crankProvider.crankRpcTool!.createPositionMarinade(index);
                     console.log("Fulfilled sg Marinade is: ", sgPermissionlessFullfillMarinade);
+                } catch (error) {
+                    itemLoadContext.resetCounter();
+                    console.log(String(error));
+                    errorMessage.addErrorMessage(
+                        "Fulfilling the Marinade Protocol failed.",
+                        String(error)
+                    );
+                    return;
+                }
+            } else if (value.protocol.valueOf() === Protocol.solend.valueOf()) {
+                try {
+                    // TODO: createPositionSolend ==> requires the Solend one
+                    // The last two variables are hard-coded and wrong!
+                    let sgPermissionlessFullfillSolend = await crankProvider.crankRpcTool!.createPositionSolend(
+                        value.userInputAmount!.mint,
+                        index
+                    );
+                    console.log("Fulfilled sg Marinade is: ", sgPermissionlessFullfillSolend);
                 } catch (error) {
                     itemLoadContext.resetCounter();
                     console.log(String(error));

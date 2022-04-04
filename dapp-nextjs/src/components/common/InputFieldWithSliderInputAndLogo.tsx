@@ -9,7 +9,7 @@ interface Props {
     allocationItems: Map<string, AllocData>,
     selectedItemKey: string,
     currencyName: string,
-    modifyIndividualAllocationItem: (arg0: string, arg1: number) => void,
+    modifyIndividualAllocationItem: (arg0: string, arg1: number) => Promise<number>,
     min: number,
     max: number
 }
@@ -31,18 +31,26 @@ export default function InputFieldWithSliderInputAndLogo({allocationItems, selec
         }
     }, [selectedItemKey]);  // allocationItems,
     useEffect(() => {
-        setValue(sliderValue);
+        modifyIndividualAllocationItem(selectedItemKey, inputValue).then((newValue: number) => {
+            setValue(newValue);
+        });
     }, [sliderValue]);
     useEffect(() => {
-        setValue(inputValue);
+        // First, modify the input,
+        // Then, if the input is not modifiable, set this value to false ...
+        modifyIndividualAllocationItem(selectedItemKey, inputValue).then((newValue: number) => {
+            setValue(newValue);
+        });
     }, [inputValue]);
-    useEffect(() => {
-        // setSliderValue(value);
-        // setInputValue(value);
-        // Now also modify this quantity ...
-        // TODO: Check if you can put these in again, after you implement the max logic
-        modifyIndividualAllocationItem(selectedItemKey, value);
-    }, [value]);
+    // useEffect(() => {
+    //     // setSliderValue(value);
+    //     // setInputValue(value);
+    //     // Now also modify this quantity ...
+    //     // TODO: Check if you can put these in again, after you implement the max logic
+    //     // modifyIndividualAllocationItem(selectedItemKey, value);
+    // }, [value]);
+
+    // Add the blocker here, maybe (?)
 
     const inputTextField = () => {
         return (<>

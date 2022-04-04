@@ -2,6 +2,17 @@ import {ExplicitPool, Protocol, Registry} from "../../../../qPools-contract/qpoo
 import {DisplayToken} from "../types/DisplayToken";
 import {solscanLink} from "./utils";
 import {PublicKey} from "@solana/web3.js";
+import {BN} from "@project-serum/anchor";
+
+export const absoluteDiff = async (a: BN, b: BN): BN => {
+    if (a.gt(b)) {
+        return a.sub(b);
+    } else if (a.lt(b)) {
+        return b.sub(a);
+    } else {
+        return a.sub(b);
+    }
+}
 
 export const displayTokensFromPool = async (pool: ExplicitPool, registry: Registry): Promise<DisplayToken[]> => {
 
