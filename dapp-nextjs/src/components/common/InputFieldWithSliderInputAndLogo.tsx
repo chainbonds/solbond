@@ -7,6 +7,7 @@ import {getWhitelistTokens} from "@qpools/sdk";
 import {BN} from "@project-serum/anchor";
 import {TokenAmount} from "@solana/web3.js";
 import {getTokenAmount} from "../../utils/utils";
+import {getMarinadeSolMint} from "../../../../../qPools-contract/qpools-sdk/lib/const";
 
 interface Props {
     allocationItems: Map<string, AllocData>,
@@ -24,18 +25,22 @@ export default function InputFieldWithSliderInputAndLogo({allocationItems, selec
     const [inputValue, setInputValue] = useState<number>(0.);
     const [maxAvailableInputBalance, setMaxAvailableInputBalance] = useState<number>(0.);
     const [totalInputBalance, setTotalInputBalance] = useState<number>(0.);
+    const [currentlySelectedAsset, setCurrentlySelectedAsset] = useState<AllocData>();
 
     const [errorMessage, setErrorMessage] = useState<string>("");
 
-    const calculateTotalDepositingAmount = async () => {
+    useEffect(() => {
         if (!allocationItems.has(selectedItemKey)) {
             console.log("Selected key not found ...", allocationItems, selectedItemKey);
             return;
         }
         let currentlySelectedAsset: AllocData = allocationItems.get(selectedItemKey)!;
-        if (!currentlySelectedAsset.userInputAmount) {
-            console.log("input amount not found ...", currentlySelectedAsset.userInputAmount);
-            return;
+        setCurrentlySelectedAsset(() => {return currentlySelectedAsset});
+    }, [allocationItems, selectedItemKey]);
+
+    const calculateTotalDepositingAmount = async () => {
+        if (!currentlySelectedAsset) {
+            return
         }
         let inputCurrency = currentlySelectedAsset.userInputAmount!.mint;
         let totalInputtedAmount: BN = new BN(0);
@@ -65,11 +70,9 @@ export default function InputFieldWithSliderInputAndLogo({allocationItems, selec
     // Define max and the rest here maybe (and also currency-name ...
     // diff: number
     const calculateAvailableAmount = async () => {
-        if (!allocationItems.has(selectedItemKey)) {
-            console.log("Selected key not found ...", allocationItems, selectedItemKey);
-            return;
+        if (!currentlySelectedAsset) {
+            return
         }
-        let currentlySelectedAsset: AllocData = allocationItems.get(selectedItemKey)!;
         if (!currentlySelectedAsset.userInputAmount) {
             console.log("input amount not found ...", currentlySelectedAsset.userInputAmount);
             return;
@@ -144,11 +147,9 @@ export default function InputFieldWithSliderInputAndLogo({allocationItems, selec
         setValue(inputValue);
     }, [inputValue]);
     useEffect(() => {
-        if (!allocationItems.has(selectedItemKey)) {
-            console.log("Selected key not found ...", allocationItems, selectedItemKey);
+        if (!currentlySelectedAsset) {
             return;
         }
-        let currentlySelectedAsset: AllocData = allocationItems.get(selectedItemKey)!;
         if (!currentlySelectedAsset.userInputAmount) {
             console.log("input amount not found ...", currentlySelectedAsset.userInputAmount);
             return;
@@ -188,10 +189,26 @@ export default function InputFieldWithSliderInputAndLogo({allocationItems, selec
                     // Add the difference ...
                     // TODO: Also add the case that the user does less than this total value ...
                     // let diff = newValue - value;
+
+                    console.log("LP (1) is: ", currentlySelectedAsset!.pool.lpToken.address.toString());
+                    // console.log("LP (2) is: ", currentlySelectedAsset!.userInputAmount!.mint!.toString());
+                    if (currentlySelectedAsset!.pool.lpToken.address!.toString() === getMarinadeSolMint().toString()) {
+                        if (newValue > 0 && newValue < 1) {
+                            console.log("Cannot permit (0)");
+                            setInputValue(0);
+                            setErrorMessage("The Marinade Finance Protocol requires you to input at least one full SOL to be delegated");
+                            return;
+                        } else {
+                            setInputValue(newValue);
+                            setErrorMessage("");
+                        }
+                    }
+
                     if (newValue > maxAvailableInputBalance) {
                         console.log("Cannot permit (1)");
                         setInputValue(maxAvailableInputBalance);
                         setErrorMessage("You cannot input more than there is in your wallet!");
+                        return;
                     } else {
                         setInputValue(newValue);
                         setErrorMessage("");
@@ -215,10 +232,27 @@ export default function InputFieldWithSliderInputAndLogo({allocationItems, selec
                         // let diff: number = Math.max(newValue - value, 0.);
                         // diff
                         await calculateAvailableAmount();
+
+                        console.log("LP (1) is: ", currentlySelectedAsset!.pool.lpToken.address.toString());
+                        // console.log("LP (2) is: ", currentlySelectedAsset!.userInputAmount!.mint!.toString());
+                        if (currentlySelectedAsset!.pool.lpToken.address!.toString() === getMarinadeSolMint().toString()) {
+                            if (newValue > 0 && newValue < 1) {
+                                console.log("Cannot permit (0)");
+                                setSliderValue(0);
+                                setErrorMessage("The Marinade Finance Protocol requires you to input at least one full SOL to be delegated");
+                                return;
+                            } else {
+                                setSliderValue(newValue);
+                                setErrorMessage("");
+                            }
+                        }
+
+
                         if (newValue > maxAvailableInputBalance) {
                             console.log("Cannot permit (2)");
                             setSliderValue(maxAvailableInputBalance);
                             setErrorMessage("You cannot input more than there is in your wallet!");
+                            return;
                         } else {
                             setSliderValue(newValue);
                             setErrorMessage("");
