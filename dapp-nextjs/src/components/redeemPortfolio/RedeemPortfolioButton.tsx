@@ -7,6 +7,7 @@ import {ILocalKeypair, useLocalKeypair} from "../../contexts/LocalKeypairProvide
 import {ICrank, useCrank} from "../../contexts/CrankProvider";
 import {useErrorMessage} from "../../contexts/ErrorMessageContext";
 import {lamportsReserversForLocalWallet} from "../../const";
+import {BN} from "@project-serum/anchor";
 
 export const RedeemPortfolioButton: FC = ({}) => {
 
@@ -58,8 +59,13 @@ export const RedeemPortfolioButton: FC = ({}) => {
          * Approve for each position individually (by protocol), that it will be withdrawn
          */
         console.log("Getting instructions to approve the transaction...");
-        let {portfolio, positionsSaber, positionsMarinade} = await rpcProvider.portfolioObject!.getPortfolioAndPositions();
-        let allIxs = await rpcProvider.portfolioObject!.approveRedeemAllPositions(portfolio, positionsSaber, positionsMarinade);
+        let {portfolio, positionsSaber, positionsMarinade, positionsSolend} = await rpcProvider.portfolioObject!.getPortfolioAndPositions();
+        let allIxs = await rpcProvider.portfolioObject!.approveRedeemAllPositions(
+            portfolio,
+            positionsSaber,
+            positionsMarinade,
+            positionsSolend
+        );
         allIxs.map((x: TransactionInstruction) => tx.add(x));
 
         /**
@@ -116,10 +122,11 @@ export const RedeemPortfolioButton: FC = ({}) => {
         /**
          * Send the lamports in the local crank wallet back to the user
          */
-        let tmpWalletBalance: number = await rpcProvider.connection!.getBalance(localKeypairProvider.localTmpKeypair!.publicKey);
+        let tmpWalletBalance: BN = new BN(await rpcProvider.connection!.getBalance(localKeypairProvider.localTmpKeypair!.publicKey));
         // This is approximately how much lamports is required for a single transaction...
-        let lamportsBack = Math.min(tmpWalletBalance - 7_001, 0);
-        if (lamportsBack > 0) {
+        // TODO: Add this into a constants variable
+        let lamportsBack = BN.min(tmpWalletBalance.subn(7_001), new BN(0));
+        if (lamportsBack.gtn(0)) {
             let ix = await crankProvider.crankRpcTool!.sendToUsersWallet(
                 localKeypairProvider.localTmpKeypair!.publicKey,
                 lamportsBack

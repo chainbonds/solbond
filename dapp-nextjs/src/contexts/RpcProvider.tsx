@@ -1,6 +1,6 @@
 import React, {useState, useContext, useEffect} from 'react';
 import {Provider} from "@project-serum/anchor";
-import {Connection, Keypair, PublicKey} from "@solana/web3.js";
+import {Connection, Keypair} from "@solana/web3.js";
 import {Token, TOKEN_PROGRAM_ID} from "@solana/spl-token";
 import * as anchor from "@project-serum/anchor";
 import {solbondProgram} from "../programs/solbond";

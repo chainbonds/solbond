@@ -3,10 +3,10 @@ import Head from "next/head";
 import {HomeView} from "../views";
 import Script from 'next/script';
 import {PropsWithChildren} from "react";
-import {Registry} from "@qpools/sdk";
+import * as qpools from "@qpools/sdk";
 
 interface Props extends PropsWithChildren<{}> {
-    registry: Registry
+    registry: qpools.helperClasses.Registry
 }
 // NextPage
 const Home: any = (props: Props) => {
