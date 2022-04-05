@@ -3,11 +3,9 @@ import React, {useEffect, useState} from "react";
 import SuggestedPortfolioTable from "./createPortfolio/SuggestedPortfolioTable";
 import CreatePortfolioView from "./createPortfolio/CreatePortfolioView";
 import {AllocData} from "../types/AllocData";
-import {BN} from "@project-serum/anchor";
 import {UserTokenBalance} from "../types/UserTokenBalance";
 import {IUserWalletAssets, useUserWalletAssets} from "../contexts/UserWalletAssets";
 import {TokenAmount} from "@solana/web3.js";
-import {getTokenAmount} from "../utils/utils";
 import * as qpools from "@qpools/sdk";
 
 interface Props {
