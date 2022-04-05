@@ -22,7 +22,13 @@ export function useUserWalletAssets() {
     return useContext(UserWalletAssetsContext);
 }
 
-export function UserWalletAssetsProvider(props: any) {
+// Add the registry here
+// Set a new pubkey to the registry, if the user has connected his wallet ...
+interface Props {
+    registry: qpools.helperClasses.Registry
+    children: any
+}
+export function UserWalletAssetsProvider(props: Props) {
 
     const rpcProvider: IRpcProvider = useRpc();
     const serpiusProvider: ISerpius = useSerpiusEndpoint();
@@ -54,6 +60,9 @@ export function UserWalletAssetsProvider(props: any) {
             return
         }
         // Also return empty if the
+
+        // Set the newly selected pubkey into the registry ...
+        props.registry.setNewPubkey(rpcProvider.userAccount!.publicKey);
 
         // (1) Get all token accounts owned that we get from the serpius API ...
         // .filter((item, index) => {return portfolioRatios.indexOf(item) === index})

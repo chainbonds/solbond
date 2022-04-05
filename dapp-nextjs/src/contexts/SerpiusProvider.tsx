@@ -61,6 +61,7 @@ export function SerpiusEndpointProvider(props: Props) {
                 // For now, I will leave it like this
                 // let data: SerpiusInput[] = _data.map((x: any) => {return {...x, protocol: Protocol[x.protocol]}});
 
+                console.log("Data is: ", data);
                 console.log("After..");
                 // setPortfolioRatios(data);
                 console.log("(2) Data and type is: ", typeof data, data);
@@ -86,8 +87,9 @@ export function SerpiusEndpointProvider(props: Props) {
                     }
 
                     console.log("Registry is: ", props.registry);
-
+                    console.log("Getting from getPoolSplStringId (1)");
                     let pool: qpools.typeDefinitions.interfacingAccount.ExplicitPool | null = await props.registry.getPoolFromSplStringId(dataItem.lp);
+                    console.log("Getting from getPoolSplStringId (2)");
                     if (!pool) {
                         throw Error("The Id that the serpius endpoint provides was not found in the registry ...: " + dataItem.lp);
                     }
@@ -97,7 +99,7 @@ export function SerpiusEndpointProvider(props: Props) {
                         lp: dataItem.lp,
                         pool: pool,
                         // @ts-ignore
-                        protocol: Protocol[dataItem.protocol],   // Gotta convert the string to an enum ...
+                        protocol: qpools.typeDefinitions.interfacingAccount.Protocol[dataItem.protocol],   // Gotta convert the string to an enum ...
                         usdcAmount: (100 / (data.length))
                     };
                     console.log("data item is", out);

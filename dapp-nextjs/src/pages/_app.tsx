@@ -41,7 +41,7 @@ function MyApp({Component, pageProps}: AppProps) {
                             <ConnectionProvider endpoint={endpoint}>
                                 <WalletProvider>
                                     <RpcProvider registry={registry}>
-                                        <UserWalletAssetsProvider>
+                                        <UserWalletAssetsProvider registry={registry}>
                                             <ExistingPortfolioProvider registry={registry}>
                                                 <CrankProvider>
                                                     <Component {...pageProps} registry={registry} />
