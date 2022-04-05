@@ -2,12 +2,10 @@ import React, {useEffect, useState} from "react";
 import Image from "next/image";
 import {BRAND_COLORS} from "../../const";
 import {AllocData} from "../../types/AllocData";
-import {ExplicitPool, ExplicitToken, Protocol, Registry} from "@qpools/sdk";
-import {getWhitelistTokens} from "@qpools/sdk";
 import {BN} from "@project-serum/anchor";
 import {TokenAmount} from "@solana/web3.js";
 import {getTokenAmount} from "../../utils/utils";
-import {getMarinadeSolMint} from "../../../../../qPools-contract/qpools-sdk/lib/const";
+import * as qpools from "@qpools/sdk";
 
 interface Props {
     allocationItems: Map<string, AllocData>,
@@ -16,7 +14,7 @@ interface Props {
     modifyIndividualAllocationItem: (arg0: string, arg1: TokenAmount) => Promise<void>,
     min: number,
     max: number,
-    registry: Registry
+    registry: qpools.helperClasses.Registry
 }
 export default function InputFieldWithSliderInputAndLogo({allocationItems, selectedItemKey, currencyName, modifyIndividualAllocationItem, min, max, registry}: Props) {
 
@@ -46,9 +44,9 @@ export default function InputFieldWithSliderInputAndLogo({allocationItems, selec
         let totalInputtedAmount: BN = new BN(0);
         let decimals: number = currentlySelectedAsset.userWalletAmount!.amount.decimals;
         (await registry.getPoolsByInputToken(inputCurrency.toString()))
-            .filter((x: ExplicitPool) => {
+            .filter((x: qpools.typeDefinitions.interfacingAccount.ExplicitPool) => {
                 // Gotta create the id same as when loading the data. Create a function for this...
-                let id = String(Protocol[x.protocol]) + " " + x.id;
+                let id = String(qpools.typeDefinitions.interfacingAccount.Protocol[x.protocol]) + " " + x.id;
                 if (allocationItems.has(id)) {
                     return true
                 } else {
@@ -57,8 +55,8 @@ export default function InputFieldWithSliderInputAndLogo({allocationItems, selec
                 }
 
             })
-            .map((x: ExplicitPool) => {
-                let id = String(Protocol[x.protocol]) + " " + x.id;
+            .map((x: qpools.typeDefinitions.interfacingAccount.ExplicitPool) => {
+                let id = String(qpools.typeDefinitions.interfacingAccount.Protocol[x.protocol]) + " " + x.id;
                 let inputAmount = new BN(allocationItems.get(id)!.userInputAmount!.amount.amount);
                 totalInputtedAmount = totalInputtedAmount.add(inputAmount);
             });
@@ -84,9 +82,9 @@ export default function InputFieldWithSliderInputAndLogo({allocationItems, selec
         let decimals: number = currentlySelectedAsset.userWalletAmount!.amount.decimals;
         let totalInputtedAmount: BN = new BN(0);
         (await registry.getPoolsByInputToken(inputCurrency.toString()))
-            .filter((x: ExplicitPool) => {
+            .filter((x: qpools.typeDefinitions.interfacingAccount.ExplicitPool) => {
                 // Gotta create the id same as when loading the data. Create a function for this...
-                let id = String(Protocol[x.protocol]) + " " + x.id;
+                let id = String(qpools.typeDefinitions.interfacingAccount.Protocol[x.protocol]) + " " + x.id;
                 let currentElementsId = selectedItemKey;
 
                 console.log("id and current element id is: ", id, currentElementsId);
@@ -103,8 +101,8 @@ export default function InputFieldWithSliderInputAndLogo({allocationItems, selec
                 }
 
             })
-            .map((x: ExplicitPool) => {
-                let id = String(Protocol[x.protocol]) + " " + x.id;
+            .map((x: qpools.typeDefinitions.interfacingAccount.ExplicitPool) => {
+                let id = String(qpools.typeDefinitions.interfacingAccount.Protocol[x.protocol]) + " " + x.id;
                 let inputAmount = new BN(allocationItems.get(id)!.userInputAmount!.amount.amount);
                 totalInputtedAmount = totalInputtedAmount.add(inputAmount);
             });
@@ -192,11 +190,11 @@ export default function InputFieldWithSliderInputAndLogo({allocationItems, selec
 
                     console.log("LP (1) is: ", currentlySelectedAsset!.pool.lpToken.address.toString());
                     // console.log("LP (2) is: ", currentlySelectedAsset!.userInputAmount!.mint!.toString());
-                    if (currentlySelectedAsset!.pool.lpToken.address!.toString() === getMarinadeSolMint().toString()) {
+                    if (currentlySelectedAsset!.pool.lpToken.address!.toString() === qpools.constDefinitions.getMarinadeSolMint().toString()) {
                         if (newValue > 0 && newValue < 1) {
                             console.log("Cannot permit (0)");
                             setInputValue(0);
-                            setErrorMessage("The Marinade Finance Protocol requires you to input at least one full SOL to be delegated");
+                            setErrorMessage("The Marinade Finance Protocol requires you to input at least one full SOL to be delegated. You can also keep it at 0 SOL.");
                             return;
                         } else {
                             setInputValue(newValue);
@@ -235,11 +233,11 @@ export default function InputFieldWithSliderInputAndLogo({allocationItems, selec
 
                         console.log("LP (1) is: ", currentlySelectedAsset!.pool.lpToken.address.toString());
                         // console.log("LP (2) is: ", currentlySelectedAsset!.userInputAmount!.mint!.toString());
-                        if (currentlySelectedAsset!.pool.lpToken.address!.toString() === getMarinadeSolMint().toString()) {
+                        if (currentlySelectedAsset!.pool.lpToken.address!.toString() === qpools.constDefinitions.getMarinadeSolMint().toString()) {
                             if (newValue > 0 && newValue < 1) {
                                 console.log("Cannot permit (0)");
                                 setSliderValue(0);
-                                setErrorMessage("The Marinade Finance Protocol requires you to input at least one full SOL to be delegated");
+                                setErrorMessage("The Marinade Finance Protocol requires you to input at least one full SOL to be delegated. You can also keep it at 0 SOL.");
                                 return;
                             } else {
                                 setSliderValue(newValue);
@@ -274,7 +272,9 @@ export default function InputFieldWithSliderInputAndLogo({allocationItems, selec
      */
 
     console.log("Allocation Items are: ", allocationItems);
-    const logoPath = allocationItems.get(selectedItemKey)!.pool?.tokens.filter((x: ExplicitToken) => {return getWhitelistTokens()})[0].logoURI!;
+    const logoPath = allocationItems.get(selectedItemKey)!.pool?.tokens.filter((x: qpools.typeDefinitions.interfacingAccount.ExplicitToken) => {
+        return qpools.constDefinitions.getWhitelistTokens()
+    })[0].logoURI!;
     console.log("Logo Path is: ", logoPath);
     return (
         <>

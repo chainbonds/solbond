@@ -10,14 +10,14 @@ import {PublicKey} from "@solana/web3.js";
 import {DisplayToken} from "../../types/DisplayToken";
 import {ChartableItemType} from "../../types/ChartableItemType";
 import {AllocData} from "../../types/AllocData";
-import {Protocol, Registry} from "@qpools/sdk";
 import TableHeader from "../common/TableHeader";
 import {displayTokensFromPool} from "../../utils/helper";
+import * as qpools from "@qpools/sdk";
 
 // I guess this columns is also conditional, actually ...
 // TODO: Normalize (rename) the name "selectedAssets"
 interface Props {
-    registry: Registry,
+    registry: qpools.helperClasses.Registry,
     tableColumns: (string | null)[],
     selectedAssets: Map<string, AllocData>,
     selectedAsset: string | null,
@@ -51,7 +51,7 @@ export default function SuggestedPortfolioTable({registry, tableColumns, selecte
                 let inputTokenLink: string = await registry.getIconUriFromToken(inputToken.mint.toString());
                 let tmp: ChartableItemType = {
                     key: key,
-                    name: Protocol[current.protocol].charAt(0).toUpperCase() + Protocol[current.protocol].slice(1) + " " + current.lp,
+                    name: qpools.typeDefinitions.interfacingAccount.Protocol[current.protocol].charAt(0).toUpperCase() + qpools.typeDefinitions.interfacingAccount.Protocol[current.protocol].slice(1) + " " + current.lp,
                     value: allocationSum > 0 ? (100 * current.usdcAmount) / allocationSum : 0,
                     apy_24h: current.apy_24h,
                     pool: current.pool,
@@ -78,7 +78,7 @@ export default function SuggestedPortfolioTable({registry, tableColumns, selecte
         let color = PIECHART_COLORS[(3*index) % PIECHART_COLORS.length];
 
         // I guess we need the rich data ...
-        console.log("THEREEEEEEEE", item.pool)
+        console.log("item.pool is (5)", item.pool)
         // Gotta make the switch manually here ...
         if (!item.pool) {
             return (

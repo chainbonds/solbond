@@ -1,10 +1,10 @@
-import {ExplicitPool, Protocol, Registry} from "../../../../qPools-contract/qpools-sdk";
+import {ExplicitPool, Protocol, Registry} from "@qpools/sdk";
 import {DisplayToken} from "../types/DisplayToken";
 import {solscanLink} from "./utils";
 import {PublicKey} from "@solana/web3.js";
 import {BN} from "@project-serum/anchor";
 
-export const absoluteDiff = async (a: BN, b: BN): BN => {
+export const absoluteDiff = async (a: BN, b: BN): Promise<BN> => {
     if (a.gt(b)) {
         return a.sub(b);
     } else if (a.lt(b)) {

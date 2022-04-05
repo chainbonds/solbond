@@ -6,13 +6,12 @@ import {AllocData} from "../types/AllocData";
 import {BN} from "@project-serum/anchor";
 import {UserTokenBalance} from "../types/UserTokenBalance";
 import {IUserWalletAssets, useUserWalletAssets} from "../contexts/UserWalletAssets";
-import {ExplicitPool, Protocol, Registry} from "@qpools/sdk";
 import {TokenAmount} from "@solana/web3.js";
 import {getTokenAmount} from "../utils/utils";
-import {multiplyAmountByPythprice} from "@qpools/sdk";
+import * as qpools from "@qpools/sdk";
 
 interface Props {
-    registry: Registry
+    registry: qpools.helperClasses.Registry
 }
 export const ViewWalletConnectedCreatePortfolio = ({registry}: Props) => {
 
@@ -42,7 +41,7 @@ export const ViewWalletConnectedCreatePortfolio = ({registry}: Props) => {
                 // Take the wallet assets at spin-up,
                 // After that, take the user input assets ...
                 Array.from(userWalletAssetsProvider.walletAssets!.values()).map((x: AllocData) => {
-                    let key: string = Protocol[x.protocol] + " " + x.lp;
+                    let key: string = qpools.typeDefinitions.interfacingAccount.Protocol[x.protocol] + " " + x.lp;
                     out.set(key, x);
                 });
                 console.log("Updated Map (1) is: ", out);
@@ -78,7 +77,7 @@ export const ViewWalletConnectedCreatePortfolio = ({registry}: Props) => {
         };
 
         // re-calculate the usdc value according to the mint and input amount
-        let usdcAmount = await multiplyAmountByPythprice(
+        let usdcAmount = await qpools.instructions.pyth.pyth.multiplyAmountByPythprice(
             userInputAmount.amount.uiAmount!,
             userInputAmount.mint
         );

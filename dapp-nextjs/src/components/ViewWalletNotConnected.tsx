@@ -4,10 +4,10 @@ import DisplayPieChart from "./common/DisplayPieChart";
 import SuggestedPortfolioTable from "./createPortfolio/SuggestedPortfolioTable";
 import SelectWallet from "./createPortfolio/buttons/SelectWallet";
 import {ISerpius, useSerpiusEndpoint} from "../contexts/SerpiusProvider";
-import {Registry} from "../../../../qPools-contract/qpools-sdk";
+import * as qpools from "@qpools/sdk";
 
 interface Props {
-    registry: Registry
+    registry: qpools.helperClasses.Registry
 }
 export const ViewWalletNotConnected = ({registry}: Props) => {
 

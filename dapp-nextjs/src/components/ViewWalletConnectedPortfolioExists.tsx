@@ -3,12 +3,12 @@ import React, {useEffect, useState} from "react";
 import RedeemPortfolioView from "./redeemPortfolio/RedeemPortfolioView";
 import {AllocData} from "../types/AllocData";
 import {IExistingPortfolio, useExistingPortfolio} from "../contexts/ExistingPortfolioProvider";
-import {Protocol, Registry} from "@qpools/sdk";
 import SuggestedPortfolioTable from "./createPortfolio/SuggestedPortfolioTable";
 import Error from "next/error";
+import * as qpools from "@qpools/sdk";
 
 interface Props {
-    registry: Registry
+    registry: qpools.helperClasses.Registry
 }
 export const ViewWalletConnectedPortfolioExists = ({registry}: Props) => {
 
@@ -36,7 +36,7 @@ export const ViewWalletConnectedPortfolioExists = ({registry}: Props) => {
                 userWalletAmount: position.userWalletAmount,
                 usdcAmount: position.usdcAmount
             };
-            let key: string = Protocol[position.protocol] + " " + tmp.lp.toString();
+            let key: string = qpools.typeDefinitions.interfacingAccount.Protocol[position.protocol] + " " + tmp.lp.toString();
             newAllocationData.set(key, tmp);
         }));
         setAllocationData((oldAllocationData: Map<string, AllocData>) => {

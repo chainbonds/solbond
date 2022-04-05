@@ -16,7 +16,7 @@ import {SerpiusEndpointProvider} from "../contexts/SerpiusProvider";
 import {UserWalletAssetsProvider} from "../contexts/UserWalletAssets";
 import {ExistingPortfolioProvider} from "../contexts/ExistingPortfolioProvider";
 import {ErrorMessageProvider} from "../contexts/ErrorMessageContext";
-import {Registry} from "../../../../qPools-contract/qpools-sdk";
+import * as qpools from "@qpools/sdk";
 
 const SOLANA_NETWORK = WalletAdapterNetwork.Devnet;
 const network = SOLANA_NETWORK;
@@ -30,7 +30,7 @@ const WalletProvider = dynamic(
 
 function MyApp({Component, pageProps}: AppProps) {
     const endpoint = useMemo(() => clusterApiUrl(network), []);
-    const registry = new Registry();
+    const registry = new qpools.helperClasses.Registry();
 
     return (
         <LocalKeypairProvider>

@@ -1,8 +1,7 @@
 import React, {useState, useContext, useEffect} from 'react';
 import axios from "axios";
-import {Protocol, Registry} from "@qpools/sdk";
 import {AllocData} from "../types/AllocData";
-import {ExplicitPool} from "@qpools/sdk";
+import * as qpools from "@qpools/sdk";
 
 export interface ISerpius {
     portfolioRatios: Map<string, AllocData>,
@@ -29,7 +28,7 @@ interface SerpiusInput {
 
 interface Props {
     children: any;
-    registry: Registry
+    registry: qpools.helperClasses.Registry
 }
 export function SerpiusEndpointProvider(props: Props) {
 
@@ -88,7 +87,7 @@ export function SerpiusEndpointProvider(props: Props) {
 
                     console.log("Registry is: ", props.registry);
 
-                    let pool: ExplicitPool | null = await props.registry.getPoolFromSplStringId(dataItem.lp);
+                    let pool: qpools.typeDefinitions.interfacingAccount.ExplicitPool | null = await props.registry.getPoolFromSplStringId(dataItem.lp);
                     if (!pool) {
                         throw Error("The Id that the serpius endpoint provides was not found in the registry ...: " + dataItem.lp);
                     }

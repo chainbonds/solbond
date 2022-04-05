@@ -2,7 +2,7 @@ import React, {useEffect, useState} from "react";
 import {PieChart, Pie, Cell} from "recharts";
 import {PIECHART_COLORS, RADIAN} from "../../const";
 import {AllocData} from "../../types/AllocData";
-import {Protocol} from "@qpools/sdk";
+import * as qpools from "@qpools/sdk";
 
 interface Props {
     allocationInformation: Map<string, AllocData>,
@@ -48,7 +48,7 @@ export default function DisplayPieChart({allocationInformation, showPercentage}:
                     .map((current: AllocData) => {
                         let value = current.usdcAmount!;  // current.userInputAmount!.amount.uiAmount!;
                         return {
-                            name: Protocol[current.protocol] + " " + current.lp,
+                            name: qpools.typeDefinitions.interfacingAccount.Protocol[current.protocol] + " " + current.lp,
                             value: value
                         }
                     }

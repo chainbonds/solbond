@@ -1,18 +1,17 @@
 import React, {useEffect, useState} from "react";
 import OnramperModal from "../onramper/OnramperModal"
-import UserInfoBalance from "../common/UserInfoBalance";
 import {AllocData} from "../../types/AllocData";
 import {getInputToken, SelectedToken} from "../../utils/utils";
 import InputFieldWithSliderInputAndLogo from "../common/InputFieldWithSliderInputAndLogo";
 import PurchaseButton from "../createPortfolio/buttons/PurchaseButton";
-import {Registry} from "../../../../../qPools-contract/qpools-sdk";
 import {TokenAmount} from "@solana/web3.js";
+import * as qpools from "@qpools/sdk";
 
 interface Props {
     allocationItems: Map<string, AllocData>,
     selectedItemKey: string,
     modifyIndividualAllocationItem: (arg0: string, arg1: TokenAmount) => Promise<void>,
-    registry: Registry
+    registry: qpools.helperClasses.Registry
 }
 export default function CreatePortfolioView({allocationItems, selectedItemKey, modifyIndividualAllocationItem, registry}: Props) {
 

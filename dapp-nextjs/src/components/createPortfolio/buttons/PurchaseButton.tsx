@@ -7,9 +7,11 @@ import {IItemsLoad, useItemsLoad} from "../../../contexts/ItemsLoadingContext";
 import {ICrank, useCrank} from "../../../contexts/CrankProvider";
 import {ILocalKeypair, useLocalKeypair} from "../../../contexts/LocalKeypairProvider";
 import {AllocData} from "../../../types/AllocData";
-import {ExplicitPool, ExplicitToken, Protocol} from "@qpools/sdk";
 import {useErrorMessage} from "../../../contexts/ErrorMessageContext";
 import {lamportsReserversForLocalWallet} from "../../../const";
+import {useWallet, WalletContextState} from "@solana/wallet-adapter-react";
+import {getAssociatedTokenAddress} from "easy-spl/dist/tx/associated-token-account";
+import * as qpools from "@qpools/sdk";
 
 // TODO: Refactor the code here ... looks a bit too redundant.
 //  Maybe try to push the logic into the sdk?
@@ -21,10 +23,22 @@ interface Props {
 export default function PurchaseButton({allocationData}: Props) {
 
     const rpcProvider: IRpcProvider = useRpc();
+    const walletContext: WalletContextState = useWallet();
     const crankProvider: ICrank = useCrank();
     const localKeypairProvider: ILocalKeypair = useLocalKeypair();
     const itemLoadContext: IItemsLoad = useItemsLoad();
     const errorMessage = useErrorMessage();
+
+    const getSolanaBalances = async (): Promise<{wrappedSol: BN, nativeSol: BN}> => {
+        // This returns the lamports, and so does the below item ...
+        let nativeSolAmount: BN = new BN(await rpcProvider.connection.getBalance(walletContext.publicKey!));
+        let wrappedSolAta = await getAssociatedTokenAddress(
+            qpools.constDefinitions.getWrappedSolMint(),
+            walletContext.publicKey!
+        );
+        let wrappedSolAmount: BN = new BN((await rpcProvider.connection.getTokenAccountBalance(wrappedSolAta)).value.amount);
+        return {wrappedSol: wrappedSolAmount, nativeSol: nativeSolAmount}
+    }
 
     /**
      *
@@ -109,19 +123,59 @@ export default function PurchaseButton({allocationData}: Props) {
          *************************************************************************************/
 
         /**
+         * Calculate how much wrapped sol, vs unwrapped SOL to have
+         */
+        let wrappedSolLamports: BN = allocationDataAsArray
+            .filter(([key, value]) => value.protocol.valueOf() !== qpools.typeDefinitions.interfacingAccount.Protocol.marinade.valueOf())
+            .map(([key, value]) => {return new BN(value.userInputAmount!.amount.amount)})
+            .reduce((prev, cur) => prev.add(cur), new BN(0));
+        let nativeSolLamports: BN = allocationDataAsArray
+            .filter(([key, value]) => value.protocol.valueOf() === qpools.typeDefinitions.interfacingAccount.Protocol.marinade.valueOf())
+            .map(([key, value]) => {return new BN(value.userInputAmount!.amount.amount)})
+            .reduce((prev, cur) => prev.add(cur), new BN(0));
+
+        // TODO: Make an assert that this number of items is not higher than what we gathered from above ...
+
+
+        let {wrappedSol, nativeSol} = await getSolanaBalances();
+        // Get the SOL balance from the user's wallet
+        // Get the wrapped SOL balance from the user's wallet
+        console.log("Total Available wrapped and native sol are: ");
+        console.log("wrapped vs wallet: ", wrappedSolLamports.toString(), wrappedSol.toString());
+        console.log("native vs wallet: ", nativeSolLamports.toString(), nativeSol.toString());
+
+        // And throw an error if this is not the case!!
+        console.assert(wrappedSolLamports.lte(wrappedSol));
+        if (!wrappedSolLamports.lte(wrappedSol)) {
+            itemLoadContext.resetCounter();
+            errorMessage.addErrorMessage(
+                "You managed to input more wrapped SOL than you have in your wallet! You broke the frontend!",
+            );
+            return;
+        }
+        console.assert(nativeSolLamports.lte(nativeSolLamports));
+        if (!nativeSolLamports.lte(nativeSolLamports)) {
+            itemLoadContext.resetCounter();
+            errorMessage.addErrorMessage(
+                "You managed to input more native SOL than you have in your wallet! You broke the frontend!",
+            );
+            return;
+        }
+
+        /**
          * Get all possible input tokens ...
          *  Intersection of whitelisted input tokens, times what ist input through the pools
          */
-        let selectedAssetPools: ExplicitPool[] = Array.from(allocationData.values()).map((asset) => {
+        let selectedAssetPools: qpools.typeDefinitions.interfacingAccount.ExplicitPool[] = Array.from(allocationData.values()).map((asset) => {
             // If there is no underlying pool, than this is a bug!!
             return asset.pool!
         });
-        let inputPoolsAndTokens: [ExplicitPool, ExplicitToken][] = await getInputTokens(selectedAssetPools);
-        let inputPoolsAndTokensAsMap: Map<string, ExplicitToken> = new Map<string, ExplicitToken>();
-        inputPoolsAndTokens.map(([pool, token]: [ExplicitPool, ExplicitToken]) => {
+        let inputPoolsAndTokens: [qpools.typeDefinitions.interfacingAccount.ExplicitPool, qpools.typeDefinitions.interfacingAccount.ExplicitToken][] = await getInputTokens(selectedAssetPools);
+        let inputPoolsAndTokensAsMap: Map<string, qpools.typeDefinitions.interfacingAccount.ExplicitToken> = new Map<string, qpools.typeDefinitions.interfacingAccount.ExplicitToken>();
+        inputPoolsAndTokens.map(([pool, token]: [qpools.typeDefinitions.interfacingAccount.ExplicitPool, qpools.typeDefinitions.interfacingAccount.ExplicitToken]) => {
             inputPoolsAndTokensAsMap.set(pool.lpToken.address, token)
         });
-        let uniqueInputTokens: PublicKey[] = inputPoolsAndTokens.map(([_, token]: [ExplicitPool, ExplicitToken]) => {
+        let uniqueInputTokens: PublicKey[] = inputPoolsAndTokens.map(([_, token]: [qpools.typeDefinitions.interfacingAccount.ExplicitPool, qpools.typeDefinitions.interfacingAccount.ExplicitToken]) => {
             return new PublicKey(token.address);
         });
 
@@ -131,20 +185,26 @@ export default function PurchaseButton({allocationData}: Props) {
          *  This is the first transaction ...
          */
         let mints: PublicKey[] = selectedAssetPools
-            .map((pool: ExplicitPool) => {
-                return pool.tokens.map((token: ExplicitToken) => new PublicKey(token.address))
+            .map((pool: qpools.typeDefinitions.interfacingAccount.ExplicitPool) => {
+                return pool.tokens.map((token: qpools.typeDefinitions.interfacingAccount.ExplicitToken) => new PublicKey(token.address))
             }).flat();
         // Also add the lp mints to the ATAs to be created ...
         let lpMints: PublicKey[] = selectedAssetPools
-            .map((pool: ExplicitPool) => {
+            .map((pool: qpools.typeDefinitions.interfacingAccount.ExplicitPool) => {
                 return new PublicKey(pool.lpToken.address)
             });
         mints.push(...lpMints);
         // We assume that the .tokens object carries all the tokens needed to make it run ...
+        // TODO: Not sure if this is needed really for all the objects that we input right now ...
         let txCreateAssociateTokenAccount = await rpcProvider.portfolioObject!.createAssociatedTokenAccounts(
             mints,
             rpcProvider.provider!.wallet
         );
+        let txUnwrapSol = await rpcProvider.portfolioObject!.unwrapSolTransaction();
+        txCreateAssociateTokenAccount.add(txUnwrapSol);
+        // Can also make an additional instruction which wraps sol again
+        let txWrapSol = await rpcProvider.portfolioObject!.wrapSolTransaction(wrappedSolLamports);
+        txCreateAssociateTokenAccount.add(txWrapSol);
         if (txCreateAssociateTokenAccount.instructions.length > 0) {
             try {
                 await sendAndConfirmTransaction(
@@ -179,6 +239,17 @@ export default function PurchaseButton({allocationData}: Props) {
             new BN(uniqueInputTokens.length)
         );
         tx.add(IxCreatePortfolioPda);
+
+        /**
+         * Add one transaction, where the wrapped SOL is converted to native SOL, or vice-versa, depending on the need ...
+         *
+         */
+
+
+
+        // await Promise.all(allocationDataAsArray.map(async ([key, value]: [string, AllocData], index: number) => {
+        //
+        // }));
 
         /**
          *
@@ -217,7 +288,7 @@ export default function PurchaseButton({allocationData}: Props) {
             let lpAddress: PublicKey = new PublicKey(value.pool!.lpToken.address);
             let weight: BN = new BN(value.weight);
 
-            if (value.protocol.valueOf() === Protocol.saber.valueOf()) {
+            if (value.protocol.valueOf() === qpools.typeDefinitions.interfacingAccount.Protocol.saber.valueOf()) {
 
                 // Make sure that the input mint is not Native SOL
                 let IxRegisterCurrencyInput = await rpcProvider.portfolioObject!.registerCurrencyInputInPortfolio(
@@ -239,7 +310,7 @@ export default function PurchaseButton({allocationData}: Props) {
                 let IxSendUsdcToPortfolio = await rpcProvider.portfolioObject!.transfer_to_portfolio(value.userInputAmount!.mint);
                 tx.add(IxSendUsdcToPortfolio);
 
-            } else if (value.protocol.valueOf() === Protocol.marinade.valueOf()) {
+            } else if (value.protocol.valueOf() === qpools.typeDefinitions.interfacingAccount.Protocol.marinade.valueOf()) {
                 let lamports = new BN(value.userInputAmount!.amount.amount);
                 // TODO: Turn the excess lamports into wrapped SOL (add a send + create-native-sync instruction for this)
                 if (lamports.lt(new BN(10 ** 9))) {
@@ -253,7 +324,7 @@ export default function PurchaseButton({allocationData}: Props) {
                 );
                 tx.add(IxApprovePositionWeightMarinade);
 
-            } else if (value.protocol.valueOf() === Protocol.solend.valueOf()) {
+            } else if (value.protocol.valueOf() === qpools.typeDefinitions.interfacingAccount.Protocol.solend.valueOf()) {
 
                 let IxApprovePositionWeightSolend = await rpcProvider.portfolioObject!.approvePositionWeightSolend(
                     currencyMint,
@@ -319,7 +390,7 @@ export default function PurchaseButton({allocationData}: Props) {
         await Promise.all(allocationDataAsArray.map(async ([key, value]: [string, AllocData], index: number) => {
             console.log("Fulfilling permissionles ...");
             console.log(value);
-            if (value.protocol.valueOf() === Protocol.saber.valueOf()) {
+            if (value.protocol.valueOf() === qpools.typeDefinitions.interfacingAccount.Protocol.saber.valueOf()) {
                 try {
                     let sgPermissionlessFullfillSaber = await crankProvider.crankRpcTool!.permissionlessFulfillSaber(index);
                     console.log("Fulfilled sg Saber is: ", sgPermissionlessFullfillSaber);
@@ -332,7 +403,7 @@ export default function PurchaseButton({allocationData}: Props) {
                     );
                     return;
                 }
-            } else if (value.protocol.valueOf() === Protocol.marinade.valueOf()) {
+            } else if (value.protocol.valueOf() === qpools.typeDefinitions.interfacingAccount.Protocol.marinade.valueOf()) {
                 try {
                     let sgPermissionlessFullfillMarinade = await crankProvider.crankRpcTool!.createPositionMarinade(index);
                     console.log("Fulfilled sg Marinade is: ", sgPermissionlessFullfillMarinade);
@@ -345,13 +416,15 @@ export default function PurchaseButton({allocationData}: Props) {
                     );
                     return;
                 }
-            } else if (value.protocol.valueOf() === Protocol.solend.valueOf()) {
+            } else if (value.protocol.valueOf() === qpools.typeDefinitions.interfacingAccount.Protocol.solend.valueOf()) {
+                // Is there any way to do safe typecasting ... (?)
+                let solendPool = value.pool as qpools.typeDefinitions.interfacingAccount.ExplicitSolendPool;
                 try {
                     // TODO: createPositionSolend ==> requires the Solend one
                     // The last two variables are hard-coded and wrong!
                     let sgPermissionlessFullfillSolend = await crankProvider.crankRpcTool!.createPositionSolend(
-                        value.userInputAmount!.mint,
-                        index
+                        index,
+                        solendPool.solendAction
                     );
                     console.log("Fulfilled sg Marinade is: ", sgPermissionlessFullfillSolend);
                 } catch (error) {

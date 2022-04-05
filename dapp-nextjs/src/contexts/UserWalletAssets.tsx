@@ -1,19 +1,12 @@
 import React, {useState, useContext, useEffect} from 'react';
 import {PublicKey, TokenAmount} from "@solana/web3.js";
-import {getAssociatedTokenAddressOffCurve} from "@qpools/sdk/lib/utils";
 import {AllocData} from "../types/AllocData";
 import {IRpcProvider, useRpc} from "./RpcProvider";
 import {ISerpius, useSerpiusEndpoint} from "./SerpiusProvider";
 import {BN} from "@project-serum/anchor";
 import {getTokenAmount} from "../utils/utils";
-import {ExplicitToken, multiplyAmountByPythprice} from "../../../../qPools-contract/qpools-sdk";
-import {
-    getNativeSolMint,
-    getWhitelistTokens,
-    getWrappedSolMint
-} from "../../../../qPools-contract/qpools-sdk/lib/const";
 import {lamportsReserversForLocalWallet} from "../const";
-
+import * as qpools from "@qpools/sdk";
 
 export interface IUserWalletAssets {
     walletAssets: Map<string, AllocData>
@@ -65,31 +58,32 @@ export function UserWalletAssetsProvider(props: any) {
         // (1) Get all token accounts owned that we get from the serpius API ...
         // .filter((item, index) => {return portfolioRatios.indexOf(item) === index})
         // TODO: Remove duplicates with this filter ...
+        console.log("Serpius portfolio ratios are: ", serpiusProvider.portfolioRatios);
         await Promise.all(Array.from(serpiusProvider.portfolioRatios.values()).map(async (fetchedPool: AllocData) => {
             console.log("Iterating through pool: ", fetchedPool)
 
             // Now we have the pool
             // When are the tokens not defined ...
-            let tokens: ExplicitToken[] = fetchedPool.pool.tokens;
-            await Promise.all(tokens.map(async (token: ExplicitToken) => {
+            let tokens: qpools.typeDefinitions.interfacingAccount.ExplicitToken[] = fetchedPool.pool.tokens;
+            await Promise.all(tokens.map(async (token: qpools.typeDefinitions.interfacingAccount.ExplicitToken) => {
 
                 // Gotta get the input tokens ...
 
                 // Do a whitelist here which assets we accept ...
-                if (getWhitelistTokens().filter((x: string) => x === token.address).length === 0) {
+                if (qpools.constDefinitions.getWhitelistTokens().filter((x: string) => x === token.address).length === 0) {
                     return
                 }
 
                 console.log("Iterating through token: ", token);
                 let mint: PublicKey = new PublicKey(token.address);
-                let ata = await getAssociatedTokenAddressOffCurve(mint, rpcProvider.userAccount!.publicKey);
+                let ata = await qpools.utils.getAssociatedTokenAddressOffCurve(mint, rpcProvider.userAccount!.publicKey);
                 // Finally get the users' balance
                 // Let's assume that if the token is wrapped solana, that we can also include the pure solana into this.
                 let userBalance: TokenAmount;
                 // Set the starting balance always at 0
                 let startingBalance: TokenAmount;
                 // TODO: Let's assume that 10% of the user's assets is currently put into each pool ...
-                if (mint.equals(getWrappedSolMint())) {
+                if (mint.equals(qpools.constDefinitions.getWrappedSolMint())) {
                     // In the case of wrapped sol, combine the balance from the native SOL,
                     // as well as the balance from the wrapped SOL
                     let solBalance: BN = new BN (await rpcProvider.connection!.getBalance(rpcProvider.userAccount!.publicKey));
@@ -116,7 +110,7 @@ export function UserWalletAssetsProvider(props: any) {
                 }
 
                 // TODO: Replace this with pyth price oracles !
-                newPool.usdcAmount = await multiplyAmountByPythprice(newPool.userInputAmount!.amount.uiAmount!, newPool.userInputAmount!.mint);
+                newPool.usdcAmount = await qpools.instructions.pyth.pyth.multiplyAmountByPythprice(newPool.userInputAmount!.amount.uiAmount!, newPool.userInputAmount!.mint);
                 console.log("Pushing object: ", newPool);
                 newAllocData.set(newPool.lp, newPool);
             }));
