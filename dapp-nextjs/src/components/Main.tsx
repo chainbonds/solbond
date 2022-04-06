@@ -2,12 +2,13 @@ import React, {FC, useEffect, useState} from "react";
 import LoadingItemsModal from "./common/LoadingItemsModal";
 import {BRAND_COLORS} from "../const";
 import {IRpcProvider, useRpc} from "../contexts/RpcProvider";
-import {useWallet, WalletContextState} from "@solana/wallet-adapter-react";
+// import {useWallet, WalletContextState} from "@solana/wallet-adapter-react";
 import {ViewWalletNotConnected} from "./ViewWalletNotConnected";
 import {ViewWalletConnectedCreatePortfolio} from "./ViewWalletConnectedCreatePortfolio";
 import {ViewWalletConnectedPortfolioExists} from "./ViewWalletConnectedPortfolioExists";
 import ErrorMessageModal from "./common/ErrorMessageModal";
 import * as qpools from "@qpools/sdk";
+import {useConnectedWallet} from "@saberhq/use-solana";
 
 export enum PortfolioState {
     WalletNotConnected,
@@ -20,14 +21,15 @@ interface Props {
 export const Main = ({registry}: Props) => {
 
     const rpcProvider: IRpcProvider = useRpc();
-    const walletProvider: WalletContextState = useWallet();
+    // const walletProvider: WalletContextState = useWallet();
+    const walletProvider = useConnectedWallet();
     const [displayForm, setDisplayForm] = useState<PortfolioState>(PortfolioState.WalletNotConnected);
 
     /**
      * Determine which view to show
      */
     const determineDisplayedView = async () => {
-        if (!walletProvider.publicKey) {
+        if (!walletProvider || !walletProvider!.publicKey) {
             setDisplayForm(PortfolioState.WalletNotConnected);
         } else if (rpcProvider.portfolioObject) {
             let isFulfilled = await rpcProvider.portfolioObject.portfolioExists();
@@ -41,7 +43,7 @@ export const Main = ({registry}: Props) => {
     useEffect(() => {
         // Check if the account exists, and if it was fulfilled
         determineDisplayedView();
-    }, [rpcProvider.portfolioObject, walletProvider.wallet, walletProvider.publicKey, rpcProvider.makePriceReload]);
+    }, [rpcProvider.portfolioObject, walletProvider && walletProvider?.publicKey, rpcProvider.makePriceReload]);
 
 
     useEffect(() => {

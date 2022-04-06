@@ -7,7 +7,8 @@ import {solbondProgram} from "../programs/solbond";
 import {WalletI} from "easy-spl";
 import * as qpools from "@qpools/sdk";
 import {getConnectionString} from "../const";
-import {useWallet, WalletContextState} from "@solana/wallet-adapter-react";
+import {useConnectedWallet} from "@saberhq/use-solana";
+// import {useWallet, WalletContextState} from "@solana/wallet-adapter-react";
 
 export interface IRpcProvider {
     portfolioObject: qpools.helperClasses.PortfolioFrontendFriendlyChainedInstructions | undefined,
@@ -45,7 +46,8 @@ interface Props {
 }
 export function RpcProvider(props: Props) {
 
-    const walletContext: WalletContextState = useWallet();
+    // const walletContext: WalletContextState = useWallet();
+    const walletContext = useConnectedWallet();
     const [connection, setConnection] = useState<Connection>(getConnectionString());
     const [provider, setProvider] = useState<Provider | undefined>(undefined);
     const [_solbondProgram, setSolbondProgram] = useState<any>(null);
@@ -67,17 +69,19 @@ export function RpcProvider(props: Props) {
 
     // Make a creator that loads the qPoolObject if it not created yet
     useEffect(() => {
-        console.log("Wallet Pubkey Re-Loaded wallet is:", walletContext.publicKey?.toString());
+        console.log("Wallet Pubkey Re-Loaded wallet is:", walletContext);
         // Gotta have wallet context for sure ...
-        if (walletContext.wallet) {
+        if (walletContext && walletContext!.publicKey) {
             initialize();
         }
-    }, [walletContext.publicKey]);
+    }, [walletContext?.publicKey]);
 
     const initialize = () => {
         console.log("#initialize");
         console.log("Cluster URL is: ", String(process.env.NEXT_PUBLIC_CLUSTER_URL));
-        // @ts-ignore
+        // TODO: How to create a provider ... just take it from the walelt (?)
+        // TODO: Figure out how to get a provider from the wallet ....
+        // // @ts-ignore
         const _provider = new anchor.Provider(connection, walletContext, anchor.Provider.defaultOptions());
         anchor.setProvider(_provider);
         const _solbondProgram: any = solbondProgram(connection, _provider);

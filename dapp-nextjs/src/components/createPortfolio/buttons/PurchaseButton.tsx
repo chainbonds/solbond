@@ -9,9 +9,10 @@ import {ILocalKeypair, useLocalKeypair} from "../../../contexts/LocalKeypairProv
 import {AllocData} from "../../../types/AllocData";
 import {useErrorMessage} from "../../../contexts/ErrorMessageContext";
 import {lamportsReserversForLocalWallet} from "../../../const";
-import {useWallet, WalletContextState} from "@solana/wallet-adapter-react";
+// import {useWallet, WalletContextState} from "@solana/wallet-adapter-react";
 import {getAssociatedTokenAddress} from "easy-spl/dist/tx/associated-token-account";
 import * as qpools from "@qpools/sdk";
+import {useConnectedWallet} from "@saberhq/use-solana";
 
 // TODO: Refactor the code here ... looks a bit too redundant.
 //  Maybe try to push the logic into the sdk?
@@ -23,7 +24,8 @@ interface Props {
 export default function PurchaseButton({allocationData}: Props) {
 
     const rpcProvider: IRpcProvider = useRpc();
-    const walletContext: WalletContextState = useWallet();
+    // const walletContext: WalletContextState = useWallet();
+    const walletContext = useConnectedWallet();
     const crankProvider: ICrank = useCrank();
     const localKeypairProvider: ILocalKeypair = useLocalKeypair();
     const itemLoadContext: IItemsLoad = useItemsLoad();
@@ -31,10 +33,10 @@ export default function PurchaseButton({allocationData}: Props) {
 
     const getSolanaBalances = async (): Promise<{wrappedSol: BN, nativeSol: BN}> => {
         // This returns the lamports, and so does the below item ...
-        let nativeSolAmount: BN = new BN(await rpcProvider.connection.getBalance(walletContext.publicKey!));
+        let nativeSolAmount: BN = new BN(await rpcProvider.connection.getBalance(walletContext!.publicKey!));
         let wrappedSolAta = await getAssociatedTokenAddress(
             qpools.constDefinitions.getWrappedSolMint(),
-            walletContext.publicKey!
+            walletContext!.publicKey!
         );
         let wrappedSolAmount: BN = new BN((await rpcProvider.connection.getTokenAccountBalance(wrappedSolAta)).value.amount);
         return {wrappedSol: wrappedSolAmount, nativeSol: nativeSolAmount}

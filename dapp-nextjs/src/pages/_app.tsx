@@ -1,7 +1,7 @@
 import React, {useMemo} from "react";
 import type {AppProps} from "next/app";
-import dynamic from "next/dynamic";
-import {ConnectionProvider} from "@solana/wallet-adapter-react";
+// import dynamic from "next/dynamic";
+// import {ConnectionProvider} from "@solana/wallet-adapter-react";
 import {clusterApiUrl} from "@solana/web3.js";
 import {WalletAdapterNetwork} from "@solana/wallet-adapter-base";
 import "tailwindcss/tailwind.css";
@@ -17,16 +17,17 @@ import {UserWalletAssetsProvider} from "../contexts/UserWalletAssets";
 import {ExistingPortfolioProvider} from "../contexts/ExistingPortfolioProvider";
 import {ErrorMessageProvider} from "../contexts/ErrorMessageContext";
 import * as qpools from "@qpools/sdk";
+import {WalletKitProvider} from "@gokiprotocol/walletkit";
 
 const SOLANA_NETWORK = WalletAdapterNetwork.Devnet;
 const network = SOLANA_NETWORK;
 
-const WalletProvider = dynamic(
-    () => import("../contexts/ClientWalletProvider"),
-    {
-        ssr: false,
-    }
-);
+// const WalletProvider = dynamic(
+//     () => import("../contexts/ClientWalletProvider"),
+//     {
+//         ssr: false,
+//     }
+// );
 
 function MyApp({Component, pageProps}: AppProps) {
     const endpoint = useMemo(() => clusterApiUrl(network), []);
@@ -38,8 +39,12 @@ function MyApp({Component, pageProps}: AppProps) {
                 <LoadProvider>
                     <ItemsLoadProvider>
                         <SerpiusEndpointProvider registry={registry}>
-                            <ConnectionProvider endpoint={endpoint}>
-                                <WalletProvider>
+                            <WalletKitProvider
+                                defaultNetwork="devnet"
+                                app={{name: "qPools with Goki"}}
+                            >
+                            {/*<ConnectionProvider endpoint={endpoint}>*/}
+                            {/*    <WalletProvider>*/}
                                     <RpcProvider registry={registry}>
                                         <UserWalletAssetsProvider registry={registry}>
                                             <ExistingPortfolioProvider registry={registry}>
@@ -49,8 +54,9 @@ function MyApp({Component, pageProps}: AppProps) {
                                             </ExistingPortfolioProvider>
                                         </UserWalletAssetsProvider>
                                     </RpcProvider>
-                                </WalletProvider>
-                            </ConnectionProvider>
+                                {/*</WalletProvider>*/}
+                            {/*</ConnectionProvider>*/}
+                            </WalletKitProvider>
                         </SerpiusEndpointProvider>
                     </ItemsLoadProvider>
                 </LoadProvider>
