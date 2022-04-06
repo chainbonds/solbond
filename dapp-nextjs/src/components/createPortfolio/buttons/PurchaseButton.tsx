@@ -134,34 +134,6 @@ export default function PurchaseButton({allocationData}: Props) {
             .map(([key, value]) => {return new BN(value.userInputAmount!.amount.amount)})
             .reduce((prev, cur) => prev.add(cur), new BN(0));
 
-        // TODO: Make an assert that this number of items is not higher than what we gathered from above ...
-
-
-        let {wrappedSol, nativeSol} = await getSolanaBalances();
-        // Get the SOL balance from the user's wallet
-        // Get the wrapped SOL balance from the user's wallet
-        console.log("Total Available wrapped and native sol are: ");
-        console.log("wrapped vs wallet: ", wrappedSolLamports.toString(), wrappedSol.toString());
-        console.log("native vs wallet: ", nativeSolLamports.toString(), nativeSol.toString());
-
-        // And throw an error if this is not the case!!
-        console.assert(wrappedSolLamports.lte(wrappedSol));
-        if (!wrappedSolLamports.lte(wrappedSol)) {
-            itemLoadContext.resetCounter();
-            errorMessage.addErrorMessage(
-                "You managed to input more wrapped SOL than you have in your wallet! You broke the frontend!",
-            );
-            return;
-        }
-        console.assert(nativeSolLamports.lte(nativeSolLamports));
-        if (!nativeSolLamports.lte(nativeSolLamports)) {
-            itemLoadContext.resetCounter();
-            errorMessage.addErrorMessage(
-                "You managed to input more native SOL than you have in your wallet! You broke the frontend!",
-            );
-            return;
-        }
-
         /**
          * Get all possible input tokens ...
          *  Intersection of whitelisted input tokens, times what ist input through the pools
@@ -196,21 +168,21 @@ export default function PurchaseButton({allocationData}: Props) {
         mints.push(...lpMints);
         // We assume that the .tokens object carries all the tokens needed to make it run ...
         // TODO: Not sure if this is needed really for all the objects that we input right now ...
+        let txAta = await rpcProvider.portfolioObject!.unwrapSolTransaction();
         let txCreateAssociateTokenAccount = await rpcProvider.portfolioObject!.createAssociatedTokenAccounts(
             mints,
             rpcProvider.provider!.wallet
         );
-        let txUnwrapSol = await rpcProvider.portfolioObject!.unwrapSolTransaction();
-        txCreateAssociateTokenAccount.add(txUnwrapSol);
+        txAta.add(txCreateAssociateTokenAccount)
         // Can also make an additional instruction which wraps sol again
         let txWrapSol = await rpcProvider.portfolioObject!.wrapSolTransaction(wrappedSolLamports);
-        txCreateAssociateTokenAccount.add(txWrapSol);
-        if (txCreateAssociateTokenAccount.instructions.length > 0) {
+        txAta.add(txWrapSol);
+        if (txAta.instructions.length > 0) {
             try {
                 await sendAndConfirmTransaction(
                     rpcProvider._solbondProgram!.provider,
                     rpcProvider.connection!,
-                    txCreateAssociateTokenAccount
+                    txAta
                 );
             } catch (error) {
                 itemLoadContext.resetCounter();
@@ -223,6 +195,36 @@ export default function PurchaseButton({allocationData}: Props) {
             }
         }
         await itemLoadContext.incrementCounter();
+
+
+        /******************
+         * Make sure that you have enough wSOL and native SOL for all operations
+         */
+        // TODO: Make an assert that this number of items is not higher than what we gathered from above ...
+        let {wrappedSol, nativeSol} = await getSolanaBalances();
+        // Get the SOL balance from the user's wallet
+        // Get the wrapped SOL balance from the user's wallet
+        console.log("Total Available wrapped and native sol are: ");
+        console.log("wrapped vs wallet: ", wrappedSolLamports.toString(), wrappedSol.toString());
+        console.log("native vs wallet: ", nativeSolLamports.toString(), nativeSol.toString());
+
+        // And throw an error if this is not the case!!
+        console.assert(wrappedSolLamports.lte(wrappedSol));
+        if (!wrappedSolLamports.lte(wrappedSol)) {
+            itemLoadContext.resetCounter();
+            errorMessage.addErrorMessage(
+                "You managed to input more wrapped SOL than you have in your wallet! You broke the frontend!",
+            );
+            return;
+        }
+        console.assert(nativeSolLamports.lte(nativeSolLamports));
+        if (!nativeSolLamports.lte(nativeSolLamports)) {
+            itemLoadContext.resetCounter();
+            errorMessage.addErrorMessage(
+                "You managed to input more native SOL than you have in your wallet! You broke the frontend!",
+            );
+            return;
+        }
 
         /************************************************************************************
          * TRANSACTION 1
