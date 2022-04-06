@@ -184,16 +184,18 @@ export default function SuggestedPortfolioTable({registry, tableColumns, selecte
                     <td className="py-4 lg:px-6 text-sm text-center whitespace-nowrap">
                         {(item.apy_24h).toFixed(1)}%
                     </td>
-                    {(item.allocationItem && item.allocationItem?.userInputAmount?.amount && tableColumns.length > 5) &&
+                    {(item.allocationItem && (item.allocationItem?.userInputAmount?.amount) && tableColumns.length > 5) &&
                         <td className="py-4 lg:px-6 text-sm text-center whitespace-nowrap">
                             {/* inputToken.name */}
-                            {item.allocationItem?.userInputAmount?.amount.uiAmount && (item.allocationItem?.userInputAmount?.amount.uiAmount).toFixed(2)}
+                            {(item.allocationItem?.userInputAmount?.amount.uiAmount || item.allocationItem?.userInputAmount?.amount.uiAmount === 0) &&
+                                (item.allocationItem?.userInputAmount?.amount.uiAmount).toFixed(2)
+                            }
                         </td>
                     }
-                    {(item.allocationItem && item.allocationItem.usdcAmount && tableColumns.length > 6) &&
+                    {(item.allocationItem && (item.allocationItem.usdcAmount || item.allocationItem.usdcAmount === 0) && tableColumns.length > 6) &&
                         <td className="py-4 lg:px-6 text-sm text-center whitespace-nowrap">
                             {/* inputToken.name */}
-                            {item.allocationItem?.usdcAmount && (item.allocationItem?.usdcAmount).toFixed(2)}
+                            {(item.allocationItem?.usdcAmount || item.allocationItem?.usdcAmount === 0) && (item.allocationItem?.usdcAmount).toFixed(2)}
                         </td>
                     }
                 </tr>
