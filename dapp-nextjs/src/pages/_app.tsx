@@ -1,9 +1,5 @@
-import React, {useMemo} from "react";
+import React from "react";
 import type {AppProps} from "next/app";
-// import dynamic from "next/dynamic";
-// import {ConnectionProvider} from "@solana/wallet-adapter-react";
-import {clusterApiUrl} from "@solana/web3.js";
-import {WalletAdapterNetwork} from "@solana/wallet-adapter-base";
 import "tailwindcss/tailwind.css";
 import "../styles/globals.css";
 import "../styles/App.css";
@@ -18,8 +14,6 @@ import {ExistingPortfolioProvider} from "../contexts/ExistingPortfolioProvider";
 import {ErrorMessageProvider} from "../contexts/ErrorMessageContext";
 import * as qpools from "@qpools/sdk";
 import {WalletKitProvider} from "@gokiprotocol/walletkit";
-
-const SOLANA_NETWORK = WalletAdapterNetwork.Devnet;
 
 function MyApp({Component, pageProps}: AppProps) {
     const registry = new qpools.helperClasses.Registry();

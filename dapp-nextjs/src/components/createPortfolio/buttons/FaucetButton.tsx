@@ -149,6 +149,7 @@ export const FaucetButton: FC = ({}) => {
             );
         }
 
+        alert("Faucet successful! You might have to reload the page for assets to be updated");
         await rpcProvider.makePriceReload();
         await loadContext.decreaseCounter();
     };

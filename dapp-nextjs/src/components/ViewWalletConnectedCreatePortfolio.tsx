@@ -7,6 +7,8 @@ import {UserTokenBalance} from "../types/UserTokenBalance";
 import {IUserWalletAssets, useUserWalletAssets} from "../contexts/UserWalletAssets";
 import {TokenAmount} from "@solana/web3.js";
 import * as qpools from "@qpools/sdk";
+import BuyMoreAssetsModal from "./common/BuyMoreAssetsModal";
+import {BN} from "@project-serum/anchor";
 
 interface Props {
     registry: qpools.helperClasses.Registry
@@ -16,11 +18,26 @@ export const ViewWalletConnectedCreatePortfolio = ({registry}: Props) => {
     const userWalletAssetsProvider: IUserWalletAssets = useUserWalletAssets();
     const [allocationData, setAllocationData] = useState<Map<string, AllocData>>(new Map<string, AllocData>());
     const [selectedAsset, setSelectedAsset] = useState<string>("");
+    const [showFaucetModal, setShowFaucetModal] = useState<boolean>(false);
 
+    // If the user wallets assets were loaded, but the user has no assets, then show him this modal
     useEffect(() => {
         if (allocationData && allocationData.size > 0 && (selectedAsset === null)) {
             let firstItem = Array.from(allocationData.keys());
             setSelectedAsset(firstItem[0]);
+
+            // Also, if the user is broke, allow him to buy some assets (this could later on be changed by an on-ramped
+            let existingAmounts = new BN(0);
+            Array.from(allocationData.entries()).map(([key, value]) => {
+                if (value.userWalletAmount && value.userWalletAmount!.amount.uiAmount) {
+                    existingAmounts.addn(value.userWalletAmount!.amount.uiAmount!);
+                }
+            });
+            if (existingAmounts.lten(0)) {
+                setShowFaucetModal(true);
+            } else {
+                setShowFaucetModal(false);
+            }
         }
     }, [allocationData]);
 
@@ -143,6 +160,10 @@ export const ViewWalletConnectedCreatePortfolio = ({registry}: Props) => {
                 </div>
             </div>
             <div className={"my-auto mt-7"}>
+                <BuyMoreAssetsModal
+                    showModal={showFaucetModal}
+                    setShowModal={setShowFaucetModal}
+                />
                 <CreatePortfolioView
                     allocationItems={allocationData}
                     selectedItemKey={selectedAsset}
