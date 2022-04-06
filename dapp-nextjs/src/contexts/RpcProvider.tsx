@@ -96,6 +96,8 @@ export function RpcProvider(props: Props) {
         console.log("Solbond ProgramId is: ", _solbondProgram.programId.toString());
         const _userAccount: WalletI = _provider.wallet;
 
+        // Should just define the registry here, no?
+
         // @ts-expect-error
         let payer = _provider.wallet.payer as Keypair;
         let _currencyMint = new Token(
@@ -119,6 +121,7 @@ export function RpcProvider(props: Props) {
         setCurrencyMint(() => _currencyMint);
         setBackendApi(() => backendApi);
         // Wait for the setState to take effect. I know this is hacky, but for now should suffice
+        makePriceReload()
         console.log("##initialize");
     };
 

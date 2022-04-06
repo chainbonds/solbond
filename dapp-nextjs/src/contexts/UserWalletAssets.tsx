@@ -56,7 +56,7 @@ export function UserWalletAssetsProvider(props: Props) {
 
         let newAllocData: Map<string, AllocData> = new Map<string, AllocData>();
 
-        if (!rpcProvider.userAccount || !rpcProvider.connection) {
+        if (!rpcProvider.userAccount || !rpcProvider.userAccount!.publicKey || !rpcProvider.connection) {
             return
         }
         // Also return empty if the
@@ -96,7 +96,12 @@ export function UserWalletAssetsProvider(props: Props) {
                     // In the case of wrapped sol, combine the balance from the native SOL,
                     // as well as the balance from the wrapped SOL
                     let solBalance: BN = new BN (await rpcProvider.connection!.getBalance(rpcProvider.userAccount!.publicKey));
-                    let wrappedSolBalance: BN = new BN((await rpcProvider.connection!.getTokenAccountBalance(ata)).value.amount);
+
+                    // Skip the wrapped SOL calclulation, if this token account does not exist ...
+                    let wrappedSolBalance: BN = new BN(0);
+                    if (await qpools.utils.accountExists(rpcProvider.connection!, ata)) {
+                        wrappedSolBalance = new BN((await rpcProvider.connection!.getTokenAccountBalance(ata)).value.amount);
+                    }
                     let totalBalance: BN = wrappedSolBalance.add(solBalance);
                     console.log("solbalance before ", solBalance);
                     userBalance = getTokenAmount(totalBalance.sub(lamportsReserversForLocalWallet), new BN(9));
@@ -105,7 +110,12 @@ export function UserWalletAssetsProvider(props: Props) {
                     console.log("solbalance after ... ");
                 } else {
                     console.log("Mint is: ", mint.toString(), ata.toString());
-                    userBalance = (await rpcProvider.connection!.getTokenAccountBalance(ata)).value;
+                    if (await qpools.utils.accountExists(rpcProvider.connection!, ata)) {
+                        userBalance = (await rpcProvider.connection!.getTokenAccountBalance(ata)).value;
+                    } else {
+                        // I guess in this case it doesn't matter what the decimals are, because the user needs to buy some more sutff nonetheless
+                        userBalance = getTokenAmount(new BN(0), new BN(9));
+                    }
                     startingBalance = getTokenAmount(new BN(userBalance.amount).div(new BN(10)), new BN(userBalance.decimals));
                     console.log("fetched successfully! ", userBalance);
                 }

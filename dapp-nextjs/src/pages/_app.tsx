@@ -20,17 +20,8 @@ import * as qpools from "@qpools/sdk";
 import {WalletKitProvider} from "@gokiprotocol/walletkit";
 
 const SOLANA_NETWORK = WalletAdapterNetwork.Devnet;
-const network = SOLANA_NETWORK;
-
-// const WalletProvider = dynamic(
-//     () => import("../contexts/ClientWalletProvider"),
-//     {
-//         ssr: false,
-//     }
-// );
 
 function MyApp({Component, pageProps}: AppProps) {
-    const endpoint = useMemo(() => clusterApiUrl(network), []);
     const registry = new qpools.helperClasses.Registry();
 
     return (
@@ -43,19 +34,15 @@ function MyApp({Component, pageProps}: AppProps) {
                                 defaultNetwork="devnet"
                                 app={{name: "qPools with Goki"}}
                             >
-                            {/*<ConnectionProvider endpoint={endpoint}>*/}
-                            {/*    <WalletProvider>*/}
-                                    <RpcProvider registry={registry}>
-                                        <UserWalletAssetsProvider registry={registry}>
-                                            <ExistingPortfolioProvider registry={registry}>
-                                                <CrankProvider>
-                                                    <Component {...pageProps} registry={registry} />
-                                                </CrankProvider>
-                                            </ExistingPortfolioProvider>
-                                        </UserWalletAssetsProvider>
-                                    </RpcProvider>
-                                {/*</WalletProvider>*/}
-                            {/*</ConnectionProvider>*/}
+                                <RpcProvider registry={registry}>
+                                    <UserWalletAssetsProvider registry={registry}>
+                                        <ExistingPortfolioProvider registry={registry}>
+                                            <CrankProvider>
+                                                <Component {...pageProps} registry={registry} />
+                                            </CrankProvider>
+                                        </ExistingPortfolioProvider>
+                                    </UserWalletAssetsProvider>
+                                </RpcProvider>
                             </WalletKitProvider>
                         </SerpiusEndpointProvider>
                     </ItemsLoadProvider>
