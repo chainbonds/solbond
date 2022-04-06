@@ -7,8 +7,7 @@ import {solbondProgram} from "../programs/solbond";
 import {WalletI} from "easy-spl";
 import * as qpools from "@qpools/sdk";
 import {getConnectionString} from "../const";
-import {useConnectedWallet} from "@saberhq/use-solana";
-// import {useWallet, WalletContextState} from "@solana/wallet-adapter-react";
+import {useConnectedWallet, useSolana} from "@saberhq/use-solana";
 
 export interface IRpcProvider {
     portfolioObject: qpools.helperClasses.PortfolioFrontendFriendlyChainedInstructions | undefined,
@@ -48,6 +47,7 @@ export function RpcProvider(props: Props) {
 
     // const walletContext: WalletContextState = useWallet();
     const walletContext = useConnectedWallet();
+    const { walletProviderInfo, disconnect, providerMut, network, setNetwork } = useSolana();
     const [connection, setConnection] = useState<Connection>(getConnectionString());
     const [provider, setProvider] = useState<Provider | undefined>(undefined);
     const [_solbondProgram, setSolbondProgram] = useState<any>(null);
@@ -69,7 +69,10 @@ export function RpcProvider(props: Props) {
 
     // Make a creator that loads the qPoolObject if it not created yet
     useEffect(() => {
+        console.log("Wallet Provider Info is: ", walletProviderInfo);
         console.log("Wallet Pubkey Re-Loaded wallet is:", walletContext);
+        console.log("Provider mut is: ", providerMut);
+        // throw Error("Helloo!");
         // Gotta have wallet context for sure ...
         if (walletContext && walletContext!.publicKey) {
             initialize();
@@ -82,7 +85,12 @@ export function RpcProvider(props: Props) {
         // TODO: How to create a provider ... just take it from the walelt (?)
         // TODO: Figure out how to get a provider from the wallet ....
         // // @ts-ignore
-        const _provider = new anchor.Provider(connection, walletContext, anchor.Provider.defaultOptions());
+        // If the user is not yet connected, just create a provider with an empty wallet ...
+        // @ts-ignore
+        let _provider = new anchor.Provider(connection, null, anchor.Provider.defaultOptions());
+        if (providerMut?.wallet) {
+            _provider = new anchor.Provider(connection, providerMut.wallet, anchor.Provider.defaultOptions());
+        }
         anchor.setProvider(_provider);
         const _solbondProgram: any = solbondProgram(connection, _provider);
         console.log("Solbond ProgramId is: ", _solbondProgram.programId.toString());

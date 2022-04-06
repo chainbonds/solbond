@@ -45,7 +45,10 @@ export const ViewWalletConnectedCreatePortfolio = ({registry}: Props) => {
                 console.log("Updated Map (1) is: ", out);
                 return out;
             });
+        } else {
+            console.log("Fuck it ain't got no assets", userWalletAssetsProvider.walletAssets);
         }
+        console.log("Assets are changing ...", userWalletAssetsProvider.walletAssets);
     }, [userWalletAssetsProvider.walletAssets]);
 
     /**

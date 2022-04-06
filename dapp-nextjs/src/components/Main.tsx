@@ -40,6 +40,7 @@ export const Main = ({registry}: Props) => {
             }
         }
     };
+    // TODO: Don't index on the wallet provider only ... might refresh very often
     useEffect(() => {
         // Check if the account exists, and if it was fulfilled
         determineDisplayedView();

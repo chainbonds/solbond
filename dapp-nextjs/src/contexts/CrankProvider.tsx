@@ -46,6 +46,7 @@ export function CrankProvider(props: any) {
                 return crankRpcCalls;
             });
         }
+        // Connection (or provider) will change often !!
     }, [localKeypair.localTmpKeypair, rpcProvider.connection, rpcProvider.provider]);
 
     // TODO: Implement a function to run the crank (perhaps, in the background ...)

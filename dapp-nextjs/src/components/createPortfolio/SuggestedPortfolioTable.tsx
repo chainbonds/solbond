@@ -169,7 +169,7 @@ export default function SuggestedPortfolioTable({registry, tableColumns, selecte
                         {item.displayTokens && item.displayTokens!.map((displayToken: DisplayToken) => {
                             console.log("Display Token is: ", displayToken);
                             return (
-                                <a key={Math.random()} href={displayToken.tokenSolscanLink} target={"_blank"} rel="noreferrer"
+                                <a key={displayToken.tokenSolscanLink} href={displayToken.tokenSolscanLink} target={"_blank"} rel="noreferrer"
                                    className="text-blue-600 dark:text-blue-400 hover:underline">
                                     {displayToken.tokenImageLink &&
                                         <Image src={displayToken.tokenImageLink!} width={30} height={30}/>
@@ -210,12 +210,12 @@ export default function SuggestedPortfolioTable({registry, tableColumns, selecte
                         <table className="min-w-full"
                                // key={Math.random()}
                         >
-                            {/* + pieChartData[0].value */}
+                             {/*+ pieChartData[0].value */}
                             <TableHeader
-                                // key={Math.random()}
+                                key={Math.random()}
                                 columns={pieChartData ? tableColumns : tableColumns.slice(0, tableColumns.length - 1)}/>
                             <tbody
-                                // key={Math.random()}
+                                key={Math.random()}
                             >
                                 {pieChartData.map((position: ChartableItemType, index: number) => tableSingleRow(position, index))}
                             </tbody>

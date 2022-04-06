@@ -37,6 +37,7 @@ export function ExistingPortfolioProvider(props: Props) {
 
     // Load allocData and modify weights according to
     // Retrieve this from the existing portfolio ...
+    // TODO: Again, take out the provider from use-effect
     useEffect(() => {
         calculateAllUsdcValues();
     }, [rpcProvider.userAccount, rpcProvider.provider, rpcProvider.reloadPriceSentinel, serpiusProvider.portfolioRatios]);

@@ -7,7 +7,7 @@ import {Connection, PublicKey, SystemProgram, Transaction} from "@solana/web3.js
 import {Token, TOKEN_PROGRAM_ID} from "@solana/spl-token";
 import {useLoad} from "../../../contexts/LoadingContext";
 import {useErrorMessage} from "../../../contexts/ErrorMessageContext";
-// import {syncNative} from "@solendprotocol/solend-sdk";
+import {syncNative} from "@solendprotocol/solend-sdk";
 import * as qpools from "@qpools/sdk";
 
 export const FaucetButton: FC = ({}) => {
@@ -93,7 +93,7 @@ export const FaucetButton: FC = ({}) => {
                 toPubkey: associatedTokenAccountWrappedSol,
                 lamports: 3e8,
             }),
-            // syncNative(associatedTokenAccountWrappedSol)
+            syncNative(associatedTokenAccountWrappedSol)
         );
         let sg = await rpcProvider.provider!.send(givemoney);
         await rpcProvider.provider!.connection.confirmTransaction(sg);
