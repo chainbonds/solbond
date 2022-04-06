@@ -3,15 +3,18 @@ import {PieChart, Pie, Cell} from "recharts";
 import {PIECHART_COLORS, RADIAN} from "../../const";
 import {AllocData} from "../../types/AllocData";
 import * as qpools from "@qpools/sdk";
+import {valueFn} from "react-use-gesture/dist/utils/utils";
 
 interface Props {
     allocationInformation: Map<string, AllocData>,
     showPercentage: boolean
 }
+
 interface PieChartDataInterface {
     name: string,
     value: number
 }
+
 export default function DisplayPieChart({allocationInformation, showPercentage}: Props) {
 
     const renderCustomizedLabel = ({cx, cy, midAngle, innerRadius, outerRadius, percent}: any) => {
@@ -43,10 +46,15 @@ export default function DisplayPieChart({allocationInformation, showPercentage}:
 
         // let sum = Array.from(allocationInformation.values()).reduce((sum: number, current: AllocData) => sum + current.usdcAmount, 0);
         setPieChartData((_: any) => {
-                return Array.from(allocationInformation.values())
-                    .sort((a, b) => a.lp > b.lp ? 1 : -1)
-                    .map((current: AllocData) => {
+            // If the total sum of the portfolio is zero, make a unifiedly-distributed portfolio
+            let totalUsdcValue = Array.from(allocationInformation.values()).reduce((value, current) => value = value + current.usdcAmount, 0);
+            return Array.from(allocationInformation.values())
+                .sort((a, b) => a.lp > b.lp ? 1 : -1)
+                .map((current: AllocData) => {
                         let value = current.usdcAmount!;  // current.userInputAmount!.amount.uiAmount!;
+                        if (totalUsdcValue < 1) {
+                            value = 1;
+                        }
                         return {
                             name: qpools.typeDefinitions.interfacingAccount.Protocol[current.protocol] + " " + current.lp,
                             value: value
@@ -76,7 +84,7 @@ export default function DisplayPieChart({allocationInformation, showPercentage}:
                         <Cell
                             // Math.random() +
                             key={`cell-${pieChartData[index].value + index}`}
-                            fill={PIECHART_COLORS[(3*index) % PIECHART_COLORS.length]}/>
+                            fill={PIECHART_COLORS[(3 * index) % PIECHART_COLORS.length]}/>
                     ))}
                 </Pie>
             </PieChart>

@@ -112,7 +112,12 @@ export function RpcProvider(props: Props) {
         console.log(_provider);
         console.assert(_provider);
 
-        let backendApi = new qpools.helperClasses.PortfolioFrontendFriendlyChainedInstructions(connection, _provider, _solbondProgram, props.registry);
+        let backendApi = new qpools.helperClasses.PortfolioFrontendFriendlyChainedInstructions(
+            connection,
+            _provider,
+            _solbondProgram,
+            props.registry
+        );
 
         // Do a bunch of setstate, and wait ...
         setProvider(() => _provider);
