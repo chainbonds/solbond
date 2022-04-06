@@ -298,15 +298,22 @@ export default function InputFieldWithSliderInputAndLogo({allocationItems, selec
                 <div className={"flex flex-col"}>
                     <div className={"items-start justify-start"}>
                         { (
-                            allocationItems.get(selectedItemKey)?.userWalletAmount?.amount.uiAmount
-                            ) &&
-                            <div className={"text-gray-500 text-sm font-semibold items-start justify-start"}>
-                                Planning to deposit: {
+                            allocationItems.get(selectedItemKey)?.userWalletAmount?.amount.uiAmount ||
+                            allocationItems.get(selectedItemKey)?.userWalletAmount?.amount.uiAmount === 0
+                            ) ?
+                            (
+                                <div className={"text-gray-500 text-sm font-semibold items-start justify-start"}>
+                                    Planning to deposit: {
                                     (totalInputBalance)?.toFixed(2)
                                 } out of {
                                     (allocationItems.get(selectedItemKey)?.userWalletAmount?.amount.uiAmount!).toFixed()
                                 } {currencyName} in Your Wallet
-                            </div>
+                                </div>
+                            ) : (
+                                <div className={"text-gray-500 text-sm font-semibold items-start justify-start"}>
+                                    Wallet Loading ...
+                                </div>
+                            )
                         }
                     </div>
                     <div className={"text-red-500 text-sm font-bold"}>
