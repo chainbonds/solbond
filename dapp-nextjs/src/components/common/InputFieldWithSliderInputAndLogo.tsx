@@ -236,9 +236,9 @@ export default function InputFieldWithSliderInputAndLogo({allocationItems, selec
                         console.log("LP (1) is: ", currentlySelectedAsset!.pool.lpToken.address.toString());
                         // console.log("LP (2) is: ", currentlySelectedAsset!.userInputAmount!.mint!.toString());
                         if (currentlySelectedAsset!.pool.lpToken.address!.toString() === qpools.constDefinitions.getMarinadeSolMint().toString()) {
-                            if ((newValue > 0 && newValue < 1) || (value > 0 || value < 1)) {
+                            if ((newValue > 0 && newValue < 1) || (value > 0 && value < 1)) {
                                 console.log("Cannot permit (0)");
-                                setSliderValue(0);
+                                setSliderValue(0.);
                                 setErrorMessage("The Marinade Finance Protocol requires you to input at least one full SOL to be delegated. You can also keep it at 0 SOL.");
                                 return;
                             } else {

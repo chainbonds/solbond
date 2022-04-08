@@ -148,7 +148,13 @@ export function UserWalletAssetsProvider(props: Props) {
     // Again, don't do this by the user-account (?)
     useEffect(() => {
         updateUserAssetsAndRatiosAfterConnecting();
-    }, [rpcProvider.reloadPriceSentinel, rpcProvider.userAccount?.publicKey, rpcProvider.portfolioObject, rpcProvider.provider]);
+    }, [
+        rpcProvider.reloadPriceSentinel,
+        rpcProvider.userAccount?.publicKey,
+        rpcProvider.portfolioObject,
+        rpcProvider.provider,
+        serpiusProvider.portfolioRatios
+    ]);
 
     const value: IUserWalletAssets = {
         walletAssets
