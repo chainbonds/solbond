@@ -11,7 +11,7 @@ export default function ErrorMessageModal() {
 
     const errorMessage = useErrorMessage();
 
-    const singleErrorMessage = (errorMessage: ErrorMessage) => {
+    const singleErrorMessage = (messageId: string, currentErrorMessage: ErrorMessage) => {
         return (
             <div className="p-5">
                 <div>
@@ -28,14 +28,14 @@ export default function ErrorMessageModal() {
                         </div>
                         <div className="text-xl font-normal  max-w-full flex-initial">
                             <div className="py-2">
-                                {errorMessage.title}
+                                {currentErrorMessage.title}
                                 {/*This is a success messsage*/}
                                 <div className="text-sm font-base">
                                     <p>
-                                        {errorMessage.subtitle}
+                                        {currentErrorMessage.subtitle}
                                     </p>
                                     <p>
-                                        {errorMessage.message}
+                                        {currentErrorMessage.message}
                                     </p>
                                     <p>
                                         Please share this error on our Twitter or Discord.
@@ -46,7 +46,7 @@ export default function ErrorMessageModal() {
                             </div>
                         </div>
                         <div className="flex flex-auto flex-row-reverse">
-                            <div>
+                            <button onClick={() => {errorMessage.removeMessage(messageId)}}>
                                 <svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" fill="none"
                                      viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" strokeLinecap="round"
                                      strokeLinejoin="round"
@@ -54,7 +54,7 @@ export default function ErrorMessageModal() {
                                     <line x1="18" y1="6" x2="6" y2="18" />
                                     <line x1="6" y1="6" x2="18" y2="18" />
                                 </svg>
-                            </div>
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -65,7 +65,7 @@ export default function ErrorMessageModal() {
     return (
         <>
             {errorMessage.errorMessages && Array.from(errorMessage.errorMessages.entries()).map(([key, value]) => {
-                return singleErrorMessage(value);
+                return singleErrorMessage(key, value);
             })}
         </>
     );
