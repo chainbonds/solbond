@@ -7,6 +7,8 @@ import {TokenAmount} from "@solana/web3.js";
 import {getTokenAmount} from "../../utils/utils";
 import * as qpools from "@qpools/sdk";
 
+// TODO: I guess most numbers here should be replaced by TokenAmount, and then the lamports should be the inputs, and the uiAmounts should be the display values?
+//  Not sure if typescript can handle these though
 interface Props {
     allocationItems: Map<string, AllocData>,
     selectedItemKey: string,
@@ -234,7 +236,7 @@ export default function InputFieldWithSliderInputAndLogo({allocationItems, selec
                         console.log("LP (1) is: ", currentlySelectedAsset!.pool.lpToken.address.toString());
                         // console.log("LP (2) is: ", currentlySelectedAsset!.userInputAmount!.mint!.toString());
                         if (currentlySelectedAsset!.pool.lpToken.address!.toString() === qpools.constDefinitions.getMarinadeSolMint().toString()) {
-                            if (newValue > 0 && newValue < 1) {
+                            if ((newValue > 0 && newValue < 1) || (value > 0 || value < 1)) {
                                 console.log("Cannot permit (0)");
                                 setSliderValue(0);
                                 setErrorMessage("The Marinade Finance Protocol requires you to input at least one full SOL to be delegated. You can also keep it at 0 SOL.");

@@ -45,10 +45,11 @@ export const ViewWalletConnectedCreatePortfolio = ({registry}: Props) => {
      * Set the Portfolio to resemble the user's Wallet
      */
     useEffect(() => {
+        console.log("Assets are changing (1) ...", userWalletAssetsProvider.walletAssets);
         if (
             userWalletAssetsProvider.walletAssets &&
-            userWalletAssetsProvider.walletAssets.size > 0 &&
-            allocationData.size < 1
+            userWalletAssetsProvider.walletAssets.size > 0
+            // && allocationData.size < 1
         ) {
             setAllocationData((_: Map<string, AllocData>) => {
                 console.log("The new allocation (wallet) data is: ", userWalletAssetsProvider.walletAssets);

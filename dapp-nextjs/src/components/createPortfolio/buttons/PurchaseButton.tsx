@@ -9,7 +9,6 @@ import {ILocalKeypair, useLocalKeypair} from "../../../contexts/LocalKeypairProv
 import {AllocData} from "../../../types/AllocData";
 import {useErrorMessage} from "../../../contexts/ErrorMessageContext";
 import {lamportsReserversForLocalWallet} from "../../../const";
-// import {useWallet, WalletContextState} from "@solana/wallet-adapter-react";
 import {getAssociatedTokenAddress} from "easy-spl/dist/tx/associated-token-account";
 import * as qpools from "@qpools/sdk";
 import {useConnectedWallet} from "@saberhq/use-solana";
@@ -17,11 +16,11 @@ import {useConnectedWallet} from "@saberhq/use-solana";
 // TODO: Refactor the code here ... looks a bit too redundant.
 //  Maybe try to push the logic into the sdk?
 interface Props {
-    allocationData: Map<string, AllocData>
+    passedAllocationData: Map<string, AllocData>
 }
 
 // Gotta have as input the wallet assets
-export default function PurchaseButton({allocationData}: Props) {
+export default function PurchaseButton({passedAllocationData}: Props) {
 
     const rpcProvider: IRpcProvider = useRpc();
     // const walletContext: WalletContextState = useWallet();
@@ -72,15 +71,31 @@ export default function PurchaseButton({allocationData}: Props) {
             return
         }
 
+        console.log("Old allocation data is: ", passedAllocationData);
+        let allocationData: Map<string, AllocData> = new Map<string, AllocData>([...passedAllocationData.entries()].filter(([key , value]) => {
+          let amount = new BN(value.userInputAmount!.amount.amount);
+          if (amount.gtn(0)) {
+              return true;
+          }
+          return false
+        }));
+        console.log("Making sure the filter didnt fuck up with the allocation data");
+        console.log("New allocation data is: ", allocationData);
+
         if (!allocationData) {
             alert("Please try again in a couple of seconds (We should really fix this error message)");
-            return
+            return;
+        }
+
+        if (allocationData.size < 1) {
+            alert("You haven't input any tokens! The portfolio would be empty. Please assign some tokens!");
+            return;
         }
 
         let allocationDataAsArray = Array.from(allocationData.entries());
         if (allocationDataAsArray.length < 1) {
             alert("Somehow no data was passed on to purchase a portfolio ...");
-            return
+            return;
         }
 
         // Before starting, make sure the user has at least some SOL ....

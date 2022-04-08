@@ -56,8 +56,14 @@ export function UserWalletAssetsProvider(props: Props) {
 
         let newAllocData: Map<string, AllocData> = new Map<string, AllocData>();
 
-        if (!rpcProvider.userAccount || !rpcProvider.userAccount!.publicKey || !rpcProvider.connection) {
-            return
+        console.log("One of these doesn't work..");
+        console.log(rpcProvider.userAccount);
+        console.log(rpcProvider.userAccount?.publicKey);
+        if (!rpcProvider.userAccount || !rpcProvider.userAccount?.publicKey) {
+            console.log("One of these doesn't work (2)..");
+            console.log(rpcProvider.userAccount);
+            console.log(rpcProvider.userAccount?.publicKey)
+            return;
         }
         // Also return empty if the
 
@@ -121,14 +127,12 @@ export function UserWalletAssetsProvider(props: Props) {
                 }
 
                 // TODO: For each token, also bootstrap the logos here ...
-
                 let newPool: AllocData = {
                     ...fetchedPool,
                     userInputAmount: {mint: mint, ata: ata, amount: startingBalance},
                     userWalletAmount: {mint: mint, ata: ata, amount: userBalance}
                 }
 
-                // TODO: Replace this with pyth price oracles !
                 newPool.usdcAmount = await qpools.instructions.pyth.pyth.multiplyAmountByPythprice(newPool.userInputAmount!.amount.uiAmount!, newPool.userInputAmount!.mint);
                 console.log("Pushing object: ", newPool);
                 newAllocData.set(newPool.lp, newPool);
@@ -144,7 +148,7 @@ export function UserWalletAssetsProvider(props: Props) {
     // Again, don't do this by the user-account (?)
     useEffect(() => {
         updateUserAssetsAndRatiosAfterConnecting();
-    }, [rpcProvider.reloadPriceSentinel, rpcProvider.userAccount, rpcProvider.provider]);
+    }, [rpcProvider.reloadPriceSentinel, rpcProvider.userAccount?.publicKey, rpcProvider.portfolioObject, rpcProvider.provider]);
 
     const value: IUserWalletAssets = {
         walletAssets
