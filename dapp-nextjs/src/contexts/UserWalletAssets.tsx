@@ -110,9 +110,20 @@ export function UserWalletAssetsProvider(props: Props) {
                     }
                     let totalBalance: BN = wrappedSolBalance.add(solBalance);
                     console.log("solbalance before ", solBalance);
+
                     userBalance = getTokenAmount(totalBalance.sub(lamportsReserversForLocalWallet), new BN(9));
+
+                    console.log("String and marinade sol mint is: ");
+                    console.log("1111");
+                    console.log(fetchedPool?.pool.lpToken.address?.toString());
+                    console.log("2222");
+                    console.log(qpools.constDefinitions.getMarinadeSolMint().toString());
                     // Could also divide this by the number of input assets or sth ...
-                    startingBalance = getTokenAmount(new BN(userBalance.amount).div(new BN(10)), new BN(userBalance.decimals));
+                    if (fetchedPool?.pool.lpToken.address?.toString() === qpools.constDefinitions.getMarinadeSolMint().toString()) {
+                        startingBalance = getTokenAmount(new BN(0), new BN(userBalance.decimals));
+                    } else {
+                        startingBalance = getTokenAmount(new BN(userBalance.amount).div(new BN(10)), new BN(userBalance.decimals));
+                    }
                     console.log("solbalance after ... ");
                 } else {
                     console.log("Mint is: ", mint.toString(), ata.toString());

@@ -128,7 +128,11 @@ export default function InputFieldWithSliderInputAndLogo({allocationItems, selec
 
     useEffect(() => {
         if (allocationItems.get(selectedItemKey)!.userInputAmount!.amount!.uiAmount!) {
-            setValue(allocationItems.get(selectedItemKey)!.userInputAmount!.amount!.uiAmount!);
+            if (currentlySelectedAsset?.pool.lpToken.address?.toString() === qpools.constDefinitions.getMarinadeSolMint().toString()) {
+                setValue(0.);
+            } else {
+                setValue(allocationItems.get(selectedItemKey)!.userInputAmount!.amount!.uiAmount!);
+            }
         }
     }, []);
 
@@ -195,7 +199,7 @@ export default function InputFieldWithSliderInputAndLogo({allocationItems, selec
                     if (currentlySelectedAsset!.pool.lpToken.address!.toString() === qpools.constDefinitions.getMarinadeSolMint().toString()) {
                         if (newValue > 0 && newValue < 1) {
                             console.log("Cannot permit (0)");
-                            setInputValue(0);
+                            setInputValue(0.);
                             setErrorMessage("The Marinade Finance Protocol requires you to input at least one full SOL to be delegated. You can also keep it at 0 SOL.");
                             return;
                         } else {
