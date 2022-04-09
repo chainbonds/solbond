@@ -91,7 +91,9 @@ export const getInputToken = async (selectedAssetTokens: qpools.typeDefinitions.
 export const solscanLink = (address: PublicKey) => {
     let out = "https://solscan.io/account/";
     out += address.toString();
-    out += "?cluster=devnet";
+    if (qpools.network.getNetworkCluster() === qpools.network.Cluster.DEVNET) {
+        out += "?cluster=devnet";
+    }
     return out;
 }
 

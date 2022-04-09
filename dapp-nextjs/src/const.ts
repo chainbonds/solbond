@@ -7,14 +7,10 @@ export const lamportsReserversForLocalWallet = new BN(500_000);
 export function getConnectionString(): Connection {
     let _connection;
     let clusterName = String(process.env.NEXT_PUBLIC_CLUSTER_NAME);
+
     console.log("Cluster name is: ", clusterName);
-    if (clusterName === "localnet") {
-        let localClusterUrl = String(process.env.NEXT_PUBLIC_CLUSTER_URL);
-        _connection = new Connection(localClusterUrl, 'confirmed');
-    } else if (clusterName === "devnet") {
+    if (clusterName === "devnet") {
         _connection = new Connection(clusterApiUrl('devnet'), 'confirmed');
-    } else if (clusterName === "testnet") {
-        _connection = new Connection(clusterApiUrl('testnet'), 'confirmed');
     } else if (clusterName === "mainnet") {
         _connection = new Connection(clusterApiUrl('mainnet-beta'), 'confirmed');
     } else {
