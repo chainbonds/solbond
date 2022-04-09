@@ -146,7 +146,7 @@ export function UserWalletAssetsProvider(props: Props) {
 
                 newPool.usdcAmount = await qpools.instructions.pyth.pyth.multiplyAmountByPythprice(newPool.userInputAmount!.amount.uiAmount!, newPool.userInputAmount!.mint);
                 console.log("Pushing object: ", newPool);
-                newAllocData.set(newPool.lp, newPool);
+                newAllocData.set(newPool.lpIdentifier, newPool);
             }));
         }));
 

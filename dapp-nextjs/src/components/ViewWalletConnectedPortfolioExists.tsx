@@ -30,13 +30,13 @@ export const ViewWalletConnectedPortfolioExists = ({registry}: Props) => {
                 pool: position.pool,
                 weight: position.weight,
                 apy_24h: 0.,
-                lp: position.lp,
+                lpIdentifier: position.lpIdentifier,
                 protocol: position.protocol,
                 userInputAmount: position.userInputAmount,
                 userWalletAmount: position.userWalletAmount,
                 usdcAmount: position.usdcAmount
             };
-            let key: string = qpools.typeDefinitions.interfacingAccount.Protocol[position.protocol] + " " + tmp.lp.toString();
+            let key: string = qpools.typeDefinitions.interfacingAccount.Protocol[position.protocol] + " " + tmp.lpIdentifier.toString();
             newAllocationData.set(key, tmp);
         }));
         setAllocationData((oldAllocationData: Map<string, AllocData>) => {

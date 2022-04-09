@@ -2,8 +2,47 @@ import {UserTokenBalance} from "./UserTokenBalance";
 import * as qpools from "@qpools/sdk";
 
 // Weight is probably bullshit, should prob remove this ...
+// TODO: Introduce some terminology around protocol, inputToken, product, etc.
+/**
+ * This struct is central to the whole logic of the application.
+ * As such, please read this carefully
+ *
+ * lpIdentifier:
+ *      is the name that we receive from the serpius provider,
+ *      and also the name that the individual protocol assigns to this product / asset / pool
+ *      this name is unique
+ *
+ * weight:
+ *      is the portfolio weight for this specific input token.
+ *      the input-token can be split across multiple products / assets
+ *
+ * protocol:
+ *      is the protocol that this reaches out to. saved as an enum.
+ *      we only support a pre-determined set of protocols
+ *
+ * apy_24h:
+ *      the APY estimated on the previous 24h data
+ *
+ * pool:
+ *      is the pool-instance that includes some more detailed information on the product / asset / pool
+ *      it includes the name, the input tokens for this pool, the lpIdentifier
+ *      and also the mint-address for the certificate to be uniquely accessible
+ *
+ * userInputAmount:
+ *      UserTokenBalance that determines how much the user wants to put in into this specific asset,
+ *      and with which input token
+ *
+ * userWalletAmount:
+ *      UserTokenBalance that determines how much the user has in his wallet, for a specific token mint
+ *      , where this token mint is determined by the input-token to the userWalletAmount.
+ *      Right now, we only support one token per input.
+ *
+ * usdcAmount:
+ *      the total usdcValue of the userInputAmount. used for easier handling
+ *
+ */
 export interface AllocData {
-    lp: string,
+    lpIdentifier: string,  /// this is a key
     // Should include weights here
     weight: number,
     protocol: qpools.typeDefinitions.interfacingAccount.Protocol,

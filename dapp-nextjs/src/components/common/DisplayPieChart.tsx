@@ -49,14 +49,14 @@ export default function DisplayPieChart({allocationInformation, showPercentage}:
             // If the total sum of the portfolio is zero, make a unifiedly-distributed portfolio
             let totalUsdcValue = Array.from(allocationInformation.values()).reduce((value, current) => value = value + current.usdcAmount, 0);
             return Array.from(allocationInformation.values())
-                .sort((a, b) => a.lp > b.lp ? 1 : -1)
+                .sort((a, b) => a.lpIdentifier > b.lpIdentifier ? 1 : -1)
                 .map((current: AllocData) => {
                         let value = current.usdcAmount!;  // current.userInputAmount!.amount.uiAmount!;
                         if (totalUsdcValue < 1) {
                             value = 1;
                         }
                         return {
-                            name: qpools.typeDefinitions.interfacingAccount.Protocol[current.protocol] + " " + current.lp,
+                            name: qpools.typeDefinitions.interfacingAccount.Protocol[current.protocol] + " " + current.lpIdentifier,
                             value: value
                         }
                     }

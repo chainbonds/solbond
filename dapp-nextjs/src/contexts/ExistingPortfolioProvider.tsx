@@ -73,7 +73,7 @@ export function ExistingPortfolioProvider(props: Props) {
                 let allocData: AllocData = {
                     apy_24h: serpiusObject.apy_24h,
                     weight: serpiusObject.weight,
-                    lp: pool.name,
+                    lpIdentifier: pool.name,
                     pool: pool,
                     protocol: x.protocol,
                     userInputAmount: amount,

@@ -96,14 +96,14 @@ export function SerpiusEndpointProvider(props: Props) {
                     let out: AllocData = {
                         apy_24h: dataItem.apy_24h,
                         weight: dataItem.weight,
-                        lp: dataItem.lp,
+                        lpIdentifier: dataItem.lp,
                         pool: pool,
                         // @ts-ignore
                         protocol: qpools.typeDefinitions.interfacingAccount.Protocol[dataItem.protocol],   // Gotta convert the string to an enum ...
                         usdcAmount: (100 / (data.length))
                     };
                     console.log("data item is", out);
-                    newData.set(out.lp, out);
+                    newData.set(out.lpIdentifier, out);
                 }));
 
                 setPortfolioRatios((_: Map<string, AllocData>) => {

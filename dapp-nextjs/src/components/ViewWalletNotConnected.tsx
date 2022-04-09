@@ -21,7 +21,7 @@ export const ViewWalletNotConnected = ({registry}: Props) => {
             console.log("The new allocation (serpius) data is: ", serpiusProvider.portfolioRatios!);
             let out: Map<string, AllocData> = new Map<string, AllocData>();
             Array.from(serpiusProvider.portfolioRatios!.values()).map((x: AllocData) => {
-                let key: string = x.lp; //  Protocol[x.protocol] + " " +
+                let key: string = x.lpIdentifier; //  Protocol[x.protocol] + " " +
                 out.set(key, x);
             });
             return out;

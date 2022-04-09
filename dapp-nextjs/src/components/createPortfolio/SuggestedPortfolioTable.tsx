@@ -42,7 +42,7 @@ export default function SuggestedPortfolioTable({registry, tableColumns, selecte
         // : string
         // : AllocData
         let newPieChartData: ChartableItemType[] = await Promise.all(Array.from(selectedAssets.entries())
-            .sort((a, b) => a[1].lp > b[1].lp ? 1 : -1)
+            .sort((a, b) => a[1].lpIdentifier > b[1].lpIdentifier ? 1 : -1)
             .map(async ([key, current]) => {
                 console.log("Value is: ", current.usdcAmount, allocationSum);
                 let displayTokens: DisplayToken[] = await displayTokensFromPool(current.pool, registry);
@@ -51,7 +51,7 @@ export default function SuggestedPortfolioTable({registry, tableColumns, selecte
                 let inputTokenLink: string = await registry.getIconUriFromToken(inputToken.mint.toString());
                 let tmp: ChartableItemType = {
                     key: key,
-                    name: qpools.typeDefinitions.interfacingAccount.Protocol[current.protocol].charAt(0).toUpperCase() + qpools.typeDefinitions.interfacingAccount.Protocol[current.protocol].slice(1) + " " + current.lp,
+                    name: qpools.typeDefinitions.interfacingAccount.Protocol[current.protocol].charAt(0).toUpperCase() + qpools.typeDefinitions.interfacingAccount.Protocol[current.protocol].slice(1) + " " + current.lpIdentifier,
                     value: allocationSum > 0 ? (100 * current.usdcAmount) / allocationSum : 0,
                     apy_24h: current.apy_24h,
                     pool: current.pool,

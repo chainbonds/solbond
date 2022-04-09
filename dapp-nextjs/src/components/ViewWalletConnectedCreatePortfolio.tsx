@@ -57,7 +57,7 @@ export const ViewWalletConnectedCreatePortfolio = ({registry}: Props) => {
                 // Take the wallet assets at spin-up,
                 // After that, take the user input assets ...
                 Array.from(userWalletAssetsProvider.walletAssets!.values()).map((x: AllocData) => {
-                    let key: string = qpools.typeDefinitions.interfacingAccount.Protocol[x.protocol] + " " + x.lp;
+                    let key: string = qpools.typeDefinitions.interfacingAccount.Protocol[x.protocol] + " " + x.lpIdentifier;
                     out.set(key, x);
                 });
                 console.log("Updated Map (1) is: ", out);
@@ -104,7 +104,7 @@ export const ViewWalletConnectedCreatePortfolio = ({registry}: Props) => {
         let newAsset: AllocData = {
             weight: currentlySelectedAsset.weight,
             apy_24h: currentlySelectedAsset.apy_24h,
-            lp: currentlySelectedAsset.lp,
+            lpIdentifier: currentlySelectedAsset.lpIdentifier,
             pool: currentlySelectedAsset.pool,
             protocol: currentlySelectedAsset.protocol,
             userInputAmount: userInputAmount,
