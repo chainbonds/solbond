@@ -73,12 +73,13 @@ export function SerpiusEndpointProvider(props: Props) {
                 // Now add the information about the ExplicitSaberPool into it as well
                 let newData: Map<string, AllocData> = new Map<string, AllocData>();
                 await Promise.all(data.map(async (dataItem: SerpiusInput) => {
+                    console.log("Parsing serpis item: ", dataItem);
                     console.log("data lp is: ", dataItem.lp);
                     // TODO: Remove for mainnet / devnet...
                     // TODO: Also add case-distinction for the protocol ...
                     if (dataItem.lp === "USDC-USDT" && dataItem.protocol === "saber") {
                         dataItem.lp = "usdc_usdt"
-                    } else if (dataItem.lp === "mSOL" && dataItem.protocol === "mariande") {
+                    } else if (dataItem.lp === "mSOL" && dataItem.protocol === "marinade") {
                         dataItem.lp = "marinade"
                     } else if (dataItem.lp === "SOL" && dataItem.protocol === "solend") {
                         dataItem.lp = "SOL"
