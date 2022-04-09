@@ -14,9 +14,19 @@ import {ExistingPortfolioProvider} from "../contexts/ExistingPortfolioProvider";
 import {ErrorMessageProvider} from "../contexts/ErrorMessageContext";
 import * as qpools from "@qpools/sdk";
 import {WalletKitProvider} from "@gokiprotocol/walletkit";
+import {Network} from "@saberhq/solana-contrib";
 
 function MyApp({Component, pageProps}: AppProps) {
     const registry = new qpools.helperClasses.Registry();
+
+    let defaultNetwork: Network;
+    if (qpools.network.getNetworkCluster() === qpools.network.Cluster.DEVNET) {
+        defaultNetwork = "devnet";
+    } else if (qpools.network.getNetworkCluster() === qpools.network.Cluster.MAINNET) {
+        defaultNetwork = "mainnet-beta";
+    } else {
+        throw Error("Network not specified! " + String(qpools.network.getNetworkCluster()));
+    }
 
     return (
         <LocalKeypairProvider>
@@ -25,7 +35,7 @@ function MyApp({Component, pageProps}: AppProps) {
                     <ItemsLoadProvider>
                         <SerpiusEndpointProvider registry={registry}>
                             <WalletKitProvider
-                                defaultNetwork="devnet"
+                                defaultNetwork={defaultNetwork}
                                 app={{name: "qPools with Goki"}}
                             >
                                 <RpcProvider registry={registry}>
