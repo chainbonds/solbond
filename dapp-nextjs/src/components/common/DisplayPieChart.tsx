@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from "react";
 import {PieChart, Pie, Cell} from "recharts";
 import {PIECHART_COLORS, RADIAN} from "../../const";
-import {AllocData} from "../../types/AllocData";
+import {AllocData, keyFromAllocData, keyFromPoolData} from "../../types/AllocData";
 import * as qpools from "@qpools/sdk";
 import {valueFn} from "react-use-gesture/dist/utils/utils";
 
@@ -56,7 +56,7 @@ export default function DisplayPieChart({allocationInformation, showPercentage}:
                             value = 1;
                         }
                         return {
-                            name: qpools.typeDefinitions.interfacingAccount.Protocol[current.protocol] + " " + current.lpIdentifier,
+                            name: keyFromAllocData(current),
                             value: value
                         }
                     }

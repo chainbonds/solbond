@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from "react";
-import {AllocData} from "../types/AllocData";
+import {AllocData, keyFromAllocData} from "../types/AllocData";
 import DisplayPieChart from "./common/DisplayPieChart";
 import SuggestedPortfolioTable from "./createPortfolio/SuggestedPortfolioTable";
 import SelectWallet from "./createPortfolio/buttons/SelectWallet";
@@ -21,7 +21,7 @@ export const ViewWalletNotConnected = ({registry}: Props) => {
             console.log("The new allocation (serpius) data is: ", serpiusProvider.portfolioRatios!);
             let out: Map<string, AllocData> = new Map<string, AllocData>();
             Array.from(serpiusProvider.portfolioRatios!.values()).map((x: AllocData) => {
-                let key: string = x.lpIdentifier; //  Protocol[x.protocol] + " " +
+                let key: string = keyFromAllocData(x);
                 out.set(key, x);
             });
             return out;

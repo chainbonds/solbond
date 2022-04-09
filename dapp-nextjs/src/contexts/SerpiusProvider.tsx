@@ -1,6 +1,6 @@
 import React, {useState, useContext, useEffect} from 'react';
 import axios from "axios";
-import {AllocData} from "../types/AllocData";
+import {AllocData, keyFromAllocData} from "../types/AllocData";
 import * as qpools from "@qpools/sdk";
 
 export interface ISerpius {
@@ -76,14 +76,13 @@ export function SerpiusEndpointProvider(props: Props) {
                     console.log("data lp is: ", dataItem.lp);
                     // TODO: Remove for mainnet / devnet...
                     // TODO: Also add case-distinction for the protocol ...
-                    if (dataItem.lp === "USDC-USDT") {
+                    if (dataItem.lp === "USDC-USDT" && dataItem.protocol === "saber") {
                         dataItem.lp = "usdc_usdt"
-                    } else if (dataItem.lp === "mSOL") {
-                        // dataItem.lp = "marinade"
+                    } else if (dataItem.lp === "mSOL" && dataItem.protocol === "mariande") {
                         dataItem.lp = "marinade"
-                    } else if (dataItem.lp === "SOL") {
-                        dataItem.lp = "cSOL"
-                        // dataItem.lp = "Solana"
+                    } else if (dataItem.lp === "SOL" && dataItem.protocol === "solend") {
+                        dataItem.lp = "SOL"
+                        // was previously cSOL. ID should be set from the registry, however !!! (and for solend, the id is the Symbol)
                     }
 
                     console.log("Registry is: ", props.registry);
@@ -103,7 +102,7 @@ export function SerpiusEndpointProvider(props: Props) {
                         usdcAmount: (100 / (data.length))
                     };
                     console.log("data item is", out);
-                    newData.set(out.lpIdentifier, out);
+                    newData.set(keyFromAllocData(out), out);
                 }));
 
                 setPortfolioRatios((_: Map<string, AllocData>) => {

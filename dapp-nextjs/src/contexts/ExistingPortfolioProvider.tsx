@@ -1,7 +1,7 @@
 import React, {useState, useContext, useEffect} from 'react';
 import {IRpcProvider, useRpc} from "./RpcProvider";
 import {ILoad, useLoad} from "./LoadingContext";
-import {AllocData} from "../types/AllocData";
+import {AllocData, keyFromAllocData, keyFromPoolData} from "../types/AllocData";
 import {UserTokenBalance} from "../types/UserTokenBalance";
 import {ISerpius, useSerpiusEndpoint} from "./SerpiusProvider";
 import * as qpools from "@qpools/sdk";
@@ -67,7 +67,8 @@ export function ExistingPortfolioProvider(props: Props) {
                 console.log("Displaying individual amounts are: ", amount);
                 console.log("usdcValueLp ", x.usdcValueLP);
                 // you can probably still get the apy-dates through the serpius endpoint
-                let serpiusObject: AllocData = serpiusProvider.portfolioRatios.get(pool.name)!;
+                // TODO: Should not be pool.name, but should again probably be indexed by the type of protocol, and the id
+                let serpiusObject: AllocData = serpiusProvider.portfolioRatios.get(keyFromPoolData(pool))!;
                 // APY 24h is (if it was loaded already ...)
                 console.log("Serpius object is: ", serpiusObject);
                 let allocData: AllocData = {
@@ -80,7 +81,7 @@ export function ExistingPortfolioProvider(props: Props) {
                     userWalletAmount: amount,
                     usdcAmount: x.usdcValueLP
                 }
-                newAllocData.set(pool.name, allocData);
+                newAllocData.set(keyFromAllocData(allocData), allocData);
             }));
 
             setPositionInfos((oldAllocData: Map<string, AllocData>) => {

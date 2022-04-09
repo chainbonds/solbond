@@ -1,6 +1,6 @@
 import React, {useState, useContext, useEffect} from 'react';
 import {PublicKey, TokenAmount} from "@solana/web3.js";
-import {AllocData} from "../types/AllocData";
+import {AllocData, keyFromAllocData} from "../types/AllocData";
 import {IRpcProvider, useRpc} from "./RpcProvider";
 import {ISerpius, useSerpiusEndpoint} from "./SerpiusProvider";
 import {BN} from "@project-serum/anchor";
@@ -146,7 +146,7 @@ export function UserWalletAssetsProvider(props: Props) {
 
                 newPool.usdcAmount = await qpools.instructions.pyth.pyth.multiplyAmountByPythprice(newPool.userInputAmount!.amount.uiAmount!, newPool.userInputAmount!.mint);
                 console.log("Pushing object: ", newPool);
-                newAllocData.set(newPool.lpIdentifier, newPool);
+                newAllocData.set(keyFromAllocData(newPool), newPool);
             }));
         }));
 

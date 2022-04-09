@@ -43,8 +43,10 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
         let out: qpools.typeDefinitions.interfacingAccount.ExplicitPool = {
             id: x.id,
             name: x.name,
-            protocol: x.protocol,
-            protocolType: x.protocolType,
+            // @ts-ignore
+            protocol: qpools.typeDefinitions.interfacingAccount.Protocol[x.protocol],
+            // @ts-ignore
+            protocolType: qpools.typeDefinitions.interfacingAccount.ProtocolType[x.protocolType],
             lpToken: lpToken,
             tokens: tokens
         }

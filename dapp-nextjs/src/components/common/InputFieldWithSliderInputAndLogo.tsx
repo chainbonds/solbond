@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from "react";
 import Image from "next/image";
 import {BRAND_COLORS} from "../../const";
-import {AllocData} from "../../types/AllocData";
+import {AllocData, keyFromAllocData, keyFromPoolData} from "../../types/AllocData";
 import {BN} from "@project-serum/anchor";
 import {TokenAmount} from "@solana/web3.js";
 import {getTokenAmount} from "../../utils/utils";
@@ -48,7 +48,7 @@ export default function InputFieldWithSliderInputAndLogo({allocationItems, selec
         (await registry.getPoolsByInputToken(inputCurrency.toString()))
             .filter((x: qpools.typeDefinitions.interfacingAccount.ExplicitPool) => {
                 // Gotta create the id same as when loading the data. Create a function for this...
-                let id = String(qpools.typeDefinitions.interfacingAccount.Protocol[x.protocol]) + " " + x.id;
+                let id = keyFromPoolData(x);
                 if (allocationItems.has(id)) {
                     return true
                 } else {
@@ -58,7 +58,7 @@ export default function InputFieldWithSliderInputAndLogo({allocationItems, selec
 
             })
             .map((x: qpools.typeDefinitions.interfacingAccount.ExplicitPool) => {
-                let id = String(qpools.typeDefinitions.interfacingAccount.Protocol[x.protocol]) + " " + x.id;
+                let id = keyFromPoolData(x);
                 let inputAmount = new BN(allocationItems.get(id)!.userInputAmount!.amount.amount);
                 totalInputtedAmount = totalInputtedAmount.add(inputAmount);
             });
@@ -86,7 +86,7 @@ export default function InputFieldWithSliderInputAndLogo({allocationItems, selec
         (await registry.getPoolsByInputToken(inputCurrency.toString()))
             .filter((x: qpools.typeDefinitions.interfacingAccount.ExplicitPool) => {
                 // Gotta create the id same as when loading the data. Create a function for this...
-                let id = String(qpools.typeDefinitions.interfacingAccount.Protocol[x.protocol]) + " " + x.id;
+                let id = keyFromPoolData(x);
                 let currentElementsId = selectedItemKey;
 
                 console.log("id and current element id is: ", id, currentElementsId);
@@ -104,7 +104,7 @@ export default function InputFieldWithSliderInputAndLogo({allocationItems, selec
 
             })
             .map((x: qpools.typeDefinitions.interfacingAccount.ExplicitPool) => {
-                let id = String(qpools.typeDefinitions.interfacingAccount.Protocol[x.protocol]) + " " + x.id;
+                let id = keyFromPoolData(x);
                 let inputAmount = new BN(allocationItems.get(id)!.userInputAmount!.amount.amount);
                 totalInputtedAmount = totalInputtedAmount.add(inputAmount);
             });

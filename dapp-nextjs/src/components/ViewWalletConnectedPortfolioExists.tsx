@@ -1,7 +1,7 @@
 import DisplayPieChart from "./common/DisplayPieChart";
 import React, {useEffect, useState} from "react";
 import RedeemPortfolioView from "./redeemPortfolio/RedeemPortfolioView";
-import {AllocData} from "../types/AllocData";
+import {AllocData, keyFromAllocData} from "../types/AllocData";
 import {IExistingPortfolio, useExistingPortfolio} from "../contexts/ExistingPortfolioProvider";
 import SuggestedPortfolioTable from "./createPortfolio/SuggestedPortfolioTable";
 import Error from "next/error";
@@ -36,7 +36,7 @@ export const ViewWalletConnectedPortfolioExists = ({registry}: Props) => {
                 userWalletAmount: position.userWalletAmount,
                 usdcAmount: position.usdcAmount
             };
-            let key: string = qpools.typeDefinitions.interfacingAccount.Protocol[position.protocol] + " " + tmp.lpIdentifier.toString();
+            let key: string = keyFromAllocData(position);
             newAllocationData.set(key, tmp);
         }));
         setAllocationData((oldAllocationData: Map<string, AllocData>) => {
