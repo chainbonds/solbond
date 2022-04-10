@@ -347,6 +347,7 @@ export default function PurchaseButton({passedAllocationData}: Props) {
                 );
                 tx.add(IxRegisterCurrencyInput);
 
+
                 let IxApprovePositionWeightSaber = await rpcProvider.portfolioObject!.approvePositionWeightSaber(
                     lpAddress,
                     currencyAmount,
