@@ -109,6 +109,7 @@ export default function PurchaseButton({passedAllocationData}: Props) {
             return;
         }
 
+        await itemLoadContext.addLoadItem({message: "Sign: Unwrap any wrapped SOL"});
         await itemLoadContext.addLoadItem({message: "Sign: Creating Associated Token Accounts"});
         await itemLoadContext.addLoadItem({message: "Sign: Create Portfolio & Sending Asset"});
         await itemLoadContext.addLoadItem({message: "Running cranks to distribute assets across liquidity pools..."});
@@ -169,6 +170,30 @@ export default function PurchaseButton({passedAllocationData}: Props) {
         });
 
         /**
+         * Unwrap any wrapped token in a separate transaction. Fuck UX for this. Some other shitty application left some wrapped token
+         */
+        let txUnwrapToken = await rpcProvider.portfolioObject!.unwrapSolTransaction();
+        if (txUnwrapToken.instructions.length > 0) {
+            try {
+                await sendAndConfirmTransaction(
+                    rpcProvider._solbondProgram!.provider,
+                    rpcProvider.connection!,
+                    txUnwrapToken
+                );
+            } catch (error) {
+                itemLoadContext.resetCounter();
+                console.log(String(error));
+                errorMessage.addErrorMessage(
+                    "Something went wrong unwrapping your wrapped SOL!",
+                    String(error)
+                );
+                return;
+            }
+        }
+        await itemLoadContext.incrementCounter();
+
+
+        /**
          * Create associate token accounts
          *  Depending on the type of protocol, we must first receive the input pools ...
          *  This is the first transaction ...
@@ -185,21 +210,22 @@ export default function PurchaseButton({passedAllocationData}: Props) {
         mints.push(...lpMints);
         // We assume that the .tokens object carries all the tokens needed to make it run ...
         // TODO: Not sure if this is needed really for all the objects that we input right now ...
-        let txAta = await rpcProvider.portfolioObject!.unwrapSolTransaction();
         let txCreateAssociateTokenAccount = await rpcProvider.portfolioObject!.createAssociatedTokenAccounts(
             mints,
             rpcProvider.provider!.wallet
         );
-        txAta.add(txCreateAssociateTokenAccount)
+        console.log("Transaction size at create ATA is: ", txCreateAssociateTokenAccount.instructions.length, txCreateAssociateTokenAccount.instructions);
         // Can also make an additional instruction which wraps sol again
+        // let txAta = await rpcProvider.portfolioObject!.unwrapSolTransaction();
         let txWrapSol = await rpcProvider.portfolioObject!.wrapSolTransaction(wrappedSolLamports);
-        txAta.add(txWrapSol);
-        if (txAta.instructions.length > 0) {
+        txCreateAssociateTokenAccount.add(txWrapSol);
+        console.log("Transaction size after wrapped SOL Tx is: ", txCreateAssociateTokenAccount.instructions.length, txCreateAssociateTokenAccount.instructions);
+        if (txCreateAssociateTokenAccount.instructions.length > 0) {
             try {
                 await sendAndConfirmTransaction(
                     rpcProvider._solbondProgram!.provider,
                     rpcProvider.connection!,
-                    txAta
+                    txCreateAssociateTokenAccount
                 );
             } catch (error) {
                 itemLoadContext.resetCounter();
