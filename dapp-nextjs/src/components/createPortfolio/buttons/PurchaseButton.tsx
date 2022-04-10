@@ -415,6 +415,7 @@ export default function PurchaseButton({passedAllocationData}: Props) {
             );
         } catch (error) {
             itemLoadContext.resetCounter();
+            console.log(error);
             errorMessage.addErrorMessage(
                 "Something went wrong creating the portfolio",
                 String(error)
