@@ -103,6 +103,7 @@ export default function PurchaseButton({passedAllocationData}: Props) {
         if ((await rpcProvider.connection!.getBalance(rpcProvider.userAccount!.publicKey)) < 100_000) {
             // TODO: Gotta redirect her to Moonpay
             errorMessage.addErrorMessage(
+                "not_enough_funds_show_faucet",
                 "You don't seem to have enough SOL in your wallet to execute this transaction ...",
                 String("")
             );
@@ -184,6 +185,7 @@ export default function PurchaseButton({passedAllocationData}: Props) {
                 itemLoadContext.resetCounter();
                 console.log(String(error));
                 errorMessage.addErrorMessage(
+                    "unwrap_SOL_error",
                     "Something went wrong unwrapping your wrapped SOL!",
                     String(error)
                 );
@@ -231,6 +233,7 @@ export default function PurchaseButton({passedAllocationData}: Props) {
                 itemLoadContext.resetCounter();
                 console.log(String(error));
                 errorMessage.addErrorMessage(
+                    "associated_tokenaccount_error",
                     "Something went wrong creating the associated token accounts",
                     String(error)
                 );
@@ -256,6 +259,7 @@ export default function PurchaseButton({passedAllocationData}: Props) {
         if (!wrappedSolLamports.lte(wrappedSol)) {
             itemLoadContext.resetCounter();
             errorMessage.addErrorMessage(
+                "not_enough_wrapped_sol",
                 "You managed to input more wrapped SOL than you have in your wallet! You broke the frontend!",
             );
             return;
@@ -264,6 +268,7 @@ export default function PurchaseButton({passedAllocationData}: Props) {
         if (!nativeSolLamports.lte(nativeSolLamports)) {
             itemLoadContext.resetCounter();
             errorMessage.addErrorMessage(
+                "not_enough_native_sol",
                 "You managed to input more native SOL than you have in your wallet! You broke the frontend!",
             );
             return;
@@ -371,6 +376,12 @@ export default function PurchaseButton({passedAllocationData}: Props) {
 
             } else if (value.protocol.valueOf() === qpools.typeDefinitions.interfacingAccount.Protocol.solend.valueOf()) {
 
+                let IxRegisterCurrencyInput = await rpcProvider.portfolioObject!.registerCurrencyInputInPortfolio(
+                    currencyAmount,
+                    currencyMint
+                );
+                tx.add(IxRegisterCurrencyInput);
+
                 let IxApprovePositionWeightSolend = await rpcProvider.portfolioObject!.approvePositionWeightSolend(
                     currencyMint,
                     currencyAmount,
@@ -417,6 +428,7 @@ export default function PurchaseButton({passedAllocationData}: Props) {
             itemLoadContext.resetCounter();
             console.log(error);
             errorMessage.addErrorMessage(
+                "create_portfolio",
                 "Something went wrong creating the portfolio",
                 String(error)
             );
@@ -444,6 +456,7 @@ export default function PurchaseButton({passedAllocationData}: Props) {
                     itemLoadContext.resetCounter();
                     console.log(String(error));
                     errorMessage.addErrorMessage(
+                        "crank_portfolio_saber",
                         "Fulfilling the Saber Protocol failed.",
                         String(error)
                     );
@@ -457,6 +470,7 @@ export default function PurchaseButton({passedAllocationData}: Props) {
                     itemLoadContext.resetCounter();
                     console.log(String(error));
                     errorMessage.addErrorMessage(
+                        "crank_portfolio_marinade",
                         "Fulfilling the Marinade Protocol failed.",
                         String(error)
                     );
@@ -477,6 +491,7 @@ export default function PurchaseButton({passedAllocationData}: Props) {
                     itemLoadContext.resetCounter();
                     console.log(String(error));
                     errorMessage.addErrorMessage(
+                        "crank_portfolio_solend",
                         "Fulfilling the Marinade Protocol failed.",
                         String(error)
                     );
@@ -487,6 +502,7 @@ export default function PurchaseButton({passedAllocationData}: Props) {
                 console.log(value);
                 // throw Error("Not all cranks could be fulfilled!! " + JSON.stringify(value));
                 errorMessage.addErrorMessage(
+                    "crank_portfolio_wrong_enum",
                     "Some Protocol outside has been specified!",
                     "Not all cranks have been fulfilled, this protocool was not found: " + JSON.stringify(value)
                 );
