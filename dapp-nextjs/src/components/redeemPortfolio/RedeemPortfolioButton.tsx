@@ -60,13 +60,25 @@ export const RedeemPortfolioButton: FC = ({}) => {
          */
         console.log("Getting instructions to approve the transaction...");
         let {portfolio, positionsSaber, positionsMarinade, positionsSolend} = await rpcProvider.portfolioObject!.getPortfolioAndPositions();
-        let allIxs = await rpcProvider.portfolioObject!.approveRedeemAllPositions(
+        // await sendAndConfirmTransaction(
+        //     rpcProvider._solbondProgram!.provider,
+        //     rpcProvider.connection!,
+        //     tx
+        // );
+        // tx = new Transaction();
+        let txApproveRedeemAllPositions = await rpcProvider.portfolioObject!.approveRedeemAllPositions(
             portfolio,
             positionsSaber,
             positionsMarinade,
             positionsSolend
         );
-        allIxs.map((x: TransactionInstruction) => tx.add(x));
+        tx.add(txApproveRedeemAllPositions);
+        // await sendAndConfirmTransaction(
+        //     rpcProvider._solbondProgram!.provider,
+        //     rpcProvider.connection!,
+        //     tx
+        // );
+        // tx = new Transaction();
 
         /**
          * Send some SOL to the crank wallet, just in case it doesn't have enough lamports
@@ -103,10 +115,19 @@ export const RedeemPortfolioButton: FC = ({}) => {
         /**
          * Run the crank transactions
          */
+        console.log("Positions are: ");
+        console.log(positionsSaber);
+        console.log(positionsMarinade);
+        console.log(positionsSolend);
+
         try {
-            await crankProvider.crankRpcTool!.redeemAllPositions(portfolio, positionsSaber, positionsMarinade);
+            // TODO: Make this redeemAllPositions optional,
+            console.log("Redeeming all postions")
+            await crankProvider.crankRpcTool!.redeemAllPositions(portfolio, positionsSaber, positionsMarinade, positionsSolend);
             await itemLoadContext.incrementCounter();
+            console.log("transferring to user usdc ...");
             let sgTransferUsdcToUser = await crankProvider.crankRpcTool!.transfer_to_user(USDC_mint);
+            console.log("transferring to user usdc done");
             console.log("Signature to send back USDC", sgTransferUsdcToUser);
             // let sgTransferMSolToUser = await crankProvider.crankRpcTool!.transfer_to_user(mSOL);
             // console.log("Signature to send back mSOL", sgTransferMSolToUser);
