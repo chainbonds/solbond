@@ -108,8 +108,8 @@ export const RedeemPortfolioButton: FC = ({}) => {
             await itemLoadContext.incrementCounter();
             let sgTransferUsdcToUser = await crankProvider.crankRpcTool!.transfer_to_user(USDC_mint);
             console.log("Signature to send back USDC", sgTransferUsdcToUser);
-            let sgTransferMSolToUser = await crankProvider.crankRpcTool!.transfer_to_user(mSOL);
-            console.log("Signature to send back mSOL", sgTransferMSolToUser);
+            // let sgTransferMSolToUser = await crankProvider.crankRpcTool!.transfer_to_user(mSOL);
+            // console.log("Signature to send back mSOL", sgTransferMSolToUser);
         } catch (error) {
             itemLoadContext.resetCounter();
             console.log(String(error));
