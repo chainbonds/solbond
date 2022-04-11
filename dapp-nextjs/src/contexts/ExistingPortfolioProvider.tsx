@@ -73,6 +73,12 @@ export function ExistingPortfolioProvider(props: Props) {
                 console.log("Object value is: ", serpiusProvider.portfolioRatios);
                 // APY 24h is (if it was loaded already ...)
                 console.log("Serpius object is: ", serpiusObject);
+                // Quick fix, if the serpius object is empty, just skip it ...
+                // probably due to some async concurrency bug ..
+                // TODO:, I guess this is why these function usually are run inside the setPositionInfos (because this makes it basically atomic?)
+                if (!serpiusObject) {
+                    return;
+                }
                 let allocData: AllocData = {
                     apy_24h: serpiusObject.apy_24h,
                     weight: serpiusObject.weight,
