@@ -1,10 +1,9 @@
 import React, {useEffect, useState} from "react";
 import Image from "next/image";
 import {BRAND_COLORS} from "../../const";
-import {AllocData, keyFromAllocData, keyFromPoolData} from "../../types/AllocData";
+import {AllocData, keyFromPoolData} from "../../types/AllocData";
 import {BN} from "@project-serum/anchor";
 import {TokenAmount} from "@solana/web3.js";
-import {getTokenAmount} from "../../utils/utils";
 import * as qpools from "@qpools/sdk";
 
 // TODO: I guess most numbers here should be replaced by TokenAmount, and then the lamports should be the inputs, and the uiAmounts should be the display values?
@@ -62,7 +61,7 @@ export default function InputFieldWithSliderInputAndLogo({allocationItems, selec
                 let inputAmount = new BN(allocationItems.get(id)!.userInputAmount!.amount.amount);
                 totalInputtedAmount = totalInputtedAmount.add(inputAmount);
             });
-        let readableTotalInputtedAmount = getTokenAmount(totalInputtedAmount, new BN(decimals)).uiAmount!;
+        let readableTotalInputtedAmount = qpools.utils.getTokenAmount(totalInputtedAmount, new BN(decimals)).uiAmount!;
         console.log("Readable total input amount is: ", readableTotalInputtedAmount);
         setTotalInputBalance(readableTotalInputtedAmount);
     }
@@ -163,7 +162,7 @@ export default function InputFieldWithSliderInputAndLogo({allocationItems, selec
         console.log("power is: ", power.toString());
         let numberInclDecimals: BN = power.muln(value);
         console.log("Number incl decimals is: ", numberInclDecimals.toString());
-        let tokenAmount: TokenAmount = getTokenAmount(numberInclDecimals, new BN(currentlySelectedAsset.userInputAmount!.amount.decimals));
+        let tokenAmount: TokenAmount = qpools.utils.getTokenAmount(numberInclDecimals, new BN(currentlySelectedAsset.userInputAmount!.amount.decimals));
         console.log("Number incl decimals is: ", tokenAmount);
         modifyIndividualAllocationItem(selectedItemKey, tokenAmount).then(() => {
             calculateAvailableAmount();

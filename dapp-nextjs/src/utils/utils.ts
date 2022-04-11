@@ -12,26 +12,6 @@ export interface SelectedToken {
     mint: PublicKey
 }
 
-// TODO: The usage of this is ambigious. I need to chase these bugs everywhere!!!
-// TODO: Write tests for this stupid shit ...
-/**
- *
- * @param x The big-number that should be written into a tokenAmountNumber. Should be lamports, and include decimals!
- *  This cannot be negative
- * @param decimals
- */
-export const getTokenAmount = (x: BN, decimals: BN): TokenAmount => {
-    let decimalsAsNumber = decimals.toNumber();
-    let decimalExpanded = (new BN(10)).pow(decimals);
-    let uiAmount = Math.max(x.toNumber() / decimalExpanded.toNumber(), 0.0);
-    return {
-        amount: x.toString(),
-        decimals: decimalsAsNumber,
-        uiAmount: uiAmount,
-        uiAmountString: uiAmount.toString()
-    };
-}
-
 // export const getTokenAmount = (x: BN, decimals: BN): TokenAmount => {
 //     let decimalAsPower = (new BN(10)).pow(decimals);
 //     let uiAmountBN = BN.max(((x.mul(decimalAsPower).sub(lamportsReserversForLocalWallet))), new BN(0.0));

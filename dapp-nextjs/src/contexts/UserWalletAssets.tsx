@@ -4,7 +4,6 @@ import {AllocData, keyFromAllocData} from "../types/AllocData";
 import {IRpcProvider, useRpc} from "./RpcProvider";
 import {ISerpius, useSerpiusEndpoint} from "./SerpiusProvider";
 import {BN} from "@project-serum/anchor";
-import {getTokenAmount} from "../utils/utils";
 import {lamportsReserversForLocalWallet} from "../const";
 import * as qpools from "@qpools/sdk";
 
@@ -111,7 +110,7 @@ export function UserWalletAssetsProvider(props: Props) {
                     let totalBalance: BN = wrappedSolBalance.add(solBalance);
                     console.log("solbalance before ", solBalance);
 
-                    userBalance = getTokenAmount(totalBalance.sub(lamportsReserversForLocalWallet), new BN(9));
+                    userBalance = qpools.utils.getTokenAmount(totalBalance.sub(lamportsReserversForLocalWallet), new BN(9));
 
                     console.log("String and marinade sol mint is: ");
                     console.log("1111");
@@ -120,9 +119,9 @@ export function UserWalletAssetsProvider(props: Props) {
                     console.log(qpools.constDefinitions.getMarinadeSolMint().toString());
                     // Could also divide this by the number of input assets or sth ...
                     if (fetchedPool?.pool.lpToken.address?.toString() === qpools.constDefinitions.getMarinadeSolMint().toString()) {
-                        startingBalance = getTokenAmount(new BN(0), new BN(userBalance.decimals));
+                        startingBalance = qpools.utils.getTokenAmount(new BN(0), new BN(userBalance.decimals));
                     } else {
-                        startingBalance = getTokenAmount(new BN(userBalance.amount).div(new BN(10)), new BN(userBalance.decimals));
+                        startingBalance = qpools.utils.getTokenAmount(new BN(userBalance.amount).div(new BN(10)), new BN(userBalance.decimals));
                     }
                     console.log("solbalance after ... ");
                 } else {
@@ -131,9 +130,9 @@ export function UserWalletAssetsProvider(props: Props) {
                         userBalance = (await rpcProvider.connection!.getTokenAccountBalance(ata)).value;
                     } else {
                         // I guess in this case it doesn't matter what the decimals are, because the user needs to buy some more sutff nonetheless
-                        userBalance = getTokenAmount(new BN(0), new BN(9));
+                        userBalance = qpools.utils.getTokenAmount(new BN(0), new BN(9));
                     }
-                    startingBalance = getTokenAmount(new BN(userBalance.amount).div(new BN(10)), new BN(userBalance.decimals));
+                    startingBalance = qpools.utils.getTokenAmount(new BN(userBalance.amount).div(new BN(10)), new BN(userBalance.decimals));
                     console.log("fetched successfully! ", userBalance);
                 }
 

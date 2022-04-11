@@ -283,10 +283,26 @@ export default function PurchaseButton({passedAllocationData}: Props) {
          *  Not dependend on the individual items
          */
         let tx: Transaction = new Transaction();
+        // For the input tokens, remove 1, if marinade SOL is part of it (because we send raw
+        let marinadeIsIncluded = allocationDataAsArray.filter(([key, value]) => {
+            return value.protocol.valueOf() === qpools.typeDefinitions.interfacingAccount.Protocol.marinade.valueOf();
+        }).length;
+        let numberOfProtocolsUsingWrappedSol = allocationDataAsArray.filter(([key, value]) => {
+            let wrappedSolAsInput = value.userInputAmount!.mint.toString() === qpools.constDefinitions.getWrappedSolMint().toString();
+            let isMarinade = value.protocol.valueOf() === qpools.typeDefinitions.interfacingAccount.Protocol.marinade.valueOf();
+            return wrappedSolAsInput && !isMarinade
+        }).length;
+        let marinadeIsTheOnlyProtocolThatUsesWrappedSol = (marinadeIsIncluded > 0) && (numberOfProtocolsUsingWrappedSol < 1);
+        let numberOfCurrencies: BN;
+        if (marinadeIsTheOnlyProtocolThatUsesWrappedSol) {
+            numberOfCurrencies = new BN(uniqueInputTokens.length - 1);
+        } else {
+            numberOfCurrencies = new BN(uniqueInputTokens.length);
+        }
         let IxCreatePortfolioPda = await rpcProvider.portfolioObject!.createPortfolioSigned(
             allocationDataAsArray.map(([key, value]) => new BN(value.weight)),
             lpMints,
-            new BN(uniqueInputTokens.length)
+            numberOfCurrencies
         );
         tx.add(IxCreatePortfolioPda);
 
@@ -346,7 +362,6 @@ export default function PurchaseButton({passedAllocationData}: Props) {
                     currencyMint
                 );
                 tx.add(IxRegisterCurrencyInput);
-
 
                 let IxApprovePositionWeightSaber = await rpcProvider.portfolioObject!.approvePositionWeightSaber(
                     lpAddress,

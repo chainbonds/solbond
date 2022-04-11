@@ -38,7 +38,7 @@ export const RedeemPortfolioButton: FC = ({}) => {
         await itemLoadContext.addLoadItem({message: "Fetching Account Information"});
         await itemLoadContext.addLoadItem({message: "Approving Redeem & Redeeming Positions"});
         await itemLoadContext.addLoadItem({message: "Redeeming Positions"});
-        await itemLoadContext.addLoadItem({message: "Transferring USDC Back to Your Wallet"});
+        await itemLoadContext.addLoadItem({message: "Transferring Tokens Back to Your Wallet"});
 
         let USDC_mint = new PublicKey("2tWC4JAdL4AxEFJySziYJfsAnW2MHKRo98vbAPiRDSk8");
         let mSOL = rpcProvider.portfolioObject!.marinadeState.mSolMintAddress;
@@ -108,6 +108,8 @@ export const RedeemPortfolioButton: FC = ({}) => {
             await itemLoadContext.incrementCounter();
             let sgTransferUsdcToUser = await crankProvider.crankRpcTool!.transfer_to_user(USDC_mint);
             console.log("Signature to send back USDC", sgTransferUsdcToUser);
+            let sgTransferMSolToUser = await crankProvider.crankRpcTool!.transfer_to_user(mSOL);
+            console.log("Signature to send back mSOL", sgTransferMSolToUser);
         } catch (error) {
             itemLoadContext.resetCounter();
             console.log(String(error));

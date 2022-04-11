@@ -68,7 +68,9 @@ export function ExistingPortfolioProvider(props: Props) {
                 console.log("usdcValueLp ", x.usdcValueLP);
                 // you can probably still get the apy-dates through the serpius endpoint
                 // TODO: Should not be pool.name, but should again probably be indexed by the type of protocol, and the id
+                console.log("Key is. ", keyFromPoolData(pool));
                 let serpiusObject: AllocData = serpiusProvider.portfolioRatios.get(keyFromPoolData(pool))!;
+                console.log("Object value is: ", serpiusProvider.portfolioRatios);
                 // APY 24h is (if it was loaded already ...)
                 console.log("Serpius object is: ", serpiusObject);
                 let allocData: AllocData = {
