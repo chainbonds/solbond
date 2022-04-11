@@ -15,9 +15,13 @@ import {ErrorMessageProvider} from "../contexts/ErrorMessageContext";
 import * as qpools from "@qpools/sdk";
 import {WalletKitProvider} from "@gokiprotocol/walletkit";
 import {Network} from "@saberhq/solana-contrib";
+import {getConnection} from "../const";
 
 function MyApp({Component, pageProps}: AppProps) {
-    const registry = new qpools.helperClasses.Registry();
+
+    // Could just create the connection here ..
+    const connection = getConnection();
+    const registry = new qpools.helperClasses.Registry(connection);
 
     let defaultNetwork: Network;
     if (qpools.network.getNetworkCluster() === qpools.network.Cluster.DEVNET) {

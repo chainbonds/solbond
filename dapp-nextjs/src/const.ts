@@ -4,7 +4,7 @@ import {BN} from "@project-serum/anchor";
 export const lamportsReserversForLocalWallet = new BN(500_000);
 
 // TODO: Need to have a switch between devnet and mainnet
-export function getConnectionString(): Connection {
+export function getConnection(): Connection {
     let _connection;
     let clusterName = String(process.env.NEXT_PUBLIC_CLUSTER_NAME);
 

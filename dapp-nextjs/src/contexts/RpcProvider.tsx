@@ -6,7 +6,7 @@ import * as anchor from "@project-serum/anchor";
 import {solbondProgram} from "../programs/solbond";
 import {WalletI} from "easy-spl";
 import * as qpools from "@qpools/sdk";
-import {getConnectionString} from "../const";
+import {getConnection} from "../const";
 import {useConnectedWallet, useSolana} from "@saberhq/use-solana";
 
 export interface IRpcProvider {
@@ -26,7 +26,7 @@ const defaultValue: IRpcProvider = {
     reloadPriceSentinel: false,
     makePriceReload: () => console.log("Error not loaded yet!"),
     initialize: () => console.log("Error not loaded yet!"),
-    connection: getConnectionString(),
+    connection: getConnection(),
     provider: undefined,
     _solbondProgram: () => console.error("attempting to use AuthContext outside of a valid provider"),
     userAccount: undefined,
@@ -48,7 +48,7 @@ export function RpcProvider(props: Props) {
     // const walletContext: WalletContextState = useWallet();
     const walletContext = useConnectedWallet();
     const { walletProviderInfo, disconnect, providerMut, network, setNetwork } = useSolana();
-    const [connection, setConnection] = useState<Connection>(getConnectionString());
+    const [connection, setConnection] = useState<Connection>(getConnection());
     const [provider, setProvider] = useState<Provider | undefined>(undefined);
     const [_solbondProgram, setSolbondProgram] = useState<any>(null);
     const [userAccount, setUserAccount] = useState<WalletI | undefined>(undefined);

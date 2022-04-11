@@ -126,9 +126,9 @@ export const RedeemPortfolioButton: FC = ({}) => {
             await crankProvider.crankRpcTool!.redeemAllPositions(portfolio, positionsSaber, positionsMarinade, positionsSolend);
             await itemLoadContext.incrementCounter();
             console.log("transferring to user usdc ...");
-            let sgTransferUsdcToUser = await crankProvider.crankRpcTool!.transfer_to_user(USDC_mint);
-            console.log("transferring to user usdc done");
-            console.log("Signature to send back USDC", sgTransferUsdcToUser);
+            // let sgTransferUsdcToUser = await crankProvider.crankRpcTool!.transfer_to_user(USDC_mint);
+            // console.log("transferring to user usdc done");
+            // console.log("Signature to send back USDC", sgTransferUsdcToUser);
             // let sgTransferMSolToUser = await crankProvider.crankRpcTool!.transfer_to_user(mSOL);
             // console.log("Signature to send back mSOL", sgTransferMSolToUser);
         } catch (error) {
