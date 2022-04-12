@@ -1,42 +1,91 @@
-import React from "react";
+import React, {FC} from "react";
 import {Header} from "../../components/Header";
 import {Footer} from "../../components/Footer";
 import {Main} from "../../components/Main";
 // @ts-ignore @ts-expect-error
 import LoadingOverlay from "react-loading-overlay";
 import {useLoad} from "../../contexts/LoadingContext";
-import {BRAND_COLORS} from "../../const";
+import {BRAND_COLORS, getConnection} from "../../const";
 import {Registry} from "@qpools/sdk/src/frontend-friendly";
+import {Network} from "@saberhq/solana-contrib";
+import {network} from "../../../../../qPools-contract/qpools-sdk/src";
+import {LocalKeypairProvider} from "../../contexts/LocalKeypairProvider";
+import {ErrorMessageProvider} from "../../contexts/ErrorMessageContext";
+import {ItemsLoadProvider} from "../../contexts/ItemsLoadingContext";
+import {SerpiusEndpointProvider} from "../../contexts/SerpiusProvider";
+import {WalletKitProvider} from "@gokiprotocol/walletkit";
+import {RpcProvider} from "../../contexts/RpcProvider";
+import {ExistingPortfolioProvider} from "../../contexts/ExistingPortfolioProvider";
+import {CrankProvider} from "../../contexts/CrankProvider";
+import {UserWalletAssetsProvider} from "../../contexts/UserWalletAssets";
 
 interface Props {
     registry: Registry
 }
-export const HomeView = ({registry}: Props) => {
+
+export const HomeView: FC = ({}) => {
 
     const {loading} = useLoad();
+
+    // Probably should import all the items here ...
+    // Could just create the connection here ..
+    const connection = getConnection();
+    const registry = new Registry(connection);
+
+    // Perhaps use-registry should be a hook ...
+
+    let defaultNetwork: Network;
+    if (network.getNetworkCluster() === network.Cluster.DEVNET) {
+        defaultNetwork = "devnet";
+    } else if (network.getNetworkCluster() === network.Cluster.MAINNET) {
+        defaultNetwork = "mainnet-beta";
+    } else {
+        throw Error("Network not specified! " + String(network.getNetworkCluster()));
+    }
 
 
     return (
         <>
-            <LoadingOverlay
-                active={loading}
-                spinner={true}
-                text="Loading..."
-                styles={{
-                    wrapper: {
-                        overflow: loading ? 'hidden' : 'scroll'
-                    }
-                }}
-            >
-                <div
-                    className="flex flex-col h-screen w-full w-screen text-white"
-                    style={{ backgroundColor: BRAND_COLORS.slate900 }}
-                >
-                    <Header />
-                    <Main registry={registry}/>
-                    <Footer/>
-                </div>
-            </LoadingOverlay>
+            <LocalKeypairProvider>
+                <ErrorMessageProvider>
+                        <ItemsLoadProvider>
+                            <SerpiusEndpointProvider registry={registry}>
+                                <WalletKitProvider
+                                    defaultNetwork={defaultNetwork}
+                                    app={{name: "qPools with Goki"}}
+                                >
+                                    <RpcProvider registry={registry}>
+                                        <UserWalletAssetsProvider registry={registry}>
+                                            <ExistingPortfolioProvider registry={registry}>
+                                                <CrankProvider>
+                                                    <LoadingOverlay
+                                                        active={loading}
+                                                        spinner={true}
+                                                        text="Loading..."
+                                                        styles={{
+                                                            wrapper: {
+                                                                overflow: loading ? 'hidden' : 'scroll'
+                                                            }
+                                                        }}
+                                                    >
+                                                        <div
+                                                            className="flex flex-col h-screen w-full w-screen text-white"
+                                                            style={{ backgroundColor: BRAND_COLORS.slate900 }}
+                                                        >
+                                                            <Header />
+                                                            <Main registry={registry}/>
+                                                            <Footer/>
+                                                        </div>
+                                                    </LoadingOverlay>
+                                                </CrankProvider>
+                                            </ExistingPortfolioProvider>
+                                        </UserWalletAssetsProvider>
+                                    </RpcProvider>
+                                </WalletKitProvider>
+                            </SerpiusEndpointProvider>
+                        </ItemsLoadProvider>
+                </ErrorMessageProvider>
+            </LocalKeypairProvider>
         </>
     );
 };
