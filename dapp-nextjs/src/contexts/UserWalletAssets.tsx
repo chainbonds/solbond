@@ -1,13 +1,11 @@
 import React, {useState, useContext, useEffect} from 'react';
 import {PublicKey, TokenAmount} from "@solana/web3.js";
-import {registry} from "@qpools/sdk";
-import {getAssociatedTokenAddressOffCurve} from "@qpools/sdk/lib/utils";
-import {AllocData} from "../types/AllocData";
+import {AllocData, keyFromAllocData} from "../types/AllocData";
 import {IRpcProvider, useRpc} from "./RpcProvider";
 import {ISerpius, useSerpiusEndpoint} from "./SerpiusProvider";
 import {BN} from "@project-serum/anchor";
-import {getTokenAmount} from "../utils/utils";
-
+import {lamportsReserversForLocalWallet} from "../const";
+import * as qpools from "@qpools/sdk";
 
 export interface IUserWalletAssets {
     walletAssets: Map<string, AllocData>
@@ -23,7 +21,13 @@ export function useUserWalletAssets() {
     return useContext(UserWalletAssetsContext);
 }
 
-export function UserWalletAssetsProvider(props: any) {
+// Add the registry here
+// Set a new pubkey to the registry, if the user has connected his wallet ...
+interface Props {
+    registry: qpools.helperClasses.Registry
+    children: any
+}
+export function UserWalletAssetsProvider(props: Props) {
 
     const rpcProvider: IRpcProvider = useRpc();
     const serpiusProvider: ISerpius = useSerpiusEndpoint();
@@ -51,55 +55,97 @@ export function UserWalletAssetsProvider(props: any) {
 
         let newAllocData: Map<string, AllocData> = new Map<string, AllocData>();
 
-        if (!rpcProvider.userAccount || !rpcProvider.connection) {
-            return
+        console.log("One of these doesn't work..");
+        console.log(rpcProvider.userAccount);
+        console.log(rpcProvider.userAccount?.publicKey);
+        if (!rpcProvider.userAccount || !rpcProvider.userAccount?.publicKey) {
+            console.log("One of these doesn't work (2)..");
+            console.log(rpcProvider.userAccount);
+            console.log(rpcProvider.userAccount?.publicKey)
+            return;
         }
         // Also return empty if the
+
+        // Set the newly selected pubkey into the registry ...
+        props.registry.setNewPubkey(rpcProvider.userAccount!.publicKey);
 
         // (1) Get all token accounts owned that we get from the serpius API ...
         // .filter((item, index) => {return portfolioRatios.indexOf(item) === index})
         // TODO: Remove duplicates with this filter ...
+        console.log("Serpius portfolio ratios are: ", serpiusProvider.portfolioRatios);
         await Promise.all(Array.from(serpiusProvider.portfolioRatios.values()).map(async (fetchedPool: AllocData) => {
             console.log("Iterating through pool: ", fetchedPool)
 
             // Now we have the pool
             // When are the tokens not defined ...
-            let tokens: registry.ExplicitToken[] = fetchedPool.pool.tokens;
-            await Promise.all(tokens.map(async (token: registry.ExplicitToken) => {
+            let tokens: qpools.typeDefinitions.interfacingAccount.ExplicitToken[] = fetchedPool.pool.tokens;
+            await Promise.all(tokens.map(async (token: qpools.typeDefinitions.interfacingAccount.ExplicitToken) => {
 
                 // Gotta get the input tokens ...
 
                 // Do a whitelist here which assets we accept ...
-                if (registry.getWhitelistTokens().filter((x: string) => x === token.address).length === 0) {
+                if (qpools.constDefinitions.getWhitelistTokens().filter((x: string) => x === token.address).length === 0) {
                     return
                 }
 
                 console.log("Iterating through token: ", token);
                 let mint: PublicKey = new PublicKey(token.address);
-                let ata = await getAssociatedTokenAddressOffCurve(mint, rpcProvider.userAccount!.publicKey);
+                let ata = await qpools.utils.getAssociatedTokenAddressOffCurve(mint, rpcProvider.userAccount!.publicKey);
                 // Finally get the users' balance
-                // Let's assume that if the token is wrapped solana, that we can also include the pure solana into this .
+                // Let's assume that if the token is wrapped solana, that we can also include the pure solana into this.
                 let userBalance: TokenAmount;
-                if (mint.equals(registry.getNativeSolMint())) {
+                // Set the starting balance always at 0
+                let startingBalance: TokenAmount;
+                // TODO: Let's assume that 10% of the user's assets is currently put into each pool ...
+                if (mint.equals(qpools.constDefinitions.getWrappedSolMint())) {
+                    // In the case of wrapped sol, combine the balance from the native SOL,
+                    // as well as the balance from the wrapped SOL
                     let solBalance: BN = new BN (await rpcProvider.connection!.getBalance(rpcProvider.userAccount!.publicKey));
+
+                    // Skip the wrapped SOL calclulation, if this token account does not exist ...
+                    let wrappedSolBalance: BN = new BN(0);
+                    if (await qpools.utils.accountExists(rpcProvider.connection!, ata)) {
+                        wrappedSolBalance = new BN((await rpcProvider.connection!.getTokenAccountBalance(ata)).value.amount);
+                    }
+                    let totalBalance: BN = wrappedSolBalance.add(solBalance);
                     console.log("solbalance before ", solBalance);
-                    userBalance = getTokenAmount(solBalance, 9);
-                    console.log("solbalance after ... ")
+
+                    userBalance = qpools.utils.getTokenAmount(totalBalance.sub(lamportsReserversForLocalWallet), new BN(9));
+
+                    console.log("String and marinade sol mint is: ");
+                    console.log("1111");
+                    console.log(fetchedPool?.pool.lpToken.address?.toString());
+                    console.log("2222");
+                    console.log(qpools.constDefinitions.getMarinadeSolMint().toString());
+                    // Could also divide this by the number of input assets or sth ...
+                    if (fetchedPool?.pool.lpToken.address?.toString() === qpools.constDefinitions.getMarinadeSolMint().toString()) {
+                        startingBalance = qpools.utils.getTokenAmount(new BN(0), new BN(userBalance.decimals));
+                    } else {
+                        startingBalance = qpools.utils.getTokenAmount(new BN(userBalance.amount).div(new BN(10)), new BN(userBalance.decimals));
+                    }
+                    console.log("solbalance after ... ");
                 } else {
                     console.log("Mint is: ", mint.toString(), ata.toString());
-                    userBalance = (await rpcProvider.connection!.getTokenAccountBalance(ata)).value;
+                    if (await qpools.utils.accountExists(rpcProvider.connection!, ata)) {
+                        userBalance = (await rpcProvider.connection!.getTokenAccountBalance(ata)).value;
+                    } else {
+                        // I guess in this case it doesn't matter what the decimals are, because the user needs to buy some more sutff nonetheless
+                        userBalance = qpools.utils.getTokenAmount(new BN(0), new BN(9));
+                    }
+                    startingBalance = qpools.utils.getTokenAmount(new BN(userBalance.amount).div(new BN(10)), new BN(userBalance.decimals));
                     console.log("fetched successfully! ", userBalance);
                 }
+
+                // TODO: For each token, also bootstrap the logos here ...
                 let newPool: AllocData = {
                     ...fetchedPool,
-                    userInputAmount: {mint: mint, ata: ata, amount: userBalance},
+                    userInputAmount: {mint: mint, ata: ata, amount: startingBalance},
                     userWalletAmount: {mint: mint, ata: ata, amount: userBalance}
                 }
 
-                // TODO: Replace this with pyth price oracles !
-                newPool.usdcAmount = registry.multiplyAmountByPythprice(newPool.userInputAmount!.amount.uiAmount!, newPool.userInputAmount!.mint);
+                newPool.usdcAmount = await qpools.instructions.pyth.pyth.multiplyAmountByPythprice(newPool.userInputAmount!.amount.uiAmount!, newPool.userInputAmount!.mint);
                 console.log("Pushing object: ", newPool);
-                newAllocData.set(newPool.lp, newPool);
+                newAllocData.set(keyFromAllocData(newPool), newPool);
             }));
         }));
 
@@ -109,9 +155,16 @@ export function UserWalletAssetsProvider(props: any) {
         console.log("##updateUserAssetsAndRatiosAfterConnecting()");
     }
 
+    // Again, don't do this by the user-account (?)
     useEffect(() => {
         updateUserAssetsAndRatiosAfterConnecting();
-    }, [rpcProvider.reloadPriceSentinel, rpcProvider.userAccount, rpcProvider.connection]);
+    }, [
+        rpcProvider.reloadPriceSentinel,
+        rpcProvider.userAccount?.publicKey,
+        rpcProvider.portfolioObject,
+        rpcProvider.provider,
+        serpiusProvider.portfolioRatios
+    ]);
 
     const value: IUserWalletAssets = {
         walletAssets

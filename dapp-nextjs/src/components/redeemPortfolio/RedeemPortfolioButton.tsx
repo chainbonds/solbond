@@ -7,6 +7,7 @@ import {ILocalKeypair, useLocalKeypair} from "../../contexts/LocalKeypairProvide
 import {ICrank, useCrank} from "../../contexts/CrankProvider";
 import {useErrorMessage} from "../../contexts/ErrorMessageContext";
 import {lamportsReserversForLocalWallet} from "../../const";
+import {BN} from "@project-serum/anchor";
 
 export const RedeemPortfolioButton: FC = ({}) => {
 
@@ -37,7 +38,7 @@ export const RedeemPortfolioButton: FC = ({}) => {
         await itemLoadContext.addLoadItem({message: "Fetching Account Information"});
         await itemLoadContext.addLoadItem({message: "Approving Redeem & Redeeming Positions"});
         await itemLoadContext.addLoadItem({message: "Redeeming Positions"});
-        await itemLoadContext.addLoadItem({message: "Transferring USDC Back to Your Wallet"});
+        await itemLoadContext.addLoadItem({message: "Transferring Tokens Back to Your Wallet"});
 
         let USDC_mint = new PublicKey("2tWC4JAdL4AxEFJySziYJfsAnW2MHKRo98vbAPiRDSk8");
         let mSOL = rpcProvider.portfolioObject!.marinadeState.mSolMintAddress;
@@ -58,9 +59,26 @@ export const RedeemPortfolioButton: FC = ({}) => {
          * Approve for each position individually (by protocol), that it will be withdrawn
          */
         console.log("Getting instructions to approve the transaction...");
-        let {portfolio, positionsSaber, positionsMarinade} = await rpcProvider.portfolioObject!.getPortfolioAndPositions();
-        let allIxs = await rpcProvider.portfolioObject!.approveRedeemAllPositions(portfolio, positionsSaber, positionsMarinade);
-        allIxs.map((x: TransactionInstruction) => tx.add(x));
+        let {portfolio, positionsSaber, positionsMarinade, positionsSolend} = await rpcProvider.portfolioObject!.getPortfolioAndPositions();
+        // await sendAndConfirmTransaction(
+        //     rpcProvider._solbondProgram!.provider,
+        //     rpcProvider.connection!,
+        //     tx
+        // );
+        // tx = new Transaction();
+        let txApproveRedeemAllPositions = await rpcProvider.portfolioObject!.approveRedeemAllPositions(
+            portfolio,
+            positionsSaber,
+            positionsMarinade,
+            positionsSolend
+        );
+        tx.add(txApproveRedeemAllPositions);
+        // await sendAndConfirmTransaction(
+        //     rpcProvider._solbondProgram!.provider,
+        //     rpcProvider.connection!,
+        //     tx
+        // );
+        // tx = new Transaction();
 
         /**
          * Send some SOL to the crank wallet, just in case it doesn't have enough lamports
@@ -97,11 +115,22 @@ export const RedeemPortfolioButton: FC = ({}) => {
         /**
          * Run the crank transactions
          */
+        console.log("Positions are: ");
+        console.log(positionsSaber);
+        console.log(positionsMarinade);
+        console.log(positionsSolend);
+
         try {
-            await crankProvider.crankRpcTool!.redeemAllPositions(portfolio, positionsSaber, positionsMarinade);
+            // TODO: Make this redeemAllPositions optional,
+            console.log("Redeeming all postions")
+            await crankProvider.crankRpcTool!.redeemAllPositions(portfolio, positionsSaber, positionsMarinade, positionsSolend);
             await itemLoadContext.incrementCounter();
-            let sgTransferUsdcToUser = await crankProvider.crankRpcTool!.transfer_to_user(USDC_mint);
-            console.log("Signature to send back USDC", sgTransferUsdcToUser);
+            console.log("transferring to user usdc ...");
+            // let sgTransferUsdcToUser = await crankProvider.crankRpcTool!.transfer_to_user(USDC_mint);
+            // console.log("transferring to user usdc done");
+            // console.log("Signature to send back USDC", sgTransferUsdcToUser);
+            // let sgTransferMSolToUser = await crankProvider.crankRpcTool!.transfer_to_user(mSOL);
+            // console.log("Signature to send back mSOL", sgTransferMSolToUser);
         } catch (error) {
             itemLoadContext.resetCounter();
             console.log(String(error));
@@ -116,10 +145,11 @@ export const RedeemPortfolioButton: FC = ({}) => {
         /**
          * Send the lamports in the local crank wallet back to the user
          */
-        let tmpWalletBalance: number = await rpcProvider.connection!.getBalance(localKeypairProvider.localTmpKeypair!.publicKey);
+        let tmpWalletBalance: BN = new BN(await rpcProvider.connection!.getBalance(localKeypairProvider.localTmpKeypair!.publicKey));
         // This is approximately how much lamports is required for a single transaction...
-        let lamportsBack = Math.min(tmpWalletBalance - 7_001, 0);
-        if (lamportsBack > 0) {
+        // TODO: Add this into a constants variable
+        let lamportsBack = BN.min(tmpWalletBalance.subn(7_001), new BN(0));
+        if (lamportsBack.gtn(0)) {
             let ix = await crankProvider.crankRpcTool!.sendToUsersWallet(
                 localKeypairProvider.localTmpKeypair!.publicKey,
                 lamportsBack

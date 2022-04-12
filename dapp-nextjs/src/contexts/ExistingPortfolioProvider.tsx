@@ -1,13 +1,10 @@
 import React, {useState, useContext, useEffect} from 'react';
-import {accountExists, registry} from "@qpools/sdk";
-import {PositionInfo} from "@qpools/sdk";
 import {IRpcProvider, useRpc} from "./RpcProvider";
 import {ILoad, useLoad} from "./LoadingContext";
-import {AllocData} from "../types/AllocData";
+import {AllocData, keyFromAllocData, keyFromPoolData} from "../types/AllocData";
 import {UserTokenBalance} from "../types/UserTokenBalance";
 import {ISerpius, useSerpiusEndpoint} from "./SerpiusProvider";
-import {Property} from "csstype";
-import All = Property.All;
+import * as qpools from "@qpools/sdk";
 
 export interface IExistingPortfolio {
     positionInfos: Map<string, AllocData>,
@@ -25,7 +22,11 @@ export function useExistingPortfolio() {
     return useContext(ExistingPortfolioContext);
 }
 
-export function ExistingPortfolioProvider(props: any) {
+interface Props {
+    children: any;
+    registry: qpools.helperClasses.Registry
+}
+export function ExistingPortfolioProvider(props: Props) {
 
     const rpcProvider: IRpcProvider = useRpc();
     const serpiusProvider: ISerpius = useSerpiusEndpoint();
@@ -36,13 +37,14 @@ export function ExistingPortfolioProvider(props: any) {
 
     // Load allocData and modify weights according to
     // Retrieve this from the existing portfolio ...
+    // TODO: Again, take out the provider from use-effect
     useEffect(() => {
         calculateAllUsdcValues();
     }, [rpcProvider.userAccount, rpcProvider.provider, rpcProvider.reloadPriceSentinel, serpiusProvider.portfolioRatios]);
 
     const calculateAllUsdcValues = async () => {
         console.log("#useEffect calculateAllUsdcValues");
-        if (rpcProvider.userAccount && rpcProvider.portfolioObject && (await accountExists(rpcProvider.connection!, rpcProvider.portfolioObject.portfolioPDA))) {
+        if (rpcProvider.userAccount && rpcProvider.portfolioObject && (await qpools.utils.accountExists(rpcProvider.connection!, rpcProvider.portfolioObject.portfolioPDA))) {
             console.log("Going in here ..");
             loadingProvider.increaseCounter();
             let {storedPositions, usdAmount} = await rpcProvider.portfolioObject.getPortfolioUsdcValue();
@@ -51,9 +53,12 @@ export function ExistingPortfolioProvider(props: any) {
 
             // Change the positions into AllocData Objects
             let newAllocData: Map<string, AllocData> = new Map<string, AllocData>();
-            storedPositions.map((x: PositionInfo) => {
+            await Promise.all(storedPositions.map(async (x: qpools.typeDefinitions.interfacingAccount.PositionInfo) => {
                 console.log("Pool address is: ", x.mintLp);
-                let pool: registry.ExplicitPool = registry.getPoolFromLpMint(x.mintLp);
+                let pool: qpools.typeDefinitions.interfacingAccount.ExplicitPool | null = await props.registry.getPoolByLpToken(x.mintLp.toString());
+                if (!pool) {
+                    throw Error("For some reason, the mintLp does not correspond to a pool. Make sure you're using the latest version of the app, and that the devs included all pools that are used!");
+                }
                 let amount: UserTokenBalance = {
                     amount: x.amountLp,
                     ata: x.ataLp,
@@ -62,28 +67,37 @@ export function ExistingPortfolioProvider(props: any) {
                 console.log("Displaying individual amounts are: ", amount);
                 console.log("usdcValueLp ", x.usdcValueLP);
                 // you can probably still get the apy-dates through the serpius endpoint
-                let serpiusObject: AllocData = serpiusProvider.portfolioRatios.get(pool.name)!;
+                // TODO: Should not be pool.name, but should again probably be indexed by the type of protocol, and the id
+                console.log("Key is. ", keyFromPoolData(pool));
+                let serpiusObject: AllocData = serpiusProvider.portfolioRatios.get(keyFromPoolData(pool))!;
+                console.log("Object value is: ", serpiusProvider.portfolioRatios);
                 // APY 24h is (if it was loaded already ...)
                 console.log("Serpius object is: ", serpiusObject);
+                // Quick fix, if the serpius object is empty, just skip it ...
+                // probably due to some async concurrency bug ..
+                // TODO:, I guess this is why these function usually are run inside the setPositionInfos (because this makes it basically atomic?)
+                if (!serpiusObject) {
+                    return;
+                }
                 let allocData: AllocData = {
                     apy_24h: serpiusObject.apy_24h,
                     weight: serpiusObject.weight,
-                    lp: pool.name,
+                    lpIdentifier: pool.name,
                     pool: pool,
                     protocol: x.protocol,
                     userInputAmount: amount,
                     userWalletAmount: amount,
                     usdcAmount: x.usdcValueLP
                 }
-                newAllocData.set(pool.name, allocData);
-            });
+                newAllocData.set(keyFromAllocData(allocData), allocData);
+            }));
 
             setPositionInfos((oldAllocData: Map<string, AllocData>) => {
                 return newAllocData;
             });
 
         } else {
-            console.log("Not going in here bcs: ", rpcProvider.userAccount, rpcProvider.portfolioObject, rpcProvider.portfolioObject && (await accountExists(rpcProvider.connection!, rpcProvider.portfolioObject.portfolioPDA)));
+            console.log("Not going in here bcs: ", rpcProvider.userAccount, rpcProvider.portfolioObject, rpcProvider.portfolioObject && (await qpools.utils.accountExists(rpcProvider.connection!, rpcProvider.portfolioObject.portfolioPDA)));
         }
         console.log("##useEffect calculateAllUsdcValues");
     }

@@ -1,9 +1,5 @@
-import React, {useMemo} from "react";
+import React from "react";
 import type {AppProps} from "next/app";
-import dynamic from "next/dynamic";
-import {ConnectionProvider} from "@solana/wallet-adapter-react";
-import {clusterApiUrl} from "@solana/web3.js";
-import {WalletAdapterNetwork} from "@solana/wallet-adapter-base";
 import "tailwindcss/tailwind.css";
 import "../styles/globals.css";
 import "../styles/App.css";
@@ -16,39 +12,46 @@ import {SerpiusEndpointProvider} from "../contexts/SerpiusProvider";
 import {UserWalletAssetsProvider} from "../contexts/UserWalletAssets";
 import {ExistingPortfolioProvider} from "../contexts/ExistingPortfolioProvider";
 import {ErrorMessageProvider} from "../contexts/ErrorMessageContext";
-
-const SOLANA_NETWORK = WalletAdapterNetwork.Devnet;
-const network = SOLANA_NETWORK;
-
-const WalletProvider = dynamic(
-    () => import("../contexts/ClientWalletProvider"),
-    {
-        ssr: false,
-    }
-);
+import * as qpools from "@qpools/sdk";
+import {WalletKitProvider} from "@gokiprotocol/walletkit";
+import {Network} from "@saberhq/solana-contrib";
+import {getConnection} from "../const";
 
 function MyApp({Component, pageProps}: AppProps) {
-    const endpoint = useMemo(() => clusterApiUrl(network), []);
+
+    // Could just create the connection here ..
+    const connection = getConnection();
+    const registry = new qpools.helperClasses.Registry(connection);
+
+    let defaultNetwork: Network;
+    if (qpools.network.getNetworkCluster() === qpools.network.Cluster.DEVNET) {
+        defaultNetwork = "devnet";
+    } else if (qpools.network.getNetworkCluster() === qpools.network.Cluster.MAINNET) {
+        defaultNetwork = "mainnet-beta";
+    } else {
+        throw Error("Network not specified! " + String(qpools.network.getNetworkCluster()));
+    }
 
     return (
         <LocalKeypairProvider>
             <ErrorMessageProvider>
                 <LoadProvider>
                     <ItemsLoadProvider>
-                        <SerpiusEndpointProvider>
-                            <ConnectionProvider endpoint={endpoint}>
-                                <WalletProvider>
-                                    <RpcProvider>
-                                        <UserWalletAssetsProvider>
-                                            <ExistingPortfolioProvider>
-                                                <CrankProvider>
-                                                    <Component {...pageProps} />
-                                                </CrankProvider>
-                                            </ExistingPortfolioProvider>
-                                        </UserWalletAssetsProvider>
-                                    </RpcProvider>
-                                </WalletProvider>
-                            </ConnectionProvider>
+                        <SerpiusEndpointProvider registry={registry}>
+                            <WalletKitProvider
+                                defaultNetwork={defaultNetwork}
+                                app={{name: "qPools with Goki"}}
+                            >
+                                <RpcProvider registry={registry}>
+                                    <UserWalletAssetsProvider registry={registry}>
+                                        <ExistingPortfolioProvider registry={registry}>
+                                            <CrankProvider>
+                                                <Component {...pageProps} registry={registry} />
+                                            </CrankProvider>
+                                        </ExistingPortfolioProvider>
+                                    </UserWalletAssetsProvider>
+                                </RpcProvider>
+                            </WalletKitProvider>
                         </SerpiusEndpointProvider>
                     </ItemsLoadProvider>
                 </LoadProvider>

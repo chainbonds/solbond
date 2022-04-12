@@ -1,12 +1,15 @@
 import React, {useEffect, useState} from "react";
-import {AllocData} from "../types/AllocData";
+import {AllocData, keyFromAllocData} from "../types/AllocData";
 import DisplayPieChart from "./common/DisplayPieChart";
 import SuggestedPortfolioTable from "./createPortfolio/SuggestedPortfolioTable";
 import SelectWallet from "./createPortfolio/buttons/SelectWallet";
 import {ISerpius, useSerpiusEndpoint} from "../contexts/SerpiusProvider";
+import * as qpools from "@qpools/sdk";
 
-interface Props {}
-export const ViewWalletNotConnected = ({}: Props) => {
+interface Props {
+    registry: qpools.helperClasses.Registry
+}
+export const ViewWalletNotConnected = ({registry}: Props) => {
 
     const serpiusProvider: ISerpius = useSerpiusEndpoint();
     const [allocationData, setAllocationData] = useState<Map<string, AllocData>>(new Map());
@@ -18,7 +21,7 @@ export const ViewWalletNotConnected = ({}: Props) => {
             console.log("The new allocation (serpius) data is: ", serpiusProvider.portfolioRatios!);
             let out: Map<string, AllocData> = new Map<string, AllocData>();
             Array.from(serpiusProvider.portfolioRatios!.values()).map((x: AllocData) => {
-                let key: string = x.lp; //  Protocol[x.protocol] + " " +
+                let key: string = keyFromAllocData(x);
                 out.set(key, x);
             });
             return out;
@@ -41,11 +44,11 @@ export const ViewWalletNotConnected = ({}: Props) => {
                     <DisplayPieChart
                         showPercentage={false}
                         allocationInformation={allocationData}
-                        displayInput={false}
                     />
                 </div>
                 <div className="my-auto overflow-x-scroll">
                     <SuggestedPortfolioTable
+                        registry={registry}
                         tableColumns={[null, "Currency", "Product", "Exposure", "Allocation", "24H APY"]}
                         selectedAssets={allocationData}
                         selectedAsset={null}

@@ -15,7 +15,7 @@ export default function UserInfoBalance({currencyName, currencyBalance}: Props) 
     return (
         <>
             <div
-                className={"flex flex-col md:flex-row items-center lg:items-begin text-gray-500 text-sm font-semibold "}>
+                className={"text-gray-500 text-sm font-semibold items-start justify-start"}>
                 Wallet Balance: {currencyBalance.toFixed(2)} {currencyName}
             </div>
         </>

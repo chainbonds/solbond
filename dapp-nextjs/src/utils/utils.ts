@@ -1,9 +1,7 @@
-import {Connection, PublicKey, Transaction} from "@solana/web3.js";
+import {Connection, PublicKey, TokenAmount, Transaction} from "@solana/web3.js";
 import {BN, Provider} from "@project-serum/anchor";
-import {ChartableItemType} from "../types/ChartableItemType";
-import {DisplayToken} from "../types/DisplayToken";
-import {ProtocolType, PositionInfo, registry} from "@qpools/sdk";
 import {lamportsReserversForLocalWallet} from "../const";
+import * as qpools from "@qpools/sdk";
 
 /**
  * Perhaps a really stupid object. Should prob just use the registry.ExplicitToken object.
@@ -14,42 +12,47 @@ export interface SelectedToken {
     mint: PublicKey
 }
 
-export const getTokenAmount = (x: BN, decimals: number) => {
-    return {
-        amount: x.toString(),
-        decimals: decimals,
-        uiAmount: Math.max(((x.toNumber() - lamportsReserversForLocalWallet) / (10 ** decimals)), 0.0),
-        uiAmountString: Math.max((((x.toNumber() - lamportsReserversForLocalWallet) / (10 ** decimals)))).toString()
-    };
-}
+// export const getTokenAmount = (x: BN, decimals: BN): TokenAmount => {
+//     let decimalAsPower = (new BN(10)).pow(decimals);
+//     let uiAmountBN = BN.max(((x.mul(decimalAsPower).sub(lamportsReserversForLocalWallet))), new BN(0.0));
+//     let uiAmount = uiAmountBN.toString(); // Add a dot at the decimal point ...
+//     uiAmount = uiAmount.substring(0, uiAmount.length - decimals.toNumber()) + "." + uiAmount.substring(uiAmount.length - decimals.toNumber(), uiAmount.length);
+//     return {
+//         amount: x.toString(),
+//         decimals: decimals.toNumber(),
+//         uiAmount: Number(uiAmount),
+//         uiAmountString: uiAmount.toString()
+//     };
+// }
 
-export const getTokensFromPools = (selectedAssetPools: registry.ExplicitPool[]): [registry.ExplicitPool, registry.ExplicitToken][] => {
-    let out: [registry.ExplicitPool, registry.ExplicitToken][] = [];
-    selectedAssetPools.map((pool: registry.ExplicitPool) => {
-        pool.tokens.map((token: registry.ExplicitToken) => out.push([pool, token]));
+export const getTokensFromPools = (selectedAssetPools: qpools.typeDefinitions.interfacingAccount.ExplicitPool[]): [qpools.typeDefinitions.interfacingAccount.ExplicitPool, qpools.typeDefinitions.interfacingAccount.ExplicitToken][] => {
+    let out: [qpools.typeDefinitions.interfacingAccount.ExplicitPool, qpools.typeDefinitions.interfacingAccount.ExplicitToken][] = [];
+    selectedAssetPools.map((pool: qpools.typeDefinitions.interfacingAccount.ExplicitPool) => {
+        pool.tokens.map((token: qpools.typeDefinitions.interfacingAccount.ExplicitToken) => out.push([pool, token]));
     });
     return out;
 }
 
-export const getInputTokens = (selectedAssetPools: registry.ExplicitPool[]): [registry.ExplicitPool, registry.ExplicitToken][] => {
-    let whitelistedTokenStrings = new Set<string>(registry.getWhitelistTokens());
+export const getInputTokens = async (selectedAssetPools: qpools.typeDefinitions.interfacingAccount.ExplicitPool[]): Promise<[qpools.typeDefinitions.interfacingAccount.ExplicitPool, qpools.typeDefinitions.interfacingAccount.ExplicitToken][]> => {
+    let whitelistedTokenStrings = new Set<string>(await qpools.constDefinitions.getWhitelistTokens());
     let tokensInPools = getTokensFromPools(selectedAssetPools);
-    let out = tokensInPools.filter(([pool, token]: [registry.ExplicitPool, registry.ExplicitToken]) => {return whitelistedTokenStrings.has(token.address)});
+    let out = tokensInPools.filter(([pool, token]: [qpools.typeDefinitions.interfacingAccount.ExplicitPool, qpools.typeDefinitions.interfacingAccount.ExplicitToken]) => {return whitelistedTokenStrings.has(token.address)});
     return out;
 }
 
-export const getInputToken = (selectedAssetTokens: registry.ExplicitToken[]): SelectedToken => {
-    let whitelistedTokenStrings = new Set<string>(registry.getWhitelistTokens());
-    console.log("Whitelist tokens are: ", registry.getWhitelistTokens());
-    let filteredTokens: registry.ExplicitToken[] = selectedAssetTokens.filter((x: registry.ExplicitToken) => {
+export const getInputToken = async (selectedAssetTokens: qpools.typeDefinitions.interfacingAccount.ExplicitToken[]): Promise<SelectedToken> => {
+    let whitelistedTokenStrings = new Set<string>(await qpools.constDefinitions.getWhitelistTokens());
+    console.log("Whitelist tokens are: ", await qpools.constDefinitions.getWhitelistTokens());
+    let filteredTokens: qpools.typeDefinitions.interfacingAccount.ExplicitToken[] = selectedAssetTokens.filter((x: qpools.typeDefinitions.interfacingAccount.ExplicitToken) => {
         // console.log("Looking at the token: ", x);
         console.log("Looking at the token: ", x.address);
         // return whitelistedTokens.has(new PublicKey(x.address))
         console.log("Does it have it: ", whitelistedTokenStrings.has(x.address));
         return whitelistedTokenStrings.has(x.address)
     })
+    console.log("Whitelist tokens are: ", await qpools.constDefinitions.getWhitelistTokens());
     console.log("Initial set of input tokens is: ", filteredTokens);
-    let inputTokens: SelectedToken[] = filteredTokens.map((x: registry.ExplicitToken) => {
+    let inputTokens: SelectedToken[] = filteredTokens.map((x: qpools.typeDefinitions.interfacingAccount.ExplicitToken) => {
         return {
             name: x.name,
             mint: new PublicKey(x.address)
@@ -58,7 +61,6 @@ export const getInputToken = (selectedAssetTokens: registry.ExplicitToken[]): Se
     console.log("Input tokens are: ", inputTokens);
     // Gotta assert that at least one of the tokens is an input token:
     if (inputTokens.length < 1) {
-        console.log("Whitelist tokens are: ", registry.getWhitelistTokens());
         console.log("SelectedAssetToken: ", selectedAssetTokens);
         throw Error("Somehow this pool has no whitelisted input tokens!");
     }
@@ -66,77 +68,12 @@ export const getInputToken = (selectedAssetTokens: registry.ExplicitToken[]): Se
     return inputToken;
 }
 
-export const displayTokensFromPositionInfo = (position: PositionInfo): DisplayToken[] => {
-    if (!position) {
-        return []
-    }
-
-    let displayTokens: DisplayToken[] = [];
-
-    if (position.protocolType === ProtocolType.DEXLP) {
-        let displayTokenItemA: DisplayToken = {
-            tokenImageLink: registry.getIconFromToken(position.mintA),
-            tokenSolscanLink: solscanLink(position.mintA)
-        };
-        displayTokens.push(displayTokenItemA);
-        let displayTokenItemB: DisplayToken = {
-            tokenImageLink: registry.getIconFromToken(position.mintB),
-            tokenSolscanLink: solscanLink(position.mintB)
-        };
-        displayTokens.push(displayTokenItemB);
-    } else if (position.protocolType === ProtocolType.Staking) {
-        let displayTokenItem: DisplayToken = {
-            tokenImageLink: registry.getIconFromToken(position.mintLp),
-            tokenSolscanLink: solscanLink(position.mintLp)
-        };
-        displayTokens.push(displayTokenItem);
-    } else if (position.protocolType === ProtocolType.Lending) {
-        throw Error("Where does lending come from? We haven't even implement anything in this direction!" + JSON.stringify(position));
-    } else {
-        throw Error("Type of borrow lending not found" + JSON.stringify(position));
-    }
-
-    return displayTokens;
-}
-
-export const displayTokensFromChartableAsset = (item: ChartableItemType): DisplayToken[] => {
-
-    let displayTokens: DisplayToken[] = [];
-
-    if (!item.pool) {
-        return []
-    }
-
-    if (item.pool.poolType === ProtocolType.DEXLP) {
-        let displayTokenItemA: DisplayToken = {
-            tokenImageLink: registry.getIconFromToken(new PublicKey(item.pool.tokens[0].address)),
-            tokenSolscanLink: solscanLink(new PublicKey(item.pool.tokens[0].address))
-        };
-        displayTokens.push(displayTokenItemA);
-        let displayTokenItemB: DisplayToken = {
-            tokenImageLink: registry.getIconFromToken(new PublicKey(item.pool.tokens[1].address)),
-            tokenSolscanLink: solscanLink(new PublicKey(item.pool.tokens[1].address))
-        };
-        displayTokens.push(displayTokenItemB);
-    } else if (item.pool.poolType === ProtocolType.Staking) {
-        let displayTokenItem: DisplayToken = {
-            tokenImageLink: registry.getIconFromToken(new PublicKey(item.pool.lpToken.address)),
-            tokenSolscanLink: solscanLink(new PublicKey(item.pool.lpToken.address))
-        };
-        displayTokens.push(displayTokenItem);
-    } else if (item.pool.poolType === ProtocolType.Lending) {
-        throw Error("Where does lending come from? We haven't even implement anything in this direction!" + JSON.stringify(item));
-    } else {
-        throw Error("Type of borrow lending not found" + JSON.stringify(item.pool.poolType) + " helo " + JSON.stringify(item.pool));
-    }
-
-    return displayTokens;
-}
-
 export const solscanLink = (address: PublicKey) => {
     let out = "https://solscan.io/account/";
     out += address.toString();
-    out += "?cluster=devnet";
+    if (qpools.network.getNetworkCluster() === qpools.network.Cluster.DEVNET) {
+        out += "?cluster=devnet";
+    }
     return out;
 }
 

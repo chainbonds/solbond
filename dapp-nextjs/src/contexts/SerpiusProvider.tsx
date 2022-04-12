@@ -1,7 +1,7 @@
 import React, {useState, useContext, useEffect} from 'react';
 import axios from "axios";
-import {registry, Protocol} from "@qpools/sdk";
-import {AllocData} from "../types/AllocData";
+import {AllocData, keyFromAllocData} from "../types/AllocData";
+import * as qpools from "@qpools/sdk";
 
 export interface ISerpius {
     portfolioRatios: Map<string, AllocData>,
@@ -26,7 +26,11 @@ interface SerpiusInput {
     apy_24h: number
 }
 
-export function SerpiusEndpointProvider(props: any) {
+interface Props {
+    children: any;
+    registry: qpools.helperClasses.Registry
+}
+export function SerpiusEndpointProvider(props: Props) {
 
     /**
      * App-dependent variables
@@ -40,7 +44,7 @@ export function SerpiusEndpointProvider(props: any) {
     const fetchAndParseSerpiusEndpoint = async () => {
             console.log("#useEffect getSerpiusEndpoint");
             console.log("Loading the weights");
-            let response = await axios.get<any>(registry.getSerpiusEndpoint());
+            let response: any = await axios.get<any>(props.registry.getSerpiusEndpoint());
             console.log("Here is the data :");
             console.log(typeof response.data);
             console.log(JSON.stringify(response.data));
@@ -57,40 +61,52 @@ export function SerpiusEndpointProvider(props: any) {
                 // For now, I will leave it like this
                 // let data: SerpiusInput[] = _data.map((x: any) => {return {...x, protocol: Protocol[x.protocol]}});
 
+                console.log("Data is: ", data);
                 console.log("After..");
                 // setPortfolioRatios(data);
                 console.log("(2) Data and type is: ", typeof data, data);
 
                 // Fetch the additional token account for each data item in AllocData
+
+                // Replace the allocData through
+
+                // Now add the information about the ExplicitSaberPool into it as well
+                let newData: Map<string, AllocData> = new Map<string, AllocData>();
+                await Promise.all(data.map(async (dataItem: SerpiusInput) => {
+                    console.log("Parsing serpis item: ", dataItem);
+                    console.log("data lp is: ", dataItem.lp);
+                    // TODO: Remove for mainnet / devnet...
+                    // TODO: Also add case-distinction for the protocol ...
+                    if (dataItem.lp === "USDC-USDT" && dataItem.protocol === "saber") {
+                        dataItem.lp = "usdc_usdt"
+                    } else if (dataItem.lp === "mSOL" && dataItem.protocol === "marinade") {
+                        dataItem.lp = "marinade"
+                    } else if (dataItem.lp === "SOL" && dataItem.protocol === "solend") {
+                        dataItem.lp = "SOL"
+                        // was previously cSOL. ID should be set from the registry, however !!! (and for solend, the id is the Symbol)
+                    }
+
+                    console.log("Registry is: ", props.registry);
+                    console.log("Getting from getPoolSplStringId (1)");
+                    let pool: qpools.typeDefinitions.interfacingAccount.ExplicitPool | null = await props.registry.getPoolFromSplStringId(dataItem.lp);
+                    console.log("Getting from getPoolSplStringId (2)");
+                    if (!pool) {
+                        throw Error("The Id that the serpius endpoint provides was not found in the registry ...: " + dataItem.lp);
+                    }
+                    let out: AllocData = {
+                        apy_24h: dataItem.apy_24h,
+                        weight: dataItem.weight,
+                        lpIdentifier: dataItem.lp,
+                        pool: pool,
+                        // @ts-ignore
+                        protocol: qpools.typeDefinitions.interfacingAccount.Protocol[dataItem.protocol],   // Gotta convert the string to an enum ...
+                        usdcAmount: (100 / (data.length))
+                    };
+                    console.log("data item is", out);
+                    newData.set(keyFromAllocData(out), out);
+                }));
+
                 setPortfolioRatios((_: Map<string, AllocData>) => {
-
-                    // Replace the allocData through
-
-                    // Now add the information about the ExplicitSaberPool into it as well
-                    let newData: Map<string, AllocData> = new Map<string, AllocData>();
-                    data.map((dataItem: SerpiusInput) => {
-                        console.log("data lp is: ", dataItem.lp);
-                        // TODO: Remove for mainnet / devnet...
-                        if (dataItem.lp === "UST-USDC") {
-                            dataItem.lp = "USDC-USDT"
-                        } else if (dataItem.lp === "mSOL") {
-                            dataItem.lp = "marinade"
-                        }
-
-                        let pool = registry.getPoolFromSplStringId(dataItem.lp);
-                        let out: AllocData = {
-                            apy_24h: dataItem.apy_24h,
-                            weight: dataItem.weight,
-                            lp: dataItem.lp,
-                            pool: pool,
-                            // @ts-ignore
-                            protocol: Protocol[dataItem.protocol],   // Gotta convert the string to an enum ...
-                            usdcAmount: (100 / (data.length))
-                        };
-                        console.log("data item is", out);
-                        newData.set(out.lp, out);
-                    });
-
                     console.log("Updating new portfolio ratios ...");
                     return newData
                 });

@@ -1,4 +1,4 @@
-import React, {FC} from "react";
+import React from "react";
 import {Header} from "../../components/Header";
 import {Footer} from "../../components/Footer";
 import {Main} from "../../components/Main";
@@ -6,10 +6,16 @@ import {Main} from "../../components/Main";
 import LoadingOverlay from "react-loading-overlay";
 import {useLoad} from "../../contexts/LoadingContext";
 import {BRAND_COLORS} from "../../const";
+import * as qpools from "@qpools/sdk";
 
-export const HomeView: FC = ({}) => {
+interface Props {
+    registry: qpools.helperClasses.Registry
+}
+export const HomeView = ({registry}: Props) => {
 
     const {loading} = useLoad();
+
+
     return (
         <>
             <LoadingOverlay
@@ -28,7 +34,7 @@ export const HomeView: FC = ({}) => {
                     style={{ backgroundColor: BRAND_COLORS.slate900 }}
                 >
                     <Header />
-                    <Main/>
+                    <Main registry={registry}/>
                     <Footer/>
                 </div>
             </LoadingOverlay>

@@ -1,13 +1,16 @@
 import DisplayPieChart from "./common/DisplayPieChart";
 import React, {useEffect, useState} from "react";
 import RedeemPortfolioView from "./redeemPortfolio/RedeemPortfolioView";
-import {AllocData} from "../types/AllocData";
+import {AllocData, keyFromAllocData} from "../types/AllocData";
 import {IExistingPortfolio, useExistingPortfolio} from "../contexts/ExistingPortfolioProvider";
-import {Protocol} from "@qpools/sdk";
 import SuggestedPortfolioTable from "./createPortfolio/SuggestedPortfolioTable";
 import Error from "next/error";
+import * as qpools from "@qpools/sdk";
 
-export const ViewWalletConnectedPortfolioExists = ({}) => {
+interface Props {
+    registry: qpools.helperClasses.Registry
+}
+export const ViewWalletConnectedPortfolioExists = ({registry}: Props) => {
 
     const existingPortfolioProvider: IExistingPortfolio = useExistingPortfolio();
     const [allocationData, setAllocationData] = useState<Map<string, AllocData>>(new Map());
@@ -27,13 +30,13 @@ export const ViewWalletConnectedPortfolioExists = ({}) => {
                 pool: position.pool,
                 weight: position.weight,
                 apy_24h: 0.,
-                lp: position.lp,
+                lpIdentifier: position.lpIdentifier,
                 protocol: position.protocol,
                 userInputAmount: position.userInputAmount,
                 userWalletAmount: position.userWalletAmount,
                 usdcAmount: position.usdcAmount
             };
-            let key: string = Protocol[position.protocol] + " " + tmp.lp.toString();
+            let key: string = keyFromAllocData(position);
             newAllocationData.set(key, tmp);
         }));
         setAllocationData((oldAllocationData: Map<string, AllocData>) => {
@@ -65,11 +68,11 @@ export const ViewWalletConnectedPortfolioExists = ({}) => {
                     <DisplayPieChart
                         showPercentage={false}
                         allocationInformation={allocationData}
-                        displayInput={false}
                     />
                 </div>
                 <div className="my-auto">
                     <SuggestedPortfolioTable
+                        registry={registry}
                         tableColumns={[null, "Currency", "Product", "Exposure", "Allocation", "24H APY", "Amount", "USDC Value"]}
                         selectedAssets={allocationData}
                         selectedAsset={""}

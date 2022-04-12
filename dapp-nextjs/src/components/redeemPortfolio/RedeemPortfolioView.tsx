@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from "react";
-import {WalletMultiButton} from "@solana/wallet-adapter-react-ui";
+// import {WalletMultiButton} from "@solana/wallet-adapter-react-ui";
 import {IRpcProvider, useRpc} from "../../contexts/RpcProvider";
 import {IExistingPortfolio, useExistingPortfolio} from "../../contexts/ExistingPortfolioProvider";
 import RowInList from "../common/RowInList";
@@ -85,12 +85,14 @@ export default function RedeemPortfolioView({}) {
                 </div>
                 {!rpcProvider.userAccount &&
                 <div className={"flex w-full justify-center"}>
-                    <WalletMultiButton
-                        className={"btn btn-ghost"}
-                        onClick={() => {
-                            console.log("click");
-                        }}
-                    />
+
+                    {/*<WalletMultiButton*/}
+                    {/*    className={"btn btn-ghost"}*/}
+                    {/*    onClick={() => {*/}
+                    {/*        console.log("click");*/}
+                    {/*    }}*/}
+                    {/*/>*/}
+
                 </div>
                 }
             </div>

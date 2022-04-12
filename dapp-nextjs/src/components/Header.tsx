@@ -1,8 +1,8 @@
 import React, {FC} from "react";
 import {LogoWithTitle} from "./common/LogoWithTitle";
-import ConnectWalletButton from "./common/ConnectWalletButton";
 import {FaucetButton} from "./createPortfolio/buttons/FaucetButton";
 import {DevnetButton} from "./createPortfolio/buttons/DevnetButton";
+import SelectWallet from "./createPortfolio/buttons/SelectWallet";
 
 export const Header: FC = ({}) => {
 
@@ -30,7 +30,7 @@ export const Header: FC = ({}) => {
                                     <DevnetButton />
                                 </div>
                             </div>
-                            <ConnectWalletButton/>
+                            <SelectWallet />
                         </div>
                     </div>
                 </div>

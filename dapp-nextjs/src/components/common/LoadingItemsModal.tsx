@@ -56,7 +56,7 @@ export default function LoadingItemsModal() {
                                         <div
                                             className="flex items-center justify-center w-full h-full border-t border-gray-700">
                                             <div
-                                                className="flex flex-col rounded-lg max-w-2xl text-center content-center my-3">
+                                                className="flex flex-col rounded-lg max-w-2xl text-center content-center my-3 mx-5">
                                                 <p className={"flex flex-col text-gray-400"}>
                                                     Please approve any transaction messages that appear
                                                 </p>
