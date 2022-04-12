@@ -9,7 +9,7 @@ import {getConnection} from "../const";
 import {useConnectedWallet, useSolana} from "@saberhq/use-solana";
 import {Registry} from "@qpools/sdk/src/frontend-friendly";
 import {PortfolioFrontendFriendlyChainedInstructions} from "@qpools/sdk";
-import {MOCK} from "@qpools/sdk/lib/const";
+import {MOCK} from "@qpools/sdk/src/const";
 
 export interface IRpcProvider {
     portfolioObject: PortfolioFrontendFriendlyChainedInstructions | undefined,

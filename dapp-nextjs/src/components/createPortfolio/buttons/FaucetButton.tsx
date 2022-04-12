@@ -7,7 +7,7 @@ import {Token, TOKEN_PROGRAM_ID} from "@solana/spl-token";
 import {useLoad} from "../../../contexts/LoadingContext";
 import {useErrorMessage} from "../../../contexts/ErrorMessageContext";
 import {syncNative} from "@solendprotocol/solend-sdk";
-import {MOCK} from "@qpools/sdk/lib/const";
+import {MOCK} from "@qpools/sdk/src/const";
 import {airdropAdmin, createAssociatedTokenAccountSendUnsigned} from "@qpools/sdk";
 
 export const FaucetButton: FC = ({}) => {

@@ -5,8 +5,8 @@ import {AllocData, keyFromAllocData, keyFromPoolData} from "../types/AllocData";
 import {UserTokenBalance} from "../types/UserTokenBalance";
 import {ISerpius, useSerpiusEndpoint} from "./SerpiusProvider";
 import {Registry} from "@qpools/sdk/src/frontend-friendly";
-import {accountExists} from "@qpools/sdk/lib/utils";
-import {PositionInfo} from "@qpools/sdk/lib/types/interfacing";
+import {accountExists} from "@qpools/sdk/src/utils";
+import {PositionInfo} from "@qpools/sdk/src/types/interfacing";
 import {ExplicitPool} from "@qpools/sdk/src/types/interfacing";
 
 export interface IExistingPortfolio {
