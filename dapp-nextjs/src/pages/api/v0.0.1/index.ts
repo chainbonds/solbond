@@ -1,10 +1,12 @@
 import {NextApiRequest, NextApiResponse} from "next";
 import * as qpools from "@qpools/sdk";
+import {getConnection} from "../../../const";
 
 export default async (req: NextApiRequest, res: NextApiResponse) => {
 
     // Load and serve the registry
-    let registry = new qpools.helperClasses.Registry();
+    const connection = getConnection();
+    let registry = new qpools.helperClasses.Registry(connection);
     // Load the registry items
 
     let tokens = await registry.getAllTokens();

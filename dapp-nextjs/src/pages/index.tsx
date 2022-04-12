@@ -2,7 +2,6 @@ import type {NextPage} from "next";
 import Head from "next/head";
 import {HomeView} from "../views";
 import Script from 'next/script';
-import {PropsWithChildren} from "react";
 import * as qpools from "@qpools/sdk";
 
 // interface Props extends PropsWithChildren<{}> {
@@ -12,8 +11,6 @@ import * as qpools from "@qpools/sdk";
 //     // props
 //     registry: qpools.helperClasses.Registry
 // }
-// // NextPage
-// // props: Props
 const Home: NextPage = (props) => {
     return (
         <>
