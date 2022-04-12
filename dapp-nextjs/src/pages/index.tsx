@@ -24,7 +24,7 @@ import {CrankProvider} from "../contexts/CrankProvider";
 //     // props
 //     registry: qpools.helperClasses.Registry
 // }
-const Home: NextPage = (props) => {
+const Home: NextPage = () => {
 
     // Probably should import all the items here ...
     // Could just create the connection here ..
