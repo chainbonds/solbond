@@ -34,6 +34,8 @@ function MyApp({Component, pageProps}: AppProps) {
         throw Error("Network not specified! " + String(qpools.network.getNetworkCluster()));
     }
 
+    pageProps = {registry: registry, ...pageProps};
+
     return (
         <>
             <LocalKeypairProvider>
@@ -49,7 +51,7 @@ function MyApp({Component, pageProps}: AppProps) {
                                         <UserWalletAssetsProvider registry={registry}>
                                             <ExistingPortfolioProvider registry={registry}>
                                                 <CrankProvider>
-                                                    <Component {...pageProps}/>
+                                                    <Component {...pageProps} />
                                                 </CrankProvider>
                                             </ExistingPortfolioProvider>
                                         </UserWalletAssetsProvider>
