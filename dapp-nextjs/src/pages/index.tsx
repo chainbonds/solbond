@@ -55,30 +55,30 @@ const Home: NextPage = (props) => {
             </Head>
             <div className={"h-screen w-screen bg-gray-800"}>
 
-                <LocalKeypairProvider>
-                    <ErrorMessageProvider>
-                        <LoadProvider>
-                            <ItemsLoadProvider>
-                                <SerpiusEndpointProvider registry={registry}>
-                                    <WalletKitProvider
-                                        defaultNetwork={defaultNetwork}
-                                        app={{name: "qPools with Goki"}}
-                                    >
-                                        <RpcProvider registry={registry}>
-                                            <UserWalletAssetsProvider registry={registry}>
-                                                <ExistingPortfolioProvider registry={registry}>
-                                                    <CrankProvider>
-                                                        <HomeView registry={registry}/>
-                                                    </CrankProvider>
-                                                </ExistingPortfolioProvider>
-                                            </UserWalletAssetsProvider>
-                                        </RpcProvider>
-                                    </WalletKitProvider>
-                                </SerpiusEndpointProvider>
-                            </ItemsLoadProvider>
-                        </LoadProvider>
-                    </ErrorMessageProvider>
-                </LocalKeypairProvider>
+                {/*<LocalKeypairProvider>*/}
+                {/*    <ErrorMessageProvider>*/}
+                {/*        <LoadProvider>*/}
+                {/*            <ItemsLoadProvider>*/}
+                {/*                <SerpiusEndpointProvider registry={registry}>*/}
+                {/*                    <WalletKitProvider*/}
+                {/*                        defaultNetwork={defaultNetwork}*/}
+                {/*                        app={{name: "qPools with Goki"}}*/}
+                {/*                    >*/}
+                {/*                        <RpcProvider registry={registry}>*/}
+                {/*                            <UserWalletAssetsProvider registry={registry}>*/}
+                {/*                                <ExistingPortfolioProvider registry={registry}>*/}
+                {/*                                    <CrankProvider>*/}
+                {/*                                        <HomeView registry={registry}/>*/}
+                {/*                                    </CrankProvider>*/}
+                {/*                                </ExistingPortfolioProvider>*/}
+                {/*                            </UserWalletAssetsProvider>*/}
+                {/*                        </RpcProvider>*/}
+                {/*                    </WalletKitProvider>*/}
+                {/*                </SerpiusEndpointProvider>*/}
+                {/*            </ItemsLoadProvider>*/}
+                {/*        </LoadProvider>*/}
+                {/*    </ErrorMessageProvider>*/}
+                {/*</LocalKeypairProvider>*/}
 
                 <Script
                     src="https://www.googletagmanager.com/gtag/js?id=G-P5225TV5V8"
