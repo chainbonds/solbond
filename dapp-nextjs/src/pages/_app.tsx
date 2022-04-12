@@ -49,7 +49,7 @@ function MyApp({Component, pageProps}: AppProps) {
                                         <UserWalletAssetsProvider registry={registry}>
                                             <ExistingPortfolioProvider registry={registry}>
                                                 <CrankProvider>
-                                                    <Component {...pageProps} registry={registry} />
+                                                    <Component {...pageProps}/>
                                                 </CrankProvider>
                                             </ExistingPortfolioProvider>
                                         </UserWalletAssetsProvider>
