@@ -8,7 +8,7 @@ import {useLoad} from "../../../contexts/LoadingContext";
 import {useErrorMessage} from "../../../contexts/ErrorMessageContext";
 import {syncNative} from "@solendprotocol/solend-sdk";
 import {MOCK} from "@qpools/sdk/src/const";
-import {airdropAdmin, createAssociatedTokenAccountSendUnsigned} from "@qpools/sdk";
+import {airdropAdmin, createAssociatedTokenAccountSendUnsigned} from "@qpools/sdk/src";
 
 export const FaucetButton: FC = ({}) => {
 
