@@ -152,7 +152,7 @@ export default function SuggestedPortfolioTable({registry, tableColumns, selecte
                             <a href={solscanLink(item.inputToken!.mint)} target={"_blank"} rel="noreferrer"
                                className="text-blue-600 dark:text-blue-400 hover:underline">
                                 {item.inputTokenLink &&
-                                    <Image className={"rounded-3xl"} src={item.inputTokenLink!} width={30} height={30}/>
+                                    <Image alt={"Input Token"} className={"rounded-3xl"} src={item.inputTokenLink!} width={30} height={30}/>
                                 }
                             </a>
                         }
@@ -173,7 +173,7 @@ export default function SuggestedPortfolioTable({registry, tableColumns, selecte
                                 <a key={displayToken.tokenSolscanLink} href={displayToken.tokenSolscanLink} target={"_blank"} rel="noreferrer"
                                    className="text-blue-600 dark:text-blue-400 hover:underline">
                                     {displayToken.tokenImageLink &&
-                                        <Image src={displayToken.tokenImageLink!} width={30} height={30}/>
+                                        <Image alt={"Underlying Assets"} src={displayToken.tokenImageLink!} width={30} height={30}/>
                                     }
                                 </a>
                             )

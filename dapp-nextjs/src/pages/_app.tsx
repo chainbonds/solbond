@@ -18,7 +18,7 @@ import {getConnection} from "../const";
 import {network} from "@qpools/sdk/src";
 import {Registry} from "@qpools/sdk/src/frontend-friendly";
 
-function MyApp({Component: MyComponent, pageProps}: AppProps) {
+function MyApp({Component, pageProps}: AppProps) {
 
     // Could just create the connection here ..
     const connection = getConnection();
@@ -52,7 +52,7 @@ function MyApp({Component: MyComponent, pageProps}: AppProps) {
                                         <UserWalletAssetsProvider registry={registry}>
                                             <ExistingPortfolioProvider registry={registry}>
                                                 <CrankProvider>
-                                                    <MyComponent {...pageProps} />
+                                                    <Component {...pageProps} />
                                                 </CrankProvider>
                                             </ExistingPortfolioProvider>
                                         </UserWalletAssetsProvider>
