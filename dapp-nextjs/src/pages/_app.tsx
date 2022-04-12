@@ -15,7 +15,7 @@ import {ErrorMessageProvider} from "../contexts/ErrorMessageContext";
 import {WalletKitProvider} from "@gokiprotocol/walletkit";
 import {Network} from "@saberhq/solana-contrib";
 import {getConnection} from "../const";
-import {network} from "@qpools/sdk";
+import {network} from "@qpools/sdk/src";
 import {Registry} from "@qpools/sdk/src/frontend-friendly";
 
 function MyApp({Component: MyComponent, pageProps}: AppProps) {
