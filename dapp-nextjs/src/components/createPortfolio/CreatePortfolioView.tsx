@@ -14,7 +14,6 @@ interface Props {
 }
 export default function CreatePortfolioView({allocationItems, selectedItemKey, modifyIndividualAllocationItem, registry}: Props) {
 
-    const [displayOnramperModal, setDisplayOnramperModal] = useState<boolean>(false);
     const [selectedToken, setSelectedToken] = useState<SelectedToken | null>();
 
     const getSelectedToken = async () => {
@@ -59,10 +58,6 @@ export default function CreatePortfolioView({allocationItems, selectedItemKey, m
                             <PurchaseButton passedAllocationData={allocationItems}/>
                         </div>
                     </div>
-                    {/*<div className={"flex flex-row mx-1 mt-1"}>*/}
-                    {/*    /!*{ (selectedToken && allocationItems.has(selectedItemKey) && allocationItems.get(selectedItemKey)?.userWalletAmount ) &&*!/*/}
-                    {/*    /!*}*!/*/}
-                    {/*</div>*/}
                 </div>
             </div>
         </>

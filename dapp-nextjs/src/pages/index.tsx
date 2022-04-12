@@ -5,11 +5,16 @@ import Script from 'next/script';
 import {PropsWithChildren} from "react";
 import * as qpools from "@qpools/sdk";
 
-interface Props extends PropsWithChildren<{}> {
-    registry: qpools.helperClasses.Registry
-}
-// NextPage
-const Home: any = (props: Props) => {
+// interface Props extends PropsWithChildren<{}> {
+//     // key: ,
+//     // children: ,
+//     // type: ,
+//     // props
+//     registry: qpools.helperClasses.Registry
+// }
+// // NextPage
+// // props: Props
+const Home: NextPage = (props) => {
     return (
         <>
             <Head>
@@ -22,6 +27,7 @@ const Home: any = (props: Props) => {
                 {/*// <!-- Global site tag (gtag.js) - Google Analytics -->*/}
             </Head>
             <div className={"h-screen w-screen bg-gray-800"}>
+                {/* @ts-ignore*/}
                 <HomeView registry={props.registry}/>
                 <Script
                     src="https://www.googletagmanager.com/gtag/js?id=G-P5225TV5V8"

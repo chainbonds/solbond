@@ -33,30 +33,32 @@ function MyApp({Component, pageProps}: AppProps) {
     }
 
     return (
-        <LocalKeypairProvider>
-            <ErrorMessageProvider>
-                <LoadProvider>
-                    <ItemsLoadProvider>
-                        <SerpiusEndpointProvider registry={registry}>
-                            <WalletKitProvider
-                                defaultNetwork={defaultNetwork}
-                                app={{name: "qPools with Goki"}}
-                            >
-                                <RpcProvider registry={registry}>
-                                    <UserWalletAssetsProvider registry={registry}>
-                                        <ExistingPortfolioProvider registry={registry}>
-                                            <CrankProvider>
-                                                <Component {...pageProps} registry={registry} />
-                                            </CrankProvider>
-                                        </ExistingPortfolioProvider>
-                                    </UserWalletAssetsProvider>
-                                </RpcProvider>
-                            </WalletKitProvider>
-                        </SerpiusEndpointProvider>
-                    </ItemsLoadProvider>
-                </LoadProvider>
-            </ErrorMessageProvider>
-        </LocalKeypairProvider>
+        <>
+            <LocalKeypairProvider>
+                <ErrorMessageProvider>
+                    <LoadProvider>
+                        <ItemsLoadProvider>
+                            <SerpiusEndpointProvider registry={registry}>
+                                <WalletKitProvider
+                                    defaultNetwork={defaultNetwork}
+                                    app={{name: "qPools with Goki"}}
+                                >
+                                    <RpcProvider registry={registry}>
+                                        <UserWalletAssetsProvider registry={registry}>
+                                            <ExistingPortfolioProvider registry={registry}>
+                                                <CrankProvider>
+                                                    <Component {...pageProps} registry={registry} />
+                                                </CrankProvider>
+                                            </ExistingPortfolioProvider>
+                                        </UserWalletAssetsProvider>
+                                    </RpcProvider>
+                                </WalletKitProvider>
+                            </SerpiusEndpointProvider>
+                        </ItemsLoadProvider>
+                    </LoadProvider>
+                </ErrorMessageProvider>
+            </LocalKeypairProvider>
+        </>
     );
 }
 
