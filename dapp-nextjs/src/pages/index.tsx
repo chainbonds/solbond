@@ -2,6 +2,20 @@ import type {NextPage} from "next";
 import Head from "next/head";
 import {HomeView} from "../views";
 import Script from 'next/script';
+import {getConnection} from "../const";
+import {Registry} from "../../../../qPools-contract/qpools-sdk/src/frontend-friendly";
+import {Network} from "@saberhq/solana-contrib";
+import {network} from "../../../../qPools-contract/qpools-sdk/src";
+import {LocalKeypairProvider} from "../contexts/LocalKeypairProvider";
+import {ErrorMessageProvider} from "../contexts/ErrorMessageContext";
+import {LoadProvider} from "../contexts/LoadingContext";
+import {ItemsLoadProvider} from "../contexts/ItemsLoadingContext";
+import {SerpiusEndpointProvider} from "../contexts/SerpiusProvider";
+import {WalletKitProvider} from "@gokiprotocol/walletkit";
+import {RpcProvider} from "../contexts/RpcProvider";
+import {UserWalletAssetsProvider} from "../contexts/UserWalletAssets";
+import {ExistingPortfolioProvider} from "../contexts/ExistingPortfolioProvider";
+import {CrankProvider} from "../contexts/CrankProvider";
 
 // interface Props extends PropsWithChildren<{}> {
 //     // key: ,
@@ -11,6 +25,23 @@ import Script from 'next/script';
 //     registry: qpools.helperClasses.Registry
 // }
 const Home: NextPage = (props) => {
+
+    // Probably should import all the items here ...
+    // Could just create the connection here ..
+    const connection = getConnection();
+    const registry = new Registry(connection);
+
+    // Perhaps use-registry should be a hook ...
+
+    let defaultNetwork: Network;
+    if (network.getNetworkCluster() === network.Cluster.DEVNET) {
+        defaultNetwork = "devnet";
+    } else if (network.getNetworkCluster() === network.Cluster.MAINNET) {
+        defaultNetwork = "mainnet-beta";
+    } else {
+        throw Error("Network not specified! " + String(network.getNetworkCluster()));
+    }
+
     return (
         <>
             <Head>
@@ -23,8 +54,32 @@ const Home: NextPage = (props) => {
                 {/*// <!-- Global site tag (gtag.js) - Google Analytics -->*/}
             </Head>
             <div className={"h-screen w-screen bg-gray-800"}>
-                {/* @ts-ignore */}
-                <HomeView registry={props.registry}/>
+
+                <LocalKeypairProvider>
+                    <ErrorMessageProvider>
+                        <LoadProvider>
+                            <ItemsLoadProvider>
+                                <SerpiusEndpointProvider registry={registry}>
+                                    <WalletKitProvider
+                                        defaultNetwork={defaultNetwork}
+                                        app={{name: "qPools with Goki"}}
+                                    >
+                                        <RpcProvider registry={registry}>
+                                            <UserWalletAssetsProvider registry={registry}>
+                                                <ExistingPortfolioProvider registry={registry}>
+                                                    <CrankProvider>
+                                                        <HomeView registry={registry}/>
+                                                    </CrankProvider>
+                                                </ExistingPortfolioProvider>
+                                            </UserWalletAssetsProvider>
+                                        </RpcProvider>
+                                    </WalletKitProvider>
+                                </SerpiusEndpointProvider>
+                            </ItemsLoadProvider>
+                        </LoadProvider>
+                    </ErrorMessageProvider>
+                </LocalKeypairProvider>
+
                 <Script
                     src="https://www.googletagmanager.com/gtag/js?id=G-P5225TV5V8"
                     strategy="afterInteractive"
