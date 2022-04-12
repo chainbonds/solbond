@@ -4,6 +4,7 @@ import {HomeView} from "../views";
 import Script from 'next/script';
 import {PropsWithChildren} from "react";
 import * as qpools from "@qpools/sdk";
+import {Registry} from "../../../../qPools-contract/qpools-sdk/lib/frontend-friendly";
 
 // interface Props extends PropsWithChildren<{}> {
 //     // key: ,
@@ -14,7 +15,7 @@ import * as qpools from "@qpools/sdk";
 // }
 // // NextPage
 // // props: Props
-const Home: NextPage = (props) => {
+const Home: NextPage = (props, registry: Registry) => {
     return (
         <>
             <Head>
@@ -27,8 +28,7 @@ const Home: NextPage = (props) => {
                 {/*// <!-- Global site tag (gtag.js) - Google Analytics -->*/}
             </Head>
             <div className={"h-screen w-screen bg-gray-800"}>
-                {/* @ts-ignore*/}
-                <HomeView registry={props.registry}/>
+                <HomeView registry={registry}/>
                 <Script
                     src="https://www.googletagmanager.com/gtag/js?id=G-P5225TV5V8"
                     strategy="afterInteractive"

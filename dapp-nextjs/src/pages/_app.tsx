@@ -23,6 +23,8 @@ function MyApp({Component, pageProps}: AppProps) {
     const connection = getConnection();
     const registry = new qpools.helperClasses.Registry(connection);
 
+    // Perhaps use-registry should be a hook ...
+
     let defaultNetwork: Network;
     if (qpools.network.getNetworkCluster() === qpools.network.Cluster.DEVNET) {
         defaultNetwork = "devnet";
