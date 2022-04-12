@@ -17,7 +17,7 @@ import {WalletKitProvider} from "@gokiprotocol/walletkit";
 import {Network} from "@saberhq/solana-contrib";
 import {getConnection} from "../const";
 
-function MyApp({Component, pageProps}: AppProps) {
+function MyApp({Component: MyComponent, pageProps}: AppProps) {
 
     // Could just create the connection here ..
     const connection = getConnection();
@@ -51,7 +51,7 @@ function MyApp({Component, pageProps}: AppProps) {
                                         <UserWalletAssetsProvider registry={registry}>
                                             <ExistingPortfolioProvider registry={registry}>
                                                 <CrankProvider>
-                                                    <Component {...pageProps} />
+                                                    <MyComponent {...pageProps} />
                                                 </CrankProvider>
                                             </ExistingPortfolioProvider>
                                         </UserWalletAssetsProvider>
