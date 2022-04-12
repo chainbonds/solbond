@@ -20,7 +20,6 @@ export const HomeView = ({registry}: Props) => {
         <>
             <LoadingOverlay
                 active={loading}
-                // spinner={<BounceLoader />}
                 spinner={true}
                 text="Loading..."
                 styles={{
