@@ -168,7 +168,12 @@ export default function PurchaseButton({passedAllocationData}: Props) {
         });
         let uniqueInputTokens: PublicKey[] = inputPoolsAndTokens.map(([_, token]: [qpools.typeDefinitions.interfacingAccount.ExplicitPool, qpools.typeDefinitions.interfacingAccount.ExplicitToken]) => {
             return new PublicKey(token.address);
-        });
+        })
+        .map((x: PublicKey) => {return x.toString()}) // Gotta turn into string because typescript is stupid
+        .filter((item, index, arr) => {
+            return arr.indexOf(item) === index;
+        })
+        .map((x: string) => {return new PublicKey(x)});
 
         /**
          * Unwrap any wrapped token in a separate transaction. Fuck UX for this. Some other shitty application left some wrapped token
