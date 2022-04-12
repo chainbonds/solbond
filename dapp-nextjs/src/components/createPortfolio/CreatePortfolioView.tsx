@@ -1,5 +1,4 @@
 import React, {useEffect, useState} from "react";
-import OnramperModal from "../onramper/OnramperModal"
 import {AllocData} from "../../types/AllocData";
 import {getInputToken, SelectedToken} from "../../utils/utils";
 import InputFieldWithSliderInputAndLogo from "../common/InputFieldWithSliderInputAndLogo";
@@ -40,12 +39,6 @@ export default function CreatePortfolioView({allocationItems, selectedItemKey, m
 
     return (
         <>
-            <OnramperModal
-                isOpen={displayOnramperModal}
-                onClose={() => {
-                    setDisplayOnramperModal(false)
-                }}
-            />
             <div className={"flex pb-2 w-full"}>
                 <div className={"flex flex-col w-full"}>
                     <div className={"flex flex-row"}>
