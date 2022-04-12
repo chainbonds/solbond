@@ -4,13 +4,13 @@ import {getInputToken, SelectedToken} from "../../utils/utils";
 import InputFieldWithSliderInputAndLogo from "../common/InputFieldWithSliderInputAndLogo";
 import PurchaseButton from "../createPortfolio/buttons/PurchaseButton";
 import {TokenAmount} from "@solana/web3.js";
-import * as qpools from "@qpools/sdk";
+import {Registry} from "@qpools/sdk/src/frontend-friendly";
 
 interface Props {
     allocationItems: Map<string, AllocData>,
     selectedItemKey: string,
     modifyIndividualAllocationItem: (arg0: string, arg1: TokenAmount) => Promise<void>,
-    registry: qpools.helperClasses.Registry
+    registry: Registry
 }
 export default function CreatePortfolioView({allocationItems, selectedItemKey, modifyIndividualAllocationItem, registry}: Props) {
 

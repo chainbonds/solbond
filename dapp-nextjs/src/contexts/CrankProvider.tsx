@@ -1,10 +1,10 @@
 import React, {useState, useContext, useEffect} from 'react';
-import * as qpools from "@qpools/sdk";
 import {useLocalKeypair} from "./LocalKeypairProvider";
 import {useRpc} from "./RpcProvider";
+import {CrankRpcCalls} from "@qpools/sdk/src/frontend-friendly";
 
 export interface ICrank {
-    crankRpcTool: qpools.helperClasses.CrankRpcCalls | undefined,
+    crankRpcTool: CrankRpcCalls | undefined,
 }
 
 const defaultValue: ICrank = {
@@ -22,7 +22,7 @@ export function CrankProvider(props: any) {
 
     const localKeypair = useLocalKeypair();
     const rpcProvider = useRpc();
-    const [crankRpcTool, setCrankRpcTool] = useState<qpools.helperClasses.CrankRpcCalls | undefined>();
+    const [crankRpcTool, setCrankRpcTool] = useState<CrankRpcCalls | undefined>();
 
     /**
      * Everytime there is a change in the Keypair, create a
@@ -35,8 +35,9 @@ export function CrankProvider(props: any) {
             && rpcProvider._solbondProgram
         ) {
             // TODO: Include registry ...
+
             setCrankRpcTool((_: any) => {
-                let crankRpcCalls = new qpools.helperClasses.CrankRpcCalls(
+                let crankRpcCalls: CrankRpcCalls = new CrankRpcCalls(
                     rpcProvider.connection!,
                     localKeypair.localTmpKeypair!,
                     rpcProvider.provider!,

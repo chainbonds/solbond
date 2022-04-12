@@ -12,12 +12,13 @@ import {ChartableItemType} from "../../types/ChartableItemType";
 import {AllocData} from "../../types/AllocData";
 import TableHeader from "../common/TableHeader";
 import {displayTokensFromPool} from "../../utils/helper";
-import * as qpools from "@qpools/sdk";
+import {Registry} from "@qpools/sdk/src/frontend-friendly";
+import {Protocol} from "@qpools/sdk/src/types/interfacing";
 
 // I guess this columns is also conditional, actually ...
 // TODO: Normalize (rename) the name "selectedAssets"
 interface Props {
-    registry: qpools.helperClasses.Registry,
+    registry: Registry,
     tableColumns: (string | null)[],
     selectedAssets: Map<string, AllocData>,
     selectedAsset: string | null,
@@ -51,7 +52,7 @@ export default function SuggestedPortfolioTable({registry, tableColumns, selecte
                 let inputTokenLink: string = await registry.getIconUriFromToken(inputToken.mint.toString());
                 let tmp: ChartableItemType = {
                     key: key,
-                    name: qpools.typeDefinitions.interfacingAccount.Protocol[current.protocol].charAt(0).toUpperCase() + qpools.typeDefinitions.interfacingAccount.Protocol[current.protocol].slice(1) + " " + current.lpIdentifier,
+                    name: Protocol[current.protocol].charAt(0).toUpperCase() + Protocol[current.protocol].slice(1) + " " + current.lpIdentifier,
                     value: allocationSum > 0 ? (100 * current.usdcAmount) / allocationSum : 0,
                     apy_24h: current.apy_24h,
                     pool: current.pool,

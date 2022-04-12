@@ -2,8 +2,6 @@ import React, {useEffect, useState} from "react";
 import {PieChart, Pie, Cell} from "recharts";
 import {PIECHART_COLORS, RADIAN} from "../../const";
 import {AllocData, keyFromAllocData, keyFromPoolData} from "../../types/AllocData";
-import * as qpools from "@qpools/sdk";
-import {valueFn} from "react-use-gesture/dist/utils/utils";
 
 interface Props {
     allocationInformation: Map<string, AllocData>,

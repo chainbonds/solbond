@@ -5,7 +5,11 @@ import {IRpcProvider, useRpc} from "./RpcProvider";
 import {ISerpius, useSerpiusEndpoint} from "./SerpiusProvider";
 import {BN} from "@project-serum/anchor";
 import {lamportsReserversForLocalWallet} from "../const";
-import * as qpools from "@qpools/sdk";
+import {multiplyAmountByPythprice} from "@qpools/sdk/src/instructions/pyth/multiplyAmountByPythPrice";
+import {accountExists, getAssociatedTokenAddressOffCurve, getTokenAmount} from "@qpools/sdk/src/utils";
+import {getMarinadeSolMint, getWhitelistTokens, getWrappedSolMint} from "@qpools/sdk/src/const";
+import {ExplicitToken} from "@qpools/sdk/src/types/interfacing";
+import {Registry} from "@qpools/sdk/src/frontend-friendly";
 
 export interface IUserWalletAssets {
     walletAssets: Map<string, AllocData>
@@ -24,7 +28,7 @@ export function useUserWalletAssets() {
 // Add the registry here
 // Set a new pubkey to the registry, if the user has connected his wallet ...
 interface Props {
-    registry: qpools.helperClasses.Registry
+    registry: Registry
     children: any
 }
 export function UserWalletAssetsProvider(props: Props) {
@@ -78,61 +82,61 @@ export function UserWalletAssetsProvider(props: Props) {
 
             // Now we have the pool
             // When are the tokens not defined ...
-            let tokens: qpools.typeDefinitions.interfacingAccount.ExplicitToken[] = fetchedPool.pool.tokens;
-            await Promise.all(tokens.map(async (token: qpools.typeDefinitions.interfacingAccount.ExplicitToken) => {
+            let tokens: ExplicitToken[] = fetchedPool.pool.tokens;
+            await Promise.all(tokens.map(async (token: ExplicitToken) => {
 
                 // Gotta get the input tokens ...
 
                 // Do a whitelist here which assets we accept ...
-                if (qpools.constDefinitions.getWhitelistTokens().filter((x: string) => x === token.address).length === 0) {
+                if (getWhitelistTokens().filter((x: string) => x === token.address).length === 0) {
                     return
                 }
 
                 console.log("Iterating through token: ", token);
                 let mint: PublicKey = new PublicKey(token.address);
-                let ata = await qpools.utils.getAssociatedTokenAddressOffCurve(mint, rpcProvider.userAccount!.publicKey);
+                let ata = await getAssociatedTokenAddressOffCurve(mint, rpcProvider.userAccount!.publicKey);
                 // Finally get the users' balance
                 // Let's assume that if the token is wrapped solana, that we can also include the pure solana into this.
                 let userBalance: TokenAmount;
                 // Set the starting balance always at 0
                 let startingBalance: TokenAmount;
                 // TODO: Let's assume that 10% of the user's assets is currently put into each pool ...
-                if (mint.equals(qpools.constDefinitions.getWrappedSolMint())) {
+                if (mint.equals(getWrappedSolMint())) {
                     // In the case of wrapped sol, combine the balance from the native SOL,
                     // as well as the balance from the wrapped SOL
                     let solBalance: BN = new BN (await rpcProvider.connection!.getBalance(rpcProvider.userAccount!.publicKey));
 
                     // Skip the wrapped SOL calclulation, if this token account does not exist ...
                     let wrappedSolBalance: BN = new BN(0);
-                    if (await qpools.utils.accountExists(rpcProvider.connection!, ata)) {
+                    if (await accountExists(rpcProvider.connection!, ata)) {
                         wrappedSolBalance = new BN((await rpcProvider.connection!.getTokenAccountBalance(ata)).value.amount);
                     }
                     let totalBalance: BN = wrappedSolBalance.add(solBalance);
                     console.log("solbalance before ", solBalance);
 
-                    userBalance = qpools.utils.getTokenAmount(totalBalance.sub(lamportsReserversForLocalWallet), new BN(9));
+                    userBalance = getTokenAmount(totalBalance.sub(lamportsReserversForLocalWallet), new BN(9));
 
                     console.log("String and marinade sol mint is: ");
                     console.log("1111");
                     console.log(fetchedPool?.pool.lpToken.address?.toString());
                     console.log("2222");
-                    console.log(qpools.constDefinitions.getMarinadeSolMint().toString());
+                    console.log(getMarinadeSolMint().toString());
                     // Could also divide this by the number of input assets or sth ...
-                    if (fetchedPool?.pool.lpToken.address?.toString() === qpools.constDefinitions.getMarinadeSolMint().toString()) {
-                        startingBalance = qpools.utils.getTokenAmount(new BN(0), new BN(userBalance.decimals));
+                    if (fetchedPool?.pool.lpToken.address?.toString() === getMarinadeSolMint().toString()) {
+                        startingBalance = getTokenAmount(new BN(0), new BN(userBalance.decimals));
                     } else {
-                        startingBalance = qpools.utils.getTokenAmount(new BN(userBalance.amount).div(new BN(10)), new BN(userBalance.decimals));
+                        startingBalance = getTokenAmount(new BN(userBalance.amount).div(new BN(10)), new BN(userBalance.decimals));
                     }
                     console.log("solbalance after ... ");
                 } else {
                     console.log("Mint is: ", mint.toString(), ata.toString());
-                    if (await qpools.utils.accountExists(rpcProvider.connection!, ata)) {
+                    if (await accountExists(rpcProvider.connection!, ata)) {
                         userBalance = (await rpcProvider.connection!.getTokenAccountBalance(ata)).value;
                     } else {
                         // I guess in this case it doesn't matter what the decimals are, because the user needs to buy some more sutff nonetheless
-                        userBalance = qpools.utils.getTokenAmount(new BN(0), new BN(9));
+                        userBalance = getTokenAmount(new BN(0), new BN(9));
                     }
-                    startingBalance = qpools.utils.getTokenAmount(new BN(userBalance.amount).div(new BN(10)), new BN(userBalance.decimals));
+                    startingBalance = getTokenAmount(new BN(userBalance.amount).div(new BN(10)), new BN(userBalance.decimals));
                     console.log("fetched successfully! ", userBalance);
                 }
 
@@ -143,7 +147,7 @@ export function UserWalletAssetsProvider(props: Props) {
                     userWalletAmount: {mint: mint, ata: ata, amount: userBalance}
                 }
 
-                newPool.usdcAmount = await qpools.instructions.pyth.pyth.multiplyAmountByPythprice(newPool.userInputAmount!.amount.uiAmount!, newPool.userInputAmount!.mint);
+                newPool.usdcAmount = await multiplyAmountByPythprice(newPool.userInputAmount!.amount.uiAmount!, newPool.userInputAmount!.mint);
                 console.log("Pushing object: ", newPool);
                 newAllocData.set(keyFromAllocData(newPool), newPool);
             }));

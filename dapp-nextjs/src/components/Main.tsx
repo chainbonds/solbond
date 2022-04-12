@@ -7,8 +7,8 @@ import {ViewWalletNotConnected} from "./ViewWalletNotConnected";
 import {ViewWalletConnectedCreatePortfolio} from "./ViewWalletConnectedCreatePortfolio";
 import {ViewWalletConnectedPortfolioExists} from "./ViewWalletConnectedPortfolioExists";
 import ErrorMessageModal from "./common/ErrorMessageModal";
-import * as qpools from "@qpools/sdk";
 import {useConnectedWallet} from "@saberhq/use-solana";
+import {Registry} from "@qpools/sdk/src/frontend-friendly";
 
 export enum PortfolioState {
     WalletNotConnected,
@@ -16,7 +16,7 @@ export enum PortfolioState {
     ShowExistingPortfolio
 }
 interface Props {
-    registry: qpools.helperClasses.Registry
+    registry: Registry
 }
 export const Main = ({registry}: Props) => {
 

@@ -5,10 +5,10 @@ import {AllocData, keyFromAllocData} from "../types/AllocData";
 import {IExistingPortfolio, useExistingPortfolio} from "../contexts/ExistingPortfolioProvider";
 import SuggestedPortfolioTable from "./createPortfolio/SuggestedPortfolioTable";
 import Error from "next/error";
-import * as qpools from "@qpools/sdk";
+import {Registry} from "@qpools/sdk/src/frontend-friendly";
 
 interface Props {
-    registry: qpools.helperClasses.Registry
+    registry: Registry
 }
 export const ViewWalletConnectedPortfolioExists = ({registry}: Props) => {
 

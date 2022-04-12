@@ -10,8 +10,10 @@ import {AllocData} from "../../../types/AllocData";
 import {useErrorMessage} from "../../../contexts/ErrorMessageContext";
 import {lamportsReserversForLocalWallet} from "../../../const";
 import {getAssociatedTokenAddress} from "easy-spl/dist/tx/associated-token-account";
-import * as qpools from "@qpools/sdk";
 import {useConnectedWallet} from "@saberhq/use-solana";
+import {getWrappedSolMint} from "@qpools/sdk/src/const";
+import {ExplicitPool, ExplicitSolendPool, Protocol} from "@qpools/sdk/src/types/interfacing";
+import {ExplicitToken} from "@qpools/sdk/src/types/interfacing";
 
 // TODO: Refactor the code here ... looks a bit too redundant.
 //  Maybe try to push the logic into the sdk?
@@ -34,7 +36,7 @@ export default function PurchaseButton({passedAllocationData}: Props) {
         // This returns the lamports, and so does the below item ...
         let nativeSolAmount: BN = new BN(await rpcProvider.connection.getBalance(walletContext!.publicKey!));
         let wrappedSolAta = await getAssociatedTokenAddress(
-            qpools.constDefinitions.getWrappedSolMint(),
+            getWrappedSolMint(),
             walletContext!.publicKey!
         );
         let wrappedSolAmount: BN = new BN((await rpcProvider.connection.getTokenAccountBalance(wrappedSolAta)).value.amount);
@@ -145,11 +147,11 @@ export default function PurchaseButton({passedAllocationData}: Props) {
          * Calculate how much wrapped sol, vs unwrapped SOL to have
          */
         let wrappedSolLamports: BN = allocationDataAsArray
-            .filter(([key, value]) => value.protocol.valueOf() !== qpools.typeDefinitions.interfacingAccount.Protocol.marinade.valueOf())
+            .filter(([key, value]) => value.protocol.valueOf() !== Protocol.marinade.valueOf())
             .map(([key, value]) => {return new BN(value.userInputAmount!.amount.amount)})
             .reduce((prev, cur) => prev.add(cur), new BN(0));
         let nativeSolLamports: BN = allocationDataAsArray
-            .filter(([key, value]) => value.protocol.valueOf() === qpools.typeDefinitions.interfacingAccount.Protocol.marinade.valueOf())
+            .filter(([key, value]) => value.protocol.valueOf() === Protocol.marinade.valueOf())
             .map(([key, value]) => {return new BN(value.userInputAmount!.amount.amount)})
             .reduce((prev, cur) => prev.add(cur), new BN(0));
 
@@ -157,16 +159,16 @@ export default function PurchaseButton({passedAllocationData}: Props) {
          * Get all possible input tokens ...
          *  Intersection of whitelisted input tokens, times what ist input through the pools
          */
-        let selectedAssetPools: qpools.typeDefinitions.interfacingAccount.ExplicitPool[] = Array.from(allocationData.values()).map((asset) => {
+        let selectedAssetPools: ExplicitPool[] = Array.from(allocationData.values()).map((asset) => {
             // If there is no underlying pool, than this is a bug!!
             return asset.pool!
         });
-        let inputPoolsAndTokens: [qpools.typeDefinitions.interfacingAccount.ExplicitPool, qpools.typeDefinitions.interfacingAccount.ExplicitToken][] = await getInputTokens(selectedAssetPools);
-        let inputPoolsAndTokensAsMap: Map<string, qpools.typeDefinitions.interfacingAccount.ExplicitToken> = new Map<string, qpools.typeDefinitions.interfacingAccount.ExplicitToken>();
-        inputPoolsAndTokens.map(([pool, token]: [qpools.typeDefinitions.interfacingAccount.ExplicitPool, qpools.typeDefinitions.interfacingAccount.ExplicitToken]) => {
+        let inputPoolsAndTokens: [ExplicitPool, ExplicitToken][] = await getInputTokens(selectedAssetPools);
+        let inputPoolsAndTokensAsMap: Map<string, ExplicitToken> = new Map<string, ExplicitToken>();
+        inputPoolsAndTokens.map(([pool, token]: [ExplicitPool, ExplicitToken]) => {
             inputPoolsAndTokensAsMap.set(pool.lpToken.address, token)
         });
-        let uniqueInputTokens: PublicKey[] = inputPoolsAndTokens.map(([_, token]: [qpools.typeDefinitions.interfacingAccount.ExplicitPool, qpools.typeDefinitions.interfacingAccount.ExplicitToken]) => {
+        let uniqueInputTokens: PublicKey[] = inputPoolsAndTokens.map(([_, token]: [ExplicitPool, ExplicitToken]) => {
             return new PublicKey(token.address);
         })
         .map((x: PublicKey) => {return x.toString()}) // Gotta turn into string because typescript is stupid
@@ -206,12 +208,12 @@ export default function PurchaseButton({passedAllocationData}: Props) {
          *  This is the first transaction ...
          */
         let mints: PublicKey[] = selectedAssetPools
-            .map((pool: qpools.typeDefinitions.interfacingAccount.ExplicitPool) => {
-                return pool.tokens.map((token: qpools.typeDefinitions.interfacingAccount.ExplicitToken) => new PublicKey(token.address))
+            .map((pool: ExplicitPool) => {
+                return pool.tokens.map((token: ExplicitToken) => new PublicKey(token.address))
             }).flat();
         // Also add the lp mints to the ATAs to be created ...
         let lpMints: PublicKey[] = selectedAssetPools
-            .map((pool: qpools.typeDefinitions.interfacingAccount.ExplicitPool) => {
+            .map((pool: ExplicitPool) => {
                 return new PublicKey(pool.lpToken.address)
             });
         mints.push(...lpMints);
@@ -290,11 +292,11 @@ export default function PurchaseButton({passedAllocationData}: Props) {
         let tx: Transaction = new Transaction();
         // For the input tokens, remove 1, if marinade SOL is part of it (because we send raw
         let marinadeIsIncluded = allocationDataAsArray.filter(([key, value]) => {
-            return value.protocol.valueOf() === qpools.typeDefinitions.interfacingAccount.Protocol.marinade.valueOf();
+            return value.protocol.valueOf() === Protocol.marinade.valueOf();
         }).length;
         let numberOfProtocolsUsingWrappedSol = allocationDataAsArray.filter(([key, value]) => {
-            let wrappedSolAsInput = value.userInputAmount!.mint.toString() === qpools.constDefinitions.getWrappedSolMint().toString();
-            let isMarinade = value.protocol.valueOf() === qpools.typeDefinitions.interfacingAccount.Protocol.marinade.valueOf();
+            let wrappedSolAsInput = value.userInputAmount!.mint.toString() === getWrappedSolMint().toString();
+            let isMarinade = value.protocol.valueOf() === Protocol.marinade.valueOf();
             return wrappedSolAsInput && !isMarinade
         }).length;
         let marinadeIsTheOnlyProtocolThatUsesWrappedSol = (marinadeIsIncluded > 0) && (numberOfProtocolsUsingWrappedSol < 1);
@@ -359,7 +361,7 @@ export default function PurchaseButton({passedAllocationData}: Props) {
             let lpAddress: PublicKey = new PublicKey(value.pool!.lpToken.address);
             let weight: BN = new BN(value.weight);
 
-            if (value.protocol.valueOf() === qpools.typeDefinitions.interfacingAccount.Protocol.saber.valueOf()) {
+            if (value.protocol.valueOf() === Protocol.saber.valueOf()) {
 
                 // Make sure that the input mint is not Native SOL
                 let IxRegisterCurrencyInput = await rpcProvider.portfolioObject!.registerCurrencyInputInPortfolio(
@@ -381,7 +383,7 @@ export default function PurchaseButton({passedAllocationData}: Props) {
                 let IxSendUsdcToPortfolio = await rpcProvider.portfolioObject!.transfer_to_portfolio(value.userInputAmount!.mint);
                 tx.add(IxSendUsdcToPortfolio);
 
-            } else if (value.protocol.valueOf() === qpools.typeDefinitions.interfacingAccount.Protocol.marinade.valueOf()) {
+            } else if (value.protocol.valueOf() === Protocol.marinade.valueOf()) {
                 let lamports = new BN(value.userInputAmount!.amount.amount);
                 // TODO: Turn the excess lamports into wrapped SOL (add a send + create-native-sync instruction for this)
                 if (lamports.lt(new BN(10 ** 9))) {
@@ -395,7 +397,7 @@ export default function PurchaseButton({passedAllocationData}: Props) {
                 );
                 tx.add(IxApprovePositionWeightMarinade);
 
-            } else if (value.protocol.valueOf() === qpools.typeDefinitions.interfacingAccount.Protocol.solend.valueOf()) {
+            } else if (value.protocol.valueOf() === Protocol.solend.valueOf()) {
 
                 let IxRegisterCurrencyInput = await rpcProvider.portfolioObject!.registerCurrencyInputInPortfolio(
                     currencyAmount,
@@ -469,7 +471,7 @@ export default function PurchaseButton({passedAllocationData}: Props) {
         await Promise.all(allocationDataAsArray.map(async ([key, value]: [string, AllocData], index: number) => {
             console.log("Fulfilling permissionles ...");
             console.log(value);
-            if (value.protocol.valueOf() === qpools.typeDefinitions.interfacingAccount.Protocol.saber.valueOf()) {
+            if (value.protocol.valueOf() === Protocol.saber.valueOf()) {
                 try {
                     let sgPermissionlessFullfillSaber = await crankProvider.crankRpcTool!.permissionlessFulfillSaber(index);
                     console.log("Fulfilled sg Saber is: ", sgPermissionlessFullfillSaber);
@@ -483,7 +485,7 @@ export default function PurchaseButton({passedAllocationData}: Props) {
                     );
                     return;
                 }
-            } else if (value.protocol.valueOf() === qpools.typeDefinitions.interfacingAccount.Protocol.marinade.valueOf()) {
+            } else if (value.protocol.valueOf() === Protocol.marinade.valueOf()) {
                 try {
                     let sgPermissionlessFullfillMarinade = await crankProvider.crankRpcTool!.createPositionMarinade(index);
                     console.log("Fulfilled sg Marinade is: ", sgPermissionlessFullfillMarinade);
@@ -497,9 +499,9 @@ export default function PurchaseButton({passedAllocationData}: Props) {
                     );
                     return;
                 }
-            } else if (value.protocol.valueOf() === qpools.typeDefinitions.interfacingAccount.Protocol.solend.valueOf()) {
+            } else if (value.protocol.valueOf() === Protocol.solend.valueOf()) {
                 // Is there any way to do safe typecasting ... (?)
-                let solendPool = value.pool as qpools.typeDefinitions.interfacingAccount.ExplicitSolendPool;
+                let solendPool = value.pool as ExplicitSolendPool;
                 try {
                     // TODO: createPositionSolend ==> requires the Solend one
                     // The last two variables are hard-coded and wrong!

@@ -4,7 +4,11 @@ import {BRAND_COLORS} from "../../const";
 import {AllocData, keyFromPoolData} from "../../types/AllocData";
 import {BN} from "@project-serum/anchor";
 import {TokenAmount} from "@solana/web3.js";
-import * as qpools from "@qpools/sdk";
+import {Registry} from "@qpools/sdk/src/frontend-friendly";
+import {ExplicitPool} from "@qpools/sdk/src/types/interfacing";
+import {getTokenAmount} from "@qpools/sdk/lib/utils";
+import {getMarinadeSolMint, getWhitelistTokens} from "@qpools/sdk/lib/const";
+import {ExplicitToken} from "@qpools/sdk/lib/types/interfacing";
 
 // TODO: I guess most numbers here should be replaced by TokenAmount, and then the lamports should be the inputs, and the uiAmounts should be the display values?
 //  Not sure if typescript can handle these though
@@ -15,7 +19,7 @@ interface Props {
     modifyIndividualAllocationItem: (arg0: string, arg1: TokenAmount) => Promise<void>,
     min: number,
     max: number,
-    registry: qpools.helperClasses.Registry
+    registry: Registry
 }
 export default function InputFieldWithSliderInputAndLogo({allocationItems, selectedItemKey, currencyName, modifyIndividualAllocationItem, min, max, registry}: Props) {
 
@@ -45,7 +49,7 @@ export default function InputFieldWithSliderInputAndLogo({allocationItems, selec
         let totalInputtedAmount: BN = new BN(0);
         let decimals: number = currentlySelectedAsset.userWalletAmount!.amount.decimals;
         (await registry.getPoolsByInputToken(inputCurrency.toString()))
-            .filter((x: qpools.typeDefinitions.interfacingAccount.ExplicitPool) => {
+            .filter((x: ExplicitPool) => {
                 // Gotta create the id same as when loading the data. Create a function for this...
                 let id = keyFromPoolData(x);
                 if (allocationItems.has(id)) {
@@ -56,12 +60,12 @@ export default function InputFieldWithSliderInputAndLogo({allocationItems, selec
                 }
 
             })
-            .map((x: qpools.typeDefinitions.interfacingAccount.ExplicitPool) => {
+            .map((x: ExplicitPool) => {
                 let id = keyFromPoolData(x);
                 let inputAmount = new BN(allocationItems.get(id)!.userInputAmount!.amount.amount);
                 totalInputtedAmount = totalInputtedAmount.add(inputAmount);
             });
-        let readableTotalInputtedAmount = qpools.utils.getTokenAmount(totalInputtedAmount, new BN(decimals)).uiAmount!;
+        let readableTotalInputtedAmount = getTokenAmount(totalInputtedAmount, new BN(decimals)).uiAmount!;
         console.log("Readable total input amount is: ", readableTotalInputtedAmount);
         setTotalInputBalance(readableTotalInputtedAmount);
     }
@@ -83,7 +87,7 @@ export default function InputFieldWithSliderInputAndLogo({allocationItems, selec
         let decimals: number = currentlySelectedAsset.userWalletAmount!.amount.decimals;
         let totalInputtedAmount: BN = new BN(0);
         (await registry.getPoolsByInputToken(inputCurrency.toString()))
-            .filter((x: qpools.typeDefinitions.interfacingAccount.ExplicitPool) => {
+            .filter((x: ExplicitPool) => {
                 // Gotta create the id same as when loading the data. Create a function for this...
                 let id = keyFromPoolData(x);
                 let currentElementsId = selectedItemKey;
@@ -102,7 +106,7 @@ export default function InputFieldWithSliderInputAndLogo({allocationItems, selec
                 }
 
             })
-            .map((x: qpools.typeDefinitions.interfacingAccount.ExplicitPool) => {
+            .map((x: ExplicitPool) => {
                 let id = keyFromPoolData(x);
                 let inputAmount = new BN(allocationItems.get(id)!.userInputAmount!.amount.amount);
                 totalInputtedAmount = totalInputtedAmount.add(inputAmount);
@@ -127,7 +131,7 @@ export default function InputFieldWithSliderInputAndLogo({allocationItems, selec
 
     useEffect(() => {
         if (allocationItems.get(selectedItemKey)!.userInputAmount!.amount!.uiAmount!) {
-            if (currentlySelectedAsset?.pool.lpToken.address?.toString() === qpools.constDefinitions.getMarinadeSolMint().toString()) {
+            if (currentlySelectedAsset?.pool.lpToken.address?.toString() === getMarinadeSolMint().toString()) {
                 setValue(0.);
             } else {
                 setValue(allocationItems.get(selectedItemKey)!.userInputAmount!.amount!.uiAmount!);
@@ -162,7 +166,7 @@ export default function InputFieldWithSliderInputAndLogo({allocationItems, selec
         console.log("power is: ", power.toString());
         let numberInclDecimals: BN = power.muln(value);
         console.log("Number incl decimals is: ", numberInclDecimals.toString());
-        let tokenAmount: TokenAmount = qpools.utils.getTokenAmount(numberInclDecimals, new BN(currentlySelectedAsset.userInputAmount!.amount.decimals));
+        let tokenAmount: TokenAmount = getTokenAmount(numberInclDecimals, new BN(currentlySelectedAsset.userInputAmount!.amount.decimals));
         console.log("Number incl decimals is: ", tokenAmount);
         modifyIndividualAllocationItem(selectedItemKey, tokenAmount).then(() => {
             calculateAvailableAmount();
@@ -195,7 +199,7 @@ export default function InputFieldWithSliderInputAndLogo({allocationItems, selec
 
                     console.log("LP (1) is: ", currentlySelectedAsset!.pool.lpToken.address.toString());
                     // console.log("LP (2) is: ", currentlySelectedAsset!.userInputAmount!.mint!.toString());
-                    if (currentlySelectedAsset!.pool.lpToken.address!.toString() === qpools.constDefinitions.getMarinadeSolMint().toString()) {
+                    if (currentlySelectedAsset!.pool.lpToken.address!.toString() === getMarinadeSolMint().toString()) {
                         if (newValue > 0 && newValue < 1) {
                             console.log("Cannot permit (0)");
                             setInputValue(0.);
@@ -238,7 +242,7 @@ export default function InputFieldWithSliderInputAndLogo({allocationItems, selec
 
                         console.log("LP (1) is: ", currentlySelectedAsset!.pool.lpToken.address.toString());
                         // console.log("LP (2) is: ", currentlySelectedAsset!.userInputAmount!.mint!.toString());
-                        if (currentlySelectedAsset!.pool.lpToken.address!.toString() === qpools.constDefinitions.getMarinadeSolMint().toString()) {
+                        if (currentlySelectedAsset!.pool.lpToken.address!.toString() === getMarinadeSolMint().toString()) {
                             if ((newValue > 0 && newValue < 1) || (value > 0 && value < 1)) {
                                 console.log("Cannot permit (0)");
                                 setSliderValue(0.);
@@ -277,8 +281,8 @@ export default function InputFieldWithSliderInputAndLogo({allocationItems, selec
      */
 
     console.log("Allocation Items are: ", allocationItems);
-    const logoPath = allocationItems.get(selectedItemKey)!.pool?.tokens.filter((x: qpools.typeDefinitions.interfacingAccount.ExplicitToken) => {
-        return qpools.constDefinitions.getWhitelistTokens()
+    const logoPath = allocationItems.get(selectedItemKey)!.pool?.tokens.filter((x: ExplicitToken) => {
+        return getWhitelistTokens()
     })[0].logoURI!;
     console.log("Logo Path is: ", logoPath);
     return (

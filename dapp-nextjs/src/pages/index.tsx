@@ -2,7 +2,6 @@ import type {NextPage} from "next";
 import Head from "next/head";
 import {HomeView} from "../views";
 import Script from 'next/script';
-import * as qpools from "@qpools/sdk";
 
 // interface Props extends PropsWithChildren<{}> {
 //     // key: ,

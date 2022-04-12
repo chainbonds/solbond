@@ -2,14 +2,14 @@ import React from "react";
 import {Header} from "../../components/Header";
 import {Footer} from "../../components/Footer";
 import {Main} from "../../components/Main";
-// @ts-ignore
+// @ts-ignore @ts-expect-error
 import LoadingOverlay from "react-loading-overlay";
 import {useLoad} from "../../contexts/LoadingContext";
 import {BRAND_COLORS} from "../../const";
-import * as qpools from "@qpools/sdk";
+import {Registry} from "@qpools/sdk/src/frontend-friendly";
 
 interface Props {
-    registry: qpools.helperClasses.Registry
+    registry: Registry
 }
 export const HomeView = ({registry}: Props) => {
 

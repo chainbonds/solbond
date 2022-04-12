@@ -5,12 +5,14 @@ import {Token, TOKEN_PROGRAM_ID} from "@solana/spl-token";
 import * as anchor from "@project-serum/anchor";
 import {solbondProgram} from "../programs/solbond";
 import {WalletI} from "easy-spl";
-import * as qpools from "@qpools/sdk";
 import {getConnection} from "../const";
 import {useConnectedWallet, useSolana} from "@saberhq/use-solana";
+import {Registry} from "@qpools/sdk/src/frontend-friendly";
+import {PortfolioFrontendFriendlyChainedInstructions} from "@qpools/sdk";
+import {MOCK} from "@qpools/sdk/lib/const";
 
 export interface IRpcProvider {
-    portfolioObject: qpools.helperClasses.PortfolioFrontendFriendlyChainedInstructions | undefined,
+    portfolioObject: PortfolioFrontendFriendlyChainedInstructions | undefined,
     initialize: any,
     reloadPriceSentinel: boolean,
     connection: Connection,
@@ -40,7 +42,7 @@ export function useRpc() {
 }
 
 interface Props {
-    registry: qpools.helperClasses.Registry
+    registry: Registry
     children: any
 }
 export function RpcProvider(props: Props) {
@@ -52,7 +54,7 @@ export function RpcProvider(props: Props) {
     const [provider, setProvider] = useState<Provider | undefined>(undefined);
     const [_solbondProgram, setSolbondProgram] = useState<any>(null);
     const [userAccount, setUserAccount] = useState<WalletI | undefined>(undefined);
-    const [backendApi, setBackendApi] = useState<qpools.helperClasses.PortfolioFrontendFriendlyChainedInstructions | undefined>(undefined);
+    const [backendApi, setBackendApi] = useState<PortfolioFrontendFriendlyChainedInstructions | undefined>(undefined);
 
     /**
      * App-dependent variables
@@ -102,7 +104,7 @@ export function RpcProvider(props: Props) {
         let payer = _provider.wallet.payer as Keypair;
         let _currencyMint = new Token(
             connection,
-            qpools.constDefinitions.MOCK.DEV.SABER_USDC,
+            MOCK.DEV.SABER_USDC,
             TOKEN_PROGRAM_ID,
             payer
         );
@@ -112,7 +114,7 @@ export function RpcProvider(props: Props) {
         console.log(_provider);
         console.assert(_provider);
 
-        let backendApi = new qpools.helperClasses.PortfolioFrontendFriendlyChainedInstructions(
+        let backendApi = new PortfolioFrontendFriendlyChainedInstructions(
             connection,
             _provider,
             _solbondProgram,

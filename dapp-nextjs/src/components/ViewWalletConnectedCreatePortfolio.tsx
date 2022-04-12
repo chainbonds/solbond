@@ -6,12 +6,13 @@ import {AllocData, keyFromAllocData} from "../types/AllocData";
 import {UserTokenBalance} from "../types/UserTokenBalance";
 import {IUserWalletAssets, useUserWalletAssets} from "../contexts/UserWalletAssets";
 import {TokenAmount} from "@solana/web3.js";
-import * as qpools from "@qpools/sdk";
 import BuyMoreAssetsModal from "./common/BuyMoreAssetsModal";
 import {BN} from "@project-serum/anchor";
+import {Registry} from "@qpools/sdk/src/frontend-friendly";
+import {pyth} from "@qpools/sdk/src/instructions/pyth";
 
 interface Props {
-    registry: qpools.helperClasses.Registry
+    registry: Registry
 }
 export const ViewWalletConnectedCreatePortfolio = ({registry}: Props) => {
 
@@ -96,7 +97,7 @@ export const ViewWalletConnectedCreatePortfolio = ({registry}: Props) => {
         };
 
         // re-calculate the usdc value according to the mint and input amount
-        let usdcAmount = await qpools.instructions.pyth.pyth.multiplyAmountByPythprice(
+        let usdcAmount = await pyth.multiplyAmountByPythprice(
             userInputAmount.amount.uiAmount!,
             userInputAmount.mint
         );

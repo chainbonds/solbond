@@ -12,26 +12,27 @@ import {SerpiusEndpointProvider} from "../contexts/SerpiusProvider";
 import {UserWalletAssetsProvider} from "../contexts/UserWalletAssets";
 import {ExistingPortfolioProvider} from "../contexts/ExistingPortfolioProvider";
 import {ErrorMessageProvider} from "../contexts/ErrorMessageContext";
-import * as qpools from "@qpools/sdk";
 import {WalletKitProvider} from "@gokiprotocol/walletkit";
 import {Network} from "@saberhq/solana-contrib";
 import {getConnection} from "../const";
+import {network} from "@qpools/sdk";
+import {Registry} from "@qpools/sdk/src/frontend-friendly";
 
 function MyApp({Component: MyComponent, pageProps}: AppProps) {
 
     // Could just create the connection here ..
     const connection = getConnection();
-    const registry = new qpools.helperClasses.Registry(connection);
+    const registry = new Registry(connection);
 
     // Perhaps use-registry should be a hook ...
 
     let defaultNetwork: Network;
-    if (qpools.network.getNetworkCluster() === qpools.network.Cluster.DEVNET) {
+    if (network.getNetworkCluster() === network.Cluster.DEVNET) {
         defaultNetwork = "devnet";
-    } else if (qpools.network.getNetworkCluster() === qpools.network.Cluster.MAINNET) {
+    } else if (network.getNetworkCluster() === network.Cluster.MAINNET) {
         defaultNetwork = "mainnet-beta";
     } else {
-        throw Error("Network not specified! " + String(qpools.network.getNetworkCluster()));
+        throw Error("Network not specified! " + String(network.getNetworkCluster()));
     }
 
     pageProps = {registry: registry, ...pageProps};

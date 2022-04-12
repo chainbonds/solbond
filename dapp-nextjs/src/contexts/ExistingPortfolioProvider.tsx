@@ -4,7 +4,10 @@ import {ILoad, useLoad} from "./LoadingContext";
 import {AllocData, keyFromAllocData, keyFromPoolData} from "../types/AllocData";
 import {UserTokenBalance} from "../types/UserTokenBalance";
 import {ISerpius, useSerpiusEndpoint} from "./SerpiusProvider";
-import * as qpools from "@qpools/sdk";
+import {Registry} from "@qpools/sdk/src/frontend-friendly";
+import {accountExists} from "@qpools/sdk/lib/utils";
+import {PositionInfo} from "@qpools/sdk/lib/types/interfacing";
+import {ExplicitPool} from "@qpools/sdk/src/types/interfacing";
 
 export interface IExistingPortfolio {
     positionInfos: Map<string, AllocData>,
@@ -24,7 +27,7 @@ export function useExistingPortfolio() {
 
 interface Props {
     children: any;
-    registry: qpools.helperClasses.Registry
+    registry: Registry
 }
 export function ExistingPortfolioProvider(props: Props) {
 
@@ -44,7 +47,7 @@ export function ExistingPortfolioProvider(props: Props) {
 
     const calculateAllUsdcValues = async () => {
         console.log("#useEffect calculateAllUsdcValues");
-        if (rpcProvider.userAccount && rpcProvider.portfolioObject && (await qpools.utils.accountExists(rpcProvider.connection!, rpcProvider.portfolioObject.portfolioPDA))) {
+        if (rpcProvider.userAccount && rpcProvider.portfolioObject && (await accountExists(rpcProvider.connection!, rpcProvider.portfolioObject.portfolioPDA))) {
             console.log("Going in here ..");
             loadingProvider.increaseCounter();
             let {storedPositions, usdAmount} = await rpcProvider.portfolioObject.getPortfolioUsdcValue();
@@ -53,9 +56,9 @@ export function ExistingPortfolioProvider(props: Props) {
 
             // Change the positions into AllocData Objects
             let newAllocData: Map<string, AllocData> = new Map<string, AllocData>();
-            await Promise.all(storedPositions.map(async (x: qpools.typeDefinitions.interfacingAccount.PositionInfo) => {
+            await Promise.all(storedPositions.map(async (x: PositionInfo) => {
                 console.log("Pool address is: ", x.mintLp);
-                let pool: qpools.typeDefinitions.interfacingAccount.ExplicitPool | null = await props.registry.getPoolByLpToken(x.mintLp.toString());
+                let pool: ExplicitPool | null = await props.registry.getPoolByLpToken(x.mintLp.toString());
                 if (!pool) {
                     throw Error("For some reason, the mintLp does not correspond to a pool. Make sure you're using the latest version of the app, and that the devs included all pools that are used!");
                 }
@@ -97,7 +100,7 @@ export function ExistingPortfolioProvider(props: Props) {
             });
 
         } else {
-            console.log("Not going in here bcs: ", rpcProvider.userAccount, rpcProvider.portfolioObject, rpcProvider.portfolioObject && (await qpools.utils.accountExists(rpcProvider.connection!, rpcProvider.portfolioObject.portfolioPDA)));
+            console.log("Not going in here bcs: ", rpcProvider.userAccount, rpcProvider.portfolioObject, rpcProvider.portfolioObject && (await accountExists(rpcProvider.connection!, rpcProvider.portfolioObject.portfolioPDA)));
         }
         console.log("##useEffect calculateAllUsdcValues");
     }
