@@ -90,6 +90,7 @@ export function ExistingPortfolioProvider(props: Props) {
                     userWalletAmount: amount,
                     usdcAmount: x.usdcValueLP
                 }
+                console.log("Pushing allocdata", allocData);
                 newAllocData.set(keyFromAllocData(allocData), allocData);
             }));
 

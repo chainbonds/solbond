@@ -180,7 +180,7 @@ export default function InputFieldWithSliderInputAndLogo({allocationItems, selec
                 id="stake_amount"
                 autoComplete="stake_amount"
                 placeholder="0.0"
-                step={"0.0001"}
+                step={"0.000000001"}
                 min={min}
                 max={max}
                 value={value}
@@ -309,9 +309,9 @@ export default function InputFieldWithSliderInputAndLogo({allocationItems, selec
                             (
                                 <div className={"text-gray-500 text-sm font-semibold items-start justify-start"}>
                                     Planning to deposit: {
-                                    (totalInputBalance)?.toFixed(2)
+                                    (totalInputBalance)?.toFixed(Math.min(8, allocationItems.get(selectedItemKey)?.userWalletAmount?.amount.decimals!))
                                 } out of {
-                                    (allocationItems.get(selectedItemKey)?.userWalletAmount?.amount.uiAmount!).toFixed()
+                                    (allocationItems.get(selectedItemKey)?.userWalletAmount?.amount.uiAmount!).toFixed(2)
                                 } {currencyName} in Your Wallet
                                 </div>
                             ) : (

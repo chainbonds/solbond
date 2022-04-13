@@ -27,10 +27,11 @@ export const ViewWalletConnectedCreatePortfolio = ({registry}: Props) => {
             setSelectedAsset(firstItem[0]);
 
             // Also, if the user is broke, allow him to buy some assets (this could later on be changed by an on-ramped
+            // TODO: This must be lamports always !!!
             let existingAmounts = new BN(0);
             Array.from(allocationData.entries()).map(([key, value]) => {
-                if (value.userWalletAmount && value.userWalletAmount!.amount.uiAmount) {
-                    existingAmounts.addn(value.userWalletAmount!.amount.uiAmount!);
+                if (value.userWalletAmount && value.userWalletAmount!.amount.amount) {
+                    existingAmounts.add( new BN(value.userWalletAmount!.amount.amount));
                 }
             });
             if (existingAmounts.lten(0)) {

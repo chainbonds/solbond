@@ -121,6 +121,7 @@ export function UserWalletAssetsProvider(props: Props) {
                     if (fetchedPool?.pool.lpToken.address?.toString() === getMarinadeSolMint().toString()) {
                         startingBalance = getTokenAmount(new BN(0), new BN(userBalance.decimals));
                     } else {
+                        // If division by number of protocols is less than 1, make it zero ...
                         startingBalance = getTokenAmount(new BN(userBalance.amount).div(new BN(10)), new BN(userBalance.decimals));
                     }
                     console.log("solbalance after ... ");
@@ -143,7 +144,10 @@ export function UserWalletAssetsProvider(props: Props) {
                     userWalletAmount: {mint: mint, ata: ata, amount: userBalance}
                 }
 
-                newPool.usdcAmount = await multiplyAmountByPythprice(newPool.userInputAmount!.amount.uiAmount!, newPool.userInputAmount!.mint);
+                newPool.usdcAmount = await multiplyAmountByPythprice(
+                    newPool.userInputAmount!.amount.uiAmount!,
+                    newPool.userInputAmount!.mint
+                );
                 console.log("Pushing object: ", newPool);
                 newAllocData.set(keyFromAllocData(newPool), newPool);
             }));
