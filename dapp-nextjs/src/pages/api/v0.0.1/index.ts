@@ -1,4 +1,4 @@
-import {ExplicitPool, ExplicitToken, Protocol, ProtocolType, Registry} from "@qpools/sdk";
+import {ExplicitPool, ExplicitToken, Registry} from "@qpools/sdk";
 import {NextApiRequest, NextApiResponse} from "next";
 import {getConnection} from "../../../const";
 
