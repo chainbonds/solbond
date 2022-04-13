@@ -2,7 +2,7 @@ import * as anchor from "@project-serum/anchor";
 import {Connection} from "@solana/web3.js";
 
 import { Provider } from "@project-serum/anchor";
-import { IDL as SolbondIdl } from "@qpools/sdk/src/idl/solbond";
+import { IDL as SolbondIdl } from "@qpools/sdk";
 
 export const solbondProgram = (connection: Connection, provider: Provider) => {
 

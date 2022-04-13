@@ -1,7 +1,7 @@
 import React, {useState, useContext, useEffect} from 'react';
 import axios from "axios";
 import {AllocData, keyFromAllocData} from "../types/AllocData";
-import {ExplicitPool, Registry } from '@qpools/sdk';
+import {ExplicitPool, Protocol, Registry} from '@qpools/sdk';
 
 export interface ISerpius {
     portfolioRatios: Map<string, AllocData>,
@@ -99,7 +99,7 @@ export function SerpiusEndpointProvider(props: Props) {
                         lpIdentifier: dataItem.lp,
                         pool: pool,
                         // @ts-ignore
-                        protocol: qpools.typeDefinitions.interfacingAccount.Protocol[dataItem.protocol],   // Gotta convert the string to an enum ...
+                        protocol: Protocol[dataItem.protocol],   // Gotta convert the string to an enum ...
                         usdcAmount: (100 / (data.length))
                     };
                     console.log("data item is", out);

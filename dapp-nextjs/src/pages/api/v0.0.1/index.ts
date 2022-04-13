@@ -1,4 +1,4 @@
-import {ExplicitPool, ExplicitToken, Registry } from "@qpools/sdk";
+import {ExplicitPool, ExplicitToken, Protocol, ProtocolType, Registry} from "@qpools/sdk";
 import {NextApiRequest, NextApiResponse} from "next";
 import {getConnection} from "../../../const";
 
@@ -45,10 +45,8 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
         let out: ExplicitPool = {
             id: x.id,
             name: x.name,
-            // @ts-ignore
-            protocol: qpools.typeDefinitions.interfacingAccount.Protocol[x.protocol],
-            // @ts-ignore
-            protocolType: qpools.typeDefinitions.interfacingAccount.ProtocolType[x.protocolType],
+            protocol: x.protocol,
+            protocolType: x.protocolType,
             lpToken: lpToken,
             tokens: tokens
         }

@@ -63,13 +63,11 @@ export interface AllocData {
  * provided
  */
 export const keyFromAllocData = (x: AllocData): string => {
-    // @ts-ignore
     let protocolString: string = Protocol[x.protocol];
     return "Protocol:" + protocolString + ".lpIdentifier:" + String(x.lpIdentifier);
 }
 
 export const keyFromPoolData = (x: ExplicitPool): string => {
-    // @ts-ignore
-    let protocolString: string = qpools.typeDefinitions.interfacingAccount.Protocol[x.protocol];
+    let protocolString: string = Protocol[x.protocol];
     return "Protocol:" + protocolString + ".lpIdentifier:" + String(x.id);
 }
