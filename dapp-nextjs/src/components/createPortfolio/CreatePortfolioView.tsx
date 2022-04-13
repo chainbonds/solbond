@@ -4,7 +4,8 @@ import {getInputToken, SelectedToken} from "../../utils/utils";
 import InputFieldWithSliderInputAndLogo from "../common/InputFieldWithSliderInputAndLogo";
 import PurchaseButton from "../createPortfolio/buttons/PurchaseButton";
 import {TokenAmount} from "@solana/web3.js";
-import { Registry } from "@qpools/sdk";
+import {getTokenAmount, Registry } from "@qpools/sdk";
+import {BN} from "@project-serum/anchor";
 
 interface Props {
     allocationItems: Map<string, AllocData>,
@@ -36,6 +37,17 @@ export default function CreatePortfolioView({allocationItems, selectedItemKey, m
         return <></>
     }
 
+    let minimum: TokenAmount;
+    let maximum: TokenAmount;
+    if (allocationItems.get(selectedItemKey)?.userWalletAmount?.amount.uiAmount) {
+        let decimals = new BN(allocationItems.get(selectedItemKey)!.userWalletAmount!.amount.decimals);
+        minimum = getTokenAmount(new BN(0), decimals);
+        maximum = allocationItems.get(selectedItemKey)!.userWalletAmount!.amount;
+    } else {
+        minimum = getTokenAmount(new BN(0), new BN(9));
+        maximum = getTokenAmount(new BN(100 * 10**9), new BN(9));
+    }
+
     return (
         <>
             <div className={"flex pb-2 w-full"}>
@@ -48,8 +60,8 @@ export default function CreatePortfolioView({allocationItems, selectedItemKey, m
                                     modifyIndividualAllocationItem={modifyIndividualAllocationItem}
                                     allocationItems={allocationItems}
                                     currencyName={selectedToken.name}
-                                    min={0}
-                                    max={allocationItems.get(selectedItemKey)!.userWalletAmount!.amount.uiAmount! ? allocationItems.get(selectedItemKey)!.userWalletAmount!.amount.uiAmount! : 100}
+                                    min={minimum}
+                                    max={maximum}
                                     registry={registry}
                                 />
                             }
