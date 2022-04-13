@@ -158,8 +158,9 @@ export default function InputFieldWithSliderInputAndLogo({
             finalNewValue = newValue;
             setErrorMessage("");
         }
-        // setInputValue(finalNewValue);
-        updateValue(finalNewValue);
+        setInputValue(finalNewValue);
+        setSliderValue(finalNewValue);
+        // updateValue(finalNewValue);
     }
 
     const onChangeInputRangeField = (event: ChangeEvent<HTMLInputElement>) => {
@@ -182,8 +183,9 @@ export default function InputFieldWithSliderInputAndLogo({
             finalNewValue = newValue
             setErrorMessage("");
         }
-        // setSliderValue(finalNewValue);
-        updateValue(finalNewValue);
+        setSliderValue(finalNewValue);
+        setInputValue(finalNewValue);
+        // updateValue(finalNewValue);
     }
 
     if (!selectedAsset) {
