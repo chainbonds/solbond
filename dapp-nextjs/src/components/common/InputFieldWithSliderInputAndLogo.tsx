@@ -183,7 +183,7 @@ export default function InputFieldWithSliderInputAndLogo({
         // return userInputAmount.amount;
     }
 
-    const updateValue = (newValue: number): Promise<void> => {
+    const updateValue = (newValue: number) => {
         let decimals = new BN(selectedAsset!.userInputAmount!.amount.decimals);
         let power = (new BN(10)).pow(decimals);
         console.log("power is: ", power.toString());
