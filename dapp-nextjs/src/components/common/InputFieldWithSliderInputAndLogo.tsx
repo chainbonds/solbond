@@ -1,301 +1,199 @@
-import React, {useEffect, useState} from "react";
+import React, {ChangeEvent, useEffect, useState} from "react";
 import Image from "next/image";
 import {BRAND_COLORS} from "../../const";
 import {AllocData, keyFromPoolData} from "../../types/AllocData";
 import {BN} from "@project-serum/anchor";
 import {TokenAmount} from "@solana/web3.js";
-import {ExplicitPool, ExplicitToken, getMarinadeSolMint, getTokenAmount, Registry, getWhitelistTokens} from "@qpools/sdk";
+import {
+    ExplicitPool,
+    ExplicitToken,
+    getMarinadeSolMint,
+    getTokenAmount,
+    Registry,
+    getWhitelistTokens
+} from "@qpools/sdk";
+import {SelectedToken} from "../../utils/utils";
+import {use} from "i18next";
+import {Property} from "csstype";
+import All = Property.All;
 
 // TODO: I guess most numbers here should be replaced by TokenAmount, and then the lamports should be the inputs, and the uiAmounts should be the display values?
 //  Not sure if typescript can handle these though
 interface Props {
+    selectedInputToken: SelectedToken,
     allocationItems: Map<string, AllocData>,
     selectedItemKey: string,
-    currencyName: string,
     modifyIndividualAllocationItem: (arg0: string, arg1: TokenAmount) => Promise<void>,
-    min: TokenAmount,
-    max: TokenAmount,
+    // currencyName: string,
+    // min: TokenAmount,
+    // max: TokenAmount,
     registry: Registry
 }
-export default function InputFieldWithSliderInputAndLogo({allocationItems, selectedItemKey, currencyName, modifyIndividualAllocationItem, min, max, registry}: Props) {
 
-    const [value, setValue] = useState<number>(0.);
-    const [sliderValue, setSliderValue] = useState<number>(0.);
-    const [inputValue, setInputValue] = useState<number>(0.);
-    const [maxAvailableInputBalance, setMaxAvailableInputBalance] = useState<TokenAmount>(max);
-    const [totalInputBalance, setTotalInputBalance] = useState<TokenAmount>(min);
-    const [currentlySelectedAsset, setCurrentlySelectedAsset] = useState<AllocData>();
+export default function InputFieldWithSliderInputAndLogo({
+                                                             selectedInputToken,
+                                                             allocationItems,
+                                                             selectedItemKey,
+                                                             modifyIndividualAllocationItem,
+                                                             registry
+                                                         }: Props) {
 
+    /**
+     * Peripheral state
+     */
     const [errorMessage, setErrorMessage] = useState<string>("");
 
+    // Let's hope this is copy by reference
+    /**
+     * Get a reference to the currently selected asset
+     */
+    const [selectedAsset, setSelectedAsset] = useState<AllocData>();
     useEffect(() => {
         if (!allocationItems.has(selectedItemKey)) {
             console.log("Selected key not found ...", allocationItems, selectedItemKey);
             return;
         }
-        let currentlySelectedAsset: AllocData = allocationItems.get(selectedItemKey)!;
-        setCurrentlySelectedAsset(() => {return currentlySelectedAsset});
-        // Also do setValue
+        setSelectedAsset((oldSelectedAsset: AllocData | undefined) => {
+            let currentlySelectedAsset: AllocData = allocationItems.get(selectedItemKey)!;
+            return currentlySelectedAsset;
+        })
     }, [allocationItems, selectedItemKey]);
 
+
+    /**
+     * Define the maximum and minimum deposable amounts
+     */
+    const [min, setMin] = useState<number>(0);
+    const [max, setMax] = useState<number>(100);
     useEffect(() => {
-        if (!allocationItems.has(selectedItemKey)) {
-            console.log("Selected key not found ...", allocationItems, selectedItemKey);
-            return;
+        if (selectedAsset && selectedAsset.userWalletAmount?.amount.uiAmount) {
+            setMin(0);
+            setMax(selectedAsset.userWalletAmount.amount.uiAmount);
         }
-        let currentlySelectedAsset: AllocData = allocationItems.get(selectedItemKey)!;
-        if (currentlySelectedAsset.userInputAmount!.amount.uiAmount!) {
-            // setValue(currentlySelectedAsset.userInputAmount!.amount.uiAmount!);
-            setSliderValue(currentlySelectedAsset.userInputAmount!.amount.uiAmount!);
-            setInputValue(currentlySelectedAsset.userInputAmount!.amount.uiAmount!);
-        }
-    }, [selectedItemKey])
+    }, [selectedAsset]);
 
-    const calculateTotalDepositingAmount = async () => {
-        if (!currentlySelectedAsset) {
-            return
-        }
-        let inputCurrency = currentlySelectedAsset.userInputAmount!.mint;
-        let totalInputtedAmount: BN = new BN(0);
-        let decimals: number = currentlySelectedAsset.userWalletAmount!.amount.decimals;
-        (await registry.getPoolsByInputToken(inputCurrency.toString()))
-            .filter((x: ExplicitPool) => {
-                // Gotta create the id same as when loading the data. Create a function for this...
-                let id = keyFromPoolData(x);
-                if (allocationItems.has(id)) {
-                    return true
-                } else {
-                    console.log("Name not found!", id, x, allocationItems);
-                    return false
-                }
-
-            })
-            .map((x: ExplicitPool) => {
-                let id = keyFromPoolData(x);
-                let inputAmount = new BN(allocationItems.get(id)!.userInputAmount!.amount.amount);
-                totalInputtedAmount = totalInputtedAmount.add(inputAmount);
-            });
-        let readableTotalInputtedAmount: TokenAmount = getTokenAmount(totalInputtedAmount, new BN(decimals));
-        console.log("Readable total input amount is: ", readableTotalInputtedAmount);
-        setTotalInputBalance(readableTotalInputtedAmount);
-    }
-
-    // Define max and the rest here maybe (and also currency-name ...
-    // diff: number
-    const calculateAvailableAmount = async () => {
-        if (!currentlySelectedAsset) {
-            return
-        }
-        if (!currentlySelectedAsset.userInputAmount) {
-            console.log("input amount not found ...", currentlySelectedAsset.userInputAmount);
-            return;
-        }
-        let inputCurrency = currentlySelectedAsset.userInputAmount!.mint;
-
-        // Get the full wallet amount ..
-        let walletAmount: BN = new BN(currentlySelectedAsset.userWalletAmount!.amount!.amount);
-        let decimals: number = currentlySelectedAsset.userWalletAmount!.amount.decimals;
-        let totalInputtedAmount: BN = new BN(0);
-        (await registry.getPoolsByInputToken(inputCurrency.toString()))
-            .filter((x: ExplicitPool) => {
-                // Gotta create the id same as when loading the data. Create a function for this...
-                let id = keyFromPoolData(x);
-                let currentElementsId = selectedItemKey;
-
-                console.log("id and current element id is: ", id, currentElementsId);
-                // Also ignore the element with this key ...
-                if (currentElementsId === id) {
-                    return false;
-                }
-
-                if (allocationItems.has(id)) {
-                    return true
-                } else {
-                    console.log("Name not found!", id, x, allocationItems);
-                    return false
-                }
-
-            })
-            .map((x: ExplicitPool) => {
-                let id = keyFromPoolData(x);
-                let inputAmount = new BN(allocationItems.get(id)!.userInputAmount!.amount.amount);
-                totalInputtedAmount = totalInputtedAmount.add(inputAmount);
-            });
-
-        let amountLeft: BN = walletAmount.sub(totalInputtedAmount);
-        console.log("All amounts are: ", walletAmount.toString(), totalInputtedAmount.toString(), amountLeft.toString());
-        // Gotta divide the available amount by the decimals ...
-        // max input available amount should also be a tokenamount
-        let amountLeftAsTokenAmount: TokenAmount = getTokenAmount(amountLeft, new BN(decimals));
-        // let newMaxInputAmount: number = (amountLeft.toNumber() / (10 ** decimals));
-        console.log(amountLeftAsTokenAmount);
-        setMaxAvailableInputBalance(amountLeftAsTokenAmount);
-    }
+    /**
+     * Define the state for the UI elements ...
+     */
+        // Set the initial state to what the user has in his currently-selected-asset
+    const [sliderValue, setSliderValue] = useState<number>(0.);
+    const [inputValue, setInputValue] = useState<number>(0.);
     useEffect(() => {
-        calculateAvailableAmount().then(calculateTotalDepositingAmount);
-    }, [selectedItemKey, allocationItems, value]);
-
-    useEffect(() => {
-        console.log("Total Input Balance Changed!");
-        console.log(totalInputBalance);
-    }, [totalInputBalance]);
-
-    useEffect(() => {
-        if (allocationItems.get(selectedItemKey)!.userInputAmount!.amount!.uiAmount!) {
-            if (currentlySelectedAsset?.pool.lpToken.address?.toString() === getMarinadeSolMint().toString()) {
-                setValue(0.);
-            } else {
-                setValue(allocationItems.get(selectedItemKey)!.userInputAmount!.amount!.uiAmount!);
-            }
+        if (selectedAsset && selectedAsset.userInputAmount) {
+            setSliderValue(selectedAsset!.userInputAmount!.amount.uiAmount!);
+            setInputValue(selectedAsset!.userInputAmount!.amount.uiAmount!);
         }
-    }, []);
-
+    }, [selectedAsset]);
     useEffect(() => {
-        if (
-            allocationItems.has(selectedItemKey) && allocationItems.get(selectedItemKey)?.userInputAmount &&
-            allocationItems.get(selectedItemKey)!.userInputAmount!.amount.uiAmount
-        ) {
-            setValue(allocationItems.get(selectedItemKey)!.userInputAmount!.amount!.uiAmount!);
-        }
-    }, [selectedItemKey]);
-    useEffect(() => {
-        setValue(sliderValue);
+        // setInputValue(sliderValue);
     }, [sliderValue]);
     useEffect(() => {
-        setValue(inputValue);
+        // setSliderValue(inputValue);
     }, [inputValue]);
+
+    /**
+     * Define the state for anything that defines the amount, or helps calculate better amounts ...
+     */
+        // For now, we can do this dirty trick.
+        // For mainnet, we cannot anymore because there will be too many pools with similar ids ...
+    const [allocationDataWithThisInputToken, setAllocationDataWithThisInputToken] = useState<AllocData[]>([]);
     useEffect(() => {
-        if (!currentlySelectedAsset) {
-            return;
-        }
-        if (!currentlySelectedAsset.userInputAmount) {
-            console.log("input amount not found ...", currentlySelectedAsset.userInputAmount);
-            return;
-        }
-        console.log("Value that we're getting is: ", value);
-        let power = (new BN(10)).pow(new BN(currentlySelectedAsset.userInputAmount!.amount.decimals));
-        console.log("power is: ", power.toString());
-        let numberInclDecimals: BN = power.muln(value);
-        console.log("Number incl decimals is: ", numberInclDecimals.toString());
-        let tokenAmount: TokenAmount = getTokenAmount(numberInclDecimals, new BN(currentlySelectedAsset.userInputAmount!.amount.decimals));
-        console.log("Number incl decimals is: ", tokenAmount);
-        modifyIndividualAllocationItem(selectedItemKey, tokenAmount).then(() => {
-            calculateAvailableAmount();
+        // Why do we need the registry for this? Just take it from the pool of the allocation data (?)
+        let relevantPools: AllocData[] = Array.from(allocationItems.values())
+            .filter((x: AllocData) => {
+                return x.userInputAmount!.mint.toString() === selectedInputToken.mint.toString();
+            });
+        setAllocationDataWithThisInputToken(relevantPools);
+    }, [allocationItems, selectedAsset]);
+
+    const [totalDepositedAmount, setTotalDepositedAmount] = useState<BN>(new BN(0));
+    const [totalAvailableAmount, setTotalAvailableAmount] = useState<BN>(new BN(0));
+    useEffect(() => {
+        let depositedAmount: BN = new BN(0);
+        let walletAmount: BN = new BN(0);
+        allocationDataWithThisInputToken.map((x: AllocData) => {
+            let add = new BN(x.userInputAmount!.amount.amount);
+            depositedAmount = depositedAmount.add(add);
         });
-    }, [value]);
+        // Do an assert that all these are equivalent
+        allocationDataWithThisInputToken.map((x: AllocData) => {
+            walletAmount = new BN(x.userWalletAmount!.amount.amount);
+        })
+        setTotalDepositedAmount(depositedAmount);
+        setTotalAvailableAmount(walletAmount);
+    }, [allocationDataWithThisInputToken]);
+
+    /**
+     * Turns the new value into a TokenAmount,
+     * @param newValue
+     */
+    const updateValue = (newValue: number) => {
+        let decimals = new BN(selectedAsset!.userInputAmount!.amount.decimals);
+        let power = (new BN(10)).pow(decimals);
+        console.log("power is: ", power.toString());
+        console.log("Value that we're getting is: ", newValue);
+        let numberInclDecimals: BN = power.muln(newValue);
+        console.log("Number incl decimals is: ", numberInclDecimals.toString());
+        let tokenAmount: TokenAmount = getTokenAmount(numberInclDecimals, decimals);
+        console.log("Number incl decimals is: ", tokenAmount);
+        modifyIndividualAllocationItem(selectedItemKey, tokenAmount)
+    }
 
     // Add the blocker here, maybe (?)
+    const onChangeInputTextField = (event: ChangeEvent<HTMLInputElement>) => {
+        let newValue = Number(event.target.value);
+        console.log("New " + String(selectedInputToken.name) + " is: " + String(newValue));
 
-    const inputTextField = () => {
-
-        // Calculate minimum and maximum again
-
-        return (<>
-            <input
-                className="rounded-lg w-full items-end text-right h-12 p-4"
-                style={{backgroundColor: BRAND_COLORS.slate700}}
-                type="number"
-                id="stake_amount"
-                autoComplete="stake_amount"
-                placeholder="0.0"
-                step={"0.000000001"}
-                min={min.uiAmount!}
-                max={max.uiAmount!}
-                value={value}
-                onChange={async (event) => {
-                    let newValue = Number(event.target.value);
-                    console.log("New " + String(currencyName) + " is: " + String(newValue));
-                    // let diff: number = Math.max(newValue - value, 0.);
-                    await calculateAvailableAmount();
-                    // Add the difference ...
-                    // TODO: Also add the case that the user does less than this total value ...
-                    // let diff = newValue - value;
-
-                    console.log("LP (1) is: ", currentlySelectedAsset!.pool.lpToken.address.toString());
-                    // console.log("LP (2) is: ", currentlySelectedAsset!.userInputAmount!.mint!.toString());
-                    if (currentlySelectedAsset!.pool.lpToken.address!.toString() === getMarinadeSolMint().toString()) {
-                        if (newValue > 0 && newValue < 1) {
-                            console.log("Cannot permit (0)");
-                            setInputValue(0.);
-                            setErrorMessage("The Marinade Finance Protocol requires you to input at least one full SOL to be delegated. You can also keep it at 0 SOL.");
-                            return;
-                        } else {
-                            setInputValue(newValue);
-                            setErrorMessage("");
-                        }
-                    }
-
-                    if (newValue > maxAvailableInputBalance.uiAmount!) {
-                        console.log("Cannot permit (1)");
-                        setInputValue(maxAvailableInputBalance.uiAmount!);
-                        setErrorMessage("You cannot input more than there is in your wallet!");
-                        return;
-                    } else {
-                        setInputValue(newValue);
-                        setErrorMessage("");
-                    }
-                }}
-            />
-        </>)
+        let finalNewValue: number;
+        if (newValue > totalAvailableAmount.toNumber()) {
+            console.log("Cannot permit (1)");
+            finalNewValue = totalAvailableAmount.toNumber();
+            setErrorMessage("You cannot input more than there is in your wallet!");
+        } else if (
+            (selectedAsset!.pool.lpToken.address!.toString() === getMarinadeSolMint().toString()) &&
+            (newValue > 0 && newValue < 1)
+        ) {
+            console.log("Cannot permit (0)");
+            finalNewValue = 0.;
+            setErrorMessage("The Marinade Finance Protocol requires you to input at least one full SOL to be delegated. You can also keep it at 0 SOL.");
+        } else {
+            finalNewValue = newValue;
+            setErrorMessage("");
+        }
+        setInputValue(finalNewValue);
+        // updateValue(finalNewValue);
     }
 
-    const inputRangeField = () => {
-        return (<>
-                <input
-                    type="range"
-                    step={"0.000000001"}
-                    min={min.uiAmount!}
-                    max={max.uiAmount!}
-                    onChange={async (event) => {
-                        let newValue = Number(event.target.value);
-                        console.log("New " + String(currencyName) + " is: " + String(newValue));
-                        // Gotta double-check that this is not above the maximum balance ...
-                        // let diff: number = Math.max(newValue - value, 0.);
-                        // diff
-                        await calculateAvailableAmount();
-
-                        console.log("LP (1) is: ", currentlySelectedAsset!.pool.lpToken.address.toString());
-                        // console.log("LP (2) is: ", currentlySelectedAsset!.userInputAmount!.mint!.toString());
-                        if (currentlySelectedAsset!.pool.lpToken.address!.toString() === getMarinadeSolMint().toString()) {
-                            if ((newValue > 0 && newValue < 1) || (value > 0 && value < 1)) {
-                                console.log("Cannot permit (0)");
-                                setSliderValue(0.);
-                                setErrorMessage("The Marinade Finance Protocol requires you to input at least one full SOL to be delegated. You can also keep it at 0 SOL.");
-                                return;
-                            } else {
-                                setSliderValue(newValue);
-                                setErrorMessage("");
-                            }
-                        }
-
-
-                        if (newValue > maxAvailableInputBalance.uiAmount!) {
-                            console.log("Cannot permit (2)");
-                            setSliderValue(maxAvailableInputBalance.uiAmount!);
-                            setErrorMessage("You cannot input more than there is in your wallet!");
-                            return;
-                        } else {
-                            setSliderValue(newValue);
-                            setErrorMessage("");
-                        }
-                    }}
-                    value={value}
-                    className="range range-xs"
-                />
-            </>
-        )
+    const onChangeInputRangeField = (event: ChangeEvent<HTMLInputElement>) => {
+        let newValue = Number(event.target.value);
+        console.log("New " + String(selectedInputToken.name) + " is: " + String(newValue));
+        // Gotta double-check that this is not above the maximum balance ...
+        let finalNewValue: number;
+        if (newValue > totalAvailableAmount.toNumber()) {
+            console.log("Cannot permit (2)");
+            finalNewValue = totalAvailableAmount.toNumber();
+            setErrorMessage("You cannot input more than there is in your wallet!");
+        } else if (
+            (selectedInputToken.mint!.toString() === getMarinadeSolMint().toString()) &&
+            (newValue > 0 && newValue < 1)
+        ) {
+            console.log("Cannot permit (0)");
+            finalNewValue = 0.;
+            setErrorMessage("The Marinade Finance Protocol requires you to input at least one full SOL to be delegated. You can also keep it at 0 SOL.");
+        } else {
+            finalNewValue = newValue
+            setErrorMessage("");
+        }
+        setSliderValue(finalNewValue);
+        // updateValue(finalNewValue);
     }
 
-    if (!allocationItems.has(selectedItemKey)) {
+    if (!selectedAsset) {
         return (<></>);
     }
 
-    /**
-     * TODO: Cap the maximum amount to be inputted ... (?)
-     */
-
     console.log("Allocation Items are: ", allocationItems);
-    const logoPath = allocationItems.get(selectedItemKey)!.pool?.tokens.filter((x: ExplicitToken) => {
+    const logoPath = selectedAsset!.pool?.tokens.filter((x: ExplicitToken) => {
         return getWhitelistTokens()
     })[0].logoURI!;
     console.log("Logo Path is: ", logoPath);
@@ -306,24 +204,45 @@ export default function InputFieldWithSliderInputAndLogo({allocationItems, selec
                   <span className="absolute inset-y-0 left-0 flex items-center pl-2 h-full">
                     <div className={"flex w-full my-auto text-center content-center"}>
                         {logoPath &&
-                            <Image alt={currencyName} src={logoPath} height={34} width={34} className={"rounded-3xl"}/>
+                        <Image alt={selectedInputToken.name} src={logoPath} height={34} width={34}
+                               className={"rounded-3xl"}/>
                         }
                         <text className={"my-auto text-center content-center mx-2"}>
-                            {currencyName}
+                            {selectedInputToken.name}
                         </text>
                     </div>
                     </span>
-                    {inputTextField()}
+                    <input
+                        className="rounded-lg w-full items-end text-right h-12 p-4"
+                        style={{backgroundColor: BRAND_COLORS.slate700}}
+                        type="number"
+                        id="stake_amount"
+                        autoComplete="stake_amount"
+                        placeholder="0.0"
+                        step={"0.000000001"}
+                        min={min}
+                        max={max}
+                        value={inputValue}
+                        onChange={onChangeInputTextField}
+                    />
                 </div>
                 <div className={"mx-auto my-auto p-1 w-full"}>
-                    {inputRangeField()}
+                    <input
+                        type="range"
+                        step={"0.000000001"}
+                        min={min}
+                        max={max}
+                        onChange={onChangeInputRangeField}
+                        value={sliderValue}
+                        className="range range-xs"
+                    />
                 </div>
                 <div className={"flex flex-col"}>
                     <div className={"items-start justify-start"}>
-                        { (
+                        {(
                             allocationItems.get(selectedItemKey)?.userWalletAmount?.amount.uiAmount ||
                             allocationItems.get(selectedItemKey)?.userWalletAmount?.amount.uiAmount === 0
-                            ) ?
+                        ) ?
                             (
                                 <div className={"text-gray-500 text-sm font-semibold items-start justify-start"}>
                                     Planning to deposit: {
@@ -331,7 +250,7 @@ export default function InputFieldWithSliderInputAndLogo({allocationItems, selec
                                     (allocationItems.get(selectedItemKey)?.userInputAmount?.amount.uiAmount!).toFixed(Math.min(8, allocationItems.get(selectedItemKey)?.userWalletAmount?.amount.decimals!))
                                 } out of {
                                     (allocationItems.get(selectedItemKey)?.userWalletAmount?.amount.uiAmount!).toFixed(2)
-                                } {currencyName} in Your Wallet
+                                } {selectedInputToken.name} in Your Wallet
                                 </div>
                             ) : (
                                 <div className={"text-gray-500 text-sm font-semibold items-start justify-start"}>
