@@ -209,16 +209,12 @@ export default function SuggestedPortfolioTable({registry, tableColumns, selecte
                 <div className="pb-2 min-w-full overflow-x-scroll">
                     {/* hidden lg:block */}
                     <div className="shadow-md rounded-md overflow-x-scroll">
-                        <table className="min-w-full"
-                               // key={Math.random()}
-                        >
+                        <table className="min-w-full" key={Math.random()}>
                              {/*+ pieChartData[0].value */}
                             <TableHeader
                                 key={Math.random()}
                                 columns={pieChartData ? tableColumns : tableColumns.slice(0, tableColumns.length - 1)}/>
-                            <tbody
-                                key={Math.random()}
-                            >
+                            <tbody key={Math.random()}>
                                 {pieChartData.map((position: ChartableItemType, index: number) => tableSingleRow(position, index))}
                             </tbody>
                         </table>

@@ -6,6 +6,7 @@ import {ISerpius, useSerpiusEndpoint} from "./SerpiusProvider";
 import {BN} from "@project-serum/anchor";
 import {lamportsReserversForLocalWallet} from "../const";
 import {Registry, getWhitelistTokens, ExplicitToken, getAssociatedTokenAddressOffCurve, accountExists, getTokenAmount, getMarinadeSolMint, getWrappedSolMint, multiplyAmountByPythprice } from '@qpools/sdk';
+import {divide} from "@solendprotocol/solend-sdk/dist/examples/common";
 
 export interface IUserWalletAssets {
     walletAssets: Map<string, AllocData>
@@ -71,10 +72,31 @@ export function UserWalletAssetsProvider(props: Props) {
 
         // (1) Get all token accounts owned that we get from the serpius API ...
         // .filter((item, index) => {return portfolioRatios.indexOf(item) === index})
+
+        // Get number of input tokens for the relevant input token
+        let countProtocolsPerInputToken = new Map<string, number>();
+        // TODO: Introduce the notion of input-token, instead of doing too much of this logic ...
+        await Promise.all(Array.from(serpiusProvider.portfolioRatios.values()).map(async (fetchedPool: AllocData) => {
+            // TODO: Handle by input token ...
+            // await Promise.all((tokens.map((x: string) => )))
+            fetchedPool.pool.tokens.map((x: ExplicitToken) => {
+                let key: string = x.address;
+                if (countProtocolsPerInputToken.has(key)) {
+                    countProtocolsPerInputToken.set(key, countProtocolsPerInputToken.get(key)! + 1);
+                } else {
+                    countProtocolsPerInputToken.set(key, 1);
+                }
+            })
+        }));
+
         // TODO: Remove duplicates with this filter ...
         console.log("Serpius portfolio ratios are: ", serpiusProvider.portfolioRatios);
         await Promise.all(Array.from(serpiusProvider.portfolioRatios.values()).map(async (fetchedPool: AllocData) => {
-            console.log("Iterating through pool: ", fetchedPool)
+            console.log("Iterating through pool: ", fetchedPool);
+            let key = fetchedPool.pool.lpToken.address.toString();
+            let divideBy: BN = new BN(countProtocolsPerInputToken.get(key)!);
+            divideBy = BN.max(divideBy, new BN(5));
+            console.log("divide by: ", divideBy, divideBy.toString());
 
             // Now we have the pool
             // When are the tokens not defined ...
@@ -117,11 +139,19 @@ export function UserWalletAssetsProvider(props: Props) {
                     console.log(fetchedPool?.pool.lpToken.address?.toString());
                     console.log("2222");
                     console.log(getMarinadeSolMint().toString());
+
                     // Could also divide this by the number of input assets or sth ...
-                    if (fetchedPool?.pool.lpToken.address?.toString() === getMarinadeSolMint().toString()) {
-                        startingBalance = getTokenAmount(new BN(0), new BN(userBalance.decimals));
+                    if (fetchedPool!.pool.lpToken.address!.toString() === getMarinadeSolMint().toString()) {
+                        let amount: BN = BN.max((new BN(1_000_000)), (new BN(userBalance.amount).div(divideBy)));
+                        if ((new BN(userBalance.amount).div(divideBy).lt( new BN(10**9)))) {
+                            // amount = getTokenAmount(new BN(0), new BN(userBalance.decimals));
+                            startingBalance = getTokenAmount(new BN(0), new BN(userBalance.decimals));
+                        } else {
+                            startingBalance = getTokenAmount(new BN(10**9), new BN(userBalance.decimals));
+                        }
                     } else {
-                        startingBalance = getTokenAmount(new BN(userBalance.amount).div(new BN(10)), new BN(userBalance.decimals));
+                        console.log("Some other stuff")
+                        startingBalance = getTokenAmount((new BN(userBalance.amount).div(divideBy)), new BN(userBalance.decimals));
                     }
                     console.log("solbalance after ... ");
                 } else {
@@ -132,7 +162,7 @@ export function UserWalletAssetsProvider(props: Props) {
                         // I guess in this case it doesn't matter what the decimals are, because the user needs to buy some more sutff nonetheless
                         userBalance = getTokenAmount(new BN(0), new BN(9));
                     }
-                    startingBalance = getTokenAmount(new BN(userBalance.amount).div(new BN(10)), new BN(userBalance.decimals));
+                    startingBalance = getTokenAmount(new BN(userBalance.amount).div(divideBy), new BN(userBalance.decimals));
                     console.log("fetched successfully! ", userBalance);
                 }
 
@@ -143,7 +173,10 @@ export function UserWalletAssetsProvider(props: Props) {
                     userWalletAmount: {mint: mint, ata: ata, amount: userBalance}
                 }
 
-                newPool.usdcAmount = await multiplyAmountByPythprice(newPool.userInputAmount!.amount.uiAmount!, newPool.userInputAmount!.mint);
+                newPool.usdcAmount = await multiplyAmountByPythprice(
+                    newPool.userInputAmount!.amount.uiAmount!,
+                    newPool.userInputAmount!.mint
+                );
                 console.log("Pushing object: ", newPool);
                 newAllocData.set(keyFromAllocData(newPool), newPool);
             }));

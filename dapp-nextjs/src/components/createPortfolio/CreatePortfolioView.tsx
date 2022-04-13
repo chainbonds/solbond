@@ -3,16 +3,19 @@ import {AllocData} from "../../types/AllocData";
 import {getInputToken, SelectedToken} from "../../utils/utils";
 import InputFieldWithSliderInputAndLogo from "../common/InputFieldWithSliderInputAndLogo";
 import PurchaseButton from "../createPortfolio/buttons/PurchaseButton";
-import {TokenAmount} from "@solana/web3.js";
 import { Registry } from "@qpools/sdk";
+import {TokenAmount} from "@solana/web3.js";
+import {BN} from "@project-serum/anchor";
+import {UserTokenBalance} from "../../types/UserTokenBalance";
 
 interface Props {
     allocationItems: Map<string, AllocData>,
+    setAllocationItems:  React.Dispatch<React.SetStateAction<Map<string, AllocData>>>
     selectedItemKey: string,
-    modifyIndividualAllocationItem: (arg0: string, arg1: TokenAmount) => Promise<void>,
+    // modifyIndividualAllocationItem: (arg0: string, arg1: TokenAmount) => Promise<TokenAmount>,
     registry: Registry
 }
-export default function CreatePortfolioView({allocationItems, selectedItemKey, modifyIndividualAllocationItem, registry}: Props) {
+export default function CreatePortfolioView({allocationItems, selectedItemKey, setAllocationItems, registry}: Props) {
 
     const [selectedToken, setSelectedToken] = useState<SelectedToken | null>();
 
@@ -44,12 +47,10 @@ export default function CreatePortfolioView({allocationItems, selectedItemKey, m
                         <div className={"flex flex-row w-9/12 mr-4"}>
                             { (selectedToken && allocationItems.has(selectedItemKey) && allocationItems.get(selectedItemKey)?.userWalletAmount ) &&
                                 <InputFieldWithSliderInputAndLogo
+                                    selectedInputToken={selectedToken}
                                     selectedItemKey={selectedItemKey}
-                                    modifyIndividualAllocationItem={modifyIndividualAllocationItem}
+                                    setAllocationItems={setAllocationItems}
                                     allocationItems={allocationItems}
-                                    currencyName={selectedToken.name}
-                                    min={0}
-                                    max={allocationItems.get(selectedItemKey)!.userWalletAmount!.amount.uiAmount! ? allocationItems.get(selectedItemKey)!.userWalletAmount!.amount.uiAmount! : 100}
                                     registry={registry}
                                 />
                             }
