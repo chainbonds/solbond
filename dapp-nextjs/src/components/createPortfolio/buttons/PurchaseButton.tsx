@@ -11,7 +11,7 @@ import {useErrorMessage} from "../../../contexts/ErrorMessageContext";
 import {lamportsReserversForLocalWallet} from "../../../const";
 import {getAssociatedTokenAddress} from "easy-spl/dist/tx/associated-token-account";
 import {useConnectedWallet} from "@saberhq/use-solana";
-import {getWrappedSolMint} from "@qpools/sdk/src/const";
+import {getWrappedSolMint} from "@qpools/sdk";
 import { ExplicitPool, ExplicitSolendPool, ExplicitToken, Protocol } from "@qpools/sdk";
 
 // TODO: Refactor the code here ... looks a bit too redundant.

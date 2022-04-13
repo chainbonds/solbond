@@ -4,7 +4,7 @@ import {ILoad, useLoad} from "./LoadingContext";
 import {AllocData, keyFromAllocData, keyFromPoolData} from "../types/AllocData";
 import {UserTokenBalance} from "../types/UserTokenBalance";
 import {ISerpius, useSerpiusEndpoint} from "./SerpiusProvider";
-import {accountExists} from "@qpools/sdk/src/utils";
+import {accountExists} from "@qpools/sdk";
 import {ExplicitPool, PositionInfo, Registry } from '@qpools/sdk';
 
 export interface IExistingPortfolio {
