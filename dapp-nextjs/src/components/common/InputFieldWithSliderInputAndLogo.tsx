@@ -323,6 +323,7 @@ export default function InputFieldWithSliderInputAndLogo({allocationItems, selec
                     </div>
                     <div className={"text-red-500 text-sm font-bold"}>
                         {errorMessage && errorMessage}
+                        {!errorMessage && <span>&nbsp;</span>}
                     </div>
                 </div>
             </div>
