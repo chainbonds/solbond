@@ -3,12 +3,10 @@ import React, {useEffect, useState} from "react";
 import SuggestedPortfolioTable from "./createPortfolio/SuggestedPortfolioTable";
 import CreatePortfolioView from "./createPortfolio/CreatePortfolioView";
 import {AllocData, keyFromAllocData} from "../types/AllocData";
-import {UserTokenBalance} from "../types/UserTokenBalance";
 import {IUserWalletAssets, useUserWalletAssets} from "../contexts/UserWalletAssets";
-import {TokenAmount} from "@solana/web3.js";
 import BuyMoreAssetsModal from "./common/BuyMoreAssetsModal";
 import {BN} from "@project-serum/anchor";
-import { multiplyAmountByPythprice, Registry } from "@qpools/sdk";
+import { Registry } from "@qpools/sdk";
 
 interface Props {
     registry: Registry
@@ -70,69 +68,6 @@ export const ViewWalletConnectedCreatePortfolio = ({registry}: Props) => {
         console.log("Assets are changing ...", userWalletAssetsProvider.walletAssets);
     }, [userWalletAssetsProvider.walletAssets]);
 
-    /**
-     * This function is pretty huge, for doing this so dynamically ....
-     * Perhaps I should find a way to do this more efficiently ... not entirely sure how though
-     * Also I think from a react-perspective this is the right approach, because the key of the object needs to change
-     *
-     * @param currentlySelectedKey
-     * @param absoluteBalance
-     */
-    const modifyIndividualAllocationItem = async (currentlySelectedKey: string, tokenAmount: TokenAmount): Promise<void> => {
-
-        // TODO: This shit will break for sure ..
-        if (currentlySelectedKey === "") {
-            return;
-        }
-        if (!allocationData.has(currentlySelectedKey)) {
-            throw Error("The key you're trying to modify does not exist for some reason! " + currentlySelectedKey);
-        }
-        let currentlySelectedAsset: AllocData = {...allocationData.get(currentlySelectedKey)!};
-        console.log("Currently Selected is: ", currentlySelectedAsset);
-
-        let userInputAmount: UserTokenBalance = {
-            mint: currentlySelectedAsset.userInputAmount!.mint,
-            ata: currentlySelectedAsset.userInputAmount!.ata,
-            amount: tokenAmount
-        };
-
-        // re-calculate the usdc value according to the mint and input amount
-        let usdcAmount = await multiplyAmountByPythprice(
-            userInputAmount.amount.uiAmount!,
-            userInputAmount.mint
-        );
-
-        let newAsset: AllocData = {
-            weight: currentlySelectedAsset.weight,
-            apy_24h: currentlySelectedAsset.apy_24h,
-            lpIdentifier: currentlySelectedAsset.lpIdentifier,
-            pool: currentlySelectedAsset.pool,
-            protocol: currentlySelectedAsset.protocol,
-            userInputAmount: userInputAmount,
-            userWalletAmount: currentlySelectedAsset.userWalletAmount,
-            usdcAmount: usdcAmount
-        };
-
-        /**
-         * Honestly, for now just lock whatever the user puts in. Bind the user that he cannot input more than the maximum amount
-         * (i.e. add this as a constraint ...)
-         *
-         * Also, when pulling the wallet information, put it all into the most popular wallet
-         */
-        // Return the full array, replace the one element that was replaced ...
-        // Modify the key as well (?)
-        // Also add another key prop (one id for us, one key for react maybe?) to force re-rendering ...
-        let updatedMap = new Map<string, AllocData>(allocationData);
-        updatedMap.set(selectedAsset, newAsset)
-
-        // Now set the stuff ...
-        setAllocationData((oldAllocationData: Map<string, AllocData>) => {
-            console.log("Updated Map is: ", updatedMap);
-            return updatedMap;
-        });
-
-    }
-
     console.log("Allocation Data is: (111)", allocationData, selectedAsset);
 
     return (
@@ -169,7 +104,7 @@ export const ViewWalletConnectedCreatePortfolio = ({registry}: Props) => {
                 <CreatePortfolioView
                     allocationItems={allocationData}
                     selectedItemKey={selectedAsset}
-                    modifyIndividualAllocationItem={modifyIndividualAllocationItem}
+                    setAllocationItems={setAllocationData}
                     registry={registry}
                 />
             </div>

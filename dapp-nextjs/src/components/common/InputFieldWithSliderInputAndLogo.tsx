@@ -5,15 +5,16 @@ import {AllocData, keyFromPoolData} from "../../types/AllocData";
 import {BN} from "@project-serum/anchor";
 import {TokenAmount} from "@solana/web3.js";
 import {
-    ExplicitPool,
     ExplicitToken,
     getMarinadeSolMint,
     getTokenAmount,
     Registry,
-    getWhitelistTokens
+    getWhitelistTokens,
+    multiplyAmountByPythprice
 } from "@qpools/sdk";
 import {SelectedToken} from "../../utils/utils";
 import {Property} from "csstype";
+import {UserTokenBalance} from "../../types/UserTokenBalance";
 
 // TODO: I guess most numbers here should be replaced by TokenAmount, and then the lamports should be the inputs, and the uiAmounts should be the display values?
 //  Not sure if typescript can handle these though
@@ -21,7 +22,8 @@ interface Props {
     selectedInputToken: SelectedToken,
     allocationItems: Map<string, AllocData>,
     selectedItemKey: string,
-    modifyIndividualAllocationItem: (arg0: string, arg1: TokenAmount) => Promise<void>,
+    // modifyIndividualAllocationItem: (arg0: string, arg1: TokenAmount) => Promise<TokenAmount>,
+    setAllocationItems:  React.Dispatch<React.SetStateAction<Map<string, AllocData>>>
     // currencyName: string,
     // min: TokenAmount,
     // max: TokenAmount,
@@ -32,7 +34,7 @@ export default function InputFieldWithSliderInputAndLogo({
                                                              selectedInputToken,
                                                              allocationItems,
                                                              selectedItemKey,
-                                                             modifyIndividualAllocationItem,
+                                                             setAllocationItems,
                                                              registry
                                                          }: Props) {
 
@@ -74,20 +76,24 @@ export default function InputFieldWithSliderInputAndLogo({
      * Define the state for the UI elements ...
      */
         // Set the initial state to what the user has in his currently-selected-asset
-    const [sliderValue, setSliderValue] = useState<number>(0.);
-    const [inputValue, setInputValue] = useState<number>(0.);
-    useEffect(() => {
-        if (selectedAsset && selectedAsset.userInputAmount) {
-            setSliderValue(selectedAsset!.userInputAmount!.amount.uiAmount!);
-            setInputValue(selectedAsset!.userInputAmount!.amount.uiAmount!);
-        }
-    }, [selectedAsset]);
-    useEffect(() => {
-        // setInputValue(sliderValue);
-    }, [sliderValue]);
-    useEffect(() => {
-        // setSliderValue(inputValue);
-    }, [inputValue]);
+    // const [sliderValue, setSliderValue] = useState<number>(0.);
+    // const [inputValue, setInputValue] = useState<number>(0.);
+    // Only do this on the first load (?)
+    // No need to add a listener here I guess.. should be more of a constructor
+
+    // useEffect(() => {
+    //     if (selectedAsset && selectedAsset.userInputAmount) {
+    //         setSliderValue(selectedAsset!.userInputAmount!.amount.uiAmount!);
+    //         setInputValue(selectedAsset!.userInputAmount!.amount.uiAmount!);
+    //     }
+    // }, [selectedAsset]);
+
+    // useEffect(() => {
+    //     // setSliderValue(inputValue);
+    //     if (selectedAsset) {
+    //         updateValue(inputValue);
+    //     }
+    // }, [sliderValue]);
 
     /**
      * Define the state for anything that defines the amount, or helps calculate better amounts ...
@@ -104,7 +110,7 @@ export default function InputFieldWithSliderInputAndLogo({
         setAllocationDataWithThisInputToken(relevantPools);
     }, [allocationItems, selectedAsset]);
 
-    const [totalDepositedAmount, setTotalDepositedAmount] = useState<BN>(new BN(0));
+    // const [totalDepositedAmount, setTotalDepositedAmount] = useState<BN>(new BN(0));
     const [totalAvailableAmount, setTotalAvailableAmount] = useState<BN>(new BN(0));
     useEffect(() => {
         let depositedAmount: BN = new BN(0);
@@ -117,7 +123,7 @@ export default function InputFieldWithSliderInputAndLogo({
         allocationDataWithThisInputToken.map((x: AllocData) => {
             walletAmount = new BN(x.userWalletAmount!.amount.amount);
         })
-        setTotalDepositedAmount(depositedAmount);
+        // setTotalDepositedAmount(depositedAmount);
         setTotalAvailableAmount(walletAmount);
     }, [allocationDataWithThisInputToken]);
 
@@ -125,7 +131,59 @@ export default function InputFieldWithSliderInputAndLogo({
      * Turns the new value into a TokenAmount,
      * @param newValue
      */
-    const updateValue = (newValue: number) => {
+    /**
+     * This function is pretty huge, for doing this so dynamically ....
+     * Perhaps I should find a way to do this more efficiently ... not entirely sure how though
+     * Also I think from a react-perspective this is the right approach, because the key of the object needs to change
+     *
+     * @param currentlySelectedKey
+     * @param absoluteBalance
+     */
+    const modifyIndividualAllocationItem = async (currentlySelectedKey: string, tokenAmount: TokenAmount): Promise<void> => {
+
+        // TODO: This shit will break for sure ..
+        if (!selectedAsset) {
+            return;
+        }
+        // Create a copy of this asset ...
+        let currentlySelectedAsset: AllocData = {...selectedAsset};
+        console.log("Currently Selected is: ", currentlySelectedAsset);
+
+        let userInputAmount: UserTokenBalance = {
+            mint: currentlySelectedAsset.userInputAmount!.mint,
+            ata: currentlySelectedAsset.userInputAmount!.ata,
+            amount: tokenAmount
+        };
+
+        // re-calculate the usdc value according to the mint and input amount
+        let usdcAmount = await multiplyAmountByPythprice(
+            userInputAmount.amount.uiAmount!,
+            userInputAmount.mint
+        );
+
+        let newAsset: AllocData = {
+            weight: currentlySelectedAsset.weight,
+            apy_24h: currentlySelectedAsset.apy_24h,
+            lpIdentifier: currentlySelectedAsset.lpIdentifier,
+            pool: currentlySelectedAsset.pool,
+            protocol: currentlySelectedAsset.protocol,
+            userInputAmount: userInputAmount,
+            userWalletAmount: currentlySelectedAsset.userWalletAmount,
+            usdcAmount: usdcAmount
+        };
+
+        // Now set the stuff ...
+        setAllocationItems((oldAllocationData: Map<string, AllocData>) => {
+            console.log("Updated Map is: ", oldAllocationData);
+            let updatedMap = new Map<string, AllocData>(oldAllocationData);
+            updatedMap.set(selectedItemKey, newAsset)
+            return updatedMap;
+        });
+
+        // return userInputAmount.amount;
+    }
+
+    const updateValue = (newValue: number): Promise<void> => {
         let decimals = new BN(selectedAsset!.userInputAmount!.amount.decimals);
         let power = (new BN(10)).pow(decimals);
         console.log("power is: ", power.toString());
@@ -158,9 +216,7 @@ export default function InputFieldWithSliderInputAndLogo({
             finalNewValue = newValue;
             setErrorMessage("");
         }
-        setInputValue(finalNewValue);
-        setSliderValue(finalNewValue);
-        // updateValue(finalNewValue);
+        updateValue(finalNewValue)
     }
 
     const onChangeInputRangeField = (event: ChangeEvent<HTMLInputElement>) => {
@@ -183,12 +239,14 @@ export default function InputFieldWithSliderInputAndLogo({
             finalNewValue = newValue
             setErrorMessage("");
         }
-        setSliderValue(finalNewValue);
-        setInputValue(finalNewValue);
-        // updateValue(finalNewValue);
+        updateValue(finalNewValue)
     }
 
-    if (!selectedAsset) {
+    if (
+        !selectedAsset ||
+        !selectedAsset.userInputAmount ||
+        (!selectedAsset.userInputAmount.amount.uiAmount && selectedAsset.userInputAmount.amount.uiAmount !== 0)
+    ) {
         return (<></>);
     }
 
@@ -222,7 +280,7 @@ export default function InputFieldWithSliderInputAndLogo({
                         step={"0.001"}
                         min={min}
                         max={max}
-                        value={inputValue}
+                        value={selectedAsset.userInputAmount!.amount.uiAmount!}
                         onChange={onChangeInputTextField}
                     />
                 </div>
@@ -233,7 +291,7 @@ export default function InputFieldWithSliderInputAndLogo({
                         min={min}
                         max={max}
                         onChange={onChangeInputRangeField}
-                        value={sliderValue}
+                        value={selectedAsset.userInputAmount!.amount.uiAmount!}
                         className="range range-xs"
                     />
                 </div>
