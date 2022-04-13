@@ -13,9 +13,7 @@ import {
     getWhitelistTokens
 } from "@qpools/sdk";
 import {SelectedToken} from "../../utils/utils";
-import {use} from "i18next";
 import {Property} from "csstype";
-import All = Property.All;
 
 // TODO: I guess most numbers here should be replaced by TokenAmount, and then the lamports should be the inputs, and the uiAmounts should be the display values?
 //  Not sure if typescript can handle these though
@@ -151,7 +149,7 @@ export default function InputFieldWithSliderInputAndLogo({
             setErrorMessage("You cannot input more than there is in your wallet!");
         } else if (
             (selectedAsset!.pool.lpToken.address!.toString() === getMarinadeSolMint().toString()) &&
-            (newValue > 0 && newValue < 1)
+            ((newValue > 0) && (newValue < 1))
         ) {
             console.log("Cannot permit (0)");
             finalNewValue = 0.;
@@ -160,8 +158,8 @@ export default function InputFieldWithSliderInputAndLogo({
             finalNewValue = newValue;
             setErrorMessage("");
         }
-        setInputValue(finalNewValue);
-        // updateValue(finalNewValue);
+        // setInputValue(finalNewValue);
+        updateValue(finalNewValue);
     }
 
     const onChangeInputRangeField = (event: ChangeEvent<HTMLInputElement>) => {
@@ -175,7 +173,7 @@ export default function InputFieldWithSliderInputAndLogo({
             setErrorMessage("You cannot input more than there is in your wallet!");
         } else if (
             (selectedInputToken.mint!.toString() === getMarinadeSolMint().toString()) &&
-            (newValue > 0 && newValue < 1)
+            ((newValue > 0) && (newValue < 1))
         ) {
             console.log("Cannot permit (0)");
             finalNewValue = 0.;
@@ -184,8 +182,8 @@ export default function InputFieldWithSliderInputAndLogo({
             finalNewValue = newValue
             setErrorMessage("");
         }
-        setSliderValue(finalNewValue);
-        // updateValue(finalNewValue);
+        // setSliderValue(finalNewValue);
+        updateValue(finalNewValue);
     }
 
     if (!selectedAsset) {
@@ -219,7 +217,7 @@ export default function InputFieldWithSliderInputAndLogo({
                         id="stake_amount"
                         autoComplete="stake_amount"
                         placeholder="0.0"
-                        step={"0.000000001"}
+                        step={"0.001"}
                         min={min}
                         max={max}
                         value={inputValue}
@@ -229,7 +227,7 @@ export default function InputFieldWithSliderInputAndLogo({
                 <div className={"mx-auto my-auto p-1 w-full"}>
                     <input
                         type="range"
-                        step={"0.000000001"}
+                        step={"0.001"}
                         min={min}
                         max={max}
                         onChange={onChangeInputRangeField}
