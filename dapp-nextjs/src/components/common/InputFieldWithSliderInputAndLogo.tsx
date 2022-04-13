@@ -309,7 +309,8 @@ export default function InputFieldWithSliderInputAndLogo({allocationItems, selec
                             (
                                 <div className={"text-gray-500 text-sm font-semibold items-start justify-start"}>
                                     Planning to deposit: {
-                                    (totalInputBalance)?.toFixed(Math.min(8, allocationItems.get(selectedItemKey)?.userWalletAmount?.amount.decimals!))
+                                    // (totalInputBalance)?.toFixed(Math.min(8, allocationItems.get(selectedItemKey)?.userWalletAmount?.amount.decimals!))
+                                    (allocationItems.get(selectedItemKey)?.userInputAmount?.amount.uiAmount!).toFixed(Math.min(8, allocationItems.get(selectedItemKey)?.userWalletAmount?.amount.decimals!))
                                 } out of {
                                     (allocationItems.get(selectedItemKey)?.userWalletAmount?.amount.uiAmount!).toFixed(2)
                                 } {currencyName} in Your Wallet
