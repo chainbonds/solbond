@@ -12,8 +12,7 @@ import {ChartableItemType} from "../../types/ChartableItemType";
 import {AllocData} from "../../types/AllocData";
 import TableHeader from "../common/TableHeader";
 import {displayTokensFromPool} from "../../utils/helper";
-import {Registry} from "@qpools/sdk/src/frontend-friendly";
-import {Protocol} from "@qpools/sdk/src/types/interfacing";
+import {Protocol, Registry } from "@qpools/sdk";
 
 // I guess this columns is also conditional, actually ...
 // TODO: Normalize (rename) the name "selectedAssets"

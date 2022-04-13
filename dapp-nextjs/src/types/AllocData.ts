@@ -1,5 +1,5 @@
 import {UserTokenBalance} from "./UserTokenBalance";
-import * as qpools from "@qpools/sdk";
+import {ExplicitPool, Protocol} from "@qpools/sdk";
 
 // Weight is probably bullshit, should prob remove this ...
 // TODO: Introduce some terminology around protocol, inputToken, product, etc.
@@ -48,11 +48,11 @@ export interface AllocData {
     lpIdentifier: string,  /// this is a key
     // Should include weights here
     weight: number,
-    protocol: qpools.typeDefinitions.interfacingAccount.Protocol,
+    protocol: Protocol,
     apy_24h: number,
     // Should include the input token here
     // Can have multiple ones with the same pool, then
-    pool: qpools.typeDefinitions.interfacingAccount.ExplicitPool,
+    pool: ExplicitPool,
     userInputAmount?: UserTokenBalance,
     userWalletAmount?: UserTokenBalance
     usdcAmount: number
@@ -64,11 +64,11 @@ export interface AllocData {
  */
 export const keyFromAllocData = (x: AllocData): string => {
     // @ts-ignore
-    let protocolString: string = qpools.typeDefinitions.interfacingAccount.Protocol[x.protocol];
+    let protocolString: string = Protocol[x.protocol];
     return "Protocol:" + protocolString + ".lpIdentifier:" + String(x.lpIdentifier);
 }
 
-export const keyFromPoolData = (x: qpools.typeDefinitions.interfacingAccount.ExplicitPool): string => {
+export const keyFromPoolData = (x: ExplicitPool): string => {
     // @ts-ignore
     let protocolString: string = qpools.typeDefinitions.interfacingAccount.Protocol[x.protocol];
     return "Protocol:" + protocolString + ".lpIdentifier:" + String(x.id);

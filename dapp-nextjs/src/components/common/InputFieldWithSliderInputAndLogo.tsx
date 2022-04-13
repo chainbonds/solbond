@@ -4,11 +4,7 @@ import {BRAND_COLORS} from "../../const";
 import {AllocData, keyFromPoolData} from "../../types/AllocData";
 import {BN} from "@project-serum/anchor";
 import {TokenAmount} from "@solana/web3.js";
-import {Registry} from "@qpools/sdk/src/frontend-friendly";
-import {ExplicitPool} from "@qpools/sdk/src/types/interfacing";
-import {getTokenAmount} from "@qpools/sdk/src/utils";
-import {getMarinadeSolMint, getWhitelistTokens} from "@qpools/sdk/src/const";
-import {ExplicitToken} from "@qpools/sdk/src/types/interfacing";
+import {ExplicitPool, ExplicitToken, getMarinadeSolMint, getTokenAmount, Registry, getWhitelistTokens} from "@qpools/sdk";
 
 // TODO: I guess most numbers here should be replaced by TokenAmount, and then the lamports should be the inputs, and the uiAmounts should be the display values?
 //  Not sure if typescript can handle these though

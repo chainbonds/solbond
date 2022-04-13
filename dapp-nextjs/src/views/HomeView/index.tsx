@@ -6,9 +6,7 @@ import {Main} from "../../components/Main";
 import LoadingOverlay from "react-loading-overlay";
 import {useLoad} from "../../contexts/LoadingContext";
 import {BRAND_COLORS, getConnection} from "../../const";
-import {Registry} from "@qpools/sdk/src/frontend-friendly";
 import {Network} from "@saberhq/solana-contrib";
-import {network} from "../../../../../qPools-contract/qpools-sdk/src";
 import {LocalKeypairProvider} from "../../contexts/LocalKeypairProvider";
 import {ErrorMessageProvider} from "../../contexts/ErrorMessageContext";
 import {ItemsLoadProvider} from "../../contexts/ItemsLoadingContext";
@@ -18,6 +16,7 @@ import {RpcProvider} from "../../contexts/RpcProvider";
 import {ExistingPortfolioProvider} from "../../contexts/ExistingPortfolioProvider";
 import {CrankProvider} from "../../contexts/CrankProvider";
 import {UserWalletAssetsProvider} from "../../contexts/UserWalletAssets";
+import {Cluster, getNetworkCluster, Registry } from "@qpools/sdk";
 
 interface Props {
     registry: Registry
@@ -35,12 +34,12 @@ export const HomeView: FC = ({}) => {
     // Perhaps use-registry should be a hook ...
 
     let defaultNetwork: Network;
-    if (network.getNetworkCluster() === network.Cluster.DEVNET) {
+    if (getNetworkCluster() === Cluster.DEVNET) {
         defaultNetwork = "devnet";
-    } else if (network.getNetworkCluster() === network.Cluster.MAINNET) {
+    } else if (getNetworkCluster() === Cluster.MAINNET) {
         defaultNetwork = "mainnet-beta";
     } else {
-        throw Error("Network not specified! " + String(network.getNetworkCluster()));
+        throw Error("Network not specified! " + String(getNetworkCluster()));
     }
 
 

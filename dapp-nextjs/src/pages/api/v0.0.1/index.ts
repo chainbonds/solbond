@@ -1,7 +1,6 @@
+import {ExplicitPool, ExplicitToken, Registry } from "@qpools/sdk";
 import {NextApiRequest, NextApiResponse} from "next";
-import {Registry} from "@qpools/sdk/src/frontend-friendly";
 import {getConnection} from "../../../const";
-import {ExplicitToken, ExplicitPool} from "@qpools/sdk/src/types/interfacing";
 
 export default async (req: NextApiRequest, res: NextApiResponse) => {
 

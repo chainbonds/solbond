@@ -5,11 +5,7 @@ import {IRpcProvider, useRpc} from "./RpcProvider";
 import {ISerpius, useSerpiusEndpoint} from "./SerpiusProvider";
 import {BN} from "@project-serum/anchor";
 import {lamportsReserversForLocalWallet} from "../const";
-import {multiplyAmountByPythprice} from "@qpools/sdk/src/instructions/pyth/multiplyAmountByPythPrice";
-import {accountExists, getAssociatedTokenAddressOffCurve, getTokenAmount} from "@qpools/sdk/src/utils";
-import {getMarinadeSolMint, getWhitelistTokens, getWrappedSolMint} from "@qpools/sdk/src/const";
-import {ExplicitToken} from "@qpools/sdk/src/types/interfacing";
-import {Registry} from "@qpools/sdk/src/frontend-friendly";
+import {Registry, getWhitelistTokens, ExplicitToken, getAssociatedTokenAddressOffCurve, accountExists, getTokenAmount, getMarinadeSolMint, getWrappedSolMint, multiplyAmountByPythprice } from '@qpools/sdk';
 
 export interface IUserWalletAssets {
     walletAssets: Map<string, AllocData>

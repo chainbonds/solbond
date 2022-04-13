@@ -8,8 +8,7 @@ import {IUserWalletAssets, useUserWalletAssets} from "../contexts/UserWalletAsse
 import {TokenAmount} from "@solana/web3.js";
 import BuyMoreAssetsModal from "./common/BuyMoreAssetsModal";
 import {BN} from "@project-serum/anchor";
-import {Registry} from "@qpools/sdk/src/frontend-friendly";
-import {pyth} from "@qpools/sdk/src/instructions/pyth";
+import { multiplyAmountByPythprice, Registry } from "@qpools/sdk";
 
 interface Props {
     registry: Registry
@@ -97,7 +96,7 @@ export const ViewWalletConnectedCreatePortfolio = ({registry}: Props) => {
         };
 
         // re-calculate the usdc value according to the mint and input amount
-        let usdcAmount = await pyth.multiplyAmountByPythprice(
+        let usdcAmount = await multiplyAmountByPythprice(
             userInputAmount.amount.uiAmount!,
             userInputAmount.mint
         );

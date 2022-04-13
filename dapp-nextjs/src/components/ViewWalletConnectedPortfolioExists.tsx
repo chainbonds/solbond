@@ -5,7 +5,7 @@ import {AllocData, keyFromAllocData} from "../types/AllocData";
 import {IExistingPortfolio, useExistingPortfolio} from "../contexts/ExistingPortfolioProvider";
 import SuggestedPortfolioTable from "./createPortfolio/SuggestedPortfolioTable";
 import Error from "next/error";
-import {Registry} from "@qpools/sdk/src/frontend-friendly";
+import { Registry } from "@qpools/sdk";
 
 interface Props {
     registry: Registry

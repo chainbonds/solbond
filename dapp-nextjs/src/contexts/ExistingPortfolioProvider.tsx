@@ -4,10 +4,8 @@ import {ILoad, useLoad} from "./LoadingContext";
 import {AllocData, keyFromAllocData, keyFromPoolData} from "../types/AllocData";
 import {UserTokenBalance} from "../types/UserTokenBalance";
 import {ISerpius, useSerpiusEndpoint} from "./SerpiusProvider";
-import {Registry} from "@qpools/sdk/src/frontend-friendly";
 import {accountExists} from "@qpools/sdk/src/utils";
-import {PositionInfo} from "@qpools/sdk/src/types/interfacing";
-import {ExplicitPool} from "@qpools/sdk/src/types/interfacing";
+import {ExplicitPool, PositionInfo, Registry } from '@qpools/sdk';
 
 export interface IExistingPortfolio {
     positionInfos: Map<string, AllocData>,

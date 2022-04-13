@@ -7,9 +7,7 @@ import {solbondProgram} from "../programs/solbond";
 import {WalletI} from "easy-spl";
 import {getConnection} from "../const";
 import {useConnectedWallet, useSolana} from "@saberhq/use-solana";
-import {Registry} from "@qpools/sdk/src/frontend-friendly";
-import {PortfolioFrontendFriendlyChainedInstructions} from "@qpools/sdk/src/frontend-friendly";
-import {MOCK} from "@qpools/sdk/src/const";
+import {MOCK, PortfolioFrontendFriendlyChainedInstructions, Registry } from '@qpools/sdk';
 
 export interface IRpcProvider {
     portfolioObject: PortfolioFrontendFriendlyChainedInstructions | undefined,

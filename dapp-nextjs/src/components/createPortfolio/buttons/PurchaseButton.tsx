@@ -12,8 +12,7 @@ import {lamportsReserversForLocalWallet} from "../../../const";
 import {getAssociatedTokenAddress} from "easy-spl/dist/tx/associated-token-account";
 import {useConnectedWallet} from "@saberhq/use-solana";
 import {getWrappedSolMint} from "@qpools/sdk/src/const";
-import {ExplicitPool, ExplicitSolendPool, Protocol} from "@qpools/sdk/src/types/interfacing";
-import {ExplicitToken} from "@qpools/sdk/src/types/interfacing";
+import { ExplicitPool, ExplicitSolendPool, ExplicitToken, Protocol } from "@qpools/sdk";
 
 // TODO: Refactor the code here ... looks a bit too redundant.
 //  Maybe try to push the logic into the sdk?

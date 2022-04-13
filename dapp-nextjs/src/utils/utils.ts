@@ -1,7 +1,7 @@
-import {Connection, PublicKey, TokenAmount, Transaction} from "@solana/web3.js";
-import {BN, Provider} from "@project-serum/anchor";
-import {lamportsReserversForLocalWallet} from "../const";
-import * as qpools from "@qpools/sdk";
+import {Connection, PublicKey, Transaction} from "@solana/web3.js";
+import {Provider} from "@project-serum/anchor";
+import {ExplicitPool, ExplicitToken, getNetworkCluster} from "@qpools/sdk";
+import {getWhitelistTokens, Cluster} from "@qpools/sdk";
 
 /**
  * Perhaps a really stupid object. Should prob just use the registry.ExplicitToken object.
@@ -25,34 +25,34 @@ export interface SelectedToken {
 //     };
 // }
 
-export const getTokensFromPools = (selectedAssetPools: qpools.typeDefinitions.interfacingAccount.ExplicitPool[]): [qpools.typeDefinitions.interfacingAccount.ExplicitPool, qpools.typeDefinitions.interfacingAccount.ExplicitToken][] => {
-    let out: [qpools.typeDefinitions.interfacingAccount.ExplicitPool, qpools.typeDefinitions.interfacingAccount.ExplicitToken][] = [];
-    selectedAssetPools.map((pool: qpools.typeDefinitions.interfacingAccount.ExplicitPool) => {
-        pool.tokens.map((token: qpools.typeDefinitions.interfacingAccount.ExplicitToken) => out.push([pool, token]));
+export const getTokensFromPools = (selectedAssetPools: ExplicitPool[]): [ExplicitPool, ExplicitToken][] => {
+    let out: [ExplicitPool, ExplicitToken][] = [];
+    selectedAssetPools.map((pool: ExplicitPool) => {
+        pool.tokens.map((token: ExplicitToken) => out.push([pool, token]));
     });
     return out;
 }
 
-export const getInputTokens = async (selectedAssetPools: qpools.typeDefinitions.interfacingAccount.ExplicitPool[]): Promise<[qpools.typeDefinitions.interfacingAccount.ExplicitPool, qpools.typeDefinitions.interfacingAccount.ExplicitToken][]> => {
-    let whitelistedTokenStrings = new Set<string>(await qpools.constDefinitions.getWhitelistTokens());
+export const getInputTokens = async (selectedAssetPools: ExplicitPool[]): Promise<[ExplicitPool, ExplicitToken][]> => {
+    let whitelistedTokenStrings = new Set<string>(await getWhitelistTokens());
     let tokensInPools = getTokensFromPools(selectedAssetPools);
-    let out = tokensInPools.filter(([pool, token]: [qpools.typeDefinitions.interfacingAccount.ExplicitPool, qpools.typeDefinitions.interfacingAccount.ExplicitToken]) => {return whitelistedTokenStrings.has(token.address)});
+    let out = tokensInPools.filter(([pool, token]: [ExplicitPool, ExplicitToken]) => {return whitelistedTokenStrings.has(token.address)});
     return out;
 }
 
-export const getInputToken = async (selectedAssetTokens: qpools.typeDefinitions.interfacingAccount.ExplicitToken[]): Promise<SelectedToken> => {
-    let whitelistedTokenStrings = new Set<string>(await qpools.constDefinitions.getWhitelistTokens());
-    console.log("Whitelist tokens are: ", await qpools.constDefinitions.getWhitelistTokens());
-    let filteredTokens: qpools.typeDefinitions.interfacingAccount.ExplicitToken[] = selectedAssetTokens.filter((x: qpools.typeDefinitions.interfacingAccount.ExplicitToken) => {
+export const getInputToken = async (selectedAssetTokens: ExplicitToken[]): Promise<SelectedToken> => {
+    let whitelistedTokenStrings = new Set<string>(await getWhitelistTokens());
+    console.log("Whitelist tokens are: ", await getWhitelistTokens());
+    let filteredTokens: ExplicitToken[] = selectedAssetTokens.filter((x: ExplicitToken) => {
         // console.log("Looking at the token: ", x);
         console.log("Looking at the token: ", x.address);
         // return whitelistedTokens.has(new PublicKey(x.address))
         console.log("Does it have it: ", whitelistedTokenStrings.has(x.address));
         return whitelistedTokenStrings.has(x.address)
     })
-    console.log("Whitelist tokens are: ", await qpools.constDefinitions.getWhitelistTokens());
+    console.log("Whitelist tokens are: ", await getWhitelistTokens());
     console.log("Initial set of input tokens is: ", filteredTokens);
-    let inputTokens: SelectedToken[] = filteredTokens.map((x: qpools.typeDefinitions.interfacingAccount.ExplicitToken) => {
+    let inputTokens: SelectedToken[] = filteredTokens.map((x: ExplicitToken) => {
         return {
             name: x.name,
             mint: new PublicKey(x.address)
@@ -71,7 +71,7 @@ export const getInputToken = async (selectedAssetTokens: qpools.typeDefinitions.
 export const solscanLink = (address: PublicKey) => {
     let out = "https://solscan.io/account/";
     out += address.toString();
-    if (qpools.network.getNetworkCluster() === qpools.network.Cluster.DEVNET) {
+    if (getNetworkCluster() === Cluster.DEVNET) {
         out += "?cluster=devnet";
     }
     return out;

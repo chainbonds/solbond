@@ -4,7 +4,7 @@ import DisplayPieChart from "./common/DisplayPieChart";
 import SuggestedPortfolioTable from "./createPortfolio/SuggestedPortfolioTable";
 import SelectWallet from "./createPortfolio/buttons/SelectWallet";
 import {ISerpius, useSerpiusEndpoint} from "../contexts/SerpiusProvider";
-import {Registry} from "@qpools/sdk/src/frontend-friendly";
+import { Registry } from "@qpools/sdk";
 
 interface Props {
     registry: Registry

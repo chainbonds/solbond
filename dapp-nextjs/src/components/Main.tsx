@@ -8,7 +8,7 @@ import {ViewWalletConnectedCreatePortfolio} from "./ViewWalletConnectedCreatePor
 import {ViewWalletConnectedPortfolioExists} from "./ViewWalletConnectedPortfolioExists";
 import ErrorMessageModal from "./common/ErrorMessageModal";
 import {useConnectedWallet} from "@saberhq/use-solana";
-import {Registry} from "@qpools/sdk/src/frontend-friendly";
+import { Registry } from "@qpools/sdk";
 
 export enum PortfolioState {
     WalletNotConnected,

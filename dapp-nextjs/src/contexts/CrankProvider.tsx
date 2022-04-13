@@ -1,7 +1,7 @@
 import React, {useState, useContext, useEffect} from 'react';
 import {useLocalKeypair} from "./LocalKeypairProvider";
 import {useRpc} from "./RpcProvider";
-import {CrankRpcCalls} from "@qpools/sdk/src/frontend-friendly";
+import { CrankRpcCalls } from '@qpools/sdk';
 
 export interface ICrank {
     crankRpcTool: CrankRpcCalls | undefined,

@@ -1,8 +1,7 @@
 import React, {useState, useContext, useEffect} from 'react';
 import axios from "axios";
 import {AllocData, keyFromAllocData} from "../types/AllocData";
-import {Registry} from "@qpools/sdk/src/frontend-friendly";
-import {ExplicitPool} from "@qpools/sdk/src/types/interfacing";
+import {ExplicitPool, Registry } from '@qpools/sdk';
 
 export interface ISerpius {
     portfolioRatios: Map<string, AllocData>,
