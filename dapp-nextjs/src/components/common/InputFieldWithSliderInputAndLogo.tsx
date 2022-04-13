@@ -15,6 +15,7 @@ import {
 import {SelectedToken} from "../../utils/utils";
 import {Property} from "csstype";
 import {UserTokenBalance} from "../../types/UserTokenBalance";
+import { getTokenAmountFromString } from "@qpools/sdk";
 
 // TODO: I guess most numbers here should be replaced by TokenAmount, and then the lamports should be the inputs, and the uiAmounts should be the display values?
 //  Not sure if typescript can handle these though
@@ -77,16 +78,14 @@ export default function InputFieldWithSliderInputAndLogo({
      */
         // Set the initial state to what the user has in his currently-selected-asset
     // const [sliderValue, setSliderValue] = useState<number>(0.);
-    // const [inputValue, setInputValue] = useState<number>(0.);
+    const [inputValue, setInputValue] = useState<number>(0.);
     // Only do this on the first load (?)
     // No need to add a listener here I guess.. should be more of a constructor
-
-    // useEffect(() => {
-    //     if (selectedAsset && selectedAsset.userInputAmount) {
-    //         setSliderValue(selectedAsset!.userInputAmount!.amount.uiAmount!);
-    //         setInputValue(selectedAsset!.userInputAmount!.amount.uiAmount!);
-    //     }
-    // }, [selectedAsset]);
+    useEffect(() => {
+        if (selectedAsset && selectedAsset.userInputAmount) {
+            setInputValue(selectedAsset!.userInputAmount!.amount.uiAmount!);
+        }
+    }, [selectedAsset]);
 
     // useEffect(() => {
     //     // setSliderValue(inputValue);
@@ -110,11 +109,16 @@ export default function InputFieldWithSliderInputAndLogo({
         setAllocationDataWithThisInputToken(relevantPools);
     }, [allocationItems, selectedAsset]);
 
-    // const [totalDepositedAmount, setTotalDepositedAmount] = useState<BN>(new BN(0));
-    const [totalAvailableAmount, setTotalAvailableAmount] = useState<BN>(new BN(0));
+    const [totalDepositedAmount, setTotalDepositedAmount] = useState<TokenAmount>();
+    const [totalAvailableAmount, setTotalAvailableAmount] = useState<TokenAmount>();
     useEffect(() => {
+        if (!selectedAsset) {
+            return;
+        }
+        let decimals = new BN(selectedAsset!.userInputAmount!.amount.decimals);
         let depositedAmount: BN = new BN(0);
         let walletAmount: BN = new BN(0);
+        let currentAssetAmount: BN = new BN(selectedAsset!.userInputAmount!.amount.amount);
         allocationDataWithThisInputToken.map((x: AllocData) => {
             let add = new BN(x.userInputAmount!.amount.amount);
             depositedAmount = depositedAmount.add(add);
@@ -123,8 +127,13 @@ export default function InputFieldWithSliderInputAndLogo({
         allocationDataWithThisInputToken.map((x: AllocData) => {
             walletAmount = new BN(x.userWalletAmount!.amount.amount);
         })
-        // setTotalDepositedAmount(depositedAmount);
-        setTotalAvailableAmount(walletAmount);
+
+        let depositedAmountTokenAmt = getTokenAmount(depositedAmount, decimals);
+        // TODO: Subtract by the current item ...
+        let availableAmount = walletAmount.add(currentAssetAmount).sub(depositedAmount);
+        let totalAmountTokenAmt = getTokenAmount(availableAmount, decimals);
+        setTotalDepositedAmount(depositedAmountTokenAmt);
+        setTotalAvailableAmount(totalAmountTokenAmt);
     }, [allocationDataWithThisInputToken]);
 
     /**
@@ -184,62 +193,57 @@ export default function InputFieldWithSliderInputAndLogo({
     }
 
     const updateValue = (newValue: number) => {
-        let decimals = new BN(selectedAsset!.userInputAmount!.amount.decimals);
-        let power = (new BN(10)).pow(decimals);
-        console.log("power is: ", power.toString());
+        // const precision = 1_000_000;
+        console.log("NewValue is: ", newValue);
+        console.log("NewValue is: ", newValue.toFixed(9));
+        let decimals = selectedAsset!.userInputAmount!.amount.decimals;
+        // let power = (new BN(10)).pow(decimals);
+        // console.log("power is: ", power.toString());
         console.log("Value that we're getting is: ", newValue);
-        let numberInclDecimals: BN = power.muln(newValue);
+        // This operation is not safe !!!!
+        // let numberInclDecimals: BN = power.mul( new BN(newValue..toFixed(9)) );-
+        let numberInclDecimals = newValue.toFixed();
+        // let numberInclDecimals: BN = new BN(newValue.toExponential(decimals));
         console.log("Number incl decimals is: ", numberInclDecimals.toString());
-        let tokenAmount: TokenAmount = getTokenAmount(numberInclDecimals, decimals);
+        let tokenAmount: TokenAmount = getTokenAmountFromString(newValue.toFixed(decimals));
         console.log("Number incl decimals is: ", tokenAmount);
         modifyIndividualAllocationItem(selectedItemKey, tokenAmount)
     }
 
-    // Add the blocker here, maybe (?)
-    const onChangeInputTextField = (event: ChangeEvent<HTMLInputElement>) => {
-        let newValue = Number(event.target.value);
-        console.log("New " + String(selectedInputToken.name) + " is: " + String(newValue));
-
-        let finalNewValue: number;
-        if (newValue > totalAvailableAmount.toNumber()) {
-            console.log("Cannot permit (1)");
-            finalNewValue = totalAvailableAmount.toNumber();
-            setErrorMessage("You cannot input more than there is in your wallet!");
-        } else if (
-            (selectedAsset!.pool.lpToken.address!.toString() === getMarinadeSolMint().toString()) &&
-            ((newValue > 0) && (newValue < 1))
-        ) {
-            console.log("Cannot permit (0)");
-            finalNewValue = 0.;
-            setErrorMessage("The Marinade Finance Protocol requires you to input at least one full SOL to be delegated. You can also keep it at 0 SOL.");
-        } else {
-            finalNewValue = newValue;
-            setErrorMessage("");
-        }
-        updateValue(finalNewValue)
-    }
-
-    const onChangeInputRangeField = (event: ChangeEvent<HTMLInputElement>) => {
+    const onChangeInputField = (event: ChangeEvent<HTMLInputElement>) => {
         let newValue = Number(event.target.value);
         console.log("New " + String(selectedInputToken.name) + " is: " + String(newValue));
         // Gotta double-check that this is not above the maximum balance ...
         let finalNewValue: number;
-        if (newValue > totalAvailableAmount.toNumber()) {
+        console.log("Total Available Amount is: ", totalAvailableAmount)
+
+        // TODO: Gotta rewrite all the numbers into strings ...
+
+        if (newValue > (totalAvailableAmount!.uiAmount!) ) {
+            console.log("Case 1 nnn");
             console.log("Cannot permit (2)");
-            finalNewValue = totalAvailableAmount.toNumber();
+            finalNewValue = totalAvailableAmount!.uiAmount!;
             setErrorMessage("You cannot input more than there is in your wallet!");
         } else if (
-            (selectedInputToken.mint!.toString() === getMarinadeSolMint().toString()) &&
+            (selectedAsset!.pool.lpToken.address === getMarinadeSolMint().toString()) &&
             ((newValue > 0) && (newValue < 1))
         ) {
+            console.log("Case 2 nnn");
             console.log("Cannot permit (0)");
             finalNewValue = 0.;
             setErrorMessage("The Marinade Finance Protocol requires you to input at least one full SOL to be delegated. You can also keep it at 0 SOL.");
         } else {
+            console.log("Case 33 nnn");
             finalNewValue = newValue
             setErrorMessage("");
         }
-        updateValue(finalNewValue)
+        console.log("Conditions are");
+        console.log(getMarinadeSolMint().toString())
+        console.log(selectedInputToken.mint!.toString())
+        console.log(selectedInputToken.mint!.toString() === getMarinadeSolMint().toString())
+        console.log((newValue > 0) && (newValue < 1));
+        setInputValue(finalNewValue);
+        updateValue(finalNewValue);
     }
 
     if (
@@ -280,8 +284,8 @@ export default function InputFieldWithSliderInputAndLogo({
                         step={"0.001"}
                         min={min}
                         max={max}
-                        value={selectedAsset.userInputAmount!.amount.uiAmount!}
-                        onChange={onChangeInputTextField}
+                        value={inputValue}
+                        onChange={onChangeInputField}
                     />
                 </div>
                 <div className={"mx-auto my-auto p-1 w-full"}>
@@ -290,8 +294,8 @@ export default function InputFieldWithSliderInputAndLogo({
                         step={"0.001"}
                         min={min}
                         max={max}
-                        onChange={onChangeInputRangeField}
-                        value={selectedAsset.userInputAmount!.amount.uiAmount!}
+                        onChange={onChangeInputField}
+                        value={inputValue}
                         className="range range-xs"
                     />
                 </div>
