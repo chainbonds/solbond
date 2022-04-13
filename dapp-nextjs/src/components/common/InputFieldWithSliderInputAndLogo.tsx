@@ -35,7 +35,21 @@ export default function InputFieldWithSliderInputAndLogo({allocationItems, selec
         }
         let currentlySelectedAsset: AllocData = allocationItems.get(selectedItemKey)!;
         setCurrentlySelectedAsset(() => {return currentlySelectedAsset});
+        // Also do setValue
     }, [allocationItems, selectedItemKey]);
+
+    useEffect(() => {
+        if (!allocationItems.has(selectedItemKey)) {
+            console.log("Selected key not found ...", allocationItems, selectedItemKey);
+            return;
+        }
+        let currentlySelectedAsset: AllocData = allocationItems.get(selectedItemKey)!;
+        if (currentlySelectedAsset.userInputAmount!.amount.uiAmount!) {
+            // setValue(currentlySelectedAsset.userInputAmount!.amount.uiAmount!);
+            setSliderValue(currentlySelectedAsset.userInputAmount!.amount.uiAmount!);
+            setInputValue(currentlySelectedAsset.userInputAmount!.amount.uiAmount!);
+        }
+    }, [selectedItemKey])
 
     const calculateTotalDepositingAmount = async () => {
         if (!currentlySelectedAsset) {
@@ -118,8 +132,7 @@ export default function InputFieldWithSliderInputAndLogo({allocationItems, selec
         setMaxAvailableInputBalance(amountLeftAsTokenAmount);
     }
     useEffect(() => {
-        calculateAvailableAmount();
-        calculateTotalDepositingAmount();
+        calculateAvailableAmount().then(calculateTotalDepositingAmount);
     }, [selectedItemKey, allocationItems, value]);
 
     useEffect(() => {
@@ -230,7 +243,7 @@ export default function InputFieldWithSliderInputAndLogo({allocationItems, selec
         return (<>
                 <input
                     type="range"
-                    step={"0.0001"}
+                    step={"0.000000001"}
                     min={min.uiAmount!}
                     max={max.uiAmount!}
                     onChange={async (event) => {
