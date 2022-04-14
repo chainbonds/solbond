@@ -69,12 +69,6 @@ export default function BuyMoreAssetsOptionalModal({showModal, setShowModal, onC
                                                     we require users to verify their transaction via Twitter.
                                                 </p>
                                                 <div className={"flex flex-col mx-auto mt-5 w-full"}>
-                                                    {/*<button*/}
-                                                    {/*    className="border border-gray-500 text-white font-bold py-3 px-7 rounded my-auto"*/}
-                                                    {/*    onClick={() => {setShowModal(false)}}*/}
-                                                    {/*>*/}
-                                                    {/*    Verify on Twitter*/}
-                                                    {/*</button>*/}
                                                     <p className={"text-gray-200 text-sm font-bold mr-auto"}>
                                                         URL of Verification Tweet
                                                     </p>
@@ -94,10 +88,22 @@ export default function BuyMoreAssetsOptionalModal({showModal, setShowModal, onC
                                                 </div>
                                             </div>
                                         </div>
-                                        <div className="w-full py-5 border-t border-gray-700 px-5">
-                                            <FaucetButton
-                                                activated={!!inputLink}
-                                            />
+                                        <div className="flex flex-row w-full py-5 border-t border-gray-700 px-5 justify-between">
+                                            <div>
+                                                <a href={twitterLink} target="_blank">
+                                                    <button
+                                                        className="border border-gray-500 text-white font-bold py-3 px-7 rounded my-auto"
+                                                        // onClick={() => {setShowModal(false)}}
+                                                    >
+                                                        Verify on Twitter
+                                                    </button>
+                                                </a>
+                                            </div>
+                                            <div>
+                                                <FaucetButton
+                                                    activated={!!inputLink}
+                                                />
+                                            </div>
                                             {/*<div className={"mx-auto ml-5"}>*/}
                                             {/*    /!*<button*!/*/}
                                             {/*    /!*    className="border border-gray-500 text-white font-bold py-3 px-7 rounded "*!/*/}
