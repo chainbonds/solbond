@@ -90,7 +90,7 @@ export default function BuyMoreAssetsOptionalModal({showModal, setShowModal, onC
                                         </div>
                                         <div className="flex flex-row w-full py-5 border-t border-gray-700 px-5 justify-between">
                                             <div>
-                                                <a href={twitterLink} target="_blank">
+                                                <a href={twitterLink} target="_blank" rel="noreferrer">
                                                     <button
                                                         className="border border-gray-500 text-white font-bold py-3 px-7 rounded my-auto"
                                                         // onClick={() => {setShowModal(false)}}
