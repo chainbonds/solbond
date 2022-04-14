@@ -13,7 +13,6 @@ import {
     multiplyAmountByPythprice
 } from "@qpools/sdk";
 import {SelectedToken} from "../../utils/utils";
-import {Property} from "csstype";
 import {UserTokenBalance} from "../../types/UserTokenBalance";
 import { getTokenAmountFromString } from "@qpools/sdk";
 
