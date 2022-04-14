@@ -5,15 +5,21 @@ import {FaucetButton} from "../createPortfolio/buttons/FaucetButton";
 interface Props {
     showModal: boolean,
     setShowModal: (arg1: boolean) => void
+    onClose: () => void
 }
 
-export default function BuyMoreAssetsModal({showModal, setShowModal}: Props) {
+export default function BuyMoreAssetsModal({showModal, setShowModal, onClose}: Props) {
+
+    let twitterLink = "https://twitter.com/intent/tweet?text=I'm%20testing%20%40qpoolsfinance%20on%20%40Solana%0A%0A%F0%9F%94%84%E2%98%80%EF%B8%8F%20https%3A%2F%2Fqpools.app%0A%0AToken%20ID%3A%20"
+    twitterLink += "550000"
+    twitterLink += "%0A%0A%24SOL%20integrating%20with%20%40saber_hq%20%20%40MarinadeFinance%20and%20%40solendprotocol";
+
+    console.log("Twitter link is: ", twitterLink);
 
     return (
         <>
             <Transition.Root appear show={showModal} as={Fragment}>
-                <Dialog as="div" className="fixed inset-0 z-10 overflow-y-auto" onClose={() => {
-                }}>
+                <Dialog as="div" className="fixed inset-0 z-10 overflow-y-auto" onClose={() => {onClose()}}>
                     <Transition.Child
                         as={Fragment}
                         enter="ease-out duration-300"

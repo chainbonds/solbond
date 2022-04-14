@@ -9,8 +9,13 @@ import {useErrorMessage} from "../../../contexts/ErrorMessageContext";
 import {syncNative} from "@solendprotocol/solend-sdk";
 import {MOCK} from "@qpools/sdk";
 import {airdropAdmin, createAssociatedTokenAccountSendUnsigned} from "@qpools/sdk";
+import {act} from "react-dom/test-utils";
+import {calculateActiveTickIndex} from "recharts/types/util/ChartUtils";
 
-export const FaucetButton: FC = ({}) => {
+interface Props {
+    activated: boolean
+}
+export const FaucetButton = ({activated}: Props) => {
 
     const rpcProvider: IRpcProvider = useRpc();
     const loadContext = useLoad();
@@ -154,11 +159,14 @@ export const FaucetButton: FC = ({}) => {
         await loadContext.decreaseCounter();
     };
 
+    let additionalCssClasses = activated ? "" : "cursor-not-allowed text-gray-700";
+
     return (
         <>
             <button
-                className="border border-gray-500 text-white font-bold py-3 px-7 rounded "
+                className={"border border-gray-500 text-white font-bold py-3 px-7 rounded " + additionalCssClasses}
                 onClick={() => faucetAssets()}
+                disabled={!activated}
             >
                 <div className={"flex flex-row"}>
                     <div className={"py-auto my-auto pr-3"}>

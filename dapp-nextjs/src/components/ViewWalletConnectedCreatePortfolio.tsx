@@ -100,6 +100,7 @@ export const ViewWalletConnectedCreatePortfolio = ({registry}: Props) => {
                 <BuyMoreAssetsModal
                     showModal={showFaucetModal}
                     setShowModal={setShowFaucetModal}
+                    onClose={() => {}}
                 />
                 <CreatePortfolioView
                     allocationItems={allocationData}
