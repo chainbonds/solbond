@@ -62,7 +62,7 @@ export default function BuyMoreAssetsModal({showModal, setShowModal, onClose}: P
                                         </div>
                                         <div className="flex flex-row w-full py-5 mx-auto justify-start border-t border-gray-700 px-5 mx-auto">
                                             <div className={"mx-auto mr-5"}>
-                                                <FaucetButton />
+                                                <FaucetButton activated={true} />
                                             </div>
                                             <div className={"mx-auto ml-5"}>
                                                 <button
