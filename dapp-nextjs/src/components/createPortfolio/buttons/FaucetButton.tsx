@@ -9,7 +9,6 @@ import {useErrorMessage} from "../../../contexts/ErrorMessageContext";
 import {syncNative} from "@solendprotocol/solend-sdk";
 import {MOCK} from "@qpools/sdk";
 import {airdropAdmin, createAssociatedTokenAccountSendUnsigned} from "@qpools/sdk";
-import {act} from "react-dom/test-utils";
 import {calculateActiveTickIndex} from "recharts/types/util/ChartUtils";
 
 interface Props {
