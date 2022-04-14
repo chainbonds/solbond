@@ -5,6 +5,7 @@ import {DevnetButton} from "./createPortfolio/buttons/DevnetButton";
 import SelectWallet from "./createPortfolio/buttons/SelectWallet";
 import {BuyMoreButton} from "./createPortfolio/buttons/BuyMoreButton";
 import BuyMoreAssetsModal from "./common/BuyMoreAssetsModal";
+import BuyMoreAssetsOptionalModal from "./common/BuyMoreAssetsOptionalModal";
 
 export const Header: FC = ({}) => {
 
@@ -12,7 +13,7 @@ export const Header: FC = ({}) => {
 
     return (
         <>
-            <BuyMoreAssetsModal
+            <BuyMoreAssetsOptionalModal
                 showModal={showFaucetModal}
                 setShowModal={setShowFaucetModal}
                 onClose={() => {setShowFaucetModal(false)}}

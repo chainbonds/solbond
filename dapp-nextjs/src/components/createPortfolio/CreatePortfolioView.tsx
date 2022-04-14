@@ -4,9 +4,6 @@ import {getInputToken, SelectedToken} from "../../utils/utils";
 import InputFieldWithSliderInputAndLogo from "../common/InputFieldWithSliderInputAndLogo";
 import PurchaseButton from "../createPortfolio/buttons/PurchaseButton";
 import { Registry } from "@qpools/sdk";
-import {TokenAmount} from "@solana/web3.js";
-import {BN} from "@project-serum/anchor";
-import {UserTokenBalance} from "../../types/UserTokenBalance";
 
 interface Props {
     allocationItems: Map<string, AllocData>,
