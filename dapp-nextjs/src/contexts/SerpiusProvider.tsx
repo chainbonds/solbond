@@ -1,7 +1,8 @@
 import React, {useState, useContext, useEffect} from 'react';
 import axios from "axios";
 import {AllocData, keyFromAllocData} from "../types/AllocData";
-import {ExplicitPool, Protocol, Registry} from '@qpools/sdk';
+import {ExplicitPool, ExplicitToken, Protocol, Registry} from '@qpools/sdk';
+import {PublicKey} from "@solana/web3.js";
 
 export interface ISerpius {
     portfolioRatios: Map<string, AllocData>,
@@ -20,6 +21,18 @@ export function useSerpiusEndpoint() {
 }
 
 interface SerpiusInput {
+    inputToken: SerpiusToken,
+    assets: SerpiusPool[],
+}
+
+interface SerpiusToken {
+    "address": string,
+    "decimals": number,
+    "logoURI": string,
+    "name": string,
+    "symbol": string
+}
+interface SerpiusPool {
     lp: string,
     weight: number,
     protocol: string,
@@ -50,12 +63,12 @@ export function SerpiusEndpointProvider(props: Props) {
             console.log(JSON.stringify(response.data));
             console.log("Next!?");
 
-            if ("opt_port" in response.data) {
+            if ("allocations" in response.data) {
                 console.log("Trying to get the data ...");
                 console.log("response.data", response.data);
-                console.log("response.data.opt_port", response.data["opt_port"]);
+                console.log("response.data.allocations", response.data["allocations"]);
                 console.log("Now loading again ...")
-                let data: SerpiusInput[] = response.data["opt_port"];
+                let data: SerpiusInput[] = response.data["allocations"];
 
                 // TODO: Instead of doing this, maybe fetch the data, and then push it into the map directry ...
                 // For now, I will leave it like this
@@ -73,37 +86,57 @@ export function SerpiusEndpointProvider(props: Props) {
                 // Now add the information about the ExplicitSaberPool into it as well
                 let newData: Map<string, AllocData> = new Map<string, AllocData>();
                 await Promise.all(data.map(async (dataItem: SerpiusInput) => {
-                    console.log("Parsing serpis item: ", dataItem);
-                    console.log("data lp is: ", dataItem.lp);
-                    // TODO: Remove for mainnet / devnet...
-                    // TODO: Also add case-distinction for the protocol ...
-                    if (dataItem.lp === "USDC-USDT" && dataItem.protocol === "saber") {
-                        dataItem.lp = "usdc_usdt"
-                    } else if (dataItem.lp === "mSOL" && dataItem.protocol === "marinade") {
-                        dataItem.lp = "marinade"
-                    } else if (dataItem.lp === "SOL" && dataItem.protocol === "solend") {
-                        dataItem.lp = "SOL"
-                        // was previously cSOL. ID should be set from the registry, however !!! (and for solend, the id is the Symbol)
+                    console.log("Parsing serpius item: ", dataItem);
+                    let token: SerpiusToken = dataItem.inputToken;
+                    let inputToken: ExplicitToken | null = await props.registry.getToken(token.address);
+                    if (!inputToken) {
+                        console.log("bad data item is: ", dataItem);
+                        throw Error("Serpius APi is going bs! " + token.address);
                     }
 
-                    console.log("Registry is: ", props.registry);
-                    console.log("Getting from getPoolSplStringId (1)");
-                    let pool: ExplicitPool | null = await props.registry.getPoolFromSplStringId(dataItem.lp);
-                    console.log("Getting from getPoolSplStringId (2)");
-                    if (!pool) {
-                        throw Error("The Id that the serpius endpoint provides was not found in the registry ...: " + dataItem.lp);
-                    }
-                    let out: AllocData = {
-                        apy_24h: dataItem.apy_24h,
-                        weight: dataItem.weight,
-                        lpIdentifier: dataItem.lp,
-                        pool: pool,
-                        // @ts-ignore
-                        protocol: Protocol[dataItem.protocol],   // Gotta convert the string to an enum ...
-                        usdcAmount: (100 / (data.length))
-                    };
-                    console.log("data item is", out);
-                    newData.set(keyFromAllocData(out), out);
+                    await Promise.all(dataItem.assets.map(async (asset: SerpiusPool) => {
+                        console.log("Parsing asset item: ", asset);
+                        // TODO: Remove for mainnet / devnet...
+                        // TODO: Also add case-distinction for the protocol ...
+                        if (asset.lp === "USDC-USDT" && asset.protocol === "saber") {
+                            asset.lp = "usdc_usdt"
+                        } else if (asset.lp === "mSOL" && asset.protocol === "marinade") {
+                            asset.lp = "marinade"
+                        } else if (asset.lp === "USDC-CASH" && asset.protocol === "saber") {
+                            asset.lp = "usdc_cash"
+                        } else if (asset.lp === "USDT-CASH" && asset.protocol === "saber") {
+                            asset.lp = "usdt_cash"
+                        } else if (asset.lp === "USDC-PAI" && asset.protocol === "saber") {
+                            asset.lp = "usdc_pai"
+                        } else if (asset.lp === "SOL" && asset.protocol === "solend") {
+                            asset.lp = "SOL"
+                            // was previously cSOL. ID should be set from the registry, however !!! (and for solend, the id is the Symbol)
+                        }
+
+                        console.log("Registry is: ", props.registry);
+                        console.log("Getting from getPoolSplStringId (1)");
+                        let pool: ExplicitPool | null = await props.registry.getPoolFromSplStringId(asset.lp);
+                        console.log("Getting from getPoolSplStringId (2)");
+                        if (!pool) {
+                            throw Error("The Id that the serpius endpoint provides was not found in the registry ...: " + asset.lp);
+                        }
+                        // Also create an input amount with the given currency ...
+                        // or add another field "input currency
+                        // and put the token in there ...?
+                        // and
+                        let out: AllocData = {
+                            apy_24h: asset.apy_24h,
+                            weight: asset.weight,
+                            lpIdentifier: asset.lp,
+                            pool: pool,
+                            // @ts-ignore
+                            protocol: Protocol[asset.protocol],   // Gotta convert the string to an enum ...
+                            usdcAmount: (100 / (data.length)),
+                            inputToken: inputToken!
+                        };
+                        console.log("data item is", out);
+                        newData.set(keyFromAllocData(out), out);
+                    }));
                 }));
 
                 setPortfolioRatios((_: Map<string, AllocData>) => {
@@ -111,7 +144,7 @@ export function SerpiusEndpointProvider(props: Props) {
                     return newData
                 });
             } else {
-                console.log("opt port not found in data!");
+                console.log("allocations port not found in data!");
             }
             console.log("##useEffect getSerpiusEndpoint");
         }

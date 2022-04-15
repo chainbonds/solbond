@@ -68,7 +68,7 @@ export function UserWalletAssetsProvider(props: Props) {
         // Also return empty if the
 
         // Set the newly selected pubkey into the registry ...
-        props.registry.setNewPubkey(rpcProvider.userAccount!.publicKey);
+        await props.registry.setNewPubkey(rpcProvider.userAccount!.publicKey);
 
         // (1) Get all token accounts owned that we get from the serpius API ...
         // .filter((item, index) => {return portfolioRatios.indexOf(item) === index})
@@ -106,6 +106,8 @@ export function UserWalletAssetsProvider(props: Props) {
                 // Gotta get the input tokens ...
 
                 // Do a whitelist here which assets we accept ...
+                // TODO: !!!!!Pick the input token that matches the mint of the input-token !!!
+                // And return if this does not exist yet
                 if (getWhitelistTokens().filter((x: string) => x === token.address).length === 0) {
                     return
                 }

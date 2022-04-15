@@ -40,6 +40,7 @@ export const getInputTokens = async (selectedAssetPools: ExplicitPool[]): Promis
     return out;
 }
 
+// At this point, this function sohuld be obsolete, because we get this from the serpius endpoint!
 export const getInputToken = async (selectedAssetTokens: ExplicitToken[]): Promise<SelectedToken> => {
     let whitelistedTokenStrings = new Set<string>(await getWhitelistTokens());
     console.log("Whitelist tokens are: ", await getWhitelistTokens());
