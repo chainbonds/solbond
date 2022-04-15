@@ -188,6 +188,8 @@ export default function PurchaseButton({passedAllocationData}: Props) {
                     txUnwrapToken
                 );
             } catch (error) {
+                console.log("Instructions that failed: ");
+                console.log(txUnwrapToken);
                 itemLoadContext.resetCounter();
                 console.log(String(error));
                 errorMessage.addErrorMessage(
@@ -236,6 +238,8 @@ export default function PurchaseButton({passedAllocationData}: Props) {
                     txCreateAssociateTokenAccount
                 );
             } catch (error) {
+                console.log("Instructions that failed: ");
+                console.log(txCreateAssociateTokenAccount);
                 itemLoadContext.resetCounter();
                 console.log(String(error));
                 errorMessage.addErrorMessage(
@@ -338,6 +342,51 @@ export default function PurchaseButton({passedAllocationData}: Props) {
          *  Same as associated token accounts, we must first receive the input pools ...
          *
          */
+
+        interface RegisterCurrencyInputInterface {
+            currencyAmount: BN,
+            currencyMint: PublicKey
+        }
+        let currencyMintAndAmount: Map<string, RegisterCurrencyInputInterface> = new Map<string, RegisterCurrencyInputInterface>();
+        // Register currency accounts ... sum up all the currency amounts, i.e. reduced by currency mint
+        allocationDataAsArray.map(([key, value]: [string, AllocData], index: number) => {
+            // Move these errors up, all the way up before you do any depositing ...
+            if (!value.userInputAmount) {
+                console.log("User input amount was not specified!");
+                console.log(value);
+                throw Error("User input amount was not specified! " + JSON.stringify(value));
+            }
+            if (!value.pool) {
+                console.log("Pool is not set!!");
+                console.log(value);
+                throw Error("Pool is not set! " + JSON.stringify(value));
+            }
+
+            let currencyAmount: BN = new BN(value.userInputAmount!.amount.amount);
+            let currencyMint: PublicKey = value.userInputAmount!.mint;
+            if (currencyMintAndAmount.has(currencyMint.toString())) {
+                let inputItem = currencyMintAndAmount.get(currencyMint.toString());
+                currencyMintAndAmount.set(currencyMint.toString(), {
+                    currencyMint: inputItem!.currencyMint,
+                    currencyAmount: inputItem!.currencyAmount.add(currencyAmount)
+                });
+            } else {
+                currencyMintAndAmount.set(currencyMint.toString(), {
+                    currencyMint: currencyMint,
+                    currencyAmount: currencyAmount
+                });
+            }
+
+        })
+
+        await Promise.all(Array.from(currencyMintAndAmount.entries()).map(async ([key, value]: [string, RegisterCurrencyInputInterface], index: number) => {
+            let IxRegisterCurrencyInput = await rpcProvider.portfolioObject!.registerCurrencyInputInPortfolio(
+                value.currencyAmount,
+                value.currencyMint
+            );
+            tx.add(IxRegisterCurrencyInput);
+        }))
+
         await Promise.all(allocationDataAsArray.map(async ([key, value]: [string, AllocData], index: number) => {
 
             // Do all types of checks here
@@ -361,13 +410,6 @@ export default function PurchaseButton({passedAllocationData}: Props) {
             let weight: BN = new BN(value.weight);
 
             if (value.protocol.valueOf() === Protocol.saber.valueOf()) {
-
-                // Make sure that the input mint is not Native SOL
-                let IxRegisterCurrencyInput = await rpcProvider.portfolioObject!.registerCurrencyInputInPortfolio(
-                    currencyAmount,
-                    currencyMint
-                );
-                tx.add(IxRegisterCurrencyInput);
 
                 let IxApprovePositionWeightSaber = await rpcProvider.portfolioObject!.approvePositionWeightSaber(
                     lpAddress,
@@ -397,12 +439,6 @@ export default function PurchaseButton({passedAllocationData}: Props) {
                 tx.add(IxApprovePositionWeightMarinade);
 
             } else if (value.protocol.valueOf() === Protocol.solend.valueOf()) {
-
-                let IxRegisterCurrencyInput = await rpcProvider.portfolioObject!.registerCurrencyInputInPortfolio(
-                    currencyAmount,
-                    currencyMint
-                );
-                tx.add(IxRegisterCurrencyInput);
 
                 let IxApprovePositionWeightSolend = await rpcProvider.portfolioObject!.approvePositionWeightSolend(
                     currencyMint,
@@ -447,6 +483,8 @@ export default function PurchaseButton({passedAllocationData}: Props) {
                 tx
             );
         } catch (error) {
+            console.log("Instructions that failed: ");
+            console.log(tx);
             itemLoadContext.resetCounter();
             console.log(error);
             errorMessage.addErrorMessage(

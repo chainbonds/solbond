@@ -1,9 +1,10 @@
 import React, {useEffect, useState} from "react";
 import {AllocData} from "../../types/AllocData";
-import {getInputToken, SelectedToken} from "../../utils/utils";
+import {SelectedToken} from "../../utils/utils";
 import InputFieldWithSliderInputAndLogo from "../common/InputFieldWithSliderInputAndLogo";
 import PurchaseButton from "../createPortfolio/buttons/PurchaseButton";
 import { Registry } from "@qpools/sdk";
+import {PublicKey} from "@solana/web3.js";
 
 interface Props {
     allocationItems: Map<string, AllocData>,
@@ -22,8 +23,12 @@ export default function CreatePortfolioView({allocationItems, selectedItemKey, s
         let asset = allocationItems.get(selectedItemKey)!;
         console.log("Asset is: ", asset);
         console.log("Pool is: ", asset.pool);
-        let selectedAssetTokens = asset.pool!.tokens;
-        let inputToken: SelectedToken = await getInputToken(selectedAssetTokens);
+        // let selectedAssetTokens = asset.pool!.tokens;
+        // TODO: Probably should check for whitelisted tokens ...
+        let inputToken: SelectedToken = {
+            mint: new PublicKey(asset.inputToken.address),
+            name: asset.inputToken.name
+        };  // await getInputToken(selectedAssetTokens);
         setSelectedToken(inputToken);
         console.log("Input token in: ", inputToken);
         console.log("Asset that we're looking at is: ", asset);

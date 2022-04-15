@@ -64,6 +64,14 @@ export interface AllocData {
  * provided
  */
 export const keyFromAllocData = (x: AllocData): string => {
+    if (!x || !x.inputToken || !x.inputToken.address || !x.lpIdentifier) {
+        console.log("AllocData is not complete! ");
+        console.log(x);
+        console.log(!x.inputToken);
+        console.log(!x.inputToken.address);
+        console.log(!x.lpIdentifier);
+        throw Error("AllocData is not complete!");
+    }
     let protocolString: string = Protocol[x.protocol];
     return "Protocol:" + protocolString + ".lpIdentifier:" + String(x.lpIdentifier) + ".inputToken:" + String(x.inputToken.address.toString());
 }

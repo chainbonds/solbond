@@ -73,10 +73,10 @@ export const ViewWalletConnectedCreatePortfolio = ({registry}: Props) => {
     return (
         <div className={"flex flex-col text-center lg:text-left"}>
             <h1 className={"text-3xl font-light"}>
-                Please Select Your Portfolio
+                You have tokens in your Wallet. They could be earning income!
             </h1>
             <h2 className={"text-2xl font-light"}>
-                This will be the allocation in which your assets generate yields
+                These are some DeFi protocols which could generate you passive income based on the assets in your wallet.
             </h2>
             <div className={"flex flex-col lg:flex-row mt-8"}>
                 <div className={"my-auto mx-auto p-8"}>

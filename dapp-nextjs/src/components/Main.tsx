@@ -96,20 +96,20 @@ export const Main = ({registry}: Props) => {
     }, [rpcProvider.portfolioObject, walletProvider && walletProvider?.publicKey, rpcProvider.makePriceReload]);
 
 
-    useEffect(() => {
-        console.log("Flushing the portfolio of the user to the console");
-        if (rpcProvider.portfolioObject) {
-            rpcProvider.portfolioObject.fetchPortfolio().then((portfolioAccount: PortfolioAccount | null) => {
-                let isFulfilled = portfolioAccount?.fullyCreated;
-                if (isFulfilled) {
-                    console.log("Flushing all accounts ... ", portfolioAccount);
-                    rpcProvider.portfolioObject!.flushAllAccountsToConsole();
-                } else {
-                    console.log("No position executed found yet!");
-                }
-            });
-        } else {console.log("PortfolioObject not created yet")}
-    }, [rpcProvider.portfolioObject]);
+    // useEffect(() => {
+    //     console.log("Flushing the portfolio of the user to the console");
+    //     if (rpcProvider.portfolioObject) {
+    //         rpcProvider.portfolioObject.fetchPortfolio().then((portfolioAccount: PortfolioAccount | null) => {
+    //             let isFulfilled = portfolioAccount?.fullyCreated;
+    //             if (isFulfilled) {
+    //                 console.log("Flushing all accounts ... ", portfolioAccount);
+    //                 rpcProvider.portfolioObject!.flushAllAccountsToConsole();
+    //             } else {
+    //                 console.log("No position executed found yet!");
+    //             }
+    //         });
+    //     } else {console.log("PortfolioObject not created yet")}
+    // }, [rpcProvider.portfolioObject]);
 
     return (
         <div

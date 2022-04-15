@@ -1,6 +1,5 @@
 import React, {useEffect, useState} from "react";
 import {
-    getInputToken,
     SelectedToken,
     solscanLink
 } from "../../utils/utils";
@@ -46,7 +45,12 @@ export default function SuggestedPortfolioTable({registry, tableColumns, selecte
             .map(async ([key, current]) => {
                 console.log("Value is: ", current.usdcAmount, allocationSum);
                 let displayTokens: DisplayToken[] = await displayTokensFromPool(current.pool, registry);
-                let inputToken: SelectedToken = await getInputToken(current.pool.tokens);
+                // TODO: Probably should check for whitelisted tokens ...
+                let inputToken: SelectedToken = {
+                    mint: new PublicKey(current.inputToken.address),
+                    name: current.inputToken.name
+                };
+                // getInputToken(current.pool.tokens);
                 // TODO This should probably be somewhere else ...
                 let inputTokenLink: string = await registry.getIconUriFromToken(inputToken.mint.toString());
                 let tmp: ChartableItemType = {

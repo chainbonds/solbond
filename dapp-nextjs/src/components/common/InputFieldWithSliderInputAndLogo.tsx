@@ -177,7 +177,8 @@ export default function InputFieldWithSliderInputAndLogo({
             protocol: currentlySelectedAsset.protocol,
             userInputAmount: userInputAmount,
             userWalletAmount: currentlySelectedAsset.userWalletAmount,
-            usdcAmount: usdcAmount
+            usdcAmount: usdcAmount,
+            inputToken: currentlySelectedAsset.inputToken
         };
 
         // Now set the stuff ...

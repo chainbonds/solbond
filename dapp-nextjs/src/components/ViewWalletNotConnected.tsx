@@ -34,10 +34,10 @@ export const ViewWalletNotConnected = ({registry}: Props) => {
     return (
         <div className={"text-center lg:text-left"}>
             <h1 className={"text-4xl font-light"}>
-                Create your decentralized Portfolio
+                You have tokens in your Wallet. They could be earning income!
             </h1>
             <h2 className={"mt-5 text-2xl font-light"}>
-                Please Connect your Wallet First!
+                Please Connect your Wallet to start.
             </h2>
             <div className={"flex flex-col lg:flex-row mt-8"}>
                 <div className={"my-auto mx-auto p-8"}>

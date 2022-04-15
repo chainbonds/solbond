@@ -40,34 +40,34 @@ export const getInputTokens = async (selectedAssetPools: ExplicitPool[]): Promis
     return out;
 }
 
-// At this point, this function sohuld be obsolete, because we get this from the serpius endpoint!
-export const getInputToken = async (selectedAssetTokens: ExplicitToken[]): Promise<SelectedToken> => {
-    let whitelistedTokenStrings = new Set<string>(await getWhitelistTokens());
-    console.log("Whitelist tokens are: ", await getWhitelistTokens());
-    let filteredTokens: ExplicitToken[] = selectedAssetTokens.filter((x: ExplicitToken) => {
-        // console.log("Looking at the token: ", x);
-        console.log("Looking at the token: ", x.address);
-        // return whitelistedTokens.has(new PublicKey(x.address))
-        console.log("Does it have it: ", whitelistedTokenStrings.has(x.address));
-        return whitelistedTokenStrings.has(x.address)
-    })
-    console.log("Whitelist tokens are: ", await getWhitelistTokens());
-    console.log("Initial set of input tokens is: ", filteredTokens);
-    let inputTokens: SelectedToken[] = filteredTokens.map((x: ExplicitToken) => {
-        return {
-            name: x.name,
-            mint: new PublicKey(x.address)
-        }
-    })
-    console.log("Input tokens are: ", inputTokens);
-    // Gotta assert that at least one of the tokens is an input token:
-    if (inputTokens.length < 1) {
-        console.log("SelectedAssetToken: ", selectedAssetTokens);
-        throw Error("Somehow this pool has no whitelisted input tokens!");
-    }
-    let inputToken = inputTokens[0];
-    return inputToken;
-}
+// // At this point, this function sohuld be obsolete, because we get this from the serpius endpoint!
+// export const getInputToken = async (selectedAssetTokens: ExplicitToken[]): Promise<SelectedToken> => {
+//     let whitelistedTokenStrings = new Set<string>(await getWhitelistTokens());
+//     console.log("Whitelist tokens are: ", await getWhitelistTokens());
+//     let filteredTokens: ExplicitToken[] = selectedAssetTokens.filter((x: ExplicitToken) => {
+//         // console.log("Looking at the token: ", x);
+//         console.log("Looking at the token: ", x.address);
+//         // return whitelistedTokens.has(new PublicKey(x.address))
+//         console.log("Does it have it: ", whitelistedTokenStrings.has(x.address));
+//         return whitelistedTokenStrings.has(x.address)
+//     })
+//     console.log("Whitelist tokens are: ", await getWhitelistTokens());
+//     console.log("Initial set of input tokens is: ", filteredTokens);
+//     let inputTokens: SelectedToken[] = filteredTokens.map((x: ExplicitToken) => {
+//         return {
+//             name: x.name,
+//             mint: new PublicKey(x.address)
+//         }
+//     })
+//     console.log("Input tokens are: ", inputTokens);
+//     // Gotta assert that at least one of the tokens is an input token:
+//     if (inputTokens.length < 1) {
+//         console.log("SelectedAssetToken: ", selectedAssetTokens);
+//         throw Error("Somehow this pool has no whitelisted input tokens!");
+//     }
+//     let inputToken = inputTokens[0];
+//     return inputToken;
+// }
 
 export const solscanLink = (address: PublicKey) => {
     let out = "https://solscan.io/account/";

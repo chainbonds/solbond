@@ -34,7 +34,8 @@ export const ViewWalletConnectedPortfolioExists = ({registry}: Props) => {
                 protocol: position.protocol,
                 userInputAmount: position.userInputAmount,
                 userWalletAmount: position.userWalletAmount,
-                usdcAmount: position.usdcAmount
+                usdcAmount: position.usdcAmount,
+                inputToken: position.inputToken
             };
             let key: string = keyFromAllocData(position);
             newAllocationData.set(key, tmp);
@@ -58,10 +59,10 @@ export const ViewWalletConnectedPortfolioExists = ({registry}: Props) => {
     return (
         <div className={"flex flex-col text-center lg:text-left"}>
             <h1 className={"text-4xl font-light"}>
-                Your Portfolio
+                You have tokens in your Wallet. They are earning income!
             </h1>
             <h2 className={"mt-5 text-2xl font-light"}>
-                See the assets for your current portfolio
+                You have previously created the following porfolio.
             </h2>
             <div className={"flex flex-col lg:flex-row mt-8"}>
                 <div className={"my-auto mx-auto p-8"}>

@@ -86,6 +86,8 @@ export function ExistingPortfolioProvider(props: Props) {
                 if (!serpiusObject) {
                     return;
                 }
+                // The positionInfo is not uniquely mapped to the (inputToken, assetLp) objet. We must change this !!!
+                // For now this should be fine, because we do not share any tokens ...
                 let allocData: AllocData = {
                     apy_24h: serpiusObject.apy_24h,
                     weight: serpiusObject.weight,
@@ -94,7 +96,8 @@ export function ExistingPortfolioProvider(props: Props) {
                     protocol: x.protocol,
                     userInputAmount: amount,
                     userWalletAmount: amount,
-                    usdcAmount: x.usdcValueLP
+                    usdcAmount: x.usdcValueLP,
+                    inputToken: serpiusObject.inputToken
                 }
                 console.log("Pushing allocdata", allocData);
                 newAllocData.set(keyFromAllocData(allocData), allocData);
