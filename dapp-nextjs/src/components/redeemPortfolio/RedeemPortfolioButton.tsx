@@ -1,6 +1,6 @@
 import React, {FC} from "react";
 import {IRpcProvider, useRpc} from "../../contexts/RpcProvider";
-import {PublicKey, Transaction, TransactionInstruction} from "@solana/web3.js";
+import {PublicKey, Transaction} from "@solana/web3.js";
 import {sendAndConfirmTransaction} from "../../utils/utils";
 import {IItemsLoad, useItemsLoad} from "../../contexts/ItemsLoadingContext";
 import {ILocalKeypair, useLocalKeypair} from "../../contexts/LocalKeypairProvider";

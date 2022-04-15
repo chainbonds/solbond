@@ -4,7 +4,7 @@ import {ILoad, useLoad} from "./LoadingContext";
 import {AllocData, keyFromAllocData, keyFromPoolData} from "../types/AllocData";
 import {UserTokenBalance} from "../types/UserTokenBalance";
 import {ISerpius, useSerpiusEndpoint} from "./SerpiusProvider";
-import {accountExists} from "@qpools/sdk";
+import {accountExists, PortfolioAccount} from "@qpools/sdk";
 import {ExplicitPool, PositionInfo, Registry } from '@qpools/sdk';
 
 export interface IExistingPortfolio {
@@ -46,6 +46,12 @@ export function ExistingPortfolioProvider(props: Props) {
     const calculateAllUsdcValues = async () => {
         console.log("#useEffect calculateAllUsdcValues");
         if (rpcProvider.userAccount && rpcProvider.portfolioObject && (await accountExists(rpcProvider.connection!, rpcProvider.portfolioObject.portfolioPDA))) {
+
+            let portfolioAccount: PortfolioAccount | null = await rpcProvider.portfolioObject!.fetchPortfolio();
+            if (!portfolioAccount?.fullyCreated) {
+                return;
+            }
+            // TODO: Should fetch the portfolio, and check if it is fulfilled yet ... otherwise return early ...
             console.log("Going in here ..");
             loadingProvider.increaseCounter();
             let {storedPositions, usdAmount} = await rpcProvider.portfolioObject.getPortfolioUsdcValue();

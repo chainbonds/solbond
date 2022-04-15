@@ -12,7 +12,7 @@ import {lamportsReserversForLocalWallet} from "../../../const";
 import {getAssociatedTokenAddress} from "easy-spl/dist/tx/associated-token-account";
 import {useConnectedWallet} from "@saberhq/use-solana";
 import {getWrappedSolMint} from "@qpools/sdk";
-import { ExplicitPool, ExplicitSolendPool, ExplicitToken, Protocol } from "@qpools/sdk";
+import { ExplicitPool, ExplicitToken, Protocol } from "@qpools/sdk";
 
 // TODO: Refactor the code here ... looks a bit too redundant.
 //  Maybe try to push the logic into the sdk?
@@ -101,7 +101,7 @@ export default function PurchaseButton({passedAllocationData}: Props) {
 
         // Before starting, make sure the user has at least some SOL ....
         // 1_000_000_000
-        if ((await rpcProvider.connection!.getBalance(rpcProvider.userAccount!.publicKey)) < 100_000) {
+        if ((await rpcProvider.connection!.getBalance(rpcProvider.userAccount!.publicKey)) < 10_000_000) {
             // TODO: Gotta redirect her to Moonpay
             errorMessage.addErrorMessage(
                 "not_enough_funds_show_faucet",
@@ -467,71 +467,19 @@ export default function PurchaseButton({passedAllocationData}: Props) {
          *  Again, dependent on the protocol
          */
         // Fetch all positions, and fulfill them ...
-        await Promise.all(allocationDataAsArray.map(async ([key, value]: [string, AllocData], index: number) => {
-            console.log("Fulfilling permissionles ...");
-            console.log(value);
-            if (value.protocol.valueOf() === Protocol.saber.valueOf()) {
-                try {
-                    let sgPermissionlessFullfillSaber = await crankProvider.crankRpcTool!.permissionlessFulfillSaber(index);
-                    console.log("Fulfilled sg Saber is: ", sgPermissionlessFullfillSaber);
-                } catch (error) {
-                    itemLoadContext.resetCounter();
-                    console.log(String(error));
-                    errorMessage.addErrorMessage(
-                        "crank_portfolio_saber",
-                        "Fulfilling the Saber Protocol failed.",
-                        String(error)
-                    );
-                    return;
-                }
-            } else if (value.protocol.valueOf() === Protocol.marinade.valueOf()) {
-                try {
-                    let sgPermissionlessFullfillMarinade = await crankProvider.crankRpcTool!.createPositionMarinade(index);
-                    console.log("Fulfilled sg Marinade is: ", sgPermissionlessFullfillMarinade);
-                } catch (error) {
-                    itemLoadContext.resetCounter();
-                    console.log(String(error));
-                    errorMessage.addErrorMessage(
-                        "crank_portfolio_marinade",
-                        "Fulfilling the Marinade Protocol failed.",
-                        String(error)
-                    );
-                    return;
-                }
-            } else if (value.protocol.valueOf() === Protocol.solend.valueOf()) {
-                // Is there any way to do safe typecasting ... (?)
-                let solendPool = value.pool as ExplicitSolendPool;
-                try {
-                    // TODO: createPositionSolend ==> requires the Solend one
-                    // The last two variables are hard-coded and wrong!
-                    let sgPermissionlessFullfillSolend = await crankProvider.crankRpcTool!.createPositionSolend(
-                        index,
-                        solendPool.solendAction
-                    );
-                    console.log("Fulfilled sg Marinade is: ", sgPermissionlessFullfillSolend);
-                } catch (error) {
-                    itemLoadContext.resetCounter();
-                    console.log(String(error));
-                    errorMessage.addErrorMessage(
-                        "crank_portfolio_solend",
-                        "Fulfilling the Marinade Protocol failed.",
-                        String(error)
-                    );
-                    return;
-                }
-            } else {
-                console.log("Not all cranks could be fulfilled!!");
-                console.log(value);
-                // throw Error("Not all cranks could be fulfilled!! " + JSON.stringify(value));
-                errorMessage.addErrorMessage(
-                    "crank_portfolio_wrong_enum",
-                    "Some Protocol outside has been specified!",
-                    "Not all cranks have been fulfilled, this protocool was not found: " + JSON.stringify(value)
-                );
-                return;
-            }
+        try {
+            let {portfolio, positionsSaber, positionsMarinade, positionsSolend} = await rpcProvider.portfolioObject!.getPortfolioAndPositions();
+            await crankProvider.crankRpcTool!.depositAllPositions(portfolio, positionsSaber, positionsMarinade, positionsSolend);
+        } catch (error) {
+            itemLoadContext.resetCounter();
+            console.log(String(error));
+            errorMessage.addErrorMessage(
+                "crank_portfolio_saber",
+                "Fulfilling the Saber Protocol failed.",
+                String(error)
+            );
             return;
-        }));
+        }
         await itemLoadContext.incrementCounter();
         console.log("Updating price ...");
         // Add another Counter "running cranks"
