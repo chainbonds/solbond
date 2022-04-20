@@ -24,8 +24,10 @@ export const RunDepositCrankButton = ({}: Props) => {
     const crankProvider: ICrank = useCrank();
 
     // Onclick, alert that the user must connect his wallet first!
+    // TODO: The functionality of this should be put in a function somewhere ...
+    //  Otherwise we have duplicate code with the deposit button in the normal program flow
     const depositCrank = async () => {
-        console.log("Requesting airdrop...");
+        console.log("Running Deposit Crank again ... airdrop...");
 
         await itemLoadContext.addLoadItem({message: "Depositing lamports to Crank Wallet"});
         await itemLoadContext.addLoadItem({message: "Runnning Cranks"});
@@ -57,7 +59,7 @@ export const RunDepositCrankButton = ({}: Props) => {
             console.log(error);
             errorMessage.addErrorMessage(
                 "create_portfolio",
-                "Something went wrong creating the portfolio",
+                "Something went wrong creating the portfolio. The Solana Devnet Network seems to be down :///",
                 String(error)
             );
             return;

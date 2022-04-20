@@ -489,7 +489,7 @@ export default function PurchaseButton({passedAllocationData}: Props) {
             console.log(error);
             errorMessage.addErrorMessage(
                 "create_portfolio",
-                "Something went wrong creating the portfolio",
+                "Something went wrong creating the portfolio. The Solana Devnet Network seems to be down :///",
                 String(error)
             );
             return;
