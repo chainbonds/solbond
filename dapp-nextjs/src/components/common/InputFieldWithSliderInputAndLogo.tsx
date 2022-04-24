@@ -1,7 +1,7 @@
 import React, {ChangeEvent, useEffect, useState} from "react";
 import Image from "next/image";
 import {BRAND_COLORS} from "../../const";
-import {AllocData, keyFromPoolData} from "../../types/AllocData";
+import {AllocData} from "../../types/AllocData";
 import {BN} from "@project-serum/anchor";
 import {TokenAmount} from "@solana/web3.js";
 import {
@@ -9,12 +9,12 @@ import {
     getMarinadeSolMint,
     getTokenAmount,
     Registry,
-    getWhitelistTokens,
-    multiplyAmountByPythprice
+    getWhitelistTokens
 } from "@qpools/sdk";
 import {SelectedToken} from "../../utils/utils";
 import {UserTokenBalance} from "../../types/UserTokenBalance";
 import { getTokenAmountFromString } from "@qpools/sdk";
+import {IRpcProvider, useRpc} from "../../contexts/RpcProvider";
 
 // TODO: I guess most numbers here should be replaced by TokenAmount, and then the lamports should be the inputs, and the uiAmounts should be the display values?
 //  Not sure if typescript can handle these though
@@ -42,6 +42,7 @@ export default function InputFieldWithSliderInputAndLogo({
      * Peripheral state
      */
     const [errorMessage, setErrorMessage] = useState<string>("");
+    const rpcProvider: IRpcProvider = useRpc();
 
     // Let's hope this is copy by reference
     /**
@@ -164,10 +165,16 @@ export default function InputFieldWithSliderInputAndLogo({
         };
 
         // re-calculate the usdc value according to the mint and input amount
-        let usdcAmount = await multiplyAmountByPythprice(
-            userInputAmount.amount.uiAmount!,
-            userInputAmount.mint
+        let usdcAmount = await rpcProvider.portfolioObject?.coinGeckoClient.multiplyAmountByUSDPrice(
+            userInputAmount!.amount.uiAmount!,
+            userInputAmount!.mint
         );
+        if (!usdcAmount && usdcAmount !== 0.) {
+            console.log(userInputAmount);
+            console.log(userInputAmount?.amount.uiAmount);
+            console.log(userInputAmount?.mint);
+            throw Error("Mint was probably not found, or something went wrong calculating price ");
+        }
 
         let newAsset: AllocData = {
             weight: currentlySelectedAsset.weight,

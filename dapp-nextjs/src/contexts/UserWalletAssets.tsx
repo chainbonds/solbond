@@ -5,8 +5,7 @@ import {IRpcProvider, useRpc} from "./RpcProvider";
 import {ISerpius, useSerpiusEndpoint} from "./SerpiusProvider";
 import {BN} from "@project-serum/anchor";
 import {lamportsReserversForLocalWallet} from "../const";
-import {Registry, getWhitelistTokens, ExplicitToken, getAssociatedTokenAddressOffCurve, accountExists, getTokenAmount, getMarinadeSolMint, getWrappedSolMint, multiplyAmountByPythprice } from '@qpools/sdk';
-import {divide} from "@solendprotocol/solend-sdk/dist/examples/common";
+import {Registry, getWhitelistTokens, ExplicitToken, getAssociatedTokenAddressOffCurve, accountExists, getTokenAmount, getMarinadeSolMint, getWrappedSolMint } from '@qpools/sdk';
 
 export interface IUserWalletAssets {
     walletAssets: Map<string, AllocData>
@@ -175,10 +174,17 @@ export function UserWalletAssetsProvider(props: Props) {
                     userWalletAmount: {mint: mint, ata: ata, amount: userBalance}
                 }
 
-                newPool.usdcAmount = await multiplyAmountByPythprice(
+                let usdcAmount = await rpcProvider.portfolioObject?.coinGeckoClient.multiplyAmountByUSDPrice(
                     newPool.userInputAmount!.amount.uiAmount!,
                     newPool.userInputAmount!.mint
                 );
+                if (!usdcAmount && usdcAmount !== 0.) {
+                    console.log(newPool.userInputAmount);
+                    console.log(newPool.userInputAmount?.amount.uiAmount);
+                    console.log(newPool.userInputAmount?.mint);
+                    throw Error("Mint was probably not found, or something went wrong calculating price ");
+                }
+                newPool.usdcAmount = usdcAmount
                 console.log("Pushing object: ", newPool);
                 newAllocData.set(keyFromAllocData(newPool), newPool);
             }));

@@ -6,6 +6,8 @@ import {UserTokenBalance} from "../types/UserTokenBalance";
 import {ISerpius, useSerpiusEndpoint} from "./SerpiusProvider";
 import {accountExists, PortfolioAccount} from "@qpools/sdk";
 import {ExplicitPool, PositionInfo, Registry } from '@qpools/sdk';
+import {getWhitelistTokens} from "../../../../qPools-contract/qpools-sdk/src";
+import {PublicKey} from "@solana/web3.js";
 
 export interface IExistingPortfolio {
     positionInfos: Map<string, AllocData>,
@@ -49,12 +51,18 @@ export function ExistingPortfolioProvider(props: Props) {
 
             let portfolioAccount: PortfolioAccount | null = await rpcProvider.portfolioObject!.fetchPortfolio();
             if (!portfolioAccount?.fullyCreated) {
+                console.log("Portfolio was not fully created just yet!!! ");
+                console.log(portfolioAccount);
+                console.log(portfolioAccount?.fullyCreated);
                 return;
+            } else {
+                console.log("Portfolio is fully created!");
             }
             // TODO: Should fetch the portfolio, and check if it is fulfilled yet ... otherwise return early ...
-            console.log("Going in here ..");
+            console.log("Going in here (22) ..");
             loadingProvider.increaseCounter();
             let {storedPositions, usdAmount} = await rpcProvider.portfolioObject.getPortfolioUsdcValue();
+            console.log("Stored positions are: ", storedPositions);
             loadingProvider.decreaseCounter();
             setTotalPortfolioValueUsd(usdAmount);
 
@@ -75,8 +83,30 @@ export function ExistingPortfolioProvider(props: Props) {
                 console.log("usdcValueLp ", x.usdcValueLP);
                 // you can probably still get the apy-dates through the serpius endpoint
                 // TODO: Should not be pool.name, but should again probably be indexed by the type of protocol, and the id
-                console.log("Key is. ", keyFromPoolData(pool));
-                let serpiusObject: AllocData = serpiusProvider.portfolioRatios.get(keyFromPoolData(pool))!;
+
+                // Get whitelisted input token ...
+                // Hardcoded, definitely need to code this in!!!
+                let whitelistedTokens = getWhitelistTokens();
+                // Get the token which is included both in the whitelist, and is tokenA or tokenB
+                let inputCurrency: PublicKey;
+                if (x.mintA && whitelistedTokens.includes(x.mintA.toString())) {
+                    inputCurrency = x.mintA;
+                } else if (x.mintB && whitelistedTokens.includes(x.mintA.toString())) {
+                    inputCurrency = x.mintB;
+                } else {
+                    throw Error("Input currency is not one of the tokens A or B!");
+                }
+
+                console.log("Key is. (22) ", keyFromPoolData(inputCurrency, pool));
+                console.log("Poo is: ", pool);
+                console.log("Portfolio Ratios are: ", serpiusProvider.portfolioRatios);
+
+                // TODO: We need to modify this position, s.t. the position also always has a variable "inputToken".
+                //  This "inputTokenMint" must be provided on the blockchain account!!
+                //  For now we will use a hacky method.
+
+
+                let serpiusObject: AllocData = serpiusProvider.portfolioRatios.get(keyFromPoolData(inputCurrency, pool))!;
                 console.log("Object value is: ", serpiusProvider.portfolioRatios);
                 // APY 24h is (if it was loaded already ...)
                 console.log("Serpius object is: ", serpiusObject);

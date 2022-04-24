@@ -1,5 +1,6 @@
 import {UserTokenBalance} from "./UserTokenBalance";
 import {ExplicitPool, ExplicitToken, Protocol} from "@qpools/sdk";
+import {PublicKey} from "@solana/web3.js";
 
 // Weight is probably bullshit, should prob remove this ...
 // TODO: Introduce some terminology around protocol, inputToken, product, etc.
@@ -76,7 +77,7 @@ export const keyFromAllocData = (x: AllocData): string => {
     return "Protocol:" + protocolString + ".lpIdentifier:" + String(x.lpIdentifier) + ".inputToken:" + String(x.inputToken.address.toString());
 }
 
-export const keyFromPoolData = (x: ExplicitPool): string => {
+export const keyFromPoolData = (inputAddress: PublicKey, x: ExplicitPool): string => {
     let protocolString: string = Protocol[x.protocol];
-    return "Protocol:" + protocolString + ".lpIdentifier:" + String(x.id);
+    return "Protocol:" + protocolString + ".lpIdentifier:" + String(x.id) + ".inputToken:" + String(inputAddress.toString());
 }
