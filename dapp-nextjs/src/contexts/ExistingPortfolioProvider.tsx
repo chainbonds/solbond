@@ -8,6 +8,7 @@ import {accountExists, PortfolioAccount} from "@qpools/sdk";
 import {ExplicitPool, PositionInfo, Registry } from '@qpools/sdk';
 import {getWhitelistTokens} from "../../../../qPools-contract/qpools-sdk/src";
 import {PublicKey} from "@solana/web3.js";
+import {white} from "colorette";
 
 export interface IExistingPortfolio {
     positionInfos: Map<string, AllocData>,
@@ -91,9 +92,13 @@ export function ExistingPortfolioProvider(props: Props) {
                 let inputCurrency: PublicKey;
                 if (x.mintA && whitelistedTokens.includes(x.mintA.toString())) {
                     inputCurrency = x.mintA;
-                } else if (x.mintB && whitelistedTokens.includes(x.mintA.toString())) {
+                } else if (x.mintB && whitelistedTokens.includes(x.mintB.toString())) {
                     inputCurrency = x.mintB;
                 } else {
+                    console.log("Input currencies are");
+                    console.log(x);
+                    console.log(whitelistedTokens);
+                    console.log(x.mintA.toString(), x.mintB && x.mintB?.toString());
                     throw Error("Input currency is not one of the tokens A or B!");
                 }
 
