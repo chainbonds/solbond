@@ -10,7 +10,7 @@ export function getConnection(): Connection {
 
     console.log("Cluster name is: ", clusterName);
     if (clusterName === "devnet") {
-        const clusterApi: string = "https://withered-twilight-frost.solana-devnet.quiknode.pro/43ea73628381d3d62b1edd54c1d3b5eb18737fef/";
+        const clusterApi: string = process.env.NEXT_PUBLIC_CLUSTER_URL!;  // "https://withered-twilight-frost.solana-devnet.quiknode.pro/43ea73628381d3d62b1edd54c1d3b5eb18737fef/";
         _connection = new Connection(clusterApi, 'confirmed');
     } else if (clusterName === "mainnet") {
         _connection = new Connection(clusterApiUrl('mainnet-beta'), 'confirmed');
