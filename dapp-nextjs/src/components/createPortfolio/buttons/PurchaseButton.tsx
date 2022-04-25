@@ -11,7 +11,7 @@ import {useErrorMessage} from "../../../contexts/ErrorMessageContext";
 import {lamportsReserversForLocalWallet} from "../../../const";
 import {getAssociatedTokenAddress} from "easy-spl/dist/tx/associated-token-account";
 import {useConnectedWallet} from "@saberhq/use-solana";
-import {getWrappedSolMint} from "@qpools/sdk";
+import {getAssociatedTokenAddressOffCurve, getWrappedSolMint} from "@qpools/sdk";
 import { ExplicitPool, ExplicitToken, Protocol } from "@qpools/sdk";
 
 // TODO: Refactor the code here ... looks a bit too redundant.
@@ -34,7 +34,7 @@ export default function PurchaseButton({passedAllocationData}: Props) {
     const getSolanaBalances = async (): Promise<{wrappedSol: BN, nativeSol: BN}> => {
         // This returns the lamports, and so does the below item ...
         let nativeSolAmount: BN = new BN(await rpcProvider.connection.getBalance(walletContext!.publicKey!));
-        let wrappedSolAta = await getAssociatedTokenAddress(
+        let wrappedSolAta = await getAssociatedTokenAddressOffCurve(
             getWrappedSolMint(),
             walletContext!.publicKey!
         );

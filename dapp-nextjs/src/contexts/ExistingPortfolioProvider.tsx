@@ -8,7 +8,6 @@ import {accountExists, PortfolioAccount} from "@qpools/sdk";
 import {ExplicitPool, PositionInfo, Registry } from '@qpools/sdk';
 import {getWhitelistTokens} from "../../../../qPools-contract/qpools-sdk/src";
 import {PublicKey} from "@solana/web3.js";
-import {white} from "colorette";
 
 export interface IExistingPortfolio {
     positionInfos: Map<string, AllocData>,
