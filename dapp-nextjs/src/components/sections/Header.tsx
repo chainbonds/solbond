@@ -1,11 +1,17 @@
 import React, {FC, useState} from "react";
-import {LogoWithTitle} from "./common/LogoWithTitle";
-import {DevnetButton} from "./createPortfolio/buttons/DevnetButton";
-import SelectWallet from "./createPortfolio/buttons/SelectWallet";
-import {BuyMoreButton} from "./createPortfolio/buttons/BuyMoreButton";
-import BuyMoreAssetsOptionalModal from "./common/BuyMoreAssetsOptionalModal";
+import {LogoWithTitle} from "../common/basic/LogoWithTitle";
+import BuyMoreAssetsOptionalModal from "../common/modal/BuyMoreAssetsOptionalModal";
 
 interface Props {};
+
+function BuyMoreButton(props: { show: boolean, setShow: (value: (((prevState: boolean) => boolean) | boolean)) => void }) {
+    return null;
+}
+
+function DevnetButton() {
+    return null;
+}
+
 export const Header: FC = ({}: Props) => {
 
     const [showFaucetModal, setShowFaucetModal] = useState<boolean>(false);

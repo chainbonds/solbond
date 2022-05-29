@@ -1,20 +1,20 @@
 import React from 'react';
 import { ComponentStory, ComponentMeta } from '@storybook/react';
-import CustomConnectWalletButton from "../components/common/CustomConnectWalletButton";
+import {DevnetLabel} from "./DevnetLabel";
 
 // More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 export default {
-  title: 'Example/ConnectWalletButton',
-  component: CustomConnectWalletButton,
+  title: 'Labels/Network Display',
+  component: DevnetLabel,
   // More on argTypes: https://storybook.js.org/docs/react/api/argtypes
   argTypes: {
     backgroundColor: { control: 'color' },
   },
-} as ComponentMeta<typeof CustomConnectWalletButton>;
+} as ComponentMeta<typeof DevnetLabel>;
 
 // More on component templates: https://storybook.js.org/docs/react/writing-stories/introduction#using-args
-const Template: ComponentStory<typeof CustomConnectWalletButton> = (args) => <CustomConnectWalletButton {...args} />;
+const Template: ComponentStory<typeof DevnetLabel> = (args) => <DevnetLabel {...args} />;
 
-export const Primary = Template.bind({});
+export const Default = Template.bind({});
 // More on args: https://storybook.js.org/docs/react/writing-stories/args
-Primary.args = {};
+Default.args = {};

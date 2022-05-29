@@ -1,7 +1,5 @@
 import React, {ChangeEvent, useEffect, useState} from "react";
 import Image from "next/image";
-import {BRAND_COLORS} from "../../const";
-import {AllocData, keyFromPoolData} from "../../types/AllocData";
 import {BN} from "@project-serum/anchor";
 import {TokenAmount} from "@solana/web3.js";
 import {
@@ -11,9 +9,11 @@ import {
     Registry,
     getWhitelistTokens,
 } from "@qpools/sdk";
-import {SelectedToken} from "../../utils/utils";
-import {UserTokenBalance} from "../../types/UserTokenBalance";
 import { getTokenAmountFromString, multiplyAmountByPythprice } from "@qpools/sdk";
+import {AllocData} from "../../../types/AllocData";
+import {SelectedToken} from "../../../utils/utils";
+import {UserTokenBalance} from "../../../types/UserTokenBalance";
+import {BRAND_COLORS} from "../../../const";
 
 // TODO: I guess most numbers here should be replaced by TokenAmount, and then the lamports should be the inputs, and the uiAmounts should be the display values?
 //  Not sure if typescript can handle these though

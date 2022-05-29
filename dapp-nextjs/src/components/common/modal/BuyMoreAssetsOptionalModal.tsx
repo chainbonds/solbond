@@ -28,7 +28,9 @@ export default function BuyMoreAssetsOptionalModal({showModal, setShowModal, onC
     return (
         <>
             <Transition.Root appear show={showModal} as={Fragment}>
-                <Dialog as="div" className="fixed inset-0 z-10 overflow-y-auto" onClose={() => {onClose()}}>
+                <Dialog as="div" className="fixed inset-0 z-10 overflow-y-auto" onClose={() => {
+                    onClose()
+                }}>
                     <Transition.Child
                         as={Fragment}
                         enter="ease-out duration-300"
@@ -62,8 +64,10 @@ export default function BuyMoreAssetsOptionalModal({showModal, setShowModal, onC
                                         >
                                             Thanks for helping test qPools!
                                         </Dialog.Title>
-                                        <div className="flex items-center justify-center w-full h-full border-t border-gray-700">
-                                            <div className="flex flex-col rounded-lg max-w-2xl text-center content-center my-3 mx-5">
+                                        <div
+                                            className="flex items-center justify-center w-full h-full border-t border-gray-700">
+                                            <div
+                                                className="flex flex-col rounded-lg max-w-2xl text-center content-center my-3 mx-5">
                                                 <p className={"text-gray-200 font-light"}>
                                                     In order to prevent spam,
                                                     we require users to verify their transaction via Twitter.
@@ -88,7 +92,8 @@ export default function BuyMoreAssetsOptionalModal({showModal, setShowModal, onC
                                                 </div>
                                             </div>
                                         </div>
-                                        <div className="flex flex-row w-full py-5 border-t border-gray-700 px-5 justify-between">
+                                        <div
+                                            className="flex flex-row w-full py-5 border-t border-gray-700 px-5 justify-between">
                                             <div>
                                                 <a href={twitterLink} target="_blank" rel="noreferrer">
                                                     <button
@@ -122,5 +127,4 @@ export default function BuyMoreAssetsOptionalModal({showModal, setShowModal, onC
             </Transition.Root>
         </>
     )
-
 }

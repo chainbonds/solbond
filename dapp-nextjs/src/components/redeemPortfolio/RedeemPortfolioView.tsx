@@ -2,8 +2,8 @@ import React, {useEffect, useState} from "react";
 // import {WalletMultiButton} from "@solana/wallet-adapter-react-ui";
 import {IRpcProvider, useRpc} from "../../contexts/RpcProvider";
 import {IExistingPortfolio, useExistingPortfolio} from "../../contexts/ExistingPortfolioProvider";
-import RowInList from "../common/RowInList";
 import SinglePositionInPortfolioRow from "../redeemPortfolio/SinglePositionInPortfolioRow";
+import RowInList from "../common/basic/RowInList";
 
 export default function RedeemPortfolioView({}) {
 

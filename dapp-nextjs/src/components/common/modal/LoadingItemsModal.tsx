@@ -4,6 +4,7 @@ import {FaCheckCircle, FaTimesCircle} from "react-icons/fa";
 import {Oval} from "react-loader-spinner";
 import {IItemsLoad, LoadingItem, useItemsLoad} from "../../../contexts/ItemsLoadingContext";
 
+// TODO Import the modal here as a variable, do not do a use-hook
 export default function LoadingItemsModal() {
 
     const itemLoadContext: IItemsLoad = useItemsLoad();

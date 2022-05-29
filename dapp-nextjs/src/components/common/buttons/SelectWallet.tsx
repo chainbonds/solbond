@@ -1,15 +1,12 @@
 import React from "react";
-// import {useWallet, WalletContextState} from "@solana/wallet-adapter-react";
-import CustomConnectWalletButton from "../../common/CustomConnectWalletButton";
-import {ConnectedWallet, useConnectedWallet} from "@saberhq/use-solana";
+import {ConnectedWallet} from "@saberhq/use-solana";
+import CustomConnectWalletButton from "./CustomConnectWalletButton";
 
 interface Props {
     walletContext: ConnectedWallet | null
 }
 
 export default function SelectWallet(props: Props) {
-
-    // const walletContext = useConnectedWallet();
 
     return (
         <>

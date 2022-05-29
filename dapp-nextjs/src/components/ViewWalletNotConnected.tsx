@@ -1,10 +1,9 @@
 import React, {useEffect, useState} from "react";
 import {AllocData, keyFromAllocData} from "../types/AllocData";
-import DisplayPieChart from "./common/DisplayPieChart";
 import SuggestedPortfolioTable from "./createPortfolio/SuggestedPortfolioTable";
-import SelectWallet from "./createPortfolio/buttons/SelectWallet";
 import {ISerpius, useSerpiusEndpoint} from "../contexts/SerpiusProvider";
 import { Registry } from "@qpools/sdk";
+import DisplayPieChart from "./common/visualization/DisplayPieChart";
 
 interface Props {
     registry: Registry

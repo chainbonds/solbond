@@ -10,9 +10,9 @@ import {PublicKey} from "@solana/web3.js";
 import {DisplayToken} from "../../types/DisplayToken";
 import {ChartableItemType} from "../../types/ChartableItemType";
 import {AllocData} from "../../types/AllocData";
-import TableHeader from "../common/TableHeader";
 import {displayTokensFromPool} from "../../utils/helper";
 import {Protocol, Registry } from "@qpools/sdk";
+import TableHeader from "../common/basic/TableHeader";
 
 // I guess this columns is also conditional, actually ...
 // TODO: Normalize (rename) the name "selectedAssets"
