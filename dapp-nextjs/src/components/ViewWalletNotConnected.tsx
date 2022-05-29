@@ -58,7 +58,7 @@ export const ViewWalletNotConnected = ({registry}: Props) => {
                 </div>
             </div>
             <div className={"flex flex-row my-auto mt-7"}>
-                <SelectWallet/>
+                {/*<SelectWallet/>*/}
             </div>
         </div>
     )

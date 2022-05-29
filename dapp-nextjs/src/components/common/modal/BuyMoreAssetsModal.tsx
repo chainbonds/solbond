@@ -1,6 +1,6 @@
 import React, {Fragment, useState} from "react";
 import {Dialog, Transition} from "@headlessui/react";
-import {FaucetButton} from "../createPortfolio/buttons/FaucetButton";
+import {FaucetButton} from "../../createPortfolio/buttons/FaucetButton";
 
 interface Props {
     showModal: boolean,

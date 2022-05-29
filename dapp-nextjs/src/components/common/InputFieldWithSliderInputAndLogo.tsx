@@ -10,11 +10,10 @@ import {
     getTokenAmount,
     Registry,
     getWhitelistTokens,
-    multiplyAmountByPythprice
 } from "@qpools/sdk";
 import {SelectedToken} from "../../utils/utils";
 import {UserTokenBalance} from "../../types/UserTokenBalance";
-import { getTokenAmountFromString } from "@qpools/sdk";
+import { getTokenAmountFromString, multiplyAmountByPythprice } from "@qpools/sdk";
 
 // TODO: I guess most numbers here should be replaced by TokenAmount, and then the lamports should be the inputs, and the uiAmounts should be the display values?
 //  Not sure if typescript can handle these though

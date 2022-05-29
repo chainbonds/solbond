@@ -1,6 +1,7 @@
 import React, {FC} from "react";
 
-export const LogoWithTitle: FC = ({}) => {
+interface Props {};
+export const LogoWithTitle: FC = ({}: Props) => {
 
     return (
         <div className={"flex flex-row"}>

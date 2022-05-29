@@ -1,5 +1,5 @@
 import React from "react";
-import {ErrorMessage, useErrorMessage} from "../../contexts/ErrorMessageContext";
+import {ErrorMessage, useErrorMessage} from "../../../contexts/ErrorMessageContext";
 
 /**
  * Similar to the loading modal, we can also have an error modal.

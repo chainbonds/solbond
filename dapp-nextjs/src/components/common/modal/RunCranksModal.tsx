@@ -1,10 +1,10 @@
 import React, {Fragment, useEffect, useState} from "react";
 import {Dialog, Transition} from "@headlessui/react";
-import {BRAND_COLORS} from "../../const";
-import {IRpcProvider, useRpc} from "../../contexts/RpcProvider";
-import {RunWithdrawCrankButton} from "../createPortfolio/buttons/RunWithdrawCrankButton";
-import {RunDepositCrankButton} from "../createPortfolio/buttons/RunDepositCrankButton";
 import { ShowCrank } from "types/ShowCrank";
+import {IRpcProvider, useRpc} from "../../../contexts/RpcProvider";
+import {BRAND_COLORS} from "../../../const";
+import {RunDepositCrankButton} from "../../createPortfolio/buttons/RunDepositCrankButton";
+import {RunWithdrawCrankButton} from "../../createPortfolio/buttons/RunWithdrawCrankButton";
 
 interface Props {
     showCrankState: ShowCrank

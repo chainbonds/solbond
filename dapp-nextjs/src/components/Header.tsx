@@ -1,13 +1,12 @@
 import React, {FC, useState} from "react";
 import {LogoWithTitle} from "./common/LogoWithTitle";
-import {FaucetButton} from "./createPortfolio/buttons/FaucetButton";
 import {DevnetButton} from "./createPortfolio/buttons/DevnetButton";
 import SelectWallet from "./createPortfolio/buttons/SelectWallet";
 import {BuyMoreButton} from "./createPortfolio/buttons/BuyMoreButton";
-import BuyMoreAssetsModal from "./common/BuyMoreAssetsModal";
 import BuyMoreAssetsOptionalModal from "./common/BuyMoreAssetsOptionalModal";
 
-export const Header: FC = ({}) => {
+interface Props {};
+export const Header: FC = ({}: Props) => {
 
     const [showFaucetModal, setShowFaucetModal] = useState<boolean>(false);
 
@@ -41,7 +40,7 @@ export const Header: FC = ({}) => {
                                     <DevnetButton />
                                 </div>
                             </div>
-                            <SelectWallet />
+                            {/*<SelectWallet />*/}
                         </div>
                     </div>
                 </div>

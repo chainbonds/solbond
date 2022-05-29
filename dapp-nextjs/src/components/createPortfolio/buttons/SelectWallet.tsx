@@ -1,11 +1,15 @@
 import React from "react";
 // import {useWallet, WalletContextState} from "@solana/wallet-adapter-react";
 import CustomConnectWalletButton from "../../common/CustomConnectWalletButton";
-import {useConnectedWallet} from "@saberhq/use-solana";
+import {ConnectedWallet, useConnectedWallet} from "@saberhq/use-solana";
 
-export default function SelectWallet({}) {
+interface Props {
+    walletContext: ConnectedWallet | null
+}
 
-    const walletContext = useConnectedWallet();
+export default function SelectWallet(props: Props) {
+
+    // const walletContext = useConnectedWallet();
 
     return (
         <>
@@ -20,7 +24,8 @@ export default function SelectWallet({}) {
                             {/*</div>*/}
                         </div>
                         <div className={"flex flex-row ml-auto my-auto"}>
-                            {!walletContext?.publicKey && <CustomConnectWalletButton/>}
+                            {!props.walletContext?.publicKey && <CustomConnectWalletButton/>}
+                            {/*{!props.walletContext?.publicKey && "Hello"}*/}
                         </div>
                     </div>
                 </div>

@@ -1,8 +1,9 @@
 import React, {FC} from "react";
 import {SocialIcon} from 'react-social-icons';
-import {BRAND_COLORS} from "../const";
+import {BRAND_COLORS} from "../../const";
 
-export const Footer: FC = ({}) => {
+interface Props {};
+export const Footer: FC = ({}: Props) => {
 
     return (
         <>

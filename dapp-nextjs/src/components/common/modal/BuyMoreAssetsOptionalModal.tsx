@@ -1,7 +1,7 @@
 import React, {ChangeEvent, Fragment, useState} from "react";
 import {Dialog, Transition} from "@headlessui/react";
-import {FaucetButton} from "../createPortfolio/buttons/FaucetButton";
-import {BRAND_COLORS} from "../../const";
+import {BRAND_COLORS} from "../../../const";
+import {FaucetButton} from "../../createPortfolio/buttons/FaucetButton";
 
 interface Props {
     showModal: boolean,

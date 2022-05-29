@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from "react";
 import {PieChart, Pie, Cell} from "recharts";
-import {PIECHART_COLORS, RADIAN} from "../../const";
-import {AllocData, keyFromAllocData, keyFromPoolData} from "../../types/AllocData";
+import {AllocData, keyFromAllocData} from "../../../types/AllocData";
+import {PIECHART_COLORS, RADIAN} from "../../../const";
 
 interface Props {
     allocationInformation: Map<string, AllocData>,

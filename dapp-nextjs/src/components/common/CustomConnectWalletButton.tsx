@@ -3,7 +3,8 @@ import {BRAND_COLORS} from "../../const";
 import React from "react";
 import {ConnectWalletButton} from "@gokiprotocol/walletkit";
 
-export default function CustomConnectWalletButton() {
+interface Props {}
+export default function CustomConnectWalletButton({}: Props) {
 
     return (
         <>

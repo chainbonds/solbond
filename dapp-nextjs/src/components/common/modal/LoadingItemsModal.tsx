@@ -2,7 +2,7 @@ import React, {Fragment, useEffect, useState} from "react";
 import {Dialog, Transition} from "@headlessui/react";
 import {FaCheckCircle, FaTimesCircle} from "react-icons/fa";
 import {Oval} from "react-loader-spinner";
-import {IItemsLoad, LoadingItem, useItemsLoad} from "../../contexts/ItemsLoadingContext";
+import {IItemsLoad, LoadingItem, useItemsLoad} from "../../../contexts/ItemsLoadingContext";
 
 export default function LoadingItemsModal() {
 

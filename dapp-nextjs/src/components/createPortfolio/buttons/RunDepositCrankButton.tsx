@@ -1,13 +1,8 @@
-import React, {FC} from "react";
+import React from "react";
 import {GiLever} from "react-icons/gi";
-import {BN} from "@project-serum/anchor";
 import {IRpcProvider, useRpc} from "../../../contexts/RpcProvider";
-import {Connection, PublicKey, SystemProgram, Transaction} from "@solana/web3.js";
-import {Token, TOKEN_PROGRAM_ID} from "@solana/spl-token";
-import {useLoad} from "../../../contexts/LoadingContext";
+import { Transaction} from "@solana/web3.js";
 import {useErrorMessage} from "../../../contexts/ErrorMessageContext";
-import {syncNative} from "@solendprotocol/solend-sdk";
-import {calculateActiveTickIndex} from "recharts/types/util/ChartUtils";
 import {lamportsReserversForLocalWallet} from "../../../const";
 import {sendAndConfirmTransaction} from "../../../utils/utils";
 import {useItemsLoad} from "../../../contexts/ItemsLoadingContext";
