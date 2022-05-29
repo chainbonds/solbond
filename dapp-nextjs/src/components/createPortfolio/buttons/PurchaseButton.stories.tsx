@@ -4,14 +4,13 @@ import PurchaseButton from "./PurchaseButton";
 import {AllocData} from "../../../types/AllocData";
 import {LocalKeypairProvider} from "../../../contexts/LocalKeypairProvider";
 import {ErrorMessageProvider} from "../../../contexts/ErrorMessageContext";
-import {registry} from "../../../../../../qPools-contract/qpools-sdk/lib/instructions/api";
 import {ItemsLoadProvider} from "../../../contexts/ItemsLoadingContext";
 import {WalletKitProvider} from "@gokiprotocol/walletkit";
 import {Network} from "@saberhq/solana-contrib";
 import {RpcProvider} from "../../../contexts/RpcProvider";
 import {CrankProvider} from "../../../contexts/CrankProvider";
 import {getConnection} from "../../../const";
-import {Registry} from "../../../../../../qPools-contract/qpools-sdk";
+import {Registry} from "@qpools/sdk";
 
 // More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 export default {

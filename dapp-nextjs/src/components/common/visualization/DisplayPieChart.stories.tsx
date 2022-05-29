@@ -2,6 +2,7 @@ import React from 'react';
 import {ComponentStory, ComponentMeta} from '@storybook/react';
 import DisplayPieChart from "./DisplayPieChart";
 import {AllocData} from "../../../types/AllocData";
+import {exampleAllocData} from "../../../utils/storybook/mock";
 
 // More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 export default {

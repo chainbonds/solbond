@@ -1,6 +1,6 @@
 import {AllocData} from "../types/AllocData";
 import {BN} from "@project-serum/anchor";
-import {ExplicitPool, ExplicitToken, getWrappedSolMint, Protocol} from "../../../../qPools-contract/qpools-sdk";
+import {ExplicitPool, ExplicitToken, getWrappedSolMint, Protocol} from "@qpools/sdk";
 import {getInputTokens, sendAndConfirmTransaction} from "../utils/utils";
 import {PublicKey, Transaction} from "@solana/web3.js";
 import {lamportsReserversForLocalWallet} from "../const";

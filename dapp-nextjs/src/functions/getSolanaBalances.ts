@@ -1,6 +1,6 @@
 import {BN} from "@project-serum/anchor";
 import {getAssociatedTokenAddress} from "easy-spl/dist/tx/associated-token-account";
-import {getWrappedSolMint} from "../../../../qPools-contract/qpools-sdk";
+import {getWrappedSolMint} from "@qpools/sdk";
 import {IRpcProvider} from "../contexts/RpcProvider";
 import {ConnectedWallet} from "@saberhq/use-solana";
 

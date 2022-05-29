@@ -3,7 +3,7 @@ import {ComponentMeta, ComponentStory} from '@storybook/react';
 import {RedeemPortfolioButton} from "./RedeemPortfolioButton";
 import {Network} from "@saberhq/solana-contrib";
 import {getConnection} from "../../const";
-import {Registry} from "../../../../../qPools-contract/qpools-sdk";
+import {Registry} from "@qpools/sdk";
 import {LocalKeypairProvider} from "../../contexts/LocalKeypairProvider";
 import {ErrorMessageProvider} from "../../contexts/ErrorMessageContext";
 import {ItemsLoadProvider} from "../../contexts/ItemsLoadingContext";

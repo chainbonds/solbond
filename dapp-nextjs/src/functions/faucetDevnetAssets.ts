@@ -1,5 +1,5 @@
 import {BN} from "@project-serum/anchor";
-import {airdropAdmin, createAssociatedTokenAccountSendUnsigned, MOCK} from "../../../../qPools-contract/qpools-sdk";
+import {airdropAdmin, createAssociatedTokenAccountSendUnsigned, MOCK} from "@qpools/sdk";
 import {Connection, PublicKey, SystemProgram, Transaction} from "@solana/web3.js";
 import {syncNative} from "@solendprotocol/solend-sdk";
 import {Token, TOKEN_PROGRAM_ID} from "@solana/spl-token";

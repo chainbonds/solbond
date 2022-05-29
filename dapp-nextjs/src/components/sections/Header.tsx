@@ -1,6 +1,8 @@
 import React, {FC, useState} from "react";
 import {LogoWithTitle} from "../common/basic/LogoWithTitle";
 import BuyMoreAssetsOptionalModal from "../common/modal/BuyMoreAssetsOptionalModal";
+import SelectWallet from "../common/buttons/SelectWallet";
+import {FaucetButton} from "../createPortfolio/buttons/FaucetButton";
 
 interface Props {};
 
@@ -39,14 +41,14 @@ export const Header: FC = ({}: Props) => {
                         <div className={"flex flex-col md:flex-row"}>
                             <div className={"px-2 py-2 mx-auto md:py-0 md:py-auto md:my-auto"}>
                                 <BuyMoreButton  show setShow={setShowFaucetModal}/>
-                                {/*<FaucetButton/>*/}
+                                <FaucetButton  activated={true}/>
                             </div>
                             <div className={"px-2 py-2 mx-auto md:py-0 md:py-auto md:my-auto text-center justify-center"}>
                                 <div className={"mr-2"}>
                                     <DevnetButton />
                                 </div>
                             </div>
-                            {/*<SelectWallet />*/}
+                            <SelectWallet  walletContext={null}/>
                         </div>
                     </div>
                 </div>

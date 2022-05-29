@@ -8,7 +8,7 @@ import {Network} from "@saberhq/solana-contrib";
 import {RpcProvider} from "../../../contexts/RpcProvider";
 import {CrankProvider} from "../../../contexts/CrankProvider";
 import {getConnection} from "../../../const";
-import {Registry} from "../../../../../../qPools-contract/qpools-sdk";
+import {Registry} from "@qpools/sdk";
 import {RunDepositCrankButton} from "./RunDepositCrankButton";
 
 // More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export

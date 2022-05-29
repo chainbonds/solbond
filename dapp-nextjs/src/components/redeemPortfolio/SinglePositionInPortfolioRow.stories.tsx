@@ -4,7 +4,7 @@ import {WalletKitProvider} from "@gokiprotocol/walletkit";
 import {Network} from "@saberhq/solana-contrib";
 import SinglePositionInPortfolioRow from "./SinglePositionInPortfolioRow";
 import {getConnection} from "../../const";
-import {Registry} from "../../../../../qPools-contract/qpools-sdk";
+import {Registry} from "@qpools/sdk";
 import {LocalKeypairProvider} from "../../contexts/LocalKeypairProvider";
 import {ErrorMessageProvider} from "../../contexts/ErrorMessageContext";
 import {ItemsLoadProvider} from "../../contexts/ItemsLoadingContext";
