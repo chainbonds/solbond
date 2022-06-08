@@ -4,13 +4,23 @@ import {DisplayProtocol} from "../../types/DisplayProtocol";
 import {BRAND_COLORS} from "../../const";
 import TokenIcon from "../common/basic/TokenIcon";
 import {PrimaryButton} from "../common/buttons/PrimaryButton";
+import {FaRegTrashAlt, FaTimesCircle} from "react-icons/fa";  // Replace with
 
+/**
+ * Maybe you can make the tokens spin, depending on how much
+ *
+ * Maybe you can also sort them by most-APY-giving, to least APY-giving
+ *
+ *
+ */
 interface Props {
     title: string,
     apy: string,
     tokens: DisplayToken[],
     protocols: DisplayProtocol[],
-    onClick: any
+    onClickPrimary: any,
+    onClickRemoveToken: any,
+    onClickRemoveProtocol: any
 }
 
 export default function Widget(props: Props) {
@@ -44,14 +54,22 @@ export default function Widget(props: Props) {
                     <div className={"flex flex-row items-center h-full mx-2"}>
                         {props.tokens.map((x: DisplayToken) => {
                             return (
-                                <TokenIcon logoUri={x.tokenImageLink} name={x.name}/>
+                                <div className={"group"}>
+                                    <div className={"mx-1 group-hover:mx-0 group-hover:my-0 hover:border-blue-400 group-hover:border-4 rounded-full py-0 border-0 relative"}>
+                                        <TokenIcon url={x.tokenSolscanLink} logoUri={x.tokenImageLink} name={x.name}/>
+                                        <FaTimesCircle
+                                            onClick={props.onClickRemoveToken}
+                                            className="invisible group-hover:visible absolute top-0 right-0 -mt-5 -mr-5 h-7 w-7 bg-red-500 rounded-full border-2 border-red-500 opacity-50 hover:opacity-100 hover:cursor-pointer"
+                                        />
+                                    </div>
+                                </div>
                             )
                         })}
                     </div>
                 </div>
                 <br/>
                 <h2 className={"text-xl"}>
-                    Suggested Protocols
+                    Matching Protocols
                 </h2>
                 <div
                     className={"w-full rounded h-full h-12 mt-3"}
@@ -60,7 +78,20 @@ export default function Widget(props: Props) {
                     <div className={"flex flex-row items-center h-full mx-2"}>
                         {props.protocols.map((x: DisplayProtocol) => {
                             return (
-                                <TokenIcon logoUri={x.protocolImageLink} name={x.name}/>
+                                // <div className={"group"}>
+                                //     <div className={"mx-1 hover:mx-0 hover:my-0 hover:border-blue-400 hover:border-4 rounded-full py-0 border-0"}>
+                                //         <TokenIcon url={x.protocolSolscanLink} logoUri={x.protocolImageLink} name={x.name}/>
+                                //     </div>
+                                // </div>
+                                <div className={"group"}>
+                                    <div className={"mx-1 group-hover:mx-0 group-hover:my-0 hover:border-blue-400 group-hover:border-4 rounded-full py-0 border-0 relative"}>
+                                        <TokenIcon url={x.protocolSolscanLink} logoUri={x.protocolImageLink} name={x.name}/>
+                                        <FaTimesCircle
+                                            onClick={props.onClickRemoveProtocol}
+                                            className="invisible group-hover:visible absolute top-0 right-0 -mt-5 -mr-5 h-7 w-7 bg-red-500 rounded-full border-2 border-red-500 opacity-50 hover:opacity-100 hover:cursor-pointer"
+                                        />
+                                    </div>
+                                </div>
                             )
                         })}
                     </div>
@@ -68,7 +99,7 @@ export default function Widget(props: Props) {
             </div>
 
             <div className={"flex mx-auto mt-2 mb-4"}>
-                <PrimaryButton text={"Review"} onClick={props.onClick}/>
+                <PrimaryButton text={"Review"} onClick={props.onClickPrimary}/>
             </div>
 
         </div>
