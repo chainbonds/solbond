@@ -1,8 +1,6 @@
 import React from 'react';
 import { ComponentStory, ComponentMeta } from '@storybook/react';
-import {Footer} from "./Footer";
 import {Header} from "./Header";
-import {Head} from "next/document";
 import {LocalKeypairProvider} from "../../contexts/LocalKeypairProvider";
 import {ErrorMessageProvider} from "../../contexts/ErrorMessageContext";
 import {ItemsLoadProvider} from "../../contexts/ItemsLoadingContext";
