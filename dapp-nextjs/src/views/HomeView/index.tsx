@@ -1,5 +1,4 @@
 import React, {FC} from "react";
-import {Header} from "../../components/Header";
 import {Main} from "../../components/Main";
 // @ts-ignore @ts-expect-error
 import LoadingOverlay from "react-loading-overlay";
@@ -17,6 +16,7 @@ import {CrankProvider} from "../../contexts/CrankProvider";
 import {UserWalletAssetsProvider} from "../../contexts/UserWalletAssets";
 import {Cluster, getNetworkCluster, Registry } from "@qpools/sdk";
 import {Footer} from "../../components/sections/Footer";
+import {Header} from "../../components/sections/Header";
 
 interface Props {
     registry: Registry
