@@ -14,7 +14,6 @@ import {FaRegTrashAlt, FaTimesCircle} from "react-icons/fa";  // Replace with
  *
  */
 interface Props {
-    title: string,
     apy: string,
     tokens: DisplayToken[],
     protocols: DisplayProtocol[],
@@ -33,7 +32,6 @@ export default function Widget(props: Props) {
         <div className={"flex flex-col mx-auto w-80 bg-white rounded text-black"}>
 
             <h1 className={"w-full text-2xl text-center shadow-md py-5"}>
-                {/*{props.title}*/}
                 Earn
                 {/*<br />*/}
                 <b>

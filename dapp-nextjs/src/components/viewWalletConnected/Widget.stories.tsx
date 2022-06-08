@@ -16,18 +16,14 @@ export default {
 
 export const Empty = () => {
 
-    let tokens: DisplayToken[] = [
-
-    ];
-    let protocols: DisplayProtocol[] = [
-
-    ];
-
-
     return (
         <Widget
-            tokens={tokens}
-            protocols={protocols}
+            apy={"5.2%"}
+            tokens={[]}
+            protocols={[]}
+            onClickPrimary={() => {console.log("onClickPrimary")}}
+            onClickRemoveToken={() => {console.log("onClickRemoveToken")}}
+            onClickRemoveProtocol={() => {console.log("onClickRemoveProtocol")}}
         />
     )
 
@@ -55,21 +51,18 @@ export const Default = () => {
         }
     ];
 
-    const onClick = () => {
-        console.log("Clicked on review")
-    }
-
     // const title = "You could be earning 5.5% APY right now!";
     const title = "You are losing 5.5% every year if you don't use us!";
     const apy = "5.5% APY";
 
     return (
         <Widget
-            title={title}
             apy={apy}
             tokens={tokens}
             protocols={protocols}
-            onClick={onClick}
+            onClickPrimary={() => {console.log("Clicked on review")}}
+            onClickRemoveToken={() => {console.log("onClickRemoveToken")}}
+            onClickRemoveProtocol={() => {console.log("onClickRemoveProtocol")}}
         />
     )
 
