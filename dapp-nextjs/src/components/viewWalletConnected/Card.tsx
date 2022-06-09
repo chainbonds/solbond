@@ -3,7 +3,9 @@ import {DisplayToken} from "../../types/DisplayToken";
 import {DisplayProtocol} from "../../types/DisplayProtocol";
 import TokenIcon from "../common/basic/TokenIcon";
 import {PrimaryButton} from "../common/buttons/PrimaryButton";
-import TokenValueInputField from "../common/input/TokenValueInputField";  // Replace with
+import TokenValueInputField from "../common/input/TokenValueInputField";
+import Image from "next/image";
+import {BRAND_COLORS} from "../../const";  // Replace with
 
 /**
  * Maybe you can make the tokens spin, depending on how much
@@ -79,8 +81,22 @@ export default function Card(props: Props) {
 
                 </div>
 
-                {/*// This stuff should prob best be passed on through an alloc-item object ...*/}
                 <div className={"my-3"}>
+                    <div
+                        className="mx-auto my-auto relative text-gray-700 focus-within:text-gray-900 w-full h-full rounded-lg"
+                        style={{backgroundColor: BRAND_COLORS.slate100}}
+                    >
+                        <span className="py-3 left-0 flex items-center pl-2 h-full">
+                            <div className={"flex w-full my-auto text-center content-center px-1"}>
+                                This strategy consists of staking and lending protocols.
+                                {/*<text className={"my-auto text-center content-center mx-2"}>{name}</text>*/}
+                            </div>
+                        </span>
+                    </div>
+                </div>
+
+                {/*// This stuff should prob best be passed on through an alloc-item object ...*/}
+                <div className={"py-3 border-t-2"}>
                     <TokenValueInputField
                         min={0.}
                         max={100.}
