@@ -36,7 +36,7 @@ export default function Card(props: Props) {
     // Perhaps also display a set of pools
 
     return (
-        <div className={"flex flex-col mx-auto w-3/5 max-w-7xl bg-white rounded text-black"}>
+        <div className={"flex flex-col max-w-7xl bg-white rounded text-black"}>
 
             {/*<h1 className={"w-full text-2xl text-center shadow-md py-5"}>*/}
             {/*    Earn*/}
@@ -71,7 +71,7 @@ export default function Card(props: Props) {
                     </div>
 
                     <div className={"flex flex-col"}>
-                        <h1 className={"text-3xl text"}>
+                        <h1 className={"text-3xl text font-bold"}>
                             {props.apy}
                         </h1>
                         <p className={"text-xs ml-1 text-gray-500 right-0 text-right"}>

@@ -30,7 +30,7 @@ export default function TokenValueInputField({
     return (
         <>
             <div className="flex flex-col form-control w-full">
-                <div className="mx-auto my-auto relative text-gray-700 focus-within:text-gray-900 w-full h-full">
+                <div className="mx-auto my-auto relative w-full h-full">
                   <span className="absolute inset-y-0 left-0 flex items-center pl-2 h-full">
                     <div className={"flex w-full my-auto text-center content-center px-1"}>
                         {logoPath &&
@@ -39,7 +39,7 @@ export default function TokenValueInputField({
                     </div>
                     </span>
                     <input
-                        className="rounded-lg w-full items-end text-2xl text-right h-12 p-4"
+                        className="rounded-lg w-full items-end text-2xl text-right h-12 p-4 font-semibold"
                         style={{backgroundColor: BRAND_COLORS.slate200}}
                         type="number"
                         id="stake_amount"

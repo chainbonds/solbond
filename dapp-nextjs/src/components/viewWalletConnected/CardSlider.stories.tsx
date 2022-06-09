@@ -4,39 +4,23 @@ import Widget from "./Widget";
 import {DisplayToken} from "../../types/DisplayToken";
 import {DisplayProtocol} from "../../types/DisplayProtocol";
 import Card from "./Card";
+import CardSlider from "./CardSlider";
 
 // More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 export default {
-    title: 'Views/Card',
-    component: Card,
+    title: 'Views/CardSlider',
+    component: CardSlider,
     // More on argTypes: https://storybook.js.org/docs/react/api/argtypes
     argTypes: {
         backgroundColor: {control: 'color'},
     },
-} as ComponentMeta<typeof Card>;
+} as ComponentMeta<typeof CardSlider>;
 
 export const Empty = () => {
 
-    let token: DisplayToken = {
-        name: "Solana",
-        tokenSolscanLink: "https://solscan.io/token/So11111111111111111111111111111111111111112",
-        tokenImageLink: "https://cdn.jsdelivr.net/gh/saber-hq/spl-token-icons@master/icons/101/So11111111111111111111111111111111111111112.png"
-    };
-
     return (
-        <Card
-            apy={"5.5%"}
-            token={token}
-            protocols={[]}
-            onClickPrimary={() => {
-                console.log("Clicked on review")
-            }}
-            onClickRemoveToken={() => {
-                console.log("onClickRemoveToken")
-            }}
-            onClickRemoveProtocol={() => {
-                console.log("onClickRemoveProtocol")
-            }}
+        <CardSlider
+            cards={[]}
         />
     )
 
@@ -45,9 +29,9 @@ export const Empty = () => {
 export const Default = () => {
 
     let token: DisplayToken = {
-            name: "Solana",
-            tokenSolscanLink: "https://solscan.io/token/So11111111111111111111111111111111111111112",
-            tokenImageLink: "https://cdn.jsdelivr.net/gh/saber-hq/spl-token-icons@master/icons/101/So11111111111111111111111111111111111111112.png"
+        name: "Solana",
+        tokenSolscanLink: "https://solscan.io/token/So11111111111111111111111111111111111111112",
+        tokenImageLink: "https://cdn.jsdelivr.net/gh/saber-hq/spl-token-icons@master/icons/101/So11111111111111111111111111111111111111112.png"
     };
     let protocols: DisplayProtocol[] = [
         {
@@ -62,13 +46,10 @@ export const Default = () => {
         }
     ];
 
-    // const title = "You could be earning 5.5% APY right now!";
-    const title = "You are losing 5.5% every year if you don't use us!";
-    const apy = "5.5%";
-
-    return (
-        <Card
-            apy={apy}
+    // Create a couple card elements here
+    const cardExample1 = () => {
+        return (<Card
+            apy={"2.5%"}
             token={token}
             protocols={protocols}
             onClickPrimary={() => {
@@ -80,6 +61,29 @@ export const Default = () => {
             onClickRemoveProtocol={() => {
                 console.log("onClickRemoveProtocol")
             }}
+        />)
+    }
+    const cardExample2 = () => {
+        return (<Card
+            apy={"5.5%"}
+            token={token}
+            protocols={protocols}
+            onClickPrimary={() => {
+                console.log("Clicked on review")
+            }}
+            onClickRemoveToken={() => {
+                console.log("onClickRemoveToken")
+            }}
+            onClickRemoveProtocol={() => {
+                console.log("onClickRemoveProtocol")
+            }}
+        />)
+    }
+    const cards = [cardExample1(), cardExample2()];
+
+    return (
+        <CardSlider
+            cards={cards}
         />
     )
 
