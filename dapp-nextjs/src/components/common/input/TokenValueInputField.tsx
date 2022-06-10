@@ -12,6 +12,7 @@ interface Props {
     errorMessage: string,
     totalBalance: string,
     maxBalance: string,
+    showBalance: boolean
 }
 
 export default function TokenValueInputField({
@@ -24,7 +25,8 @@ export default function TokenValueInputField({
                                                  loading,
                                                  errorMessage,
                                                  totalBalance,
-                                                 maxBalance
+                                                 maxBalance,
+                                                 showBalance
                                              }: Props) {
 
     return (
@@ -58,16 +60,20 @@ export default function TokenValueInputField({
                         <text className={"my-auto text-center font-semibold text-gray-600 content-center"}>{name}</text>
                     </div>
                     <div>
-                        {!loading ?
-                            (
-                                <div className={"items-start font-semibold text-gray-600 justify-start"}>
-                                    Balance: {maxBalance}
-                                </div>
-                            ) : (
-                                <div className={"items-start font-semibold text-gray-600 justify-start"}>
-                                    Wallet Loading ...
-                                </div>
-                            )
+                        {showBalance &&
+                            <>
+                                ({!loading ?
+                                    (
+                                        <div className={"items-start font-semibold text-gray-600 justify-start"}>
+                                            Balance: {maxBalance}
+                                        </div>
+                                    ) : (
+                                        <div className={"items-start font-semibold text-gray-600 justify-start"}>
+                                            Wallet Loading ...
+                                        </div>
+                                    )
+                                }
+                            </>
                         }
                     </div>
                 </div>
