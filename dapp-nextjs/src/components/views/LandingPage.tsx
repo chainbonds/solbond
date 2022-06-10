@@ -4,6 +4,7 @@ import SelectWallet from "../common/buttons/SelectWallet";
 import {BRAND_COLORS} from "../../const";
 import {CarouselProvider, Slider, Slide, ButtonBack, ButtonNext} from 'pure-react-carousel';
 import 'pure-react-carousel/dist/react-carousel.es.css';
+import {Footer} from "../sections/Footer";
 
 interface Props {
     socialProofCards: JSX.Element[]
@@ -14,11 +15,13 @@ export const LandingPage = ({socialProofCards}: Props) => {
 
     return (
         <div
-            className={"h-screen w-screen max-h-screen max-w-screen overflow-hidden overscroll-contain"}
+            className={"flex flex-col h-screen w-screen max-h-screen max-w-screen overflow-x-hidden overscroll-x-contain"}
             style={{backgroundColor: BRAND_COLORS.slate900}}
         >
-            <Header showConnectWallet={false} showFaucet={false}/>
-            <div className={"flex flex-col text-center"}>
+            <div className={"flex"}>
+                <Header showConnectWallet={false} showFaucet={false}/>
+            </div>
+            <div className={"flex flex-col text-center h-full justify-center"}>
                 <h1 className={"text-4xl font-light"}>
                     {/*How much could you earn?*/}
                     {/*Where can you earn more tokens?*/}
@@ -31,7 +34,7 @@ export const LandingPage = ({socialProofCards}: Props) => {
                 {/*</div>*/}
 
                 {/*className={"mx-auto"}*/}
-                <div className={"mx-auto max-w-6xl overflow-hidden overscroll-contain"}>
+                <div className={"mx-auto max-w-6xl"}>
                     <CarouselProvider
                         infinite={true}
                         naturalSlideWidth={300}
@@ -60,6 +63,9 @@ export const LandingPage = ({socialProofCards}: Props) => {
                 <div className={"mx-auto mt-10 text-2xl font-light"}>
                     <SelectWallet walletContext={null}/>
                 </div>
+            </div>
+            <div className={"flex justify-end"}>
+                <Footer />
             </div>
         </div>
     )

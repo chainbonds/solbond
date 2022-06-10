@@ -32,15 +32,15 @@ export const Header = ({showFaucet, showConnectWallet}: Props) => {
                 className="w-full left-0 top-0 py-6 px-6 lg:px-20 lg:py-12"
             >
                 <div className="flex flex-col md:flex-row justify-center md:justify-between">
-                    <div className={"mx-auto"}>
-                        <LogoWithTitle/>
-                    </div>
                     {/*TODO Implement Devnet show (and also faucet maybe)*/}
                     {/*  On mainnet, instead of Faucet, perhaps include a button "buy crypto" ... */}
+                    <div className={"md:mx-0 my-auto"}>
+                        <LogoWithTitle/>
+                    </div>
                     <div className={"flex my-auto py-auto mx-auto md:mx-0"}>
                         <div className={"flex flex-col md:flex-row"}>
                             {showFaucet &&
-                                <div className={"py-2 mx-auto md:py-0 md:py-auto md:my-auto"}>
+                                <div className={"py-2 mx-auto md:mx-2 md:py-0 md:py-auto md:my-auto"}>
                                     {/*<BuyMoreButton show setShow={setShowFaucetModal}/>*/}
                                     <FaucetButton activated={true}/>
                                 </div>
@@ -51,7 +51,7 @@ export const Header = ({showFaucet, showConnectWallet}: Props) => {
                             {/*    </div>*/}
                             {/*</div>*/}
                             {showConnectWallet &&
-                                <div className={"py-2 mx-auto md:py-0 md:py-auto md:my-auto text-center justify-center"}>
+                                <div className={"mt-2"}>
                                     <SelectWallet walletContext={null}/>
                                 </div>
                             }

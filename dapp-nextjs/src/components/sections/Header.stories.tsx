@@ -38,7 +38,7 @@ export const Default = () => {
             >
               <RpcProvider registry={registry}>
                 <CrankProvider>
-                  <Header />
+                  <Header  showConnectWallet={true} showFaucet={true}/>
                 </CrankProvider>
               </RpcProvider>
             </WalletKitProvider>
