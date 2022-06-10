@@ -1,7 +1,6 @@
 import React, {useEffect, useState} from "react";
 import {AllocData} from "../../types/AllocData";
 import {getInputToken, SelectedToken} from "../../utils/utils";
-import InputFieldWithSliderInputAndLogo from "../common/InputFieldWithSliderInputAndLogo";
 import PurchaseButton from "../createPortfolio/buttons/PurchaseButton";
 import { Registry } from "@qpools/sdk";
 

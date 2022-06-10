@@ -17,8 +17,6 @@ export default {
 // More on component templates: https://storybook.js.org/docs/react/writing-stories/introduction#using-args
 const Template: ComponentStory<typeof DisplayPieChart> = (args) => <DisplayPieChart {...args} />;
 
-export const WithPercentage = Template.bind({});
-
 export const WithoutPercentage = Template.bind({});
 // More on args: https://storybook.js.org/docs/react/writing-stories/args
 WithoutPercentage.args = {
@@ -26,8 +24,18 @@ WithoutPercentage.args = {
     showPercentage: false
 };
 
+export const WithPercentage = Template.bind({});
 // More on args: https://storybook.js.org/docs/react/writing-stories/args
 WithPercentage.args = {
     allocationInformation: new Map<string, AllocData>(exampleAllocData),
     showPercentage: true
+};
+
+export const WithLabel = Template.bind({});
+// More on args: https://storybook.js.org/docs/react/writing-stories/args
+WithLabel.args = {
+    allocationInformation: new Map<string, AllocData>(exampleAllocData),
+    showPercentage: false,
+    mainNumber: "502.53",
+    changePercentage: "+42.3%"
 };
