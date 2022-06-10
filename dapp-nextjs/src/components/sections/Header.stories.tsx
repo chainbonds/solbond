@@ -29,7 +29,6 @@ export const Default = () => {
   const registry = new Registry(connection);
 
   return (
-
       <LocalKeypairProvider>
         <ErrorMessageProvider>
           <ItemsLoadProvider>

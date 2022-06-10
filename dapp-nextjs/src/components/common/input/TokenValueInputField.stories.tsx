@@ -50,6 +50,7 @@ export const Variable = () => {
             errorMessage={""}
             totalBalance={value.toFixed(2)}
             maxBalance={"432.12"}
+            showBalance={true}
         />
     )
 }
