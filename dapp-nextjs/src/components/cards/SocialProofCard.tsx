@@ -29,7 +29,7 @@ export default function SocialProofCard(props: Props) {
         <div className={"flex flex-col mx-auto w-80 bg-white rounded text-black"}>
 
             <h1 className={" w-full text-2xl text-center shadow-md py-5 items-center align-middle"}>
-                Wallet {shortenedAddressString(props.publicKey)} is earning
+                Wallet <b>{shortenedAddressString(props.publicKey)}</b> is earning
                 {/*<br />*/}
                 <b>
                     {" " + props.apy + " "}

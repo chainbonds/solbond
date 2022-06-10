@@ -53,7 +53,7 @@ export default function Widget(props: Props) {
                         {props.tokens.map((x: DisplayToken) => {
                             return (
                                 <div className={"group"}>
-                                    <div className={"mx-1 group-hover:mx-0 group-hover:my-0 hover:border-blue-400 group-hover:border-4 rounded-full py-0 border-0 relative"}>
+                                    <div className={" hover:border-blue-400 group-hover:border-4 rounded-full py-0 border-0 relative"}>
                                         <TokenIcon url={x.tokenSolscanLink} logoUri={x.tokenImageLink} name={x.name}/>
                                         <FaTimesCircle
                                             onClick={props.onClickRemoveToken}
@@ -82,7 +82,7 @@ export default function Widget(props: Props) {
                                 //     </div>
                                 // </div>
                                 <div className={"group"}>
-                                    <div className={"mx-1 group-hover:mx-0 group-hover:my-0 hover:border-blue-400 group-hover:border-4 rounded-full py-0 border-0 relative"}>
+                                    <div className={"hover:border-blue-400 group-hover:border-4 rounded-full py-0 border-0 relative"}>
                                         <TokenIcon url={x.protocolSolscanLink} logoUri={x.protocolImageLink} name={x.name}/>
                                         <FaTimesCircle
                                             onClick={props.onClickRemoveProtocol}

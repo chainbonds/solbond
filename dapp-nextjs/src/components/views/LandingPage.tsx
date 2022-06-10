@@ -21,15 +21,17 @@ export const LandingPage = ({socialProofCards}: Props) => {
             <div className={"flex"}>
                 <Header showConnectWallet={false} showFaucet={false}/>
             </div>
-            <div className={"flex flex-col text-center h-full justify-center"}>
-                <h1 className={"text-4xl font-light"}>
+            <div className={"flex flex-col text-center h-full justify-center pb-20"}>
+                <h1 className={"mb-10 text-4xl font-light"}>
                     {/*How much could you earn?*/}
                     {/*Where can you earn more tokens?*/}
-                    You could be earning tokens right now!
+                    See what tokens you could be earning on!
+                    {/*You could be earning tokens right now!*/}
                 </h1>
-                <h2 className={"mt-5 mb-10 text-3xl font-light"}>
-                    Connect your wallet to see where
-                </h2>
+                {/*<h2 className={"mt-5 mb-10 text-3xl font-light"}>*/}
+                {/*    Connect your wallet to see where*/}
+                {/*</h2>*/}
+
                 {/*<div className={"max-h-screen mx-auto mt-5 flex flex-row text-2xl opacity-25 overflow-hidden"}>*/}
                 {/*</div>*/}
 
